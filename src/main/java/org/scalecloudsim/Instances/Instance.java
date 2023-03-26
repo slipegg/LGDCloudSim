@@ -10,9 +10,9 @@ public interface Instance extends UserEntity {
 
     Instance NULL=new InstanceNull();
 
-    void setId(long id);
-
-    long getId();
+//    void setId(long id);
+//
+//    long getId();
 
 //    String getDescription();
 //
@@ -20,11 +20,12 @@ public interface Instance extends UserEntity {
 
     double getLifeTime();
 
-    Instance setLifeTime();
+    Instance setLifeTime(double lifeTime);
     InstanceGroup getInstanceGroup();
 
-    Instance setInstanceGroup();
+    Instance setInstanceGroup(InstanceGroup instanceGroup);
 
+    Instance setHost(Host host);
     Host getHost();
 
     //资源
@@ -36,13 +37,13 @@ public interface Instance extends UserEntity {
 
     long getCpu();
 
-    Instance setBw();
+    Instance setBw(long bw);
 
-    Instance setRam();
+    Instance setRam(long ram);
 
-    Instance setStorage();
+    Instance setStorage(long storage);
 
-    Instance setCpu();
+    Instance setCpu(long cpu);
 
     //状态：未到达(userEntity)，等待域间完成调度，域内等待，域内分配中，创建成功，创建失败,工作中，结束
 //    boolean isWaitInterSchedule();

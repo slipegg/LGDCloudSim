@@ -1,6 +1,5 @@
 package org.scalecloudsim.Instances;
 
-import org.cloudsimplus.core.UserEntity;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.core.Simulation;
 import org.scalecloudsim.users.User;
@@ -67,7 +66,7 @@ class InstanceNull implements Instance{
     }
 
     @Override
-    public Instance setLifeTime() {
+    public Instance setLifeTime(double lifeTime) {
         return this;
     }
 
@@ -77,8 +76,13 @@ class InstanceNull implements Instance{
     }
 
     @Override
-    public Instance setInstanceGroup() {
+    public Instance setInstanceGroup(InstanceGroup instanceGroup) {
         return this;
+    }
+
+    @Override
+    public Instance setHost(Host host) {
+        return null;
     }
 
     @Override
@@ -107,24 +111,44 @@ class InstanceNull implements Instance{
     }
 
     @Override
-    public Instance setBw() {
+    public Instance setBw(long bw) {
         return this;
     }
 
     @Override
-    public Instance setRam() {
+    public Instance setRam(long ram) {
         return this;
     }
 
     @Override
-    public Instance setStorage() {
+    public Instance setStorage(long storage) {
         return this;
     }
 
     @Override
-    public Instance setCpu() {
+    public Instance setCpu(long cpu) {
         return this;
     }
+
+//    @Override
+//    public Instance setBw() {
+//        return this;
+//    }
+//
+//    @Override
+//    public Instance setRam() {
+//        return this;
+//    }
+//
+//    @Override
+//    public Instance setStorage() {
+//        return this;
+//    }
+//
+//    @Override
+//    public Instance setCpu() {
+//        return this;
+//    }
 
 //    @Override
 //    public boolean isWaitInterSchedule() {
