@@ -10,14 +10,11 @@ public interface HostHistoryManager{
 
     double getHistoryRange();
 
-    HostHistoryManager addSpecialTimeHistoryWatch(double time);
+    HostResourceState addDelayWatch(double delayTime);
 
+    HostHistoryManager updateHistory(double clock);
     HostHistoryManager addHistory(HostResourceStateHistory hostResourceStateHistory);
 
-
-//    HostResourceState getHostResourceState(double time,Host host);
-//
-//    List<HostResourceState> getRangeHostResourceState(double time,long startIndex,long endIndex);//左闭右闭
-
+    HostResourceState getSpecialTimeHostState(double delayTime);
 
 }

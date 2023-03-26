@@ -1,85 +1,134 @@
 package org.scalecloudsim.resourcemanager;
 
 import org.cloudsimplus.hosts.Host;
+import org.cloudsimplus.hosts.HostSimple;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class HostHistoryManagerSimple implements HostHistoryManager{
     public LinkedList<HostResourceStateHistory> history;
     double timeRange;
-    Map<Double,HostResourceStateHistory> specialTimeStates;
+    Map<Double,HostResourceStateHistory> delayStates;
     Host host;
     public HostHistoryManagerSimple(Host host,double timeRange){
         this.host=host;
         this.history=new LinkedList<>();
-        this.specialTimeStates =new TreeMap<>();
+        this.delayStates =new TreeMap<>();
         this.timeRange=timeRange;
+    }
+    public HostHistoryManagerSimple(Host host){
+        this.host=host;
+        this.history=new LinkedList<>();
+        this.delayStates =new TreeMap<>();
+        this.timeRange=0;
     }
 
     public HostHistoryManagerSimple(){
         this.history=new LinkedList<>();
-        this.specialTimeStates =new TreeMap<>();
+        this.delayStates =new TreeMap<>();
         this.timeRange=0;
     }
+
+//    public HostHistoryManager recordHistory(){
+//        HostResourceStateHistory hostResourceStateHistory=new HostResourceStateHistory(host.ge)
+//    }
+
     @Override
-    public HostHistoryManager addHistory(HostResourceStateHistory hostResourceStateHistory){
-        if(history.isEmpty()){
-            history.addFirst(hostResourceStateHistory);
-            if(specialTimeStates.containsKey(0.0))
-            {
-                specialTimeStates.put(0.0,hostResourceStateHistory);
-            }
-            return this;
-        }
-        if(hostResourceStateHistory.time<history.getFirst().time){//需要点名主机是哪个
-            LOGGER.warn("A outdated HostResourceStateHistory of host has been updated");
-            return this;
-        }
+    public HostHistoryManager updateHistory(double nowTime) {
         //维护双端队列
-        //过时的就不需要保存
-        while (hostResourceStateHistory.time-history.getLast().time>timeRange&&history.size()>1){
-            history.removeLast();
-        }
-        // 同一时间在进行更新
-        while (hostResourceStateHistory.time==history.getFirst().time){
-            history.removeFirst();
-        }
-        history.addFirst(hostResourceStateHistory);
-        //维护specialTimeStatus
-        double nowtime=history.getFirst().time;
-        ListIterator<HostResourceStateHistory> iterator =history.listIterator();
-        HostResourceStateHistory nowState=null;
-        HostResourceStateHistory lastState=null;
-        for (Map.Entry<Double,HostResourceStateHistory> entry : specialTimeStates.entrySet()) {
-            while (iterator.hasNext()){
-                nowState=iterator.next();
-                //刚好相等
-                if(nowtime-entry.getKey()==nowState.time){
-                    specialTimeStates.put(entry.getKey(),nowState);
-                    break;
-                }
-                //夹在中间
-                else if((lastState!=null&&nowtime-entry.getKey()<lastState.time)&&nowtime-entry.getKey()>nowState.time){
-                    entry.getValue().setHistoryStatus(nowState);
-                    break;
-                }
-                    lastState=nowState;
-            }
-        }
+        maintainHistory(nowTime);
+        //维护delayStates
+        updateDelayStates(nowTime);
         return this;
     }
 
     @Override
+    public HostHistoryManager addHistory(HostResourceStateHistory hostResourceStateHistory){
+        if(!history.isEmpty()&&hostResourceStateHistory.time<history.getFirst().time){//warn需要点名主机是哪个
+            LOGGER.warn("A outdated HostResourceStateHistory of host has been sent to update");
+            return this;
+        }
+        double nowTime=hostResourceStateHistory.getTime();
+        //维护双端队列
+        maintainHistory(nowTime);
+        //添加到队头
+        history.addFirst(hostResourceStateHistory);
+        //维护delayStates
+        updateDelayStates(nowTime);
+        return this;
+    }
+
+    private void maintainHistory(double nowTime){
+        //过时的就不需要保存
+        Iterator<HostResourceStateHistory> lastiterator =history.descendingIterator();
+        HostResourceStateHistory last;
+        if(lastiterator.hasNext()){
+            lastiterator.next();
+        }
+        int removeSum=0;
+        while (lastiterator.hasNext()){
+            HostResourceStateHistory secondLast=lastiterator.next();
+            if(secondLast.time<=nowTime-timeRange){
+                removeSum++;
+            }
+            else{
+                break;
+            }
+        }
+        while (removeSum!=0){
+            history.removeLast();
+            removeSum--;
+        }
+        // 同一时间在进行更新
+        while (history.size()>0&&nowTime==history.getFirst().time){
+            history.removeFirst();
+        }
+    }
+
+    private void updateDelayStates(double nowTime){
+        int nowHistoryIndex=0;
+        int historySize=history.size();
+        HostResourceStateHistory nowState=null;
+        HostResourceStateHistory lastState=null;
+        for (Map.Entry<Double,HostResourceStateHistory> entry : delayStates.entrySet()) {
+            double delayTime=entry.getKey();
+            HostResourceStateHistory delayHostState=entry.getValue();
+            while (nowHistoryIndex<historySize){
+                nowState=history.get(nowHistoryIndex);
+                //刚好相等
+                if(nowTime-delayTime>=nowState.time){
+                    delayHostState.setHistoryStatus(nowState);
+                    break;
+                }
+                //夹在中间
+                else if((nowHistoryIndex>0&&nowTime-delayTime<history.get(nowHistoryIndex-1).time)&&nowTime-delayTime>nowState.time){
+                    delayHostState.setHistoryStatus(nowState);
+                    break;
+                }
+                nowHistoryIndex++;
+            }
+        }
+    }
+    @Override
+    public HostResourceState getSpecialTimeHostState(double delay) {
+        if(!delayStates.containsKey(delay)){
+            LOGGER.warn("This delay time("+delay+") has not been added to watch!Please use addDelayWatch(delay time)");
+            return null;
+        }
+        else{
+        return delayStates.get(delay);
+        }
+    }
+
+    @Override
     public HostHistoryManager setHistoryRange(double range) {
-        return null;
+        timeRange=range;
+        return this;
     }
 
     @Override
     public double getHistoryRange() {
-        return 0;
+        return timeRange;
     }
 
     private HostResourceStateHistory findSpecialStatus(double time){
@@ -97,18 +146,19 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
             }
             prestate=nowstate;
         }
-        return null;
+        return new HostResourceStateHistory(-1,-1,-1,-1,-1);
     }
     @Override
-    public HostHistoryManager addSpecialTimeHistoryWatch(double time) {
-        if(!specialTimeStates.containsKey(time)){
-            HostResourceStateHistory state=findSpecialStatus(time);
-            specialTimeStates.put(time,state);
-            if(time>timeRange){
-                timeRange=time;
+    public HostResourceState addDelayWatch(double delayTime) {
+        if(!delayStates.containsKey(delayTime)){
+            HostResourceStateHistory state=findSpecialStatus(delayTime);
+            delayStates.put(delayTime,state);
+            if(delayTime >timeRange){
+                timeRange= delayTime;
             }
+            return state;
         }
-        return this;
+        return delayStates.get(delayTime);
     }
 
     HostResourceState getLastState(){
@@ -117,7 +167,7 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
     public LinkedList getHistory(){
         return history;
     }
-    public Map getSpecialTimeStates(){
-        return specialTimeStates;
+    public Map getDelayStates(){
+        return delayStates;
     }
 }
