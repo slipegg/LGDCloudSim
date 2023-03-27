@@ -11,6 +11,7 @@ public interface HostHistoryManager{
     double getHistoryRange();
 
     HostResourceState addDelayWatch(double delayTime);
+    HostHistoryManager delDelayWatch(double delayTime);
 
     HostHistoryManager updateHistory(double clock);
     HostHistoryManager addHistory(HostResourceStateHistory hostResourceStateHistory);

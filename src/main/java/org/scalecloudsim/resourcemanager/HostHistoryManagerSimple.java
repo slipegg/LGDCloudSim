@@ -9,29 +9,29 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
     public LinkedList<HostResourceStateHistory> history;
     double timeRange;
     Map<Double,HostResourceStateHistory> delayStates;
+    Map<Double,Integer> delayWatchNum;
     Host host;
     public HostHistoryManagerSimple(Host host,double timeRange){
         this.host=host;
         this.history=new LinkedList<>();
         this.delayStates =new TreeMap<>();
+        this.delayWatchNum=new HashMap<>();
         this.timeRange=timeRange;
     }
     public HostHistoryManagerSimple(Host host){
         this.host=host;
         this.history=new LinkedList<>();
         this.delayStates =new TreeMap<>();
+        this.delayWatchNum=new HashMap<>();
         this.timeRange=0;
     }
 
     public HostHistoryManagerSimple(){
         this.history=new LinkedList<>();
         this.delayStates =new TreeMap<>();
+        this.delayWatchNum=new HashMap<>();
         this.timeRange=0;
     }
-
-//    public HostHistoryManager recordHistory(){
-//        HostResourceStateHistory hostResourceStateHistory=new HostResourceStateHistory(host.ge)
-//    }
 
     @Override
     public HostHistoryManager updateHistory(double nowTime) {
@@ -156,9 +156,29 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
             if(delayTime >timeRange){
                 timeRange= delayTime;
             }
+            delayWatchNum.put(delayTime,1);
             return state;
         }
+        else{
+            Integer num=delayWatchNum.get(delayTime);
+            num+=1;
+        }
         return delayStates.get(delayTime);
+    }
+
+    @Override
+    public HostHistoryManager delDelayWatch(double delayTime) {
+        if(!delayStates.containsKey(delayTime)){
+            LOGGER.warn("There is not delayTime("+delayTime+") to delete watch.");
+            return this;
+        }
+        Integer num=delayWatchNum.get(delayTime);
+        num-=1;
+        if(num==0){
+            delayStates.remove(delayTime);
+            delayWatchNum.remove(delayTime);
+        }
+        return this;
     }
 
     HostResourceState getLastState(){
