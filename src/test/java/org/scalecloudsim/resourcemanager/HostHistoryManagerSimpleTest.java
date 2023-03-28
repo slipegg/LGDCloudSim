@@ -10,6 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HostHistoryManagerSimpleTest {
     List<HostHistoryManagerSimple> hostmanagers;
     int hostNum;
+    /**
+     * init 100000 host
+     */
     HostHistoryManagerSimpleTest(){
         hostmanagers=new ArrayList<>();
         hostNum=100000;
@@ -21,6 +24,10 @@ public class HostHistoryManagerSimpleTest {
             hostmanagers.add(manager);
         }
     }
+
+    /**
+     * 测试添加历史记录
+     */
     @Test
     public void testAddSpecialTimeHistoryWatch(){
         Map expect=new TreeMap<Double,HostResourceStateHistory>();
@@ -37,7 +44,9 @@ public class HostHistoryManagerSimpleTest {
         assertEquals(expect,actual);
         assertEquals(3.0,manager.getHistoryRange());
     }
-
+    /**
+     * 测试添加历史记录
+     */
     @Test
     public void testAddHistory(){
         HostHistoryManagerSimple manager=new HostHistoryManagerSimple();
@@ -64,7 +73,9 @@ public class HostHistoryManagerSimpleTest {
         assertEquals(expect.get(1),actualWatch2);
         assertEquals(expect.get(2),actualWatch3);
     }
-
+    /**
+     * test the speed of the addHistory method.
+     */
     @Test
     @Timeout(10)
     public void testAddHistorySpeed(){

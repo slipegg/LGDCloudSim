@@ -8,11 +8,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PartitionRangeManagerTest {
+    /**
+     * 测试平均分割
+     */
     @Test
     public void testAverageCutting(){
         int hostNum=100000;
-        PartitionRangeManager partitionRangeManager=new PartitionRangeManager(0,hostNum-1);
-        List<PartitionRange> actual=partitionRangeManager.averageCutting(5).getRanges();
+        List<PartitionRange> actual=PartitionRangeManager.averageCutting(0,hostNum-1,5);
 
         List<PartitionRange> expect=new ArrayList<>();
         expect.add(new PartitionRange(0,0,19999));
