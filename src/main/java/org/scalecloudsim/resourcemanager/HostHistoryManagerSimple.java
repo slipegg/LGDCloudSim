@@ -1,7 +1,6 @@
 package org.scalecloudsim.resourcemanager;
 
 import org.cloudsimplus.hosts.Host;
-import org.cloudsimplus.hosts.HostSimple;
 
 import java.util.*;
 
@@ -36,7 +35,7 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
     @Override
     public HostHistoryManager updateHistory(double nowTime) {
         //维护双端队列
-        maintainHistory(nowTime);
+        removeOldHistory(nowTime);
         //维护delayStates
         updateDelayStates(nowTime);
         return this;
@@ -49,8 +48,12 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
             return this;
         }
         double nowTime=hostResourceStateHistory.getTime();
-        //维护双端队列
-        maintainHistory(nowTime);
+        //过时的就不需要保存
+        removeOldHistory(nowTime);
+        // 同一时间在进行更新的需要删除然后覆盖
+        while (history.size()>0&&nowTime==history.getFirst().time){
+            history.removeFirst();
+        }
         //添加到队头
         history.addFirst(hostResourceStateHistory);
         //维护delayStates
@@ -58,34 +61,31 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
         return this;
     }
 
-    private void maintainHistory(double nowTime){
-        //过时的就不需要保存
-        Iterator<HostResourceStateHistory> lastiterator =history.descendingIterator();
-        HostResourceStateHistory last;
-        if(lastiterator.hasNext()){
-            lastiterator.next();
-        }
+    //过时的就不需要保存在双端队列中
+    private void removeOldHistory(double nowTime){
         int removeSum=0;
-        while (lastiterator.hasNext()){
-            HostResourceStateHistory secondLast=lastiterator.next();
-            if(secondLast.time<=nowTime-timeRange){
+        Iterator<HostResourceStateHistory> lastiterator =history.descendingIterator();
+        //找到小于等于nowTime-timeRange的记录的个数
+        while(lastiterator.hasNext()){
+            HostResourceStateHistory last=lastiterator.next();
+            if(last.time<=nowTime-timeRange){
                 removeSum++;
             }
             else{
                 break;
             }
         }
-        while (removeSum!=0){
+        //额外保存小于等于nowTime-timeRange的最新的一个记录
+        removeSum--;
+        //删除掉不需要的记录
+        while (removeSum>0){
             history.removeLast();
             removeSum--;
         }
-        // 同一时间在进行更新
-        while (history.size()>0&&nowTime==history.getFirst().time){
-            history.removeFirst();
-        }
     }
-
+    //维护delayStates
     private void updateDelayStates(double nowTime){
+        //这里因为效率问题，所以没有使用getSpecialTimeHostState方法，而是自己遍历，因为这样可以记录上一次遍历的位置，不用从头开始遍历，时间复杂度为O(m+n)
         int nowHistoryIndex=0;
         int historySize=history.size();
         HostResourceStateHistory nowState=null;
@@ -109,14 +109,33 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
             }
         }
     }
+
+    //得到特定时间的状态
     @Override
-    public HostResourceState getSpecialTimeHostState(double delay) {
-        if(!delayStates.containsKey(delay)){
-            LOGGER.warn("This delay time("+delay+") has not been added to watch!Please use addDelayWatch(delay time)");
-            return null;
+    public HostResourceStateHistory getSpecialTimeHostState(double time) {
+        double nowTime=host.getSimulation().clock();
+        if(time>nowTime){
+//            LOGGER.warn("The time you want to get is in the future!");
+            return new HostResourceStateHistory(-1,-1,-1,-1,-1);
         }
-        else{
-        return delayStates.get(delay);
+        else if(!history.isEmpty()&&time<history.getLast().time){
+//            LOGGER.warn("The time you want to get is not recorded!");
+            return new HostResourceStateHistory(-1,-1,-1,-1,-1);
+        }
+        else{//夹在中间
+            ListIterator<HostResourceStateHistory> iterator =history.listIterator();
+            HostResourceStateHistory prestate=null;
+            while (iterator.hasNext()){
+                HostResourceStateHistory nowstate=iterator.next();
+                if(time>=nowstate.time){
+                    return nowstate;
+                }
+                else if(nowstate.time<time&&prestate!=null&&prestate.time>time){
+                    return prestate;
+                }
+                prestate=nowstate;
+            }
+            return new HostResourceStateHistory(-1,-1,-1,-1,-1);
         }
     }
 
@@ -131,27 +150,33 @@ public class HostHistoryManagerSimple implements HostHistoryManager{
         return timeRange;
     }
 
-    private HostResourceStateHistory findSpecialStatus(double time){
-        ListIterator<HostResourceStateHistory> iterator =history.listIterator();
-        HostResourceStateHistory prestate=null;
-        while (iterator.hasNext()){
-            HostResourceStateHistory nowstate=iterator.next();
-            if(nowstate.time==time){
-                return nowstate;
-            }
-            else{
-                if(prestate!=null&&prestate.time>time&&nowstate.time<time){
-                    return prestate;
-                }
-            }
-            prestate=nowstate;
-        }
-        return new HostResourceStateHistory(-1,-1,-1,-1,-1);
-    }
+
+
+//    private HostResourceStateHistory findDelayStatus(double delayTime){
+//        double nowTime=host.getSimulation().clock();
+//        if(nowTime-delayTime<history.getLast().time){
+//            return new HostResourceStateHistory(-1,-1,-1,-1,-1);
+//        }
+//        ListIterator<HostResourceStateHistory> iterator =history.listIterator();
+//        HostResourceStateHistory prestate=null;
+//        while (iterator.hasNext()){
+//            HostResourceStateHistory nowstate=iterator.next();
+//            if(nowstate.time==delayTime){
+//                return nowstate;
+//            }
+//            else{
+//                if(prestate!=null&&prestate.time>delayTime&&nowstate.time<delayTime){
+//                    return prestate;
+//                }
+//            }
+//            prestate=nowstate;
+//        }
+//        return new HostResourceStateHistory(-1,-1,-1,-1,-1);
+//    }
     @Override
     public HostResourceState addDelayWatch(double delayTime) {
         if(!delayStates.containsKey(delayTime)){
-            HostResourceStateHistory state=findSpecialStatus(delayTime);
+            HostResourceStateHistory state= getSpecialTimeHostState(host.getSimulation().clock()-delayTime);
             delayStates.put(delayTime,state);
             if(delayTime >timeRange){
                 timeRange= delayTime;
