@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
+import static org.apache.commons.lang3.ArraySorter.sort;
 //TODO: 需要支持动态调整，包括两种：1.分区范围不变，调整分区监听的时延。2.撤销原有分区，建立新分区。
 //目前的思路是在host中统计每个special time关联的partition的个数。
 
@@ -120,6 +122,29 @@ public class StateManagerSimple implements StateManager{//
         List<HostResourceState> partitionStates=partitionStateManagerMap.get(id).getPartitionDelayState(delay);
         return partitionStates;
     }
+
+    //TODO 后期可以考虑不再创建一个allPartitionState来收集，而是直接在原数组上进行排序
+    @Override
+    public List<HostResourceState> getSamplingState(int simpleSize) {
+        List<HostResourceState> allPartitionState=getAllPartitionState();
+        Comparator<HostResourceState> hostResourceStateComparable=Comparator.comparing(HostResourceState::getCpu).thenComparing(HostResourceState::getRam).thenComparing(HostResourceState::getBw);
+        allPartitionState.sort(hostResourceStateComparable);
+        List<HostResourceState> samplingState=new ArrayList<>();
+        for(int i=0;i< allPartitionState.size();i+=simpleSize){
+            samplingState.add(allPartitionState.get(i));
+        }
+        return samplingState;
+
+    }
+
+    private List<HostResourceState> getAllPartitionState(){
+        List<HostResourceState> allPartitionState=new ArrayList<>();
+        partitionStateManagerMap.forEach((id,partitionStateManager)->{
+            allPartitionState.addAll(partitionStateManager.getPartitionDelayState(0.0d));
+        });
+        return allPartitionState;
+    }
+
     /**
      * set the id of the state manager
      * @param id
