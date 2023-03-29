@@ -19,7 +19,7 @@ public class PartitionStateManagerSimple implements PartitionStateManager{
     }
     @Override
     public PartitionStateManager setPartitionRange(PartitionRange partitionRange) {
-        if(this.partitionRange!=partitionRange){
+        if(this.partitionRange!=null&&this.partitionRange!=partitionRange){
             LOGGER.info("the partition range has been set,we will change the partition range and the watch will be deleted");
             for(Map.Entry<Double,List<HostResourceState>> entry:partitionState.entrySet()){
                 delDelayWatch(entry.getKey());
