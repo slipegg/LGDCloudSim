@@ -153,5 +153,13 @@ public class StateManagerSimpleTest {
         assertEquals(expected1_0,partitionDelayState1_0.get(0));
         assertEquals(expected1_2,partitionDelayState1_2.get(0));
         assertEquals(expected1_5,partitionDelayState1_5.get(0));
+
+        //抽样状态信息
+        List<HostResourceState> simpleDelayStates=datacenter.getStateManager().getSamplingState(100);
+        System.out.println(simpleDelayStates.get(0));
+        System.out.println(simpleDelayStates.size());
+        assertEquals(expected0_0,simpleDelayStates.get(0));
+        assertEquals(hostNum/100,simpleDelayStates.size());
+
     }
 }
