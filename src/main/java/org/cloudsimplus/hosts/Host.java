@@ -11,13 +11,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public interface Host extends DatacenterEntity {
+    /*
+    *  Logger for the {@link Host} class.
+    * */
     Logger LOGGER = LoggerFactory.getLogger(Host.class.getSimpleName());
+    /**
+    * Gets the Host's {@link HostHistoryManager}.
+    */
     HostHistoryManager getHostHistoryManager();
+
+    /**
+     * Creates a new {@link Instance} object that represents
+     * @param instance
+     * @return HostSuitability
+     */
     HostSuitability createInstance(Instance instance);
+    /**
+     * update the state of the host
+     * @return Host
+     */
     Host updateState();
     /**
      * An attribute that implements the Null Object Design Pattern for {@link Host}
-     * objects.
+     *
      */
     Host NULL = new HostNull();
 
