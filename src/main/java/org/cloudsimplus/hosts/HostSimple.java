@@ -18,7 +18,6 @@ import static java.util.Objects.requireNonNull;
 
 public class HostSimple implements Host{
     Datacenter datacenter;
-    static long hostnum=0;
     long id;
     Ram ram;
     Bandwidth bw;
