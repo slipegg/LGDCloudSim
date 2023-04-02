@@ -170,13 +170,13 @@ public class test {
     public static void main(String[] args) {
 
 //        new test();
-        int hostNum=50_000_000;
+        int hostNum=5_000_000;
         short cpu=100;
-        ClassLayout classLayout = ClassLayout.parseInstance(new HostSimple2());
+        ClassLayout classLayout = ClassLayout.parseInstance(new HostSimple(1,2,3,4));
         System.out.println(classLayout.toPrintable());
-        List<HostSimple2> hosts=new ArrayList<>();
+        List<HostSimple> hosts=new ArrayList<>();
         for(int i=0;i<hostNum;i++){
-            hosts.add(new HostSimple2());
+            hosts.add(new HostSimple(1,2,3,4));
         }
         Runtime runtime = Runtime.getRuntime();
         long totalMemory = runtime.totalMemory(); //总内存
@@ -361,7 +361,5 @@ hostNum: 2000000
 totalMemory: 21961 Mb
 freeMemory: 9076 Mb
 usedMemory: 12884 Mb
-
-
 
  */
