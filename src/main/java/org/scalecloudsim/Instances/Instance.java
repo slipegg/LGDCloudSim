@@ -1,7 +1,6 @@
 package org.scalecloudsim.Instances;
 
 import org.cloudsimplus.core.UserEntity;
-import org.cloudsimplus.hosts.Host;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +24,8 @@ public interface Instance extends UserEntity {
 
     Instance setInstanceGroup(InstanceGroup instanceGroup);
 
-    Instance setHost(Host host);
-    Host getHost();
+    Instance setHost(int host);
+    int getHost();
 
     //资源
     long getBw();

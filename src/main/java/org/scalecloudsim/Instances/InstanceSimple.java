@@ -2,8 +2,6 @@ package org.scalecloudsim.Instances;
 
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.UniquelyIdentifiable;
-import org.cloudsimplus.hosts.Host;
-import org.cloudsimplus.resources.Bandwidth;
 import org.scalecloudsim.users.User;
 
 public class InstanceSimple implements Instance{
@@ -13,7 +11,7 @@ public class InstanceSimple implements Instance{
     double submissionTime;
     double lifeTime;
     InstanceGroup instanceGroup;
-    Host host;
+    int host;
     long ram;
     long bw;
     long storage;
@@ -128,13 +126,13 @@ public class InstanceSimple implements Instance{
     }
 
     @Override
-    public Instance setHost(Host host) {
+    public Instance setHost(int host) {
         this.host=host;
         return this;
     }
 
     @Override
-    public Host getHost() {
+    public int getHost() {
         return host;
     }
 

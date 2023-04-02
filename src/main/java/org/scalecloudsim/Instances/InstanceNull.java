@@ -1,6 +1,5 @@
 package org.scalecloudsim.Instances;
 
-import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.core.Simulation;
 import org.scalecloudsim.users.User;
 
@@ -81,13 +80,13 @@ class InstanceNull implements Instance{
     }
 
     @Override
-    public Instance setHost(Host host) {
+    public Instance setHost(int host) {
         return null;
     }
 
     @Override
-    public Host getHost() {
-        return Host.NULL;
+    public int getHost() {
+        return -1;
     }
 
     @Override
