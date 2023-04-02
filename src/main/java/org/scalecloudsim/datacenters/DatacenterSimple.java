@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class DatacenterSimple implements Datacenter{
+public class DatacenterSimple implements Datacenter {
     public Logger LOGGER = LoggerFactory.getLogger(DatacenterSimple.class.getSimpleName());
     private Set<Integer> collaborationIds;
 
@@ -29,10 +29,9 @@ public class DatacenterSimple implements Datacenter{
 
     @Override
     public Datacenter addCollaborationId(int collaborationId) {
-        if(collaborationIds.contains(collaborationId)){
-            LOGGER.warn("the datacenter("+this+") already belongs to the collaboration "+collaborationId);
-        }
-        else {
+        if (collaborationIds.contains(collaborationId)) {
+            LOGGER.warn("the datacenter(" + this + ") already belongs to the collaboration " + collaborationId);
+        } else {
             collaborationIds.add(collaborationId);
         }
         return this;
@@ -40,10 +39,9 @@ public class DatacenterSimple implements Datacenter{
 
     @Override
     public Datacenter removeCollaborationId(int collaborationId) {
-        if(!collaborationIds.contains(collaborationId)){
-            LOGGER.warn("the datacenter("+this+") does not belong to the collaboration "+collaborationId+" to be removed");
-        }
-        else{
+        if (!collaborationIds.contains(collaborationId)) {
+            LOGGER.warn("the datacenter(" + this + ") does not belong to the collaboration " + collaborationId + " to be removed");
+        } else {
             collaborationIds.remove(collaborationId);
         }
         return this;
