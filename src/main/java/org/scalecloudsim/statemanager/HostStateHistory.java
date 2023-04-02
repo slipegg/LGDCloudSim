@@ -1,6 +1,6 @@
 package org.scalecloudsim.statemanager;
 
-public class HostStateHistory extends HostState{
+public class HostStateHistory extends HostState {
     double time;
 
     public HostStateHistory(int cpu, int ram, int storage, int bw, double time) {
@@ -20,11 +20,13 @@ public class HostStateHistory extends HostState{
     public void setTime(double time) {
         this.time = time;
     }
-    public HostStateHistory setHistoryStatus(HostStateHistory hostStateHistory){
-        setState((HostState)(hostStateHistory));
+
+    public HostStateHistory setHistoryStatus(HostStateHistory hostStateHistory) {
+        setState((HostState) (hostStateHistory));
         setTime(hostStateHistory.time);
         return this;
     }
+
     @Override
     public String toString() {
         return "HostStateHistory{" +

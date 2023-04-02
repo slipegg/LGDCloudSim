@@ -1,25 +1,25 @@
 package org.scalecloudsim.statemanager;
 
 public class HostState {
-    static int STATE_NUM=4;
+    static int STATE_NUM = 4;
     int cpu;
     int ram;
     int storage;
     int bw;
 
-    public HostState(int cpu,int ram, int storage, int bw) {
+    public HostState(int cpu, int ram, int storage, int bw) {
         this.cpu = cpu;
         this.ram = ram;
         this.storage = storage;
         this.bw = bw;
     }
 
-    public int[] getStateArray(){
-        int[] state=new int[4];
-        state[0]=cpu;
-        state[1]=ram;
-        state[2]=storage;
-        state[3]=bw;
+    public int[] getStateArray() {
+        int[] state = new int[4];
+        state[0] = cpu;
+        state[1] = ram;
+        state[2] = storage;
+        state[3] = bw;
         return state;
     }
 
@@ -55,12 +55,13 @@ public class HostState {
         this.cpu = cpu;
     }
 
-    public void setState(HostState hostState){
-        this.cpu=hostState.getCpu();
-        this.ram=hostState.getRam();
-        this.storage=hostState.getStorage();
-        this.bw=hostState.getBw();
+    public void setState(HostState hostState) {
+        this.cpu = hostState.getCpu();
+        this.ram = hostState.getRam();
+        this.storage = hostState.getStorage();
+        this.bw = hostState.getBw();
     }
+
     @Override
     public String toString() {
         return "HostState{" +
