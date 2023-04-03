@@ -4,14 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class InstanceGroupGraphList implements InstanceGroupGraph{
+public class InstanceGroupGraphSimple implements InstanceGroupGraph{
+    int id;
+    UserRequest userRequest;
+
     List<InstanceGroupEdge> graph;
     boolean directed;
 
-    InstanceGroupGraphList(boolean directed){
+    InstanceGroupGraphSimple(boolean directed){
         this.directed=directed;
         graph= new ArrayList<>();
     }
+
     @Override
     public InstanceGroupGraph setDirected(boolean directed) {
         this.directed=directed;
@@ -25,8 +29,7 @@ public class InstanceGroupGraphList implements InstanceGroupGraph{
 
     @Override
     public InstanceGroupGraph addEdge(InstanceGroup src, InstanceGroup dst, double delay, long bw) {
-        InstanceGroupEdge edge=new InstanceGroupEdge(src,dst,delay,bw);
-        graph.add(edge);
+        addEdge(new InstanceGroupEdgeSimple(src,dst,delay,bw));
         return this;
     }
 
@@ -79,13 +82,33 @@ public class InstanceGroupGraphList implements InstanceGroupGraph{
     public List getDstList(InstanceGroup src) {
         List res = new ArrayList<>();
         for(InstanceGroupEdge instanceGroupEdge : graph) {
-            if(instanceGroupEdge.src==src){
-                res.add(instanceGroupEdge.dst);
+            if(instanceGroupEdge.getSrc()==src){
+                res.add(instanceGroupEdge.getDst());
             }
-            if(!this.directed&&(instanceGroupEdge.dst==src)){
-                res.add(instanceGroupEdge.src);
+            if(!this.directed&&(instanceGroupEdge.getDst()==src)){
+                res.add(instanceGroupEdge.getSrc());
             }
         }
         return res;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id=id;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public UserRequest getUserRequest() {
+        return userRequest;
+    }
+
+    @Override
+    public void setUserRequest(UserRequest userRequest) {
+        this.userRequest= userRequest;
     }
 }
