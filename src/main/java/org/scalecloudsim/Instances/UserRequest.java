@@ -12,4 +12,8 @@ public interface UserRequest extends ChangeableId {
     InstanceGroupGraph getInstanceGroupGraph();
 
     UserRequest setInstanceGroupGraph(InstanceGroupGraph instanceGroupGraph);
+
+    UserRequest setSubmitTime(double submitTime);
+
+    double getSubmitTime();
 }

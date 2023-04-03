@@ -34,6 +34,7 @@ public class UserRequestSimpleTest {
 
         userRequest.setInstanceGroups(instanceGroups);
         userRequest.setInstanceGroupGraph(instanceGroupGraph);
+        userRequest.setSubmitTime(1.0);
 
         int expectedLifeTime=-1;
         assertEquals(expectedLifeTime,userRequest.getInstanceGroups().get(0).getInstanceList().get(0).getLifeTime());
@@ -53,5 +54,8 @@ public class UserRequestSimpleTest {
         int expectedRequiredBw=20;
         assertEquals(expectedRequiredBw,userRequest.getInstanceGroupGraph().getEdge(instanceGroups.get(0),instanceGroups.get(1)).getRequiredBw());
         assertEquals(expectedRequiredBw,userRequest.getInstanceGroupGraph().getEdge(instanceGroups.get(1),instanceGroups.get(0)).getRequiredBw());
+
+        double expectedSubmitTime=1.0;
+        assertEquals(expectedSubmitTime,userRequest.getSubmitTime());
     }
 }
