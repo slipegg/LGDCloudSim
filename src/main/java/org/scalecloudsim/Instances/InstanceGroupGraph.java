@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 public interface InstanceGroupGraph extends RequestEntity{
     Logger LOGGER = LoggerFactory.getLogger(InstanceGroupGraph.class.getSimpleName());
@@ -20,8 +21,8 @@ public interface InstanceGroupGraph extends RequestEntity{
 
      InstanceGroupEdge getEdge(InstanceGroup src, InstanceGroup dst);
 
-     List getGraph();
+     Set<InstanceGroupEdge> getGraph();
 
-     List getDstList(InstanceGroup src);
+     List<InstanceGroup> getDstList(InstanceGroup src);
 
 }
