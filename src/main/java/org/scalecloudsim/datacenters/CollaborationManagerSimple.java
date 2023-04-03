@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class CollaborationManagerSimple implements CollaborationManager {
-    public Logger LOGGER = LoggerFactory.getLogger(CollaborationManagerSimple.class.getSimpleName());
     private Map<Integer, Set<Datacenter>> collaborationMap;
 
     public CollaborationManagerSimple() {
