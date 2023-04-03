@@ -23,8 +23,6 @@
  */
 package org.cloudsimplus.core;
 
-import org.cloudsimplus.core.Identifiable;
-
 /**
  * An interface for objects that have to be identified by an id
  * and that such id can be changed.
@@ -38,5 +36,5 @@ public interface ChangeableId extends Identifiable {
      * -1 indicates the object has no id.
      * @param id the id to set
      */
-    void setId(long id);
+    void setId(int id);
 }
