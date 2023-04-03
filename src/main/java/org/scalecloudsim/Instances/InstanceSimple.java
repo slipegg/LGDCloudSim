@@ -1,106 +1,125 @@
 package org.scalecloudsim.Instances;
 
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.core.UniquelyIdentifiable;
-import org.scalecloudsim.users.User;
+import java.util.ArrayList;
+import java.util.List;
 
-public class InstanceSimple implements Instance{
-    long id;
-    double submissiondelay;
-    User user;
-    double submissionTime;
+public class InstanceSimple implements Instance {
+    int id;
+    UserRequest userRequest;
+
+    int cpu;
+    int ram;
+    int storage;
+    int bw;
+
     double lifeTime;
     InstanceGroup instanceGroup;
+    int destHost;
+    int maxFailNum;
+
+    int failNum;
+    List<InstanceFailInfo> failedinfoList;
     int host;
-    long ram;
-    long bw;
-    long storage;
-    long cpu;
+    double startTime;
+    double finishTime;
 
-    public InstanceSimple(long id,long ram, long bw, long storage, long cpu) {
-        this.id=id;
-        this.ram = ram;
-        this.bw = bw;
-        this.storage = storage;
+    int status;
+
+    //还缺userRequest和instanceGroup等待后面进行设置
+    public InstanceSimple(int id, int cpu, int ram, int storage, int bw) {
+        this.id = id;
+
         this.cpu = cpu;
-        this.lifeTime=-1;
-    }
-    public InstanceSimple(long ram, long bw, long storage, long cpu) {
-        this.id=-1;
         this.ram = ram;
-        this.bw = bw;
         this.storage = storage;
-        this.cpu = cpu;
-        this.lifeTime=-1;
+        this.bw = bw;
+
+        this.lifeTime = -1;
+        this.destHost=-1;
+        this.maxFailNum=0;
+
+        this.failNum=0;
+        this.failedinfoList=new ArrayList<>();
+        this.host=-1;
+        this.startTime=-1;
+        this.finishTime=-1;
+
+        this.status=0;
     }
-    public InstanceSimple(long ram, long bw, long storage, long cpu,double lifeTime) {
-        this.id=-1;
+
+    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, double lifeTime) {
+        this.id = id;
+
+        this.cpu = cpu;
         this.ram = ram;
-        this.bw = bw;
         this.storage = storage;
-        this.cpu = cpu;
-        this.lifeTime=lifeTime;
-    }
+        this.bw = bw;
 
-    //    public InstanceSimple(long ram,long bw,long storage,)
-    @Override
-    public void setId(long id) {
-        this.id=id;
-    }
+        this.lifeTime = lifeTime;
+        this.destHost=-1;
+        this.maxFailNum=0;
 
-    @Override
-    public double getSubmissionDelay() {
-        return submissiondelay;
-    }
+        this.failNum=0;
+        this.failedinfoList=new ArrayList<>();
+        this.host=-1;
+        this.startTime=-1;
+        this.finishTime=-1;
 
-    @Override
-    public void setSubmissionDelay(double submissionDelay) {
-        this.submissiondelay=submissionDelay;
+        this.status=0;
     }
 
     @Override
-    public boolean isDelayed() {
-        return submissiondelay>0;
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override
-    public long getId() {
+    public int getId() {
         return id;
     }
 
     @Override
-    public String getUid() {
-        return UniquelyIdentifiable.getUid(user.getId(),this.getId());
+    public int getCpu() {
+        return cpu;
     }
 
     @Override
-    public User getUser() {
-        return user;
+    public int getRam() {
+        return ram;
     }
 
     @Override
-    public void setUser(User user) {
-        this.user=user;
+    public int getStorage() {
+        return storage;
     }
 
     @Override
-    public Simulation getSimulation() {
-        return null;
+    public int getBw() {
+        return bw;
     }
 
     @Override
-    public double getSubmittedTime() {
-        return submissionTime;
+    public Instance setCpu(int cpu) {
+        this.cpu = cpu;
+        return this;
     }
 
     @Override
-    public boolean isSubmitted() {
-        return submissionTime!=-1;
+    public Instance setRam(int ram) {
+        this.ram = ram;
+        return this;
     }
 
     @Override
-    public void setSubmittedTime(double time) {
-        submissionTime=time;
+    public Instance setStorage(int storage) {
+        this.storage = storage;
+        return this;
+    }
+
+    @Override
+    public Instance setBw(int bw) {
+        this.bw = bw;
+        return this;
     }
 
     @Override
@@ -110,7 +129,7 @@ public class InstanceSimple implements Instance{
 
     @Override
     public Instance setLifeTime(double lifeTime) {
-        this.lifeTime=lifeTime;
+        this.lifeTime = lifeTime;
         return this;
     }
 
@@ -121,13 +140,56 @@ public class InstanceSimple implements Instance{
 
     @Override
     public Instance setInstanceGroup(InstanceGroup instanceGroup) {
-        this.instanceGroup=instanceGroup;
+        this.instanceGroup = instanceGroup;
         return this;
     }
 
     @Override
-    public Instance setHost(int host) {
-        this.host=host;
+    public Instance setDestHost(int destHost) {
+        this.destHost = destHost;
+        return this;
+    }
+
+    @Override
+    public int getDestHost() {
+        return destHost;
+    }
+
+    @Override
+    public boolean isSetDestHost() {
+        return destHost != -1;
+    }
+
+    @Override
+    public int getMaxFailNum() {
+        return maxFailNum;
+    }
+
+    @Override
+    public Instance setMaxFailNum(int maxFailNum) {
+        this.maxFailNum = maxFailNum;
+        return this;
+    }
+
+    @Override
+    public int getFailNum() {
+        return failNum;
+    }
+
+    @Override
+    public Instance setFailNum(int failNum) {
+        this.failNum = failNum;
+        return this;
+    }
+
+    @Override
+    public List<InstanceFailInfo> getFailedHosts() {
+        return failedinfoList;
+    }
+
+    @Override
+    public Instance addFailedInfo(InstanceFailInfo instanceFailInfo) {
+        failedinfoList.add(instanceFailInfo);
         return this;
     }
 
@@ -137,46 +199,51 @@ public class InstanceSimple implements Instance{
     }
 
     @Override
-    public long getBw() {
-        return bw;
-    }
-
-    @Override
-    public long getRam() {
-        return ram;
-    }
-
-    @Override
-    public long getStorage() {
-        return storage;
-    }
-
-    @Override
-    public long getCpu() {
-        return cpu;
-    }
-
-    @Override
-    public Instance setBw(long bw) {
-        this.bw=bw;
+    public Instance setHost(int host) {
+        this.host = host;
         return this;
     }
 
     @Override
-    public Instance setRam(long ram) {
-        this.ram=ram;
+    public double getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public Instance setStartTime(double startTime) {
+        this.startTime = startTime;
         return this;
     }
 
     @Override
-    public Instance setStorage(long storage) {
-        this.storage=storage;
+    public double getFinishTime() {
+        return finishTime;
+    }
+
+    @Override
+    public Instance setFinishTime(double finishTime) {
+        this.finishTime = finishTime;
         return this;
     }
 
     @Override
-    public Instance setCpu(long cpu) {
-        this.cpu=cpu;
+    public int getStatus() {
+        return status;
+    }
+
+    @Override
+    public Instance setStatus(int status) {
+        this.status = status;
         return this;
+    }
+
+    @Override
+    public UserRequest getUserRequest() {
+        return userRequest;
+    }
+
+    @Override
+    public void setUserRequest(UserRequest userRequest) {
+        this.userRequest = userRequest;
     }
 }
