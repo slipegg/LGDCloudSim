@@ -64,4 +64,10 @@ public class UserRequestSimple implements UserRequest {
     public double getSubmitTime() {
         return submitTime;
     }
+
+    @Override
+    public String toString() {
+        return "UserRequestSimple [id=" + id + ", submitTime=" + submitTime + ", instanceGroups=" + instanceGroups
+                + ", instanceGroupGraph=" + instanceGroupGraph + "]";
+    }
 }

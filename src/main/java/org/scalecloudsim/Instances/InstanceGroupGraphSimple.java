@@ -98,4 +98,13 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     public void setUserRequest(UserRequest userRequest) {
         this.userRequest= userRequest;
     }
+
+    @Override
+    public String toString() {
+        return "InstanceGroupGraphSimple{" +
+                "id=" + id +
+                ", graph=" + graph +
+                ", directed=" + directed +
+                '}';
+    }
 }

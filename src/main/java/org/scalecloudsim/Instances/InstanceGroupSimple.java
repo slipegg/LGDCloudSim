@@ -57,4 +57,9 @@ public class InstanceGroupSimple implements InstanceGroup{
     public void setUserRequest(UserRequest userRequest) {
         this.request = userRequest;
     }
+
+    @Override
+    public String toString() {
+        return "InstanceGroupSimple [id=" + id + ", instanceList=" + instanceList +"]";
+    }
 }

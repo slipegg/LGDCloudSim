@@ -59,4 +59,13 @@ public class InstanceGroupEdgeSimple implements InstanceGroupEdge{
         this.dst = destination;
         return this;
     }
+    @Override
+    public String toString() {
+        return "InstanceGroupEdgeSimple{" +
+                "src=" + src.getId() +
+                ", dst=" + dst.getId() +
+                ", minDelay=" + minDelay +
+                ", requiredBw=" + requiredBw +
+                '}';
+    }
 }

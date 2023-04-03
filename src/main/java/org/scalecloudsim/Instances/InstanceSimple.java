@@ -246,4 +246,16 @@ public class InstanceSimple implements Instance {
     public void setUserRequest(UserRequest userRequest) {
         this.userRequest = userRequest;
     }
+
+    @Override
+    public String toString() {
+        return "InstanceSimple{" +
+                "id=" + id +
+                ", cpu=" + cpu +
+                ", ram=" + ram +
+                ", storage=" + storage +
+                ", bw=" + bw +
+                ", lifeTime=" + lifeTime +
+                '}';
+    }
 }
