@@ -1,5 +1,7 @@
 package org.scalecloudsim.datacenters;
 
+import org.cloudsimplus.core.CloudSim;
+import org.cloudsimplus.core.Simulation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -12,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CollaborationManagerSimpleTest {
     @Test
     public void testAddDatacenter() {
-        Datacenter dc1 = new DatacenterSimple();
+        Simulation scaleCloudSim = new CloudSim();
+        Datacenter dc1 = new DatacenterSimple(scaleCloudSim);
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
         collaborationManager.addDatacenter(dc1, 0);
         Map<Integer, Set<Datacenter>> excepted = Map.of(0, Set.of(dc1));
@@ -23,11 +26,12 @@ public class CollaborationManagerSimpleTest {
 
     @Test
     public void testAddDatacenter2() {
+        Simulation scaleCloudSim = new CloudSim();
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
-        Datacenter dc0 = new DatacenterSimple();
+        Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
         collaborationManager.addDatacenter(dc0, 0);
-        Datacenter dc1 = new DatacenterSimple();
-        Datacenter dc2 = new DatacenterSimple();
+        Datacenter dc1 = new DatacenterSimple(scaleCloudSim);
+        Datacenter dc2 = new DatacenterSimple(scaleCloudSim);
         Map<Integer, Set<Datacenter>> collaborationMap = Map.of(0, Set.of(dc1), 1, Set.of(dc0, dc2));
         collaborationManager.addDatacenter(collaborationMap);
         Map<Integer, Set<Datacenter>> excepted = Map.of(0, Set.of(dc0, dc1), 1, Set.of(dc0, dc2));
@@ -42,11 +46,12 @@ public class CollaborationManagerSimpleTest {
 
     @Test
     public void testGetOtherDatacenters() {
+        Simulation scaleCloudSim = new CloudSim();
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
-        Datacenter dc0 = new DatacenterSimple();
+        Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
         collaborationManager.addDatacenter(dc0, 0);
-        Datacenter dc1 = new DatacenterSimple();
-        Datacenter dc2 = new DatacenterSimple();
+        Datacenter dc1 = new DatacenterSimple(scaleCloudSim);
+        Datacenter dc2 = new DatacenterSimple(scaleCloudSim);
         Map<Integer, Set<Datacenter>> collaborationMap = Map.of(0, Set.of(dc1), 1, Set.of(dc0, dc2));
         collaborationManager.addDatacenter(collaborationMap);
         Set<Datacenter> excepted = Set.of(dc1);

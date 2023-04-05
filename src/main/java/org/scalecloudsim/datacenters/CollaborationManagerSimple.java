@@ -24,6 +24,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
             datacenters = new HashSet<>();
             collaborationMap.put(collaborationId, datacenters);
         }
+
         datacenters.add(datacenter);
         datacenterAddCollaborationId(datacenter, collaborationId);
         return this;
