@@ -4,24 +4,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
-public interface InstanceGroupGraph {
+public interface InstanceGroupGraph extends RequestEntity{
     Logger LOGGER = LoggerFactory.getLogger(InstanceGroupGraph.class.getSimpleName());
-    InstanceGroupGraph NULL = new InstanceGroupGraphNull();
-    public InstanceGroupGraph setDirected(boolean directed);
 
-    public boolean getDirected();
+    boolean getDirected();
 
-    public InstanceGroupGraph addEdge(InstanceGroup src,InstanceGroup dst,double delay,long bw);
+     InstanceGroupGraph setDirected(boolean directed);
 
-    public InstanceGroupGraph addEdge(InstanceGroupEdge edge);
+     InstanceGroupGraph addEdge(InstanceGroup src, InstanceGroup dst, double delay, long bw);
 
-    public int removeEdge(InstanceGroup src, InstanceGroup dst);
+     InstanceGroupGraph addEdge(InstanceGroupEdge edge);
 
-    public InstanceGroupEdge getEdge(InstanceGroup src,InstanceGroup dst);
+     int removeEdge(InstanceGroup src, InstanceGroup dst);
 
-    public List getGraph();
+     InstanceGroupEdge getEdge(InstanceGroup src, InstanceGroup dst);
 
-    public List getDstList(InstanceGroup src);
+     Set<InstanceGroupEdge> getGraph();
+
+     List<InstanceGroup> getDstList(InstanceGroup src);
 
 }

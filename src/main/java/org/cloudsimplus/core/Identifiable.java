@@ -7,5 +7,5 @@ package org.cloudsimplus.core;
  * @since CloudSim Plus 1.0
  */
 public interface Identifiable {
-    long getId();
+    int getId();
 }

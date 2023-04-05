@@ -1,78 +1,74 @@
 package org.scalecloudsim.Instances;
 
-import org.cloudsimplus.core.UserEntity;
-import org.cloudsimplus.hosts.Host;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public interface Instance extends UserEntity {
+import java.util.List;
+
+public interface Instance extends RequestEntity {
     Logger LOGGER = LoggerFactory.getLogger(Instance.class.getSimpleName());
 
-    Instance NULL=new InstanceNull();
+    //资源
+    int getCpu();
 
-//    void setId(long id);
-//
-//    long getId();
+    int getRam();
 
-//    String getDescription();
-//
-//    Instance setDescription(String description);
+    int getStorage();
 
+    int getBw();
+
+    Instance setCpu(int cpu);
+
+    Instance setRam(int ram);
+
+    Instance setStorage(int storage);
+
+    Instance setBw(int bw);
+
+    //自身的其他有关请求的属性
     double getLifeTime();
 
     Instance setLifeTime(double lifeTime);
+
     InstanceGroup getInstanceGroup();
 
     Instance setInstanceGroup(InstanceGroup instanceGroup);
 
-    Instance setHost(Host host);
-    Host getHost();
+    Instance setDestHost(int destHost);
 
-    //资源
-    long getBw();
+    int getDestHost();
 
-    long getRam();
+    boolean isSetDestHost();
 
-    long getStorage();
+    int getMaxFailNum();
 
-    long getCpu();
+    Instance setMaxFailNum(int maxFailNum);
 
-    Instance setBw(long bw);
+    //调度结果
+    //记录失败相关的信息
+    int getFailNum();
 
-    Instance setRam(long ram);
+    Instance setFailNum(int failNum);
 
-    Instance setStorage(long storage);
+    List<InstanceFailInfo> getFailedHosts();
 
-    Instance setCpu(long cpu);
+    Instance addFailedInfo(InstanceFailInfo instanceFailInfo);
 
-    //状态：未到达(userEntity)，等待域间完成调度，域内等待，域内分配中，创建成功，创建失败,工作中，结束
-//    boolean isWaitInterSchedule();
-//
-//    Instance setWaitInterSchedule();
-//
-//    boolean isInnerWaiting();
-//
-//    Instance setInnerWaiting();
-//    boolean isInnerScheduling();
-//
-//    Instance setInnerScheduling();
-//
-//    boolean isCreated();
-//    Instance setCreated();
-//
-//    boolean isFailed();
-//    void setFailed(boolean failed);
-//
-//    boolean isWorking();
-//
-//    Instance setWorking();
-//
-//    boolean isFinish();
-//
-//    Instance setFinish();
-//
-//    double getStartTime();
-//    Instance setStartTime(double startTime);
-//    double getFinishTime();
-//    Instance setFinishTime(double startTime);
+    //记录成功相关的信息
+    int getHost();
+
+    Instance setHost(int host);
+
+    double getStartTime();
+
+    Instance setStartTime(double startTime);
+
+    double getFinishTime();
+
+    Instance setFinishTime(double finishTime);
+
+    //状态
+    int getStatus();
+
+    Instance setStatus(int status);
 }
