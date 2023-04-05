@@ -190,8 +190,13 @@ public abstract class CloudSimEntity implements SimEntity {
 
         schedule(dest, delay, tag, data);
     }
+
     protected void sendNow(final SimEntity dest, final int tag, final Object data) {
         send(dest, 0, tag, data);
+    }
+
+    protected void sendNow(final SimEntity dest, final int tag) {
+        send(dest, 0, tag, null);
     }
 
 }
