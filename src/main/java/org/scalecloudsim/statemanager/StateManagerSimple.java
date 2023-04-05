@@ -21,7 +21,7 @@ public class StateManagerSimple implements StateManager {
     public StateManagerSimple(int hostNum, Simulation simulation) {
         this.hostNum = hostNum;
         this.simulation = simulation;
-        hostState = new int[hostNum];
+        hostState = new int[hostNum * HostState.STATE_NUM];
         partitionManagerMap = new HashMap<>();
         validSchedulerSet = new HashSet<>();
         lastChangeTime = new TreeMap<>();
