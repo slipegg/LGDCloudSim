@@ -35,7 +35,9 @@ public interface UserEntity extends UniquelyIdentifiable, ChangeableId, Delayabl
     Simulation getSimulation();
 
     double getSubmittedTime();
+
     boolean isSubmitted();
+
     void setSubmittedTime(double time);
 
 }
