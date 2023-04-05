@@ -1,18 +1,29 @@
 package org.scalecloudsim.Instances;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.scalecloudsim.datacenters.Datacenter;
+
 import java.util.List;
 
 public class UserRequestSimple implements UserRequest {
+    @Getter
     int id;
+    @Getter@Setter
     double submitTime;
+    @Getter@Setter
     List<InstanceGroup> instanceGroups;
+    @Getter@Setter
     InstanceGroupGraph instanceGroupGraph;
+    @Getter@Setter
+    int belongDatacenterId;
 
     public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
         this.id = id;
         this.instanceGroups = instanceGroups;
         this.instanceGroupGraph = instanceGroupGraph;
     }
+
 
     public UserRequestSimple(int id) {
         this.id = id;
@@ -23,51 +34,13 @@ public class UserRequestSimple implements UserRequest {
     }
 
     @Override
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public List<InstanceGroup> getInstanceGroups() {
-        return instanceGroups;
-    }
-
-    @Override
-    public UserRequest setInstanceGroups(List<InstanceGroup> instanceGroups) {
-        this.instanceGroups = instanceGroups;
-        return this;
-    }
-
-    @Override
-    public InstanceGroupGraph getInstanceGroupGraph() {
-        return instanceGroupGraph;
-    }
-
-    @Override
-    public UserRequest setInstanceGroupGraph(InstanceGroupGraph instanceGroupGraph) {
-        this.instanceGroupGraph = instanceGroupGraph;
-        return this;
-    }
-
-    @Override
-    public UserRequest setSubmitTime(double submitTime) {
-        this.submitTime=submitTime;
-        return this;
-    }
-
-    @Override
-    public double getSubmitTime() {
-        return submitTime;
-    }
-
-    @Override
     public String toString() {
         return "UserRequestSimple [id=" + id + ", submitTime=" + submitTime + ", instanceGroups=" + instanceGroups
                 + ", instanceGroupGraph=" + instanceGroupGraph + "]";
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id=id;
     }
 }
