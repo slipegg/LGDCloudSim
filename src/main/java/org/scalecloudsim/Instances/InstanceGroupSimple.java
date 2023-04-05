@@ -1,63 +1,39 @@
 package org.scalecloudsim.Instances;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter@Setter
 public class InstanceGroupSimple implements InstanceGroup{
     int id;
-    UserRequest request;
+    UserRequest userRequest;
 
     List<Instance> instanceList;
-    int type;
+
+    int groupType;
+
+    int destDatacenterId;
+
+    double acessLatency;
 
     public InstanceGroupSimple(int id){
         this.id=id;
         instanceList=new ArrayList<>();
-        type=0;
-    }
-    
-    @Override
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public List<Instance> getInstanceList() {
-        return instanceList;
-    }
-
-    @Override
-    public InstanceGroup setInstanceList(List<Instance> instanceList) {
-        this.instanceList = instanceList;
-        return this;
-    }
-
-    @Override
-    public int getGroupType() {
-        return type;
-    }
-
-    @Override
-    public InstanceGroup setGroupType(int type) {
-        this.type = type;
-        return this;
-    }
-
-    @Override
-    public UserRequest getUserRequest() {
-        return request;
+        groupType =0;
     }
 
     @Override
     public void setUserRequest(UserRequest userRequest) {
-        this.request = userRequest;
+        this.userRequest= userRequest;
     }
 
+    @Override
+    public void setId(int id) {
+        this.id=id;
+    }
     @Override
     public String toString() {
         return "InstanceGroupSimple [id=" + id + ", instanceList=" + instanceList +"]";

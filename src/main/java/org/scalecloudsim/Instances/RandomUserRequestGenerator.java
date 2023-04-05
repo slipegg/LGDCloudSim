@@ -29,6 +29,7 @@ public class RandomUserRequestGenerator implements UserRequestGenerator{
                 instances.add(instance);
             }
             instanceGroup.setInstanceList(instances);
+            instanceGroup.setAcessLatency(rand.nextDouble(1.0));
             instanceGroups.add(instanceGroup);
         }
 

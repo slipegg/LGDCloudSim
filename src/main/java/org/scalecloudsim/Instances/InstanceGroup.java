@@ -10,4 +10,12 @@ public interface InstanceGroup extends RequestEntity {
     int getGroupType();
 
     InstanceGroup setGroupType(int type);
+
+    int getDestDatacenterId();
+
+    InstanceGroup setDestDatacenterId(int destDatacenterId);
+
+    double getAcessLatency();
+
+    InstanceGroup setAcessLatency(double latency);
 }

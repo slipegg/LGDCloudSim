@@ -35,6 +35,7 @@ public class UserRequestSimpleTest {
         userRequest.setInstanceGroups(instanceGroups);
         userRequest.setInstanceGroupGraph(instanceGroupGraph);
         userRequest.setSubmitTime(1.0);
+        userRequest.setBelongDatacenterId(1);
 
         int expectedLifeTime=-1;
         assertEquals(expectedLifeTime,userRequest.getInstanceGroups().get(0).getInstanceList().get(0).getLifeTime());
@@ -57,5 +58,9 @@ public class UserRequestSimpleTest {
 
         double expectedSubmitTime=1.0;
         assertEquals(expectedSubmitTime,userRequest.getSubmitTime());
+
+        int expectedBelongDatacenterId=1;
+        assertEquals(expectedBelongDatacenterId,userRequest.getBelongDatacenterId());
+
     }
 }

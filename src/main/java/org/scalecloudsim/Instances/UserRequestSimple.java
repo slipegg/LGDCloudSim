@@ -11,9 +11,9 @@ public class UserRequestSimple implements UserRequest {
     int id;
     @Getter@Setter
     double submitTime;
-    @Getter@Setter
+    @Getter
     List<InstanceGroup> instanceGroups;
-    @Getter@Setter
+    @Getter
     InstanceGroupGraph instanceGroupGraph;
     @Getter@Setter
     int belongDatacenterId;
@@ -42,5 +42,24 @@ public class UserRequestSimple implements UserRequest {
     @Override
     public void setId(int id) {
         this.id=id;
+    }
+
+    @Override
+    public UserRequest setInstanceGroups(List<InstanceGroup> instanceGroups) {
+        this.instanceGroups=instanceGroups;
+        for(InstanceGroup instanceGroup:instanceGroups){
+            instanceGroup.setUserRequest(this);
+            for(Instance instance:instanceGroup.getInstanceList()){
+                instance.setInstanceGroup(instanceGroup);
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public UserRequest setInstanceGroupGraph(InstanceGroupGraph instanceGroupGraph) {
+        this.instanceGroupGraph=instanceGroupGraph;
+        this.instanceGroupGraph.setUserRequest(this);
+        return this;
     }
 }
