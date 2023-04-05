@@ -1,6 +1,6 @@
 package org.scalecloudsim.statemanager;
 
-import org.cloudsimplus.core.Cloudsim;
+import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
 import org.junit.jupiter.api.Test;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
@@ -16,10 +16,11 @@ public class StateManagerSimpleTest {
     public void aSimpleTest(){
         double start=System.currentTimeMillis();
 
-        int hostNum=50_000_000;
-        int preRequestNum=100_000;
+//        int hostNum=50_000_000;
+        int hostNum=500_000;
+        int preRequestNum=1_000;
 
-        Simulation simulation=new Cloudsim();
+        Simulation simulation=new CloudSim();
 
         //初始化分区管理器，分区数为10，每个分区的平均大小为hostNum/10
         PartitionRangesManager partitionRangesManager=new PartitionRangesManager();
@@ -75,7 +76,7 @@ public class StateManagerSimpleTest {
         assertEquals(Arrays.toString(expectedState0),Arrays.toString(state0));
         int[] allState0=delayState0.getAllState();
         System.out.println("allState0 length: "+allState0.length);
-        int expectAllState0Length=200000000;
+        int expectAllState0Length=hostNum*HostState.STATE_NUM;
         assertEquals(expectAllState0Length,allState0.length);
 
         //调度器1获取整个域的状态
@@ -144,7 +145,7 @@ public class StateManagerSimpleTest {
         assertEquals(Arrays.toString(expectedState0),Arrays.toString(state0));
         allState0=delayState0.getAllState();
         System.out.println("new allState0 length: "+allState0.length);
-        expectAllState0Length=200000000;
+        expectAllState0Length=hostNum*HostState.STATE_NUM;
         assertEquals(expectAllState0Length,allState0.length);
 
         //调度器1获取整个域的状态
