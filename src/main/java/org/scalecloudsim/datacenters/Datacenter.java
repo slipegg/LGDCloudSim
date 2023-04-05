@@ -1,10 +1,11 @@
 package org.scalecloudsim.datacenters;
 
+import org.cloudsimplus.core.SimEntity;
 import org.scalecloudsim.statemanager.StateManager;
 
 import java.util.Set;
 
-public interface Datacenter {
+public interface Datacenter extends SimEntity {
     Datacenter setStateManager(StateManager stateManager);
 
     StateManager getStateManager();
