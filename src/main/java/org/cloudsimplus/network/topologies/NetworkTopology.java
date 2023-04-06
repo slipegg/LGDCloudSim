@@ -8,6 +8,7 @@
 package org.cloudsimplus.network.topologies;
 
 import org.cloudsimplus.core.SimEntity;
+import org.cloudsimplus.network.DelayDynamicModel;
 
 /**
  * *
@@ -48,4 +49,14 @@ public interface NetworkTopology {
      * @return communication delay (in seconds) between the two nodes
      */
     double getDelay(SimEntity src, SimEntity dest);
+
+    double getBw(SimEntity src, SimEntity dest);
+
+    void allocateBw(SimEntity src, SimEntity dest, long allocateBw);
+
+    void releaseBw(SimEntity src, SimEntity dest, long releaseBw);
+
+    void setDelayDynamicModel(DelayDynamicModel delayDynamicModel);
+
+    double getDynamicDelay(SimEntity src, SimEntity dest, double time);
 }

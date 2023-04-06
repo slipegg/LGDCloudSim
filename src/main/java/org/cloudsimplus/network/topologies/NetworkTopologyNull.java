@@ -24,6 +24,7 @@
 package org.cloudsimplus.network.topologies;
 
 import org.cloudsimplus.core.SimEntity;
+import org.cloudsimplus.network.DelayDynamicModel;
 
 /**
  * A class that implements the Null Object Design Pattern for {@link org.cloudsimplus.network.topologies.NetworkTopology}
@@ -41,6 +42,30 @@ final class NetworkTopologyNull implements org.cloudsimplus.network.topologies.N
 
     @Override
     public double getDelay(SimEntity src, SimEntity dest) {
+        return 0;
+    }
+
+    @Override
+    public double getBw(SimEntity src, SimEntity dest) {
+        return 0;
+    }
+
+    @Override
+    public void allocateBw(SimEntity src, SimEntity dest, long allocateBw) {
+    }
+
+    @Override
+    public void releaseBw(SimEntity src, SimEntity dest, long releaseBw) {
+
+    }
+
+    @Override
+    public void setDelayDynamicModel(DelayDynamicModel delayDynamicModel) {
+
+    }
+
+    @Override
+    public double getDynamicDelay(SimEntity src, SimEntity dest, double time) {
         return 0;
     }
 }
