@@ -79,16 +79,16 @@ enum ParsingState {
         @Override
         void parse(final TopologyReaderBrite reader, final String line) {
             // List of fields in the line to parse
-            // EdgeID, fromNode, toNode, euclideanLength, linkDelay, linkBandwidth, AS_from, AS_to, type
-            final Double[] parsedFields = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+            // EdgeID, fromNode, toNode, linkDelay, linkBandwidth
+            final Double[] parsedFields = {0.0, 0.0, 0.0, 0.0, 0.0};
             if (!reader.parseLine(line, parsedFields, Double::valueOf)) {
                 return;
             }
 
             final int fromNode = parsedFields[1].intValue();
             final int toNode = parsedFields[2].intValue();
-            final double linkDelay = parsedFields[4];
-            final double linkBandwidth = parsedFields[5];
+            final double linkDelay = parsedFields[3];
+            final double linkBandwidth = parsedFields[4];
 
             reader.getGraph().addLink(new TopologicalLink(fromNode, toNode, linkDelay, linkBandwidth));
         }
