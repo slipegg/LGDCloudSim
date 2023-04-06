@@ -112,7 +112,9 @@ public class SimpleStateSimple implements SimpleState {
     public SimpleState addCpuRamRecord(int cpu, int ram) {
         int smallerCpu = getSmallerCpu(cpu);
         int smallerRam = getSmallerRam(ram);
-        cpuRamMap.get(smallerCpu).get(smallerRam).increment();
+        if (smallerCpu != -1 && smallerRam != -1) {
+            cpuRamMap.get(smallerCpu).get(smallerRam).increment();
+        }
         return this;
     }
 
@@ -122,34 +124,40 @@ public class SimpleStateSimple implements SimpleState {
         int smallerOriginRam = getSmallerRam(originRam);
         int smallerNowCpu = getSmallerCpu(nowCpu);
         int smallerNowRam = getSmallerRam(nowRam);
-
-        cpuRamMap.get(smallerOriginCpu).get(smallerOriginRam).decrement();
-        cpuRamMap.get(smallerNowCpu).get(smallerNowRam).increment();
+        if (smallerOriginCpu != -1 && smallerOriginRam != -1) {
+            cpuRamMap.get(smallerOriginCpu).get(smallerOriginRam).decrement();
+        }
+        if (smallerNowCpu != -1 && smallerNowRam != -1) {
+            cpuRamMap.get(smallerNowCpu).get(smallerNowRam).increment();
+        }
         return this;
     }
 
     private int getSmallerCpu(int cpu) {
-        return cpuRecordListDec.stream().filter(key -> key <= cpu).findFirst().orElse(0);
+        return cpuRecordListDec.stream().filter(key -> key <= cpu).findFirst().orElse(-1);
     }
 
     private int getSmallerRam(int ram) {
-        return ramRecordListDec.stream().filter(key -> key <= ram).findFirst().orElse(0);
+        return ramRecordListDec.stream().filter(key -> key <= ram).findFirst().orElse(-1);
     }
 
     @Override
     public int getCpuRamSum(int cpu, int ram) {
         int biggerCpu = getBiggerCpu(cpu);
         int biggerRam = getBiggerRam(ram);
+        if (biggerCpu == -1 || biggerRam == -1) {
+            return 0;
+        }
         List<MutableInt> mutableIntList = cpuRamSumMap.get(biggerCpu).get(biggerRam);
         return mutableIntList.stream().mapToInt(MutableInt::intValue).sum();
     }
 
     private int getBiggerCpu(int cpu) {
-        return cpuRecordListInc.stream().filter(key -> key >= cpu).findFirst().orElse(0);
+        return cpuRecordListInc.stream().filter(key -> key >= cpu).findFirst().orElse(-1);
     }
 
     private int getBiggerRam(int ram) {
-        return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(0);
+        return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(-1);
     }
 
     @Override
