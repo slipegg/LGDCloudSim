@@ -1,5 +1,7 @@
 package org.scalecloudsim.statemanager;
 
+import org.cloudsimplus.core.CloudSim;
+import org.cloudsimplus.core.Simulation;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +29,30 @@ public class SimpleStateSimpleTest {
         int expectCpuRamNum3 = 2;
         assertEquals(expectCpuRamNum3, simpleState.getCpuRamSum(4, 9));
 
+    }
+
+    @Test
+    public void realTest() {
+        Simulation sacleCloudSim = new CloudSim();
+        int hostNum = 5_000_000;
+        StateManager stateManager = new StateManagerSimple(hostNum, sacleCloudSim);
+        HostStateGenerator isomorphicHostStateGenerator = new IsomorphicHostStateGenerator(128, 512, 10240, 1024);
+        stateManager.initHostStates(isomorphicHostStateGenerator);
+        long storageSum = stateManager.getSimpleState().getStorageSum();
+        long bwSum = stateManager.getSimpleState().getBwSum();
+        long expectStorageSum = 10240L * hostNum;
+        assertEquals(expectStorageSum, storageSum);
+        long expectBwSum = 1024L * hostNum;
+        assertEquals(expectBwSum, bwSum);
+
+        int cpuRamNum1 = stateManager.getSimpleState().getCpuRamSum(128, 512);
+        int cpuRamNum2 = stateManager.getSimpleState().getCpuRamSum(1, 8);
+        int cpuRamNum3 = stateManager.getSimpleState().getCpuRamSum(23, 600);
+        int cpuRamNum4 = stateManager.getSimpleState().getCpuRamSum(200, 100);
+        assertEquals(hostNum, cpuRamNum1);
+        assertEquals(hostNum, cpuRamNum2);
+        assertEquals(0, cpuRamNum3);
+        assertEquals(0, cpuRamNum4);
     }
 }
 
