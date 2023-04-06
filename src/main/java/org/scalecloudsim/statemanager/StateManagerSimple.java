@@ -16,7 +16,8 @@ public class StateManagerSimple implements StateManager {
     Map<Integer, Double> lastChangeTime;//host状态上一次变化的时间，不存在在这里就是0.
     int hostNum;
     TreeMap<Integer, LinkedList<HostStateHistory>> hostHistoryMaps;//host历史状态，放置在这里可以使得范围调整，区域管理器更新后主机历史状态不丢失
-    int[] hostState;
+    @Getter
+    int[] hostStates;
     @Getter
     @Setter
     SimpleState simpleState;
@@ -24,7 +25,7 @@ public class StateManagerSimple implements StateManager {
     public StateManagerSimple(int hostNum, Simulation simulation) {
         this.hostNum = hostNum;
         this.simulation = simulation;
-        hostState = new int[hostNum * HostState.STATE_NUM];
+        hostStates = new int[hostNum * HostState.STATE_NUM];
         partitionManagerMap = new HashMap<>();
         validSchedulerSet = new HashSet<>();
         lastChangeTime = new TreeMap<>();
@@ -37,7 +38,7 @@ public class StateManagerSimple implements StateManager {
                               List<InnerScheduler> schedulers) {
         this.hostNum = hostNum;
         this.simulation = simulation;
-        hostState = new int[hostNum * HostState.STATE_NUM];
+        hostStates = new int[hostNum * HostState.STATE_NUM];
         partitionManagerMap = new HashMap<>();
         validSchedulerSet = new HashSet<>();
         lastChangeTime = new TreeMap<>();
@@ -168,7 +169,7 @@ public class StateManagerSimple implements StateManager {
             Map<Integer, HostStateHistory> partitionHistory = partitionManagerMap.get(partitionId).getDelayPartitionState(delay);
             oldState.put(partitionId, partitionHistory);
         }
-        DelayState delayState = new DelayStateSimple(hostState, oldState, partitionRangesManager);
+        DelayState delayState = new DelayStateSimple(hostStates, oldState, partitionRangesManager);
         return delayState;
     }
 
@@ -185,17 +186,17 @@ public class StateManagerSimple implements StateManager {
     @Override
     public int[] getnowHostStateArr(int hostId) {
         int[] nowHostState = new int[HostState.STATE_NUM];
-        System.arraycopy(hostState, hostId * HostState.STATE_NUM + 0, nowHostState, 0, HostState.STATE_NUM);
+        System.arraycopy(hostStates, hostId * HostState.STATE_NUM + 0, nowHostState, 0, HostState.STATE_NUM);
         return nowHostState;
     }
 
     @Override
     public HostStateHistory getnowHostStateHistory(int hostId) {
         HostStateHistory hostStateHistory = new HostStateHistory(
-                hostState[hostId * HostState.STATE_NUM],
-                hostState[hostId * HostState.STATE_NUM + 1],
-                hostState[hostId * HostState.STATE_NUM + 2],
-                hostState[hostId * HostState.STATE_NUM + 3],
+                hostStates[hostId * HostState.STATE_NUM],
+                hostStates[hostId * HostState.STATE_NUM + 1],
+                hostStates[hostId * HostState.STATE_NUM + 2],
+                hostStates[hostId * HostState.STATE_NUM + 3],
                 getLastChangeTime(hostId));
         return hostStateHistory;
     }
@@ -204,10 +205,10 @@ public class StateManagerSimple implements StateManager {
     public LinkedList<HostStateHistory> getHostHistory(int hostId) {
         LinkedList<HostStateHistory> history = new LinkedList<>();
         HostStateHistory nowState = new HostStateHistory(
-                hostState[hostId * HostState.STATE_NUM],
-                hostState[hostId * HostState.STATE_NUM + 1],
-                hostState[hostId * HostState.STATE_NUM + 2],
-                hostState[hostId * HostState.STATE_NUM + 3],
+                hostStates[hostId * HostState.STATE_NUM],
+                hostStates[hostId * HostState.STATE_NUM + 1],
+                hostStates[hostId * HostState.STATE_NUM + 2],
+                hostStates[hostId * HostState.STATE_NUM + 3],
                 getLastChangeTime(hostId));
         history.addFirst(nowState);
 
@@ -258,13 +259,13 @@ public class StateManagerSimple implements StateManager {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         PartitionManager partitionManager = partitionManagerMap.get(partitionId);
         HostStateHistory hostStateHistory = new HostStateHistory(
-                hostState[hostId * HostState.STATE_NUM],
-                hostState[hostId * HostState.STATE_NUM + 1],
-                hostState[hostId * HostState.STATE_NUM + 2],
-                hostState[hostId * HostState.STATE_NUM + 3],
+                hostStates[hostId * HostState.STATE_NUM],
+                hostStates[hostId * HostState.STATE_NUM + 1],
+                hostStates[hostId * HostState.STATE_NUM + 2],
+                hostStates[hostId * HostState.STATE_NUM + 3],
                 getLastChangeTime(hostId));
         partitionManager.addHostHistory(hostId, hostStateHistory);
-        System.arraycopy(state, 0, hostState, hostId * HostState.STATE_NUM + 0, HostState.STATE_NUM);
+        System.arraycopy(state, 0, hostStates, hostId * HostState.STATE_NUM + 0, HostState.STATE_NUM);
         lastChangeTime.put(hostId, simulation.clock());
         return this;
     }
@@ -274,6 +275,18 @@ public class StateManagerSimple implements StateManager {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         PartitionManager partitionManager = partitionManagerMap.get(partitionId);
         partitionManager.updateHostHistory(getLastChangeTime(hostId), hostId);
+        return this;
+    }
+
+    @Override
+    public StateManager initHostStates(HostStateGenerator hostStateGenerator) {
+        for (int i = 0; i < hostNum; i++) {
+            int[] state = hostStateGenerator.generateHostState();
+            System.arraycopy(state, 0, hostStates, i * HostState.STATE_NUM, HostState.STATE_NUM);
+            simpleState.addCpuRamRecord(state[0], state[1]);
+            simpleState.updateStorageSum(state[2]);
+            simpleState.updateBwSum(state[3]);
+        }
         return this;
     }
 

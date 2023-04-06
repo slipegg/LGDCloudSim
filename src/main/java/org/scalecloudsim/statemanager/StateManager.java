@@ -45,4 +45,8 @@ public interface StateManager {
     SimpleState getSimpleState();
 
     StateManager setSimpleState(SimpleState simpleState);
+
+    int[] getHostStates();
+
+    StateManager initHostStates(HostStateGenerator hostStateGenerator);
 }
