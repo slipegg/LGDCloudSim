@@ -9,6 +9,7 @@ package org.cloudsimplus.network.topologies;
 
 import lombok.Getter;
 import org.cloudsimplus.core.SimEntity;
+import org.cloudsimplus.network.DelayDynamicModel;
 import org.cloudsimplus.network.DelayMatrix;
 import org.cloudsimplus.network.topologies.readers.TopologyReaderBrite;
 import org.cloudsimplus.util.ResourceLoader;
@@ -44,7 +45,7 @@ import java.util.Map;
  * @see <a href="https://web.archive.org/web/20200119144536/http://www.cs.bu.edu:80/brite/">Web archieve of Brite Oficial Website</a>
  * @since CloudSim Toolkit 1.0
  */
-public final class BriteNetworkTopology implements NetworkTopology {
+public class BriteNetworkTopology implements NetworkTopology {
     private static final Logger LOGGER = LoggerFactory.getLogger(BriteNetworkTopology.class.getSimpleName());
 
     /**
@@ -82,6 +83,8 @@ public final class BriteNetworkTopology implements NetworkTopology {
      */
     private Map<SimEntity, Integer> entitiesMap;
 
+    private DelayDynamicModel delayDynamicModel;
+
     /**
      * Instantiates a Network Topology from a file inside the <b>application's resource directory</b>.
      *
@@ -91,6 +94,11 @@ public final class BriteNetworkTopology implements NetworkTopology {
     public static BriteNetworkTopology getInstance(final String fileName) {
         final InputStreamReader reader = ResourceLoader.newInputStreamReader(fileName, BriteNetworkTopology.class);
         return new BriteNetworkTopology(reader);
+    }
+
+    public static BriteNetworkTopology getInstance(final String fileName, boolean directed) {
+        final InputStreamReader reader = ResourceLoader.newInputStreamReader(fileName, BriteNetworkTopology.class);
+        return new BriteNetworkTopology(reader, directed);
     }
 
     /**
@@ -136,16 +144,24 @@ public final class BriteNetworkTopology implements NetworkTopology {
         this();
         final var instance = new TopologyReaderBrite();
         graph = instance.readGraphFile(reader);
-        generateMatrices();
+        generateMatrices(false);//默认是无向图
+    }
+
+    private BriteNetworkTopology(final InputStreamReader reader, boolean directed) {
+        this();
+        final var instance = new TopologyReaderBrite();
+        graph = instance.readGraphFile(reader);
+        generateMatrices(directed);
     }
 
     /**
      * Generates the matrices used internally to set latency and bandwidth
      * between elements.
      */
-    private void generateMatrices() {
-        delayMatrix = new DelayMatrix(graph, false);
-        bwMatrix = createBwMatrix(graph, false);
+    private void generateMatrices(boolean directed) {
+        //TODO 后期如果有需要可以改为在文件中自定义是无向图还是有向图,现在是需要在代码中指定
+        delayMatrix = new DelayMatrix(graph, directed);
+        bwMatrix = createBwMatrix(graph, directed);
         networkEnabled = true;
     }
 
@@ -186,7 +202,7 @@ public final class BriteNetworkTopology implements NetworkTopology {
 
         final var link = new TopologicalLink(entitiesMap.get(src), entitiesMap.get(dest), latency, bandwidth);
         graph.addLink(link);
-        generateMatrices();
+        generateMatrices(false);
     }
 
     @Override
@@ -257,6 +273,48 @@ public final class BriteNetworkTopology implements NetworkTopology {
         } catch (ArrayIndexOutOfBoundsException e) {
             return 0.0;
         }
+    }
+
+    @Override
+    public double getBw(final SimEntity src, final SimEntity dest) {
+        if (!networkEnabled) {
+            return 0;
+        }
+
+        try {
+            final int srcEntityBriteId = entitiesMap.getOrDefault(src, -1);
+            final int destEntityBriteId = entitiesMap.getOrDefault(dest, -1);
+            return bwMatrix[srcEntityBriteId][destEntityBriteId];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return 0;
+        }
+    }
+
+    @Override
+    public void allocateBw(SimEntity src, SimEntity dest, long allocateBw) {
+        double availableBw = getBw(src, dest);
+        if (availableBw < allocateBw) {
+            throw new IllegalArgumentException("The available bandwidth is not enough");
+        }
+        bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] -= allocateBw;
+    }
+
+    @Override
+    public void releaseBw(SimEntity src, SimEntity dest, long releaseBw) {
+        bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] += releaseBw;
+    }
+
+    @Override
+    public void setDelayDynamicModel(DelayDynamicModel delayDynamicModel) {
+        this.delayDynamicModel = delayDynamicModel;
+    }
+
+    @Override
+    public double getDynamicDelay(SimEntity src, SimEntity dest, double time) {
+        if (delayDynamicModel == null) {
+            return getDelay(src, dest);
+        }
+        return delayDynamicModel.getDynamicDelay(src, dest, getDelay(src, dest), time);
     }
 
     /**
