@@ -6,9 +6,9 @@ public class InstanceGroupEdgeSimple implements InstanceGroupEdge{
     InstanceGroup src;
     InstanceGroup dst;
     double minDelay;
-    long requiredBw;
+    double requiredBw;
 
-    public InstanceGroupEdgeSimple(InstanceGroup src, InstanceGroup dst, double minDelay, long requiredBw) {
+    public InstanceGroupEdgeSimple(InstanceGroup src, InstanceGroup dst, double minDelay, double requiredBw) {
         this.src = Objects.requireNonNull(src);
         this.dst = Objects.requireNonNull(dst);
         this.minDelay = minDelay;
@@ -34,7 +34,7 @@ public class InstanceGroupEdgeSimple implements InstanceGroupEdge{
 
     @Override
     public InstanceGroupEdge setRequiredBw(double requiredBw) {
-        this.requiredBw = (long) requiredBw;
+        this.requiredBw = requiredBw;
         return this;
     }
 

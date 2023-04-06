@@ -39,12 +39,12 @@ public class RandomUserRequestGenerator implements UserRequestGenerator{
         for(int i=0;i<edgeNum;i++){//可能会有重复的边，但是因为是set，所以不会有影响
             int from = rand.nextInt(instanceGroupNum);
             int to = rand.nextInt(instanceGroupNum);
-            while(from==to){
+            while (from == to) {
                 to = rand.nextInt(instanceGroupNum);
             }
-            int bandwidth = rand.nextInt(10);
-            int latency = rand.nextInt(10);
-            InstanceGroupEdge instanceGroupEdge=new InstanceGroupEdgeSimple(instanceGroups.get(from),instanceGroups.get(to),bandwidth,latency);
+            double bandwidth = rand.nextDouble(10);
+            double latency = rand.nextDouble(10);
+            InstanceGroupEdge instanceGroupEdge = new InstanceGroupEdgeSimple(instanceGroups.get(from), instanceGroups.get(to), bandwidth, latency);
             instanceGroupGraph.addEdge(instanceGroupEdge);
         }
 
