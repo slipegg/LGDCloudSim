@@ -1,9 +1,9 @@
 package org.scalecloudsim.statemanager;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.cloudsimplus.core.Simulation;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -17,6 +17,9 @@ public class StateManagerSimple implements StateManager {
     int hostNum;
     TreeMap<Integer, LinkedList<HostStateHistory>> hostHistoryMaps;//host历史状态，放置在这里可以使得范围调整，区域管理器更新后主机历史状态不丢失
     int[] hostState;
+    @Getter
+    @Setter
+    SimpleState simpleState;
 
     public StateManagerSimple(int hostNum, Simulation simulation) {
         this.hostNum = hostNum;
@@ -26,6 +29,7 @@ public class StateManagerSimple implements StateManager {
         validSchedulerSet = new HashSet<>();
         lastChangeTime = new TreeMap<>();
         hostHistoryMaps = new TreeMap<>();
+        simpleState = new SimpleStateSimple();
     }
 
     public StateManagerSimple(int hostNum, Simulation simulation,
@@ -42,6 +46,7 @@ public class StateManagerSimple implements StateManager {
         for (InnerScheduler scheduler : schedulers) {
             registerScheduler(scheduler);
         }
+        simpleState = new SimpleStateSimple();
     }
 
     @Override
@@ -271,4 +276,5 @@ public class StateManagerSimple implements StateManager {
         partitionManager.updateHostHistory(getLastChangeTime(hostId), hostId);
         return this;
     }
+
 }

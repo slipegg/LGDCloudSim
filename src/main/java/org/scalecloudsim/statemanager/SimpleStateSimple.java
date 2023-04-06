@@ -13,29 +13,38 @@ public class SimpleStateSimple implements SimpleState {
     Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
     Map<Integer, Map<Integer, List<MutableInt>>> cpuRamSumMap;
 
+    List<Integer> cpuRecordListInc;
+    List<Integer> cpuRecordListDec;
+    List<Integer> ramRecordListInc;
+    List<Integer> ramRecordListDec;
+
     public SimpleStateSimple() {
         this.storageSum = 0;
         this.bwSum = 0;
         this.cpuRamMap = new TreeMap<>(Comparator.reverseOrder());
         this.cpuRamSumMap = new TreeMap<>(Comparator.reverseOrder());
 
-        List<Integer> cpuRecordList = getCpuRecordList();
-        List<Integer> ramRecordList = getRamRecordList();
-        for (int cpu : cpuRecordList) {
+        this.cpuRecordListInc = getCpuRecordList();
+        this.cpuRecordListDec = new ArrayList<>(cpuRecordListInc);
+        Collections.reverse(cpuRecordListDec);
+        this.ramRecordListInc = getRamRecordList();
+        this.ramRecordListDec = new ArrayList<>(ramRecordListInc);
+        Collections.reverse(ramRecordListDec);
+        for (int cpu : cpuRecordListInc) {
             Map<Integer, MutableInt> ramMap = new TreeMap<>(Comparator.reverseOrder());
             Map<Integer, List<MutableInt>> ramSumMap = new TreeMap<>(Comparator.reverseOrder());
             cpuRamMap.put(cpu, ramMap);
             cpuRamSumMap.put(cpu, ramSumMap);
-            for (int ram : ramRecordList) {
+            for (int ram : ramRecordListInc) {
                 MutableInt mutableInt = new MutableInt(0);
                 ramMap.put(ram, mutableInt);
                 List<MutableInt> mutableIntList = new ArrayList<>();
                 ramSumMap.put(ram, mutableIntList);
-                for (int smallerCpu : cpuRecordList) {
+                for (int smallerCpu : cpuRecordListInc) {
                     if (smallerCpu > cpu) {
                         break;
                     }
-                    for (int smallerRam : ramRecordList) {
+                    for (int smallerRam : ramRecordListInc) {
                         if (smallerRam > ram) {
                             break;
                         }
@@ -44,21 +53,6 @@ public class SimpleStateSimple implements SimpleState {
                 }
             }
         }
-//        for(Map.Entry<Integer, Map<Integer, MutableInt>> cpuItem:cpuRamMap.entrySet()){
-//            for(Map.Entry<Integer, MutableInt> ramItem:cpuItem.getValue().entrySet()){
-//                for(Map.Entry<Integer, Map<Integer, MutableInt>> smallerCpuItem:cpuRamMap.entrySet()){
-//                    if(smallerCpuItem.getKey()>cpuItem.getKey()){
-//                        break;
-//                    }
-//                    for(Map.Entry<Integer, MutableInt> smallerRamItem:smallerCpuItem.getValue().entrySet()){
-//                        if(smallerRamItem.getKey()>ramItem.getKey()){
-//                            break;
-//                        }
-//                        cpuRamSumMap.get(cpuItem.getKey()).get(ramItem.getKey()).add(smallerRamItem.getValue());
-//                    }
-//                }
-//            }
-//        }
     }
 
     private List<Integer> getCpuRecordList() {
@@ -117,7 +111,7 @@ public class SimpleStateSimple implements SimpleState {
     @Override
     public SimpleState addCpuRamRecord(int cpu, int ram) {
         int smallerCpu = getSmallerCpu(cpu);
-        int smallerRam = getSmallerRam(cpu, ram);
+        int smallerRam = getSmallerRam(ram);
         cpuRamMap.get(smallerCpu).get(smallerRam).increment();
         return this;
     }
@@ -125,9 +119,9 @@ public class SimpleStateSimple implements SimpleState {
     @Override
     public SimpleState updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam) {
         int smallerOriginCpu = getSmallerCpu(originCpu);
-        int smallerOriginRam = getSmallerRam(originCpu, originRam);
+        int smallerOriginRam = getSmallerRam(originRam);
         int smallerNowCpu = getSmallerCpu(nowCpu);
-        int smallerNowRam = getSmallerRam(nowCpu, nowRam);
+        int smallerNowRam = getSmallerRam(nowRam);
 
         cpuRamMap.get(smallerOriginCpu).get(smallerOriginRam).decrement();
         cpuRamMap.get(smallerNowCpu).get(smallerNowRam).increment();
@@ -135,43 +129,27 @@ public class SimpleStateSimple implements SimpleState {
     }
 
     private int getSmallerCpu(int cpu) {
-        if (cpuRamMap.containsKey(cpu)) {
-            return cpu;
-        } else {
-            return cpuRamMap.keySet().stream().filter(key -> key <= cpu).findFirst().orElse(0);
-        }
+        return cpuRecordListDec.stream().filter(key -> key <= cpu).findFirst().orElse(0);
     }
 
-    private int getSmallerRam(int cpu, int ram) {
-        if (cpuRamMap.get(cpu).containsKey(ram)) {
-            return ram;
-        } else {
-            return cpuRamMap.get(cpu).keySet().stream().filter(key -> key <= ram).findFirst().orElse(0);
-        }
+    private int getSmallerRam(int ram) {
+        return ramRecordListDec.stream().filter(key -> key <= ram).findFirst().orElse(0);
     }
 
     @Override
     public int getCpuRamSum(int cpu, int ram) {
         int biggerCpu = getBiggerCpu(cpu);
-        int biggerRam = getBiggerRam(biggerCpu, ram);
+        int biggerRam = getBiggerRam(ram);
         List<MutableInt> mutableIntList = cpuRamSumMap.get(biggerCpu).get(biggerRam);
         return mutableIntList.stream().mapToInt(MutableInt::intValue).sum();
     }
 
     private int getBiggerCpu(int cpu) {
-        if (cpuRamMap.containsKey(cpu)) {
-            return cpu;
-        } else {
-            return cpuRamMap.keySet().stream().filter(key -> key >= cpu).findFirst().orElse(0);
-        }
+        return cpuRecordListInc.stream().filter(key -> key >= cpu).findFirst().orElse(0);
     }
 
-    private int getBiggerRam(int cpu, int ram) {
-        if (cpuRamMap.get(cpu).containsKey(ram)) {
-            return ram;
-        } else {
-            return cpuRamMap.get(cpu).keySet().stream().filter(key -> key >= ram).findFirst().orElse(0);
-        }
+    private int getBiggerRam(int ram) {
+        return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(0);
     }
 
     @Override
