@@ -111,8 +111,8 @@ public class TopologicalGraph {
 
         for (final TopologicalLink link : linksList) {
             builder.append(
-                    "from: %d to: %d delay: %.2f%n"
-                            .formatted(link.getSrcNodeID(), link.getDestNodeID(), link.getLinkDelay()));
+                    "from %d to %d - delay: %.2f bw: %.2f%n"
+                            .formatted(link.getSrcNodeID(), link.getDestNodeID(), link.getLinkDelay(), link.getLinkBw()));
         }
 
         return builder.toString();
