@@ -1,6 +1,5 @@
 package org.scalecloudsim.statemanager;
 
-import ch.qos.logback.core.joran.sanity.Pair;
 import lombok.Getter;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -8,8 +7,8 @@ import java.util.*;
 
 @Getter
 public class SimpleStateSimple implements SimpleState {
-    long storageSum;
-    long bwSum;
+    long storageAvaiableSum;
+    long bwAvaiableSum;
     Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
     Map<Integer, Map<Integer, List<MutableInt>>> cpuRamSumMap;
 
@@ -19,8 +18,8 @@ public class SimpleStateSimple implements SimpleState {
     List<Integer> ramRecordListDec;
 
     public SimpleStateSimple() {
-        this.storageSum = 0;
-        this.bwSum = 0;
+        this.storageAvaiableSum = 0;
+        this.bwAvaiableSum = 0;
         this.cpuRamMap = new TreeMap<>(Comparator.reverseOrder());
         this.cpuRamSumMap = new TreeMap<>(Comparator.reverseOrder());
 
@@ -98,13 +97,13 @@ public class SimpleStateSimple implements SimpleState {
 
     @Override
     public SimpleState updateStorageSum(int changeStorage) {
-        storageSum += changeStorage;
+        storageAvaiableSum += changeStorage;
         return this;
     }
 
     @Override
     public SimpleState updateBwSum(int changeBw) {
-        bwSum += changeBw;
+        bwAvaiableSum += changeBw;
         return this;
     }
 
