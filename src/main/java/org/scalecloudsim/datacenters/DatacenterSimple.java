@@ -105,6 +105,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter{
 
         //进行域间调度
         /*
+         * 0.得到同一个协作区的所有数据中心
          * 1.根据接入时延要求得到可调度的数据中心
          * 2.根据资源抽样信息得到可调度的数据中心
          * 3.根据网络时延和宽带情况以及抽样信息得到最优的调度方案
