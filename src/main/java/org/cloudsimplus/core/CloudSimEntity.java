@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.cloudsimplus.core.events.CloudSimEvent;
 import org.cloudsimplus.core.events.SimEvent;
+import org.scalecloudsim.datacenters.DatacenterSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,12 +184,38 @@ public abstract class CloudSimEntity implements SimEntity {
             throw new IllegalArgumentException("The specified delay is infinite value");
         }
 
-        // only considers network delay when sending messages between different entities
-//        if (dest.getId() != getId()) {
+//        if (dest.getId() != getId()&&dest instanceof DatacenterSimple) {
 //            delay += getNetworkDelay(this, dest);
 //        }
 
         schedule(dest, delay, tag, data);
+    }
+
+    protected void sendBetweenDc(final SimEntity dest, double delay, final int tag, final Object data) {
+        requireNonNull(dest);
+        if (dest.getId() < 0) {
+            LOGGER.error("{}.send(): invalid entity id {} for {}", getName(), dest.getId(), dest);
+            return;
+        }
+
+        // if delay is negative, then it doesn't make sense. So resets to 0.0
+        if (delay < 0) {
+            delay = 0;
+        }
+
+        if (Double.isInfinite(delay)) {
+            throw new IllegalArgumentException("The specified delay is infinite value");
+        }
+
+        if (dest.getId() != getId()) {
+            delay += getNetworkDelay(this, dest);
+        }
+
+        schedule(dest, delay, tag, data);
+    }
+
+    private double getNetworkDelay(final SimEntity src, final SimEntity dst) {
+        return getSimulation().getNetworkTopology().getDynamicDelay(src, dst, getSimulation().clock());
     }
 
     protected void sendNow(final SimEntity dest, final int tag, final Object data) {
