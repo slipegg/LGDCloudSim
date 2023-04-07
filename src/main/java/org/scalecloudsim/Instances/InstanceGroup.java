@@ -18,4 +18,12 @@ public interface InstanceGroup extends RequestEntity {
     double getAcessLatency();
 
     InstanceGroup setAcessLatency(double latency);
+
+    long getStorageSum();
+
+    long getBwSum();
+
+    long getCpuSum();
+
+    long getRamSum();
 }

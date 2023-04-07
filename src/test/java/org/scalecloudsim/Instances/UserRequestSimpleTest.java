@@ -26,10 +26,10 @@ public class UserRequestSimpleTest {
             instanceGroups.add(instanceGroup);
         }
 
-        InstanceGroupGraph instanceGroupGraph=new InstanceGroupGraphSimple(false);
-        InstanceGroupEdge instanceGroupEdge=new InstanceGroupEdgeSimple(instanceGroups.get(0),instanceGroups.get(1),1,20);
+        InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
+        InstanceGroupEdge instanceGroupEdge = new InstanceGroupEdgeSimple(instanceGroups.get(0), instanceGroups.get(1), 1, 20);
         instanceGroupGraph.addEdge(instanceGroupEdge);
-        instanceGroupEdge=new InstanceGroupEdgeSimple(instanceGroups.get(1),instanceGroups.get(2),2,30);
+        instanceGroupEdge = new InstanceGroupEdgeSimple(instanceGroups.get(1), instanceGroups.get(2), 2, 30);
         instanceGroupGraph.addEdge(instanceGroupEdge);
 
         userRequest.setInstanceGroups(instanceGroups);
@@ -37,15 +37,21 @@ public class UserRequestSimpleTest {
         userRequest.setSubmitTime(1.0);
         userRequest.setBelongDatacenterId(1);
 
-        int expectedLifeTime=-1;
-        assertEquals(expectedLifeTime,userRequest.getInstanceGroups().get(0).getInstanceList().get(0).getLifeTime());
-        int expectedCpu=1;
-        assertEquals(expectedCpu,userRequest.getInstanceGroups().get(0).getInstanceList().get(1).getCpu());
-        int expectedRam=1;
-        assertEquals(expectedRam,userRequest.getInstanceGroups().get(0).getInstanceList().get(1).getRam());
-        int expectedStorage=1;
-        assertEquals(expectedStorage,userRequest.getInstanceGroups().get(0).getInstanceList().get(1).getStorage());
-        int expectedBandwidth=1;
+        int expectedSum = 1 + 2 + 3;
+        assertEquals(expectedSum, userRequest.getInstanceGroups().get(0).getCpuSum());
+        assertEquals(expectedSum, userRequest.getInstanceGroups().get(0).getRamSum());
+        assertEquals(expectedSum, userRequest.getInstanceGroups().get(0).getStorageSum());
+        assertEquals(expectedSum, userRequest.getInstanceGroups().get(0).getBwSum());
+
+        int expectedLifeTime = -1;
+        assertEquals(expectedLifeTime, userRequest.getInstanceGroups().get(0).getInstanceList().get(0).getLifeTime());
+        int expectedCpu = 1;
+        assertEquals(expectedCpu, userRequest.getInstanceGroups().get(0).getInstanceList().get(1).getCpu());
+        int expectedRam = 1;
+        assertEquals(expectedRam, userRequest.getInstanceGroups().get(0).getInstanceList().get(1).getRam());
+        int expectedStorage = 1;
+        assertEquals(expectedStorage, userRequest.getInstanceGroups().get(0).getInstanceList().get(1).getStorage());
+        int expectedBandwidth = 1;
         assertEquals(expectedBandwidth,userRequest.getInstanceGroups().get(0).getInstanceList().get(1).getBw());
 
         double expectDelay=2;

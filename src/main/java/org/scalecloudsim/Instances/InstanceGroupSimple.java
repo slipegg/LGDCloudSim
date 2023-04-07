@@ -19,23 +19,48 @@ public class InstanceGroupSimple implements InstanceGroup{
 
     double acessLatency;
 
-    public InstanceGroupSimple(int id){
-        this.id=id;
-        instanceList=new ArrayList<>();
-        groupType =0;
+    @Getter
+    long storageSum;
+    @Getter
+    long bwSum;
+
+    @Getter
+    long cpuSum;
+
+    @Getter
+    long ramSum;
+
+    public InstanceGroupSimple(int id) {
+        this.id = id;
+        instanceList = new ArrayList<>();
+        groupType = 0;
     }
 
     @Override
     public void setUserRequest(UserRequest userRequest) {
-        this.userRequest= userRequest;
+        this.userRequest = userRequest;
+    }
+
+    @Override
+    public InstanceGroup setInstanceList(List<Instance> instanceList) {
+        this.instanceList = instanceList;
+        for (Instance instance : instanceList) {
+            storageSum += instance.getStorage();
+            bwSum += instance.getBw();
+            cpuSum += instance.getCpu();
+            ramSum += instance.getRam();
+        }
+        return this;
     }
 
     @Override
     public void setId(int id) {
-        this.id=id;
+        this.id = id;
     }
+
     @Override
     public String toString() {
-        return "InstanceGroupSimple [id=" + id + ", instanceList=" + instanceList +"]";
+        return "InstanceGroupSimple [id=" + id + ", instanceList=" + instanceList + "]";
     }
+
 }
