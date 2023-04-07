@@ -1,5 +1,6 @@
 package org.scalecloudsim.datacenters;
 
+import org.cloudsimplus.core.Simulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,11 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     public CollaborationManagerSimple() {
         this.collaborationMap = new HashMap<>();
+    }
+
+    public CollaborationManagerSimple(Simulation simulation) {
+        this();
+        simulation.setCollaborationManager(this);
     }
 
     public CollaborationManagerSimple(Map<Integer, Set<Datacenter>> collaborationMap) {
@@ -106,17 +112,23 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     @Override
+    public Set<Datacenter> getDatacenters(Datacenter datacenter) {
+        Set<Datacenter> datacenters = new HashSet<>();
+        for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
+            Set<Datacenter> collaborationDatacenters = entry.getValue();
+            datacenters.addAll(collaborationDatacenters);
+        }
+        return datacenters;
+    }
+
+    @Override
     public Map<Integer, Set<Datacenter>> getCollaborationMap() {
         return collaborationMap;
     }
 
     @Override
     public Set<Datacenter> getOtherDatacenters(Datacenter datacenter) {
-        Set<Datacenter> datacenters = new HashSet<>();
-        for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
-            Set<Datacenter> collaborationDatacenters = entry.getValue();
-            datacenters.addAll(collaborationDatacenters);
-        }
+        Set<Datacenter> datacenters = getDatacenters(datacenter);
         datacenters.remove(datacenter);
         return datacenters;
     }
