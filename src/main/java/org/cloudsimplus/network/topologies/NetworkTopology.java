@@ -59,4 +59,6 @@ public interface NetworkTopology {
     void setDelayDynamicModel(DelayDynamicModel delayDynamicModel);
 
     double getDynamicDelay(SimEntity src, SimEntity dest, double time);
+
+    double getAcessLatency(SimEntity entity);
 }
