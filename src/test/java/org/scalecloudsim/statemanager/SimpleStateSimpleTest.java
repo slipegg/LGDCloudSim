@@ -16,6 +16,10 @@ public class SimpleStateSimpleTest {
         simpleState.updateCpuRamMap(32, 64, 16, 32);
         simpleState.addCpuRamRecord(8, 17);
 
+        int expectCpuSum = 24;
+        assertEquals(expectCpuSum, simpleState.getCpuAvaiableSum());
+        int expectRamSum = 49;
+        assertEquals(expectRamSum, simpleState.getRamAvaiableSum());
         int expectStorageSum = 1024;
         assertEquals(expectStorageSum, simpleState.getStorageAvaiableSum());
         int expectBwSum = 512;

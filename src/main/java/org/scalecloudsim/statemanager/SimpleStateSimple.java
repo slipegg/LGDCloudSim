@@ -7,6 +7,8 @@ import java.util.*;
 
 @Getter
 public class SimpleStateSimple implements SimpleState {
+    long cpuAvaiableSum;
+    long ramAvaiableSum;
     long storageAvaiableSum;
     long bwAvaiableSum;
     Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
@@ -18,6 +20,8 @@ public class SimpleStateSimple implements SimpleState {
     List<Integer> ramRecordListDec;
 
     public SimpleStateSimple() {
+        this.cpuAvaiableSum = 0;
+        this.ramAvaiableSum = 0;
         this.storageAvaiableSum = 0;
         this.bwAvaiableSum = 0;
         this.cpuRamMap = new TreeMap<>(Comparator.reverseOrder());
@@ -114,6 +118,8 @@ public class SimpleStateSimple implements SimpleState {
         if (smallerCpu != -1 && smallerRam != -1) {
             cpuRamMap.get(smallerCpu).get(smallerRam).increment();
         }
+        cpuAvaiableSum += cpu;
+        ramAvaiableSum += ram;
         return this;
     }
 
@@ -129,6 +135,8 @@ public class SimpleStateSimple implements SimpleState {
         if (smallerNowCpu != -1 && smallerNowRam != -1) {
             cpuRamMap.get(smallerNowCpu).get(smallerNowRam).increment();
         }
+        cpuAvaiableSum += nowCpu - originCpu;
+        ramAvaiableSum += nowRam - originRam;
         return this;
     }
 
