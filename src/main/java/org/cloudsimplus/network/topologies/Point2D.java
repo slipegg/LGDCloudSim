@@ -6,7 +6,7 @@ package org.cloudsimplus.network.topologies;
  * @param x horizontal coordinate
  * @param y vertical coordinate
  */
-public record Point2D(int x, int y) {
+public record Point2D(double x, double y) {
     /**
      * Creates an origin point with coordinates 0,0.
      */
@@ -16,6 +16,6 @@ public record Point2D(int x, int y) {
 
     @Override
     public String toString() {
-        return "x: %d y: %d".formatted(x, y);
+        return "x: %.2f y: %.2f".formatted(x, y);
     }
 }

@@ -42,6 +42,7 @@ public class TopologicalLink {
     /**
      * {@return the bandwidth} of the link (in Megabits/s).
      */
+    //TODO: 需要考虑是double类型还是int类型
     @Getter
     private final double linkBw;
 

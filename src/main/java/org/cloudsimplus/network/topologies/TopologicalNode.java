@@ -43,6 +43,9 @@ public final class TopologicalNode {
     @NonNull
     private Point2D worldCoordinates;
 
+    private double accessLatency;
+
+
     /**
      * Creates a network topology node with ID equals to zero.
      */
@@ -56,7 +59,11 @@ public final class TopologicalNode {
      * @param id The BRITE id of the node inside the network
      */
     public TopologicalNode(final int id) {
-        this(id, new Point2D());
+        this(id, 0);
+    }
+
+    public TopologicalNode(final int id, final double accessLatency) {
+        this(id, accessLatency, new Point2D());
     }
 
     /**
@@ -65,8 +72,8 @@ public final class TopologicalNode {
      * @param id               The BRITE id of the node inside the network
      * @param worldCoordinates the x,y world-coordinates of the Node
      */
-    public TopologicalNode(final int id, final Point2D worldCoordinates) {
-        this(id, String.valueOf(id), worldCoordinates);
+    public TopologicalNode(final int id, final double accessLatency, final Point2D worldCoordinates) {
+        this(id, String.valueOf(id), accessLatency, worldCoordinates);
     }
 
     /**
@@ -76,9 +83,10 @@ public final class TopologicalNode {
      * @param nodeName         The name of the node inside the network
      * @param worldCoordinates the x,y world-coordinates of the Node
      */
-    public TopologicalNode(final int id, final String nodeName, final Point2D worldCoordinates) {
+    public TopologicalNode(final int id, final String nodeName, final double accessLatency, final Point2D worldCoordinates) {
         this.setId(id);
         this.setNodeName(nodeName);
+        this.setAccessLatency(accessLatency);
         this.setWorldCoordinates(worldCoordinates);
     }
 }
