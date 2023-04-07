@@ -68,4 +68,9 @@ final class NetworkTopologyNull implements org.cloudsimplus.network.topologies.N
     public double getDynamicDelay(SimEntity src, SimEntity dest, double time) {
         return 0;
     }
+
+    @Override
+    public double getAcessLatency(SimEntity entity) {
+        return 0;
+    }
 }
