@@ -2,7 +2,10 @@ package org.cloudsimplus.core;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.cloudsimplus.core.events.*;
+import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.scalecloudsim.datacenters.CollaborationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +33,10 @@ public class CloudSim implements Simulation {
 
     @Getter
     private final CloudInformationService cis;
+    @Getter
+    private NetworkTopology networkTopology;
+    @Getter
+    CollaborationManager collaborationManager;
 
     public CloudSim() {
         clock = 0;
@@ -228,10 +235,16 @@ public class CloudSim implements Simulation {
 //                            "If you've paused the simulation and want to resume it, call the resume() method.");
 //        }
 
-        LOGGER.info("{}================== Starting {} =================={}", System.lineSeparator(), VERSION,  System.lineSeparator());
+        LOGGER.info("{}================== Starting {} =================={}", System.lineSeparator(), VERSION, System.lineSeparator());
         startEntitiesIfNotRunning();
 //        this.alreadyRunOnce = true;
     }
+
+    @Override
+    public int getNumEntities() {
+        return entityList.size();
+    }
+
     private void startEntitiesIfNotRunning() {
         if (running) {
             return;
@@ -241,8 +254,14 @@ public class CloudSim implements Simulation {
         entityList.forEach(SimEntity::start);
         LOGGER.info("Entities started.");
     }
+
     @Override
-    public int getNumEntities() {
-        return entityList.size();
+    public void setNetworkTopology(NetworkTopology networkTopology) {
+        this.networkTopology = networkTopology;
+    }
+
+    @Override
+    public void setCollaborationManager(CollaborationManager collaborationManager) {
+        this.collaborationManager = collaborationManager;
     }
 }

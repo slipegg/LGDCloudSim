@@ -2,6 +2,8 @@ package org.cloudsimplus.core;
 
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
+import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.scalecloudsim.datacenters.CollaborationManager;
 
 import java.util.function.Predicate;
 
@@ -56,5 +58,25 @@ public class SimulationNull implements Simulation {
     @Override
     public int getNumEntities() {
         return 0;
+    }
+
+    @Override
+    public void setNetworkTopology(NetworkTopology networkTopology) {
+
+    }
+
+    @Override
+    public NetworkTopology getNetworkTopology() {
+        return null;
+    }
+
+    @Override
+    public void setCollaborationManager(CollaborationManager collaborationManager) {
+
+    }
+
+    @Override
+    public CollaborationManager getCollaborationManager() {
+        return null;
     }
 }
