@@ -13,6 +13,10 @@ public class CloudSimTag {
     public static final int SEND_USER_REQUEST = BASE + 4;//USER发送用户请求给dc
     public static final int INTER_SCHEDULE = BASE + 5;//USER发送用户请求,需要比USER_REQUEST_SEND小
     public static final int ASK_DC_REVIVE_GROUP = BASE + 6;
+    public static final int RESPOND_DC_REVIVE_GROUP_ACCEPT = BASE + 7;
+    public static final int RESPOND_DC_REVIVE_GROUP_REJECT = BASE + 8;
+    public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = BASE + 9;
+    public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 10;
     private final int priority;
 
     public int priority() {
