@@ -133,6 +133,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         filterDatacentersByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
         interScheduleByResult(instanceGroupAvaiableDatacenters);
+        if (groupQueue.getGroupNum() > 0) {
+            sendNow(this, CloudSimTag.INTER_SCHEDULE);
+        }
         //根据网络拓扑中的时延和宽带情况对整个一批的进行排序
         //进行域间调度
         /*
