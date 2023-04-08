@@ -3,7 +3,7 @@ package org.scalecloudsim.statemanager;
 import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
 import org.junit.jupiter.api.Test;
-import org.scalecloudsim.innerscheduler.InnerScheduler;
+import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 
 import java.util.*;
 
@@ -27,13 +27,13 @@ public class StateManagerSimpleTest {
         partitionRangesManager.setAverageCutting(0,hostNum-1,10);
 
         //初始化10个调度器，每个调度器对10个分区的延迟都不一样
-        List<InnerScheduler> schedulers=new ArrayList<>();
+        List<InnerSchedulerSimple> schedulers = new ArrayList<>();
         for(int i=0;i<10;i++){//10个调度器
             Map<Integer,Double> partitionDelay=new TreeMap<>();
             for(int j=0;j<10;j++){//对10个分区的延迟
                 partitionDelay.put((i+j)%10,3.0*j);
             }
-            InnerScheduler scheduler=new InnerScheduler(i,partitionDelay);
+            InnerSchedulerSimple scheduler = new InnerSchedulerSimple(i, partitionDelay);
             System.out.println(scheduler.getPartitionDelay());
             schedulers.add(scheduler);
         }
@@ -92,20 +92,20 @@ public class StateManagerSimpleTest {
         for(int i=0;i<10;i++){
             partitionDelay.put(i,2.0*i);
         }
-        InnerScheduler scheduler=new InnerScheduler(10,partitionDelay);
+        InnerSchedulerSimple scheduler = new InnerSchedulerSimple(10, partitionDelay);
         stateManager.registerScheduler(scheduler);
 
         //模拟抛弃当前分区，然后重新分区
         stateManager.calcelAllSchedulers();
         partitionRangesManager.setAverageCutting(0,hostNum-1,5);
         stateManager.setPartitionRanges(partitionRangesManager);
-        List<InnerScheduler> newSchedulers=new ArrayList<>();
+        List<InnerSchedulerSimple> newSchedulers = new ArrayList<>();
         for(int i=0;i<5;i++){//5个调度器
             Map<Integer,Double> newPartitionDelay=new TreeMap<>();
             for(int j=0;j<5;j++){//对5个分区的延迟
                 newPartitionDelay.put((i+j)%5,2.0*j);
             }
-            InnerScheduler newScheduler=new InnerScheduler(i,newPartitionDelay);
+            InnerSchedulerSimple newScheduler = new InnerSchedulerSimple(i, newPartitionDelay);
             System.out.println(newScheduler.getPartitionDelay());
             newSchedulers.add(newScheduler);
         }

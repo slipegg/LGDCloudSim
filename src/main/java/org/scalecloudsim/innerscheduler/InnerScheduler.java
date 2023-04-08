@@ -1,24 +1,26 @@
 package org.scalecloudsim.innerscheduler;
+
+import org.cloudsimplus.core.Nameable;
+import org.scalecloudsim.Instances.Instance;
+import org.scalecloudsim.datacenters.Datacenter;
+
+import java.util.List;
 import java.util.Map;
-public class InnerScheduler {
-     Map<Integer,Double> partitionDelay;
-     int id;
-     public int getId(){
-         return id;
-     }
-    public void setPartitionDelay(Map<Integer,Double> partitionDelay) {
-        this.partitionDelay = partitionDelay;
-    }
 
-    public Map<Integer,Double> getPartitionDelay() {
-        return partitionDelay;
-    }
+public interface InnerScheduler extends Nameable {
+    Datacenter getDatacenter();
 
-    public InnerScheduler(Map<Integer,Double> partitionDelay) {
-        this.partitionDelay = partitionDelay;
-    }
-    public InnerScheduler(int id,Map<Integer,Double> partitionDelay) {
-        this.id = id;
-        this.partitionDelay = partitionDelay;
-    }
+    void setPartitionDelay(Map<Integer, Double> partitionDelay);
+
+    Map<Integer, Double> getPartitionDelay();
+
+    InnerScheduler setName(String name);
+
+    InnerScheduler addInstance(List<Instance> instances);
+
+    InnerScheduler addInstance(Instance instance);
+
+    boolean isQueueEmpty();
+
+    InnerScheduler schedule();
 }
