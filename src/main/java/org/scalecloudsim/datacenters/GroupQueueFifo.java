@@ -51,7 +51,7 @@ public class GroupQueueFifo implements GroupQueue {
     }
 
     @Override
-    public int getGroupNum() {
+    public int size() {
         return instanceGroups.size();
     }
 

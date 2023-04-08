@@ -14,5 +14,5 @@ public interface GroupQueue {
 
     List<InstanceGroup> getBatchItem();
 
-    int getGroupNum();
+    int size();
 }

@@ -13,11 +13,11 @@ public class InstanceQueueFifo implements InstanceQueue {
 
     public InstanceQueueFifo() {
         instances = new LinkedList<>();
-        batchNum = 5;
+        batchNum = 6;
     }
 
     @Override
-    public int getInstanceNum() {
+    public int size() {
         return instances.size();
     }
 

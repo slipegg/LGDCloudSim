@@ -6,7 +6,7 @@ import org.scalecloudsim.Instances.InstanceGroup;
 import java.util.List;
 
 public interface InstanceQueue {
-    int getInstanceNum();
+    int size();
 
     List<Instance> getBatchItem();
 
