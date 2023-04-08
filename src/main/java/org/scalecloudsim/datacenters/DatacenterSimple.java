@@ -121,6 +121,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         List<Datacenter> allDatacenters = getSimulation().getCollaborationManager().getDatacenters(this);
         NetworkTopology networkTopology = getSimulation().getNetworkTopology();
         //根据接入时延和资源抽样信息得到每个亲和组可调度的数据中心
+        double start = System.currentTimeMillis();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> availableDatacenters = getAvaiableDatacenters(instanceGroup, new ArrayList<>(allDatacenters), networkTopology);
@@ -132,9 +133,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         filterDatacentersByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        interScheduleByResult(instanceGroupAvaiableDatacenters);
+        double costTime = (System.currentTimeMillis() - start) / 10;//假设在集群调度器中的性能更强。只需要花费十分之一的时间
+        LOGGER.info("{}: {} inter scheduling cost {} ms.", getSimulation().clockStr(), getName(), costTime);
+        interScheduleByResult(instanceGroupAvaiableDatacenters, costTime);
         if (groupQueue.getGroupNum() > 0) {
-            sendNow(this, CloudSimTag.INTER_SCHEDULE);
+            send(this, costTime, CloudSimTag.INTER_SCHEDULE, null);
         }
         //根据网络拓扑中的时延和宽带情况对整个一批的进行排序
         //进行域间调度
@@ -204,7 +207,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     //根据筛选情况进行调度
-    private void interScheduleByResult(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters) {
+    private void interScheduleByResult(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, double costTime) {
         Map<Datacenter, List<InstanceGroup>> sendMap = new HashMap<>();
         for (Map.Entry<InstanceGroup, List<Datacenter>> entry : instanceGroupAvaiableDatacenters.entrySet()) {
             InstanceGroup instanceGroup = entry.getKey();
@@ -228,7 +231,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : sendMap.entrySet()) {
             Datacenter datacenter = entry.getKey();
             List<InstanceGroup> instanceGroups = entry.getValue();
-            sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
+            sendBetweenDc(datacenter, costTime, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
         }
     }
 
