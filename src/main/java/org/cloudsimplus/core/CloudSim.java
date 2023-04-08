@@ -38,12 +38,16 @@ public class CloudSim implements Simulation {
     @Getter
     CollaborationManager collaborationManager;
 
+    @Getter
+    private int simulationAccuracy;
+
     public CloudSim() {
         clock = 0;
         this.entityList = new ArrayList<>();
         this.future = new FutureQueue();
         this.deferred = new DeferredQueue();
         this.cis = new CloudInformationService(this);
+        this.simulationAccuracy = 2;
     }
 
     @Override
@@ -53,8 +57,9 @@ public class CloudSim implements Simulation {
 
     @Override
     public String clockStr() {
-        return "%.2f".formatted(clock);
+        return "%.2f ms".formatted(clock);
     }
+
     @Override
     public Simulation setClock(double time) {
         this.clock = time;
@@ -92,7 +97,7 @@ public class CloudSim implements Simulation {
     @Override
     public void send(@NonNull final SimEvent evt) {
         //Events with a negative tag have higher priority
-        if(evt.getTag() < 0)
+        if (evt.getTag() < 0)
             future.addEventFirst(evt);
         else future.addEvent(evt);
     }
@@ -104,20 +109,22 @@ public class CloudSim implements Simulation {
     private Stream<SimEvent> filterEvents(final EventQueue queue, final Predicate<SimEvent> predicate) {
         return queue.stream().filter(predicate);
     }
+
     @Override
     public double start() {
 //        aborted = false;
         startSync();
 //
-        while(processEvents(Double.MAX_VALUE)){
+        while (processEvents(Double.MAX_VALUE)) {
             //All the processing happens inside the method called above
         }
 //
 //        finish();
         return clock;
     }
+
     protected boolean processEvents(final double until) {
-        if(!runClockTickAndProcessFutureEvents(until)) {
+        if (!runClockTickAndProcessFutureEvents(until)) {
             return false;
         }
         return true;
@@ -155,7 +162,7 @@ public class CloudSim implements Simulation {
         }
 
         final SimEvent first = future.first();
-        if(first.getTime() <= until) {
+        if (first.getTime() <= until) {
             processFutureEventsHappeningAtSameTimeOfTheFirstOne(first);
             return true;
         }
@@ -178,9 +185,9 @@ public class CloudSim implements Simulation {
         processEvent(firstEvent);
         future.remove(firstEvent);
 
-        while(!future.isEmpty()) {
+        while (!future.isEmpty()) {
             final SimEvent evt = future.first();
-            if(evt.getTime() != firstEvent.getTime())
+            if (evt.getTime() != firstEvent.getTime())
                 break;
             processEvent(evt);
             future.remove(evt);
@@ -205,6 +212,7 @@ public class CloudSim implements Simulation {
 //            case HOLD_DONE -> processHoldEvent(evt);
         }
     }
+
     private void processSendEvent(final SimEvent evt) {
 //        if (evt.getDestination() == SimEntity.NULL) {
 //            throw new IllegalArgumentException("Attempt to send to a null entity detected.");
@@ -263,5 +271,10 @@ public class CloudSim implements Simulation {
     @Override
     public void setCollaborationManager(CollaborationManager collaborationManager) {
         this.collaborationManager = collaborationManager;
+    }
+
+    @Override
+    public void setSimulationAccuracy(int simulationAccuracy) {
+        this.simulationAccuracy = simulationAccuracy;
     }
 }

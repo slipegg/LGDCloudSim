@@ -38,4 +38,9 @@ public interface Simulation {
     void setCollaborationManager(CollaborationManager collaborationManager);
 
     CollaborationManager getCollaborationManager();
+
+    int getSimulationAccuracy();
+
+    //设置模拟的时间精度，即到小数点后几位，默认是2位，即0.01ms
+    void setSimulationAccuracy(int simulationAccuracy);
 }

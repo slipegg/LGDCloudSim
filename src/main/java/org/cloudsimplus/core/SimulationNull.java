@@ -79,4 +79,14 @@ public class SimulationNull implements Simulation {
     public CollaborationManager getCollaborationManager() {
         return null;
     }
+
+    @Override
+    public int getSimulationAccuracy() {
+        return 0;
+    }
+
+    @Override
+    public void setSimulationAccuracy(int simulationAccuracy) {
+
+    }
 }
