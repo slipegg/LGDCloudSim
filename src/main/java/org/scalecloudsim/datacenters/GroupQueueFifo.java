@@ -33,6 +33,12 @@ public class GroupQueueFifo implements GroupQueue {
     }
 
     @Override
+    public GroupQueue addAInstanceGroup(InstanceGroup instanceGroup) {
+        this.instanceGroups.add(instanceGroup);
+        return this;
+    }
+
+    @Override
     public List<InstanceGroup> getInstanceGroups() {
         List<InstanceGroup> userRequests = new ArrayList<>();
         for (int i = 0; i < batchNum; i++) {

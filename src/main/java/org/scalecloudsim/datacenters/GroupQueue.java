@@ -10,6 +10,8 @@ public interface GroupQueue {
 
     GroupQueue addInstanceGroups(UserRequest userRequest);
 
+    GroupQueue addAInstanceGroup(InstanceGroup instanceGroup);
+
     List<InstanceGroup> getInstanceGroups();
 
     int getGroupNum();

@@ -120,11 +120,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     if (isAllSendResultReceived((InstanceGroup) instanceGroup)) {
                         LOGGER.info("{}: {} received all respond from InstanceGroup{} to schedule.", getSimulation().clockStr(), getName(), ((InstanceGroup) instanceGroup).getId());
                         Datacenter receiveDatacenter = decideReceiveDatacenter((InstanceGroup) instanceGroup);
+                        double costTime = 0;//TODO 需要统计花费的时间
                         if (receiveDatacenter == null) {
-                            interScheduleFail((InstanceGroup) instanceGroup);
+                            interScheduleFail((InstanceGroup) instanceGroup, costTime);
                         } else {
                             //TODO 需要思考是否需要以List的形式回送，目前以单个的形式回送
-                            respondAllReciveDatacenter((InstanceGroup) instanceGroup, receiveDatacenter);
+                            respondAllReciveDatacenter((InstanceGroup) instanceGroup, receiveDatacenter, costTime);
                         }
                         instanceGroupSendResultMap.remove(instanceGroup);
                     }
@@ -133,12 +134,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void respondAllReciveDatacenter(InstanceGroup instanceGroup, Datacenter receiveDatacenter) {
+    private void respondAllReciveDatacenter(InstanceGroup instanceGroup, Datacenter receiveDatacenter, double costTime) {
         for (Map.Entry<Datacenter, Integer> entry : instanceGroupSendResultMap.get(instanceGroup).entrySet()) {
             if (entry.getValue() == 1 && entry.getKey() != receiveDatacenter) {
-                sendNow(entry.getKey(), CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP, instanceGroup);
+                sendBetweenDc(entry.getKey(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP, instanceGroup);
             } else if (entry.getKey() == receiveDatacenter) {
-                sendNow(entry.getKey(), CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, instanceGroup);
+                sendBetweenDc(entry.getKey(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, instanceGroup);
             }
         }
     }
@@ -211,6 +212,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
             }
             LOGGER.info("{}: {} received {} user request.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), groupQueue.getGroupNum());
+        } else if (evt.getData() instanceof InstanceGroup) {
+            groupQueue.addAInstanceGroup((InstanceGroup) evt.getData());
+            LOGGER.info("{}: {} received an InstanceGroup.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), groupQueue.getGroupNum());
         }
         sendNow(this, CloudSimTag.INTER_SCHEDULE);
     }
@@ -219,6 +223,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         //得到本轮需要进行域间调度的亲和组
         List<InstanceGroup> instanceGroups = groupQueue.getInstanceGroups();
         LOGGER.info("{}: {} is processing inter schedule for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
+        if (instanceGroups.size() == 0) {
+            return;
+        }
         //得到其他数据中心的基础信息和资源抽样信息
         List<Datacenter> allDatacenters = getSimulation().getCollaborationManager().getDatacenters(this);
         NetworkTopology networkTopology = getSimulation().getNetworkTopology();
@@ -229,9 +236,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<Datacenter> availableDatacenters = getAvaiableDatacenters(instanceGroup, new ArrayList<>(allDatacenters), networkTopology);
             if (availableDatacenters.size() > 0) {
                 instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
-            } else {
-                //TODO 进入域间调度失败处理
-                interScheduleFail(instanceGroup);
             }
         }
         filterDatacentersByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
@@ -317,7 +321,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<Datacenter> datacenters = entry.getValue();
             if (datacenters.size() == 0) {
                 //如果没有可调度的数据中心，那么就将其返回给亲和组队列等待下次调度
-                interScheduleFail(instanceGroup);
+                interScheduleFail(instanceGroup, costTime);
             } else {
                 //如果有可调度的数据中心，那么就将其发送给可调度的数据中心
                 for (Datacenter datacenter : datacenters) {
@@ -346,8 +350,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void interScheduleFail(InstanceGroup instanceGroup) {
-        //TODO 如果亲和组调度失败，那么就将其返回给亲和组队列等待下次调度
+    private void interScheduleFail(InstanceGroup instanceGroup, double delay) {
+        //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
+        instanceGroup.addRetryNum();
+        if (!instanceGroup.isFailed()) {
+            send(this, delay, CloudSimTag.USER_REQUEST_SEND, instanceGroup);
+        }
     }
 
     @Override
