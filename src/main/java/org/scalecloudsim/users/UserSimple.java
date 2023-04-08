@@ -14,9 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 public class UserSimple extends CloudSimEntity {
@@ -51,9 +48,9 @@ public class UserSimple extends CloudSimEntity {
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-            case CloudSimTag.DC_LIST_REQUEST->processDatacenterListRequest(evt);
-            case CloudSimTag.SEND_USER_REQUEST->sendUserRequest();
-            default-> LOGGER.warn("{} received an unknown event tag: {}", getName(), evt.getTag());
+            case CloudSimTag.DC_LIST_REQUEST -> processDatacenterListRequest(evt);
+            case CloudSimTag.NEED_SEND_USER_REQUEST -> sendUserRequest();
+            default -> LOGGER.warn("{} received an unknown event tag: {}", getName(), evt.getTag());
         }
     }
     private void processDatacenterListRequest(final SimEvent evt) {
@@ -78,7 +75,7 @@ public class UserSimple extends CloudSimEntity {
             }
         }
         if(isSendLater) {
-            send(this, sendOnceInterval, CloudSimTag.SEND_USER_REQUEST, null);
+            send(this, sendOnceInterval, CloudSimTag.NEED_SEND_USER_REQUEST, null);
             LOGGER.info("{}: {} will send user request after {} seconds", getSimulation().clockStr(), getName(), sendOnceInterval);
         }
         isSendLater=false;
