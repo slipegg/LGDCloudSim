@@ -30,10 +30,24 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Getter
     long ramSum;
 
+    @Getter
+    @Setter
+    int retryNum;
+
+    @Getter
+    @Setter
+    int retryMaxNum;
+
+    @Getter
+    @Setter
+    int state;
+
     public InstanceGroupSimple(int id) {
         this.id = id;
-        instanceList = new ArrayList<>();
-        groupType = 0;
+        this.instanceList = new ArrayList<>();
+        this.groupType = 0;
+        this.retryNum = 0;
+        this.retryMaxNum = 3;
     }
 
     @Override

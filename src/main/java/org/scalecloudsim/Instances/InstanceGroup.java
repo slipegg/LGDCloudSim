@@ -26,4 +26,16 @@ public interface InstanceGroup extends RequestEntity {
     long getCpuSum();
 
     long getRamSum();
+
+    int getRetryNum();
+
+    int getRetryMaxNum();
+
+    int getState();
+
+    InstanceGroup setState(int state);
+
+    InstanceGroup setRetryNum(int retryNum);
+
+    InstanceGroup setRetryMaxNum(int retryMaxNum);
 }
