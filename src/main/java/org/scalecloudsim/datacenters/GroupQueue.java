@@ -12,7 +12,7 @@ public interface GroupQueue {
 
     GroupQueue addAInstanceGroup(InstanceGroup instanceGroup);
 
-    List<InstanceGroup> getInstanceGroups();
+    List<InstanceGroup> getBatchItem();
 
     int getGroupNum();
 }

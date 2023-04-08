@@ -39,7 +39,7 @@ public class GroupQueueFifo implements GroupQueue {
     }
 
     @Override
-    public List<InstanceGroup> getInstanceGroups() {
+    public List<InstanceGroup> getBatchItem() {
         List<InstanceGroup> userRequests = new ArrayList<>();
         for (int i = 0; i < batchNum; i++) {
             if (instanceGroups.size() == 0) {

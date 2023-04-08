@@ -22,6 +22,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public Logger LOGGER = LoggerFactory.getLogger(DatacenterSimple.class.getSimpleName());
     private Set<Integer> collaborationIds;
     private GroupQueue groupQueue;
+    private InstanceQueue instanceQueue;
     @Getter
     private StateManager stateManager;
     @Getter
@@ -39,6 +40,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         super(simulation);
         this.collaborationIds = new HashSet<>();
         this.groupQueue = new GroupQueueFifo();
+        this.instanceQueue = new InstanceQueueFifo();
         this.instanceGroupSendResultMap = new HashMap<>();
     }
 
@@ -118,8 +120,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 0);
                     }
                     if (isAllSendResultReceived((InstanceGroup) instanceGroup)) {
-                        LOGGER.info("{}: {} received all respond from InstanceGroup{} to schedule.", getSimulation().clockStr(), getName(), ((InstanceGroup) instanceGroup).getId());
                         Datacenter receiveDatacenter = decideReceiveDatacenter((InstanceGroup) instanceGroup);
+                        LOGGER.info("{}: {} decides to schedule InstanceGroup{} to {} after receiving all respond.", getSimulation().clockStr(), getName(), ((InstanceGroup) instanceGroup).getId(), receiveDatacenter.getName());
                         double costTime = 0;//TODO 需要统计花费的时间
                         if (receiveDatacenter == null) {
                             interScheduleFail((InstanceGroup) instanceGroup, costTime);
@@ -165,10 +167,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         return true;
-    }
-
-    private void processRespondDcReviveGroupReject(SimEvent evt) {
-
     }
 
     private void processAskDcReviveGroup(SimEvent evt) {
@@ -221,7 +219,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processInterSchedule() {
         //得到本轮需要进行域间调度的亲和组
-        List<InstanceGroup> instanceGroups = groupQueue.getInstanceGroups();
+        List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
         LOGGER.info("{}: {} is processing inter schedule for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
         if (instanceGroups.size() == 0) {
             return;
