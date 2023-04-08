@@ -13,7 +13,7 @@ public class UserRequestManagerSimple implements UserRequestManager {
         Map<Double, List<UserRequest>> userRequestMap = new TreeMap<>();
         UserRequestGenerator userRequestGenerator = new RandomUserRequestGenerator();
         int num = 3;
-        for (double time = startTime; time < endTime; time += 0.1) {
+        for (double time = startTime; time < endTime; time += 10) {
             List<UserRequest> userRequests = new ArrayList<>();
             for (int j = 0; j < num; j++) {
                 UserRequest userRequest = userRequestGenerator.generateAUserRequest();

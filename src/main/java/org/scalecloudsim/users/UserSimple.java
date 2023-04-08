@@ -73,13 +73,13 @@ public class UserSimple extends CloudSimEntity {
             for(Map.Entry<Double,List<UserRequest>> entry:userRequests.entrySet()){
                 double time = entry.getKey();
                 List<UserRequest> userRequestList = entry.getValue();
-                send(datacenter,time-nowTime,CloudSimTag.USER_REQUEST_SEND,userRequestList);
-                LOGGER.info("{}: {}: Sending user {} request(time = {}) to {}", nowTime, getName(),userRequestList.size(),String.format("%.2f", time),datacenter.getName());
+                send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequestList);
+                LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), userRequestList.size(), String.format("%.2f", time), datacenter.getName());
             }
         }
-        if(isSendLater){
-            schedule(this,sendOnceInterval,CloudSimTag.SEND_USER_REQUEST);
-            LOGGER.info("{}: {} will send user request after {} seconds", nowTime, getName(),sendOnceInterval);
+        if(isSendLater) {
+            send(this, sendOnceInterval, CloudSimTag.SEND_USER_REQUEST, null);
+            LOGGER.info("{}: {} will send user request after {} seconds", getSimulation().clockStr(), getName(), sendOnceInterval);
         }
         isSendLater=false;
     }
