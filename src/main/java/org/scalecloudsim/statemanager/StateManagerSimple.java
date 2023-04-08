@@ -3,7 +3,7 @@ package org.scalecloudsim.statemanager;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudsimplus.core.Simulation;
-import org.scalecloudsim.innerscheduler.InnerScheduler;
+import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ public class StateManagerSimple implements StateManager {
     Simulation simulation;//驱动
     PartitionRangesManager partitionRangesManager;//分区范围管理器
     Map<Integer, PartitionManager> partitionManagerMap;//区域管理器Map
-    Set<InnerScheduler> validSchedulerSet;//注册的有效的scheduler
+    Set<InnerSchedulerSimple> validSchedulerSet;//注册的有效的scheduler
     Map<Integer, Double> lastChangeTime;//host状态上一次变化的时间，不存在在这里就是0.
     int hostNum;
     TreeMap<Integer, LinkedList<HostStateHistory>> hostHistoryMaps;//host历史状态，放置在这里可以使得范围调整，区域管理器更新后主机历史状态不丢失
@@ -35,7 +35,7 @@ public class StateManagerSimple implements StateManager {
 
     public StateManagerSimple(int hostNum, Simulation simulation,
                               PartitionRangesManager partitionRangesManager,
-                              List<InnerScheduler> schedulers) {
+                              List<InnerSchedulerSimple> schedulers) {
         this.hostNum = hostNum;
         this.simulation = simulation;
         hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -44,7 +44,7 @@ public class StateManagerSimple implements StateManager {
         lastChangeTime = new TreeMap<>();
         hostHistoryMaps = new TreeMap<>();
         setPartitionRanges(partitionRangesManager);
-        for (InnerScheduler scheduler : schedulers) {
+        for (InnerSchedulerSimple scheduler : schedulers) {
             registerScheduler(scheduler);
         }
         simpleState = new SimpleStateSimple();
@@ -84,7 +84,7 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public StateManager registerScheduler(InnerScheduler scheduler) {
+    public StateManager registerScheduler(InnerSchedulerSimple scheduler) {
         if (!isValidScheduler(scheduler)) {
             LOGGER.error("scheduler" + scheduler + " is not registered");
         } else {
@@ -98,15 +98,15 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public StateManager registerSchedulers(List<InnerScheduler> scheduler) {
-        for (InnerScheduler innerScheduler : scheduler) {
-            registerScheduler(innerScheduler);
+    public StateManager registerSchedulers(List<InnerSchedulerSimple> scheduler) {
+        for (InnerSchedulerSimple innerSchedulerSimple : scheduler) {
+            registerScheduler(innerSchedulerSimple);
         }
         return this;
     }
 
     @Override
-    public StateManager cancelScheduler(InnerScheduler scheduler) {
+    public StateManager cancelScheduler(InnerSchedulerSimple scheduler) {
         if (!isValidScheduler(scheduler)) {
             LOGGER.error("scheduler" + scheduler + " is not registered");
         } else {
@@ -123,14 +123,14 @@ public class StateManagerSimple implements StateManager {
 
     @Override
     public StateManager calcelAllSchedulers() {
-        List<InnerScheduler> tmpSchedulerList = new ArrayList<>(validSchedulerSet);
-        for (InnerScheduler scheduler : tmpSchedulerList) {
+        List<InnerSchedulerSimple> tmpSchedulerList = new ArrayList<>(validSchedulerSet);
+        for (InnerSchedulerSimple scheduler : tmpSchedulerList) {
             cancelScheduler(scheduler);
         }
         return this;
     }
 
-    private boolean isValidScheduler(InnerScheduler scheduler) {
+    private boolean isValidScheduler(InnerSchedulerSimple scheduler) {
         if (validSchedulerSet.contains(scheduler)) {
             return true;
         }
@@ -156,7 +156,7 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public DelayState getDelayState(InnerScheduler scheduler) {
+    public DelayState getDelayState(InnerSchedulerSimple scheduler) {
         if (!isValidScheduler(scheduler)) {
             LOGGER.error("scheduler" + scheduler + " is not registered");
             return null;

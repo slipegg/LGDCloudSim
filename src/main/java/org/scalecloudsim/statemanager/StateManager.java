@@ -1,7 +1,7 @@
 package org.scalecloudsim.statemanager;
 
 import org.cloudsimplus.core.Simulation;
-import org.scalecloudsim.innerscheduler.InnerScheduler;
+import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +14,15 @@ public interface StateManager {
 
     StateManager setPartitionRanges(PartitionRangesManager partitionRangesManager);//支持删除原有分区，重新设置分区
 
-    StateManager registerScheduler(InnerScheduler scheduler);
+    StateManager registerScheduler(InnerSchedulerSimple scheduler);
 
-    StateManager registerSchedulers(List<InnerScheduler> scheduler);
+    StateManager registerSchedulers(List<InnerSchedulerSimple> scheduler);
 
-    StateManager cancelScheduler(InnerScheduler scheduler);
+    StateManager cancelScheduler(InnerSchedulerSimple scheduler);
 
     StateManager calcelAllSchedulers();
 
-    DelayState getDelayState(InnerScheduler scheduler);
+    DelayState getDelayState(InnerSchedulerSimple scheduler);
 
     Simulation getSimulation();
 
