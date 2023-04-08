@@ -89,16 +89,52 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
             case CloudSimTag.INTER_SCHEDULE -> processInterSchedule();
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
+            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT -> processRespondDcReviveGroupAccept(evt);
+            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT -> processRespondDcReviveGroupReject(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
         }
     }
 
+    private void processRespondDcReviveGroupAccept(SimEvent evt) {
+
+    }
+
+    private void processRespondDcReviveGroupReject(SimEvent evt) {
+
+    }
+
     private void processAskDcReviveGroup(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroups) {
             LOGGER.info("{}: {} received {} instance groups from {} to schedule.", getSimulation().clockStr(), getName(), instanceGroups.size(), evt.getSource().getName());
+            Map<InstanceGroup, Boolean> reviveGroupResult = getReviveGroupResult((List<InstanceGroup>) instanceGroups);
+            double costTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+            respondAskDcReviveGroup(evt.getSource(), reviveGroupResult, costTime);
         }
-        //TODO
+    }
+
+    private Map<InstanceGroup, Boolean> getReviveGroupResult(List<InstanceGroup> instanceGroups) {
+        //TODO 怎么判断是否接收，如果接收了怎么进行资源预留
+        Map<InstanceGroup, Boolean> result = new HashMap<>();
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            result.put(instanceGroup, true);
+        }
+        return result;
+    }
+
+    private void respondAskDcReviveGroup(SimEntity dst, Map<InstanceGroup, Boolean> reviveGroupResult, double costTime) {
+        List<InstanceGroup> acceptedGroups = new ArrayList<>();
+        List<InstanceGroup> rejectedGroups = new ArrayList<>();
+        for (Map.Entry<InstanceGroup, Boolean> entry : reviveGroupResult.entrySet()) {
+            if (entry.getValue()) {
+                acceptedGroups.add(entry.getKey());
+            } else {
+                rejectedGroups.add(entry.getKey());
+            }
+        }
+        LOGGER.info("{}: {} is responding {} accepted groups and {} rejected groups to {}.", getSimulation().clockStr(), getName(), acceptedGroups.size(), rejectedGroups.size(), dst.getName());
+        sendBetweenDc(dst, costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, acceptedGroups);
+        sendBetweenDc(dst, costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT, rejectedGroups);
     }
 
     private void processUserRequestsSend(final SimEvent evt) {
