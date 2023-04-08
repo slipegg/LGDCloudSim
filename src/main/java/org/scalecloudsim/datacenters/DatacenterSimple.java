@@ -95,6 +95,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processAskDcReviveGroup(SimEvent evt) {
+        if (evt.getData() instanceof List<?> instanceGroups) {
+            LOGGER.info("{}: {} received {} instance groups from {} to schedule.", getSimulation().clockStr(), getName(), instanceGroups.size(), evt.getSource().getName());
+        }
         //TODO
     }
 
@@ -113,6 +116,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processInterSchedule() {
         //得到本轮需要进行域间调度的亲和组
         List<InstanceGroup> instanceGroups = groupQueue.getInstanceGroups();
+        LOGGER.info("{}: {} is processing inter schedule for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
         //得到其他数据中心的基础信息和资源抽样信息
         List<Datacenter> allDatacenters = getSimulation().getCollaborationManager().getDatacenters(this);
         NetworkTopology networkTopology = getSimulation().getNetworkTopology();
@@ -124,6 +128,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
             } else {
                 //TODO 进入域间调度失败处理
+                interScheduleFail(instanceGroup);
             }
         }
         filterDatacentersByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
@@ -197,14 +202,35 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     //根据筛选情况进行调度
     private void interScheduleByResult(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters) {
+        Map<Datacenter, List<InstanceGroup>> sendMap = new HashMap<>();
         for (Map.Entry<InstanceGroup, List<Datacenter>> entry : instanceGroupAvaiableDatacenters.entrySet()) {
             InstanceGroup instanceGroup = entry.getKey();
             List<Datacenter> datacenters = entry.getValue();
-            for (Datacenter datacenter : datacenters) {
-                //TODO 将亲和组发送给调度方案中的各个数据中心进行询问
-                sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroup);
+            if (datacenters.size() == 0) {
+                //如果没有可调度的数据中心，那么就将其返回给亲和组队列等待下次调度
+                interScheduleFail(instanceGroup);
+            } else {
+                //如果有可调度的数据中心，那么就将其发送给可调度的数据中心
+                for (Datacenter datacenter : datacenters) {
+                    if (sendMap.containsKey(datacenter)) {
+                        sendMap.get(datacenter).add(instanceGroup);
+                    } else {
+                        List<InstanceGroup> instanceGroups = new ArrayList<>();
+                        instanceGroups.add(instanceGroup);
+                        sendMap.put(datacenter, instanceGroups);
+                    }
+                }
             }
         }
+        for (Map.Entry<Datacenter, List<InstanceGroup>> entry : sendMap.entrySet()) {
+            Datacenter datacenter = entry.getKey();
+            List<InstanceGroup> instanceGroups = entry.getValue();
+            sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
+        }
+    }
+
+    private void interScheduleFail(InstanceGroup instanceGroup) {
+        //TODO 如果亲和组调度失败，那么就将其返回给亲和组队列等待下次调度
     }
 
     @Override
