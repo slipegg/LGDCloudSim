@@ -27,6 +27,10 @@ public interface InstanceGroup extends RequestEntity {
 
     long getRamSum();
 
+    InstanceGroup addRetryNum();
+
+    boolean isFailed();
+
     int getRetryNum();
 
     int getRetryMaxNum();

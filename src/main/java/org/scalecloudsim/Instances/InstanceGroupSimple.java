@@ -68,6 +68,21 @@ public class InstanceGroupSimple implements InstanceGroup{
     }
 
     @Override
+    public InstanceGroup addRetryNum() {
+        this.retryNum++;
+        if (this.retryNum >= this.retryMaxNum) {
+            this.state = UserRequest.FAILED;
+            this.getUserRequest().setState(UserRequest.FAILED);
+        }
+        return this;
+    }
+
+    @Override
+    public boolean isFailed() {
+        return this.state == UserRequest.FAILED;
+    }
+
+    @Override
     public void setId(int id) {
         this.id = id;
     }
