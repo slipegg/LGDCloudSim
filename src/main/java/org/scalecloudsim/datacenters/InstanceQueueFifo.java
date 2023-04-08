@@ -34,13 +34,13 @@ public class InstanceQueueFifo implements InstanceQueue {
     }
 
     @Override
-    public InstanceQueue addAInstance(Instance instance) {
+    public InstanceQueue add(Instance instance) {
         this.instances.add(instance);
         return this;
     }
 
     @Override
-    public InstanceQueue addInstances(InstanceGroup instanceGroup) {
+    public InstanceQueue add(InstanceGroup instanceGroup) {
         this.instances.addAll(instanceGroup.getInstanceList());
         return this;
     }

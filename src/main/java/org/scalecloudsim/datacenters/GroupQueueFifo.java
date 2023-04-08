@@ -18,22 +18,22 @@ public class GroupQueueFifo implements GroupQueue {
     }
 
     @Override
-    public GroupQueue addInstanceGroups(List<UserRequest> userRequests) {
+    public GroupQueue add(List<UserRequest> userRequests) {
         for (UserRequest userRequest : userRequests) {
-            addInstanceGroups(userRequest);
+            add(userRequest);
         }
         return this;
     }
 
     @Override
-    public GroupQueue addInstanceGroups(UserRequest userRequest) {//先到先服务在到来时不需要排队
+    public GroupQueue add(UserRequest userRequest) {//先到先服务在到来时不需要排队
         List<InstanceGroup> instanceGroups = userRequest.getInstanceGroups();
         this.instanceGroups.addAll(instanceGroups);
         return this;
     }
 
     @Override
-    public GroupQueue addAInstanceGroup(InstanceGroup instanceGroup) {
+    public GroupQueue add(InstanceGroup instanceGroup) {
         this.instanceGroups.add(instanceGroup);
         return this;
     }
