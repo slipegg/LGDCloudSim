@@ -121,7 +121,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         List<Datacenter> allDatacenters = getSimulation().getCollaborationManager().getDatacenters(this);
         NetworkTopology networkTopology = getSimulation().getNetworkTopology();
         //根据接入时延和资源抽样信息得到每个亲和组可调度的数据中心
-        double start = System.currentTimeMillis();
+//        double start = System.currentTimeMillis();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> availableDatacenters = getAvaiableDatacenters(instanceGroup, new ArrayList<>(allDatacenters), networkTopology);
@@ -133,7 +133,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         filterDatacentersByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        double costTime = (System.currentTimeMillis() - start) / 10;//假设在集群调度器中的性能更强。只需要花费十分之一的时间
+//        double costTime = (System.currentTimeMillis() - start) / 10;//假设在集群调度器中的性能更强。只需要花费十分之一的时间
+        double costTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         LOGGER.info("{}: {} inter scheduling cost {} ms.", getSimulation().clockStr(), getName(), costTime);
         interScheduleByResult(instanceGroupAvaiableDatacenters, costTime);
         if (groupQueue.getGroupNum() > 0) {
