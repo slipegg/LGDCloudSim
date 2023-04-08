@@ -2,7 +2,6 @@ package org.scalecloudsim.datacenters;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import org.cloudsimplus.core.CloudSimEntity;
 import org.cloudsimplus.core.CloudSimTag;
 import org.cloudsimplus.core.SimEntity;
@@ -28,6 +27,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Getter
     private int hostNum;
 
+    private Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap;
+
     /**
      * Creates a new entity.
      *
@@ -38,6 +39,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         super(simulation);
         this.collaborationIds = new HashSet<>();
         this.groupQueue = new GroupQueueFifo();
+        this.instanceGroupSendResultMap = new HashMap<>();
     }
 
     public DatacenterSimple(@NonNull Simulation simulation, int id) {
@@ -89,15 +91,79 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
             case CloudSimTag.INTER_SCHEDULE -> processInterSchedule();
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
-            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT -> processRespondDcReviveGroupAccept(evt);
-            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT -> processRespondDcReviveGroupReject(evt);
+            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT ->
+                    processRespondDcReviveGroup(evt);
+            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP -> processRespondDcReviveGroupGiveUp(evt);
+            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY -> processRespondDcReviveGroupEmploy(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
         }
     }
 
-    private void processRespondDcReviveGroupAccept(SimEvent evt) {
+    private void processRespondDcReviveGroupGiveUp(SimEvent evt) {
+        //TODO 因为没有资源预留，所以不需要处理
+    }
 
+    private void processRespondDcReviveGroupEmploy(SimEvent evt) {
+        //TODO 将所有实例放入到域内调度队列中
+    }
+
+    private void processRespondDcReviveGroup(SimEvent evt) {
+        if (evt.getData() instanceof List<?> instanceGroups) {
+            for (Object instanceGroup : instanceGroups) {
+                if (instanceGroup instanceof InstanceGroup) {
+                    if (evt.getTag() == CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT) {
+                        instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 1);
+                    } else if (evt.getTag() == CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT) {
+                        instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 0);
+                    }
+                    if (isAllSendResultReceived((InstanceGroup) instanceGroup)) {
+                        LOGGER.info("{}: {} received all respond from InstanceGroup{} to schedule.", getSimulation().clockStr(), getName(), ((InstanceGroup) instanceGroup).getId());
+                        Datacenter receiveDatacenter = decideReceiveDatacenter((InstanceGroup) instanceGroup);
+                        if (receiveDatacenter == null) {
+                            interScheduleFail((InstanceGroup) instanceGroup);
+                        } else {
+                            //TODO 需要思考是否需要以List的形式回送，目前以单个的形式回送
+                            respondAllReciveDatacenter((InstanceGroup) instanceGroup, receiveDatacenter);
+                        }
+                        instanceGroupSendResultMap.remove(instanceGroup);
+                    }
+                }
+            }
+        }
+    }
+
+    private void respondAllReciveDatacenter(InstanceGroup instanceGroup, Datacenter receiveDatacenter) {
+        for (Map.Entry<Datacenter, Integer> entry : instanceGroupSendResultMap.get(instanceGroup).entrySet()) {
+            if (entry.getValue() == 1 && entry.getKey() != receiveDatacenter) {
+                sendNow(entry.getKey(), CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP, instanceGroup);
+            } else if (entry.getKey() == receiveDatacenter) {
+                sendNow(entry.getKey(), CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, instanceGroup);
+            }
+        }
+    }
+
+    private Datacenter decideReceiveDatacenter(InstanceGroup instanceGroup) {
+        //TODO 决定接收的数据中心，目前先随机
+        //得到所有数值为1表示接收的数据中心
+        List<Datacenter> datacenters = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
+                .filter(entry -> entry.getValue() == 1)
+                .map(Map.Entry::getKey)
+                .toList();
+        if (datacenters.size() == 0) {
+            //表示调度失败
+            return null;
+        }
+        return datacenters.get(new Random().nextInt(datacenters.size()));
+    }
+
+    private boolean isAllSendResultReceived(InstanceGroup instanceGroup) {
+        for (Map.Entry<Datacenter, Integer> entry : instanceGroupSendResultMap.get(instanceGroup).entrySet()) {
+            if (entry.getValue() == -1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void processRespondDcReviveGroupReject(SimEvent evt) {
@@ -261,6 +327,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         List<InstanceGroup> instanceGroups = new ArrayList<>();
                         instanceGroups.add(instanceGroup);
                         sendMap.put(datacenter, instanceGroups);
+                    }
+                    //维护instanceGroupSendResultMap，以统计后续的返回结果
+                    if (instanceGroupSendResultMap.containsKey(instanceGroup)) {
+                        instanceGroupSendResultMap.get(instanceGroup).put(datacenter, -1);
+                    } else {
+                        Map<Datacenter, Integer> datacenterIntegerMap = new HashMap<>();
+                        datacenterIntegerMap.put(datacenter, -1);
+                        instanceGroupSendResultMap.put(instanceGroup, datacenterIntegerMap);
                     }
                 }
             }
