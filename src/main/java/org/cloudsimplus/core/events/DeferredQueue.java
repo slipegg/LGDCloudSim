@@ -170,9 +170,10 @@ public class DeferredQueue implements EventQueue {
         return eventList.get(0);
     }
 
-    public boolean isExistSameEvent(SimEntity dst, int tag) {
+    public boolean isExistSameEvent(SimEntity dst, int tag, Object data) {
+        //TODO 可以进行时间优化
         for (SimEvent event : eventList) {
-            if (event.getDestination().equals(dst) && event.getTag() == tag) {
+            if (event.getDestination().equals(dst) && event.getTag() == tag && (event.getData() == null && data == null || event.getData().equals(data))) {
                 return true;
             }
         }
