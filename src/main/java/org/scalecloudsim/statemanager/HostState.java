@@ -1,7 +1,9 @@
 package org.scalecloudsim.statemanager;
 
+import org.scalecloudsim.Instances.Instance;
+
 public class HostState {
-    static int STATE_NUM = 4;
+    public static int STATE_NUM = 4;
     int cpu;
     int ram;
     int storage;
@@ -12,6 +14,13 @@ public class HostState {
         this.ram = ram;
         this.storage = storage;
         this.bw = bw;
+    }
+
+    public HostState(int[] state) {
+        this.cpu = state[0];
+        this.ram = state[1];
+        this.storage = state[2];
+        this.bw = state[3];
     }
 
     public int[] getStateArray() {
@@ -60,6 +69,17 @@ public class HostState {
         this.ram = hostState.getRam();
         this.storage = hostState.getStorage();
         this.bw = hostState.getBw();
+    }
+
+    public boolean isSuitable(Instance instance) {
+        return cpu >= instance.getCpu() && ram >= instance.getRam() && storage >= instance.getStorage() && bw >= instance.getBw();
+    }
+
+    public void allocate(Instance instance) {
+        cpu = cpu - instance.getCpu();
+        ram = ram - instance.getRam();
+        storage = storage - instance.getStorage();
+        bw = bw - instance.getBw();
     }
 
     @Override
