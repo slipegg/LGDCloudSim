@@ -11,6 +11,7 @@ import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.Instances.Instance;
 import org.scalecloudsim.Instances.InstanceGroup;
 import org.scalecloudsim.Instances.UserRequest;
+import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.statemanager.StateManager;
 import org.scalecloudsim.statemanager.StateManagerSimple;
 import org.slf4j.Logger;
@@ -27,6 +28,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private StateManager stateManager;
     @Getter
     private int hostNum;
+    @Getter
+    List<InnerScheduler> innerSchedulers;
+    @Getter
+    LoadBalance loadBalance;
 
     private Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap;
 
@@ -55,6 +60,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.stateManager = new StateManagerSimple(hostNum, simulation);
     }
 
+    @Override
+    public Datacenter setStateManager(StateManager stateManager) {
+        this.stateManager = stateManager;
+        stateManager.setDatacenter(this);
+        return this;
+    }
 
     @Override
     public Datacenter addCollaborationId(int collaborationId) {
@@ -82,6 +93,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     @Override
+    public Datacenter setInnerSchedulers(List<InnerScheduler> innerSchedulers) {
+        this.innerSchedulers = innerSchedulers;
+        for (InnerScheduler innerScheduler : innerSchedulers) {
+            innerScheduler.setDatacenter(this);
+        }
+        return this;
+    }
+
+    @Override
+    public Datacenter setLoadBalance(LoadBalance loadBalance) {
+        this.loadBalance = loadBalance;
+        loadBalance.setDatacenter(this);
+        return this;
+    }
+
+    @Override
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         sendNow(getSimulation().getCis(), CloudSimTag.DC_REGISTRATION_REQUEST, this);
@@ -97,9 +124,27 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     processRespondDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP -> processRespondDcReviveGroupGiveUp(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY -> processRespondDcReviveGroupEmploy(evt);
+            case CloudSimTag.INNER_SCHEDULE -> processInnerSchedule(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
         }
+    }
+
+    private void processInnerSchedule(SimEvent evt) {
+        //TODO 进行域内调度
+        LOGGER.info("{}: {} is doing inner schedule", getSimulation().clockStr(), getName());
+        List<Instance> instances = instanceQueue.getBatchItem();
+        if (instances.size() != 0) {
+            loadBalance(instances);
+            double costTime = 0.1;//TODO 如何计算负载均衡花费的时间
+            if (instanceQueue.size() > 0) {
+                send(this, costTime, CloudSimTag.INNER_SCHEDULE, null);
+            }
+        }
+    }
+
+    private void loadBalance(List<Instance> instances) {
+        loadBalance.sendInstance(instances);
     }
 
     private void processRespondDcReviveGroupGiveUp(SimEvent evt) {
@@ -107,7 +152,16 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processRespondDcReviveGroupEmploy(SimEvent evt) {
-        //TODO 将所有实例放入到域内调度队列中
+        if (evt.getData() instanceof InstanceGroup instanceGroup) {
+            instanceQueue.add(instanceGroup);
+            LOGGER.info("{}: {} receives {}'s respond to employ InstanceGroup{}.Now the size of instanceQueue is {}.",
+                    getSimulation().clockStr(),
+                    getName(),
+                    ((Datacenter) evt.getSource()).getName(),
+                    instanceGroup.getId(),
+                    instanceQueue.size());
+        }
+        sendNow(this, CloudSimTag.INNER_SCHEDULE);
     }
 
     private void processRespondDcReviveGroup(SimEvent evt) {
@@ -141,7 +195,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (entry.getValue() == 1 && entry.getKey() != receiveDatacenter) {
                 sendBetweenDc(entry.getKey(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP, instanceGroup);
             } else if (entry.getKey() == receiveDatacenter) {
-                sendBetweenDc(entry.getKey(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, instanceGroup);
+                sendBetweenDc(entry.getKey(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroup);
             }
         }
     }
@@ -206,13 +260,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> userRequests) {
             for (Object userRequest : userRequests) {
                 if (userRequest instanceof UserRequest) {
-                    groupQueue.addInstanceGroups((UserRequest) userRequest);
+                    groupQueue.add((UserRequest) userRequest);
                 }
             }
-            LOGGER.info("{}: {} received {} user request.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), groupQueue.getGroupNum());
+            LOGGER.info("{}: {} received {} user request.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), groupQueue.size());
         } else if (evt.getData() instanceof InstanceGroup) {
-            groupQueue.addAInstanceGroup((InstanceGroup) evt.getData());
-            LOGGER.info("{}: {} received an InstanceGroup.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), groupQueue.getGroupNum());
+            groupQueue.add((InstanceGroup) evt.getData());
+            LOGGER.info("{}: {} received an InstanceGroup.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), groupQueue.size());
         }
         sendNow(this, CloudSimTag.INTER_SCHEDULE);
     }
@@ -231,17 +285,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 //        double start = System.currentTimeMillis();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> availableDatacenters = getAvaiableDatacenters(instanceGroup, new ArrayList<>(allDatacenters), networkTopology);
-            if (availableDatacenters.size() > 0) {
-                instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
-            }
+            List<Datacenter> availableDatacenters = getAvaiableDatacenters(instanceGroup, allDatacenters, networkTopology);
+            instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
         }
-        filterDatacentersByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
+        interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
 //        double costTime = (System.currentTimeMillis() - start) / 10;//假设在集群调度器中的性能更强。只需要花费十分之一的时间
         double costTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         LOGGER.info("{}: {} inter scheduling cost {} ms.", getSimulation().clockStr(), getName(), costTime);
         interScheduleByResult(instanceGroupAvaiableDatacenters, costTime);
-        if (groupQueue.getGroupNum() > 0) {
+        if (groupQueue.size() > 0) {
             send(this, costTime, CloudSimTag.INTER_SCHEDULE, null);
         }
         //根据网络拓扑中的时延和宽带情况对整个一批的进行排序
@@ -307,7 +359,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void filterDatacentersByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
+    private void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
         //TODO 根据网络拓扑中的时延和宽带进行筛选得到最优的调度方案
     }
 
