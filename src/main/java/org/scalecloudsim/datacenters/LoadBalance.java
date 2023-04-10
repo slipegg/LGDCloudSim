@@ -1,6 +1,7 @@
 package org.scalecloudsim.datacenters;
 
 import org.scalecloudsim.Instances.Instance;
+import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,5 +14,5 @@ public interface LoadBalance {
 
     Datacenter getDatacenter();
 
-    void sendInstance(List<Instance> instances);
+    List<InnerScheduler> sendInstances(List<Instance> instances);
 }

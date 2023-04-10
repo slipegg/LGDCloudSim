@@ -17,10 +17,11 @@ public class LoadBalanceRound implements LoadBalance {
     int lastInnerSchedulerId = 0;
 
     @Override
-    public void sendInstance(List<Instance> instances) {
+    public List<InnerScheduler> sendInstances(List<Instance> instances) {
         InnerScheduler innerScheduler = datacenter.getInnerSchedulers().get(lastInnerSchedulerId);
         innerScheduler.addInstance(instances);
         lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getInnerSchedulers().size();
         LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {}", datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(), innerScheduler.getName());
+        return List.of(innerScheduler);
     }
 }

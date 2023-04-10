@@ -124,6 +124,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     processRespondDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP -> processRespondDcReviveGroupGiveUp(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY -> processRespondDcReviveGroupEmploy(evt);
+            case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
             case CloudSimTag.INNER_SCHEDULE -> processInnerSchedule(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
@@ -131,20 +132,23 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processInnerSchedule(SimEvent evt) {
-        //TODO 进行域内调度
-        LOGGER.info("{}: {} is doing inner schedule", getSimulation().clockStr(), getName());
-        List<Instance> instances = instanceQueue.getBatchItem();
-        if (instances.size() != 0) {
-            loadBalance(instances);
-            double costTime = 0.1;//TODO 如何计算负载均衡花费的时间
-            if (instanceQueue.size() > 0) {
-                send(this, costTime, CloudSimTag.INNER_SCHEDULE, null);
-            }
+        if (evt.getData() instanceof InnerScheduler innerScheduler) {
+            innerScheduler.schedule();
         }
     }
 
-    private void loadBalance(List<Instance> instances) {
-        loadBalance.sendInstance(instances);
+    private void processLoadBalanceSend(SimEvent evt) {
+        List<Instance> instances = instanceQueue.getBatchItem();
+        if (instances.size() != 0) {
+            List<InnerScheduler> sendedInnerScheduler = loadBalance.sendInstances(instances);
+            double costTime = 0.1;//TODO 如何计算负载均衡花费的时间
+            if (instanceQueue.size() > 0) {
+                send(this, costTime, CloudSimTag.LOAD_BALANCE_SEND, null);
+            }
+            for (InnerScheduler innerScheduler : sendedInnerScheduler) {
+                send(this, costTime, CloudSimTag.INNER_SCHEDULE, innerScheduler);
+            }
+        }
     }
 
     private void processRespondDcReviveGroupGiveUp(SimEvent evt) {
@@ -161,7 +165,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     instanceGroup.getId(),
                     instanceQueue.size());
         }
-        sendNow(this, CloudSimTag.INNER_SCHEDULE);
+        sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
     }
 
     private void processRespondDcReviveGroup(SimEvent evt) {
