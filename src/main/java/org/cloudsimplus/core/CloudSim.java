@@ -233,7 +233,7 @@ public class CloudSim implements Simulation {
 //        }
 
         if (CloudSimTag.UNIQUE_TAG.contains(evt.getTag())) {
-            if (deferred.isExistSameEvent(evt.getDestination(), evt.getTag())) {
+            if (deferred.isExistSameEvent(evt.getDestination(), evt.getTag(), evt.getData())) {
                 return;
             }
         }
