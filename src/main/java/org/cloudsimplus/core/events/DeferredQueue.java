@@ -1,7 +1,9 @@
 package org.cloudsimplus.core.events;
 
 import lombok.Getter;
+import org.cloudsimplus.core.SimEntity;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -166,5 +168,14 @@ public class DeferredQueue implements EventQueue {
         }
 
         return eventList.get(0);
+    }
+
+    public boolean isExistSameEvent(SimEntity dst, int tag) {
+        for (SimEvent event : eventList) {
+            if (event.getDestination().equals(dst) && event.getTag() == tag) {
+                return true;
+            }
+        }
+        return false;
     }
 }

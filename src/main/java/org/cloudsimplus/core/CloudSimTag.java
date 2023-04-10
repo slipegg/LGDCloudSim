@@ -1,5 +1,10 @@
 package org.cloudsimplus.core;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class CloudSimTag {
     public static final int NONE = -1;
 
@@ -19,6 +24,9 @@ public class CloudSimTag {
     public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 10;
     public static final int INNER_SCHEDULE = BASE + 11;
     private final int priority;
+
+    //初始化一个值为1,2,3的set。
+    public static final Set<Integer> UNIQUE_TAG = Set.of(INNER_SCHEDULE);
 
     public int priority() {
         return priority;
