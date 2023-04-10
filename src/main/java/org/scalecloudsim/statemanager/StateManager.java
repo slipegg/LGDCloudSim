@@ -1,7 +1,8 @@
 package org.scalecloudsim.statemanager;
 
 import org.cloudsimplus.core.Simulation;
-import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
+import org.scalecloudsim.datacenters.Datacenter;
+import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,17 +13,21 @@ import java.util.TreeMap;
 public interface StateManager {
     public Logger LOGGER = LoggerFactory.getLogger(StateManager.class.getSimpleName());
 
+    Datacenter getDatacenter();
+
+    StateManager setDatacenter(Datacenter datacenter);
+
     StateManager setPartitionRanges(PartitionRangesManager partitionRangesManager);//支持删除原有分区，重新设置分区
 
-    StateManager registerScheduler(InnerSchedulerSimple scheduler);
+    StateManager registerScheduler(InnerScheduler scheduler);
 
-    StateManager registerSchedulers(List<InnerSchedulerSimple> scheduler);
+    StateManager registerSchedulers(List<InnerScheduler> scheduler);
 
-    StateManager cancelScheduler(InnerSchedulerSimple scheduler);
+    StateManager cancelScheduler(InnerScheduler scheduler);
 
     StateManager calcelAllSchedulers();
 
-    DelayState getDelayState(InnerSchedulerSimple scheduler);
+    DelayState getDelayState(InnerScheduler scheduler);
 
     Simulation getSimulation();
 

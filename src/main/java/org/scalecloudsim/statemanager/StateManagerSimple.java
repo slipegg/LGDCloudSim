@@ -3,7 +3,9 @@ package org.scalecloudsim.statemanager;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudsimplus.core.Simulation;
-import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
+import org.scalecloudsim.datacenters.Datacenter;
+import org.scalecloudsim.innerscheduler.InnerScheduler;
+import org.scalecloudsim.innerscheduler.InnerScheduler;
 
 import java.util.*;
 
@@ -12,7 +14,7 @@ public class StateManagerSimple implements StateManager {
     Simulation simulation;//驱动
     PartitionRangesManager partitionRangesManager;//分区范围管理器
     Map<Integer, PartitionManager> partitionManagerMap;//区域管理器Map
-    Set<InnerSchedulerSimple> validSchedulerSet;//注册的有效的scheduler
+    Set<InnerScheduler> validSchedulerSet;//注册的有效的scheduler
     Map<Integer, Double> lastChangeTime;//host状态上一次变化的时间，不存在在这里就是0.
     int hostNum;
     TreeMap<Integer, LinkedList<HostStateHistory>> hostHistoryMaps;//host历史状态，放置在这里可以使得范围调整，区域管理器更新后主机历史状态不丢失
@@ -21,6 +23,9 @@ public class StateManagerSimple implements StateManager {
     @Getter
     @Setter
     SimpleState simpleState;
+    @Getter
+    @Setter
+    Datacenter datacenter;
 
     public StateManagerSimple(int hostNum, Simulation simulation) {
         this.hostNum = hostNum;
@@ -35,7 +40,7 @@ public class StateManagerSimple implements StateManager {
 
     public StateManagerSimple(int hostNum, Simulation simulation,
                               PartitionRangesManager partitionRangesManager,
-                              List<InnerSchedulerSimple> schedulers) {
+                              List<InnerScheduler> schedulers) {
         this.hostNum = hostNum;
         this.simulation = simulation;
         hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -44,7 +49,7 @@ public class StateManagerSimple implements StateManager {
         lastChangeTime = new TreeMap<>();
         hostHistoryMaps = new TreeMap<>();
         setPartitionRanges(partitionRangesManager);
-        for (InnerSchedulerSimple scheduler : schedulers) {
+        for (InnerScheduler scheduler : schedulers) {
             registerScheduler(scheduler);
         }
         simpleState = new SimpleStateSimple();
@@ -84,7 +89,7 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public StateManager registerScheduler(InnerSchedulerSimple scheduler) {
+    public StateManager registerScheduler(InnerScheduler scheduler) {
         if (!isValidScheduler(scheduler)) {
             LOGGER.error("scheduler" + scheduler + " is not registered");
         } else {
@@ -98,15 +103,15 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public StateManager registerSchedulers(List<InnerSchedulerSimple> scheduler) {
-        for (InnerSchedulerSimple innerSchedulerSimple : scheduler) {
-            registerScheduler(innerSchedulerSimple);
+    public StateManager registerSchedulers(List<InnerScheduler> scheduler) {
+        for (InnerScheduler InnerScheduler : scheduler) {
+            registerScheduler(InnerScheduler);
         }
         return this;
     }
 
     @Override
-    public StateManager cancelScheduler(InnerSchedulerSimple scheduler) {
+    public StateManager cancelScheduler(InnerScheduler scheduler) {
         if (!isValidScheduler(scheduler)) {
             LOGGER.error("scheduler" + scheduler + " is not registered");
         } else {
@@ -123,14 +128,14 @@ public class StateManagerSimple implements StateManager {
 
     @Override
     public StateManager calcelAllSchedulers() {
-        List<InnerSchedulerSimple> tmpSchedulerList = new ArrayList<>(validSchedulerSet);
-        for (InnerSchedulerSimple scheduler : tmpSchedulerList) {
+        List<InnerScheduler> tmpSchedulerList = new ArrayList<>(validSchedulerSet);
+        for (InnerScheduler scheduler : tmpSchedulerList) {
             cancelScheduler(scheduler);
         }
         return this;
     }
 
-    private boolean isValidScheduler(InnerSchedulerSimple scheduler) {
+    private boolean isValidScheduler(InnerScheduler scheduler) {
         if (validSchedulerSet.contains(scheduler)) {
             return true;
         }
@@ -156,7 +161,7 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public DelayState getDelayState(InnerSchedulerSimple scheduler) {
+    public DelayState getDelayState(InnerScheduler scheduler) {
         if (!isValidScheduler(scheduler)) {
             LOGGER.error("scheduler" + scheduler + " is not registered");
             return null;
