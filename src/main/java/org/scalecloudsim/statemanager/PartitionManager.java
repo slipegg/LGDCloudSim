@@ -1,5 +1,8 @@
 package org.scalecloudsim.statemanager;
 
+import org.scalecloudsim.datacenters.Datacenter;
+
+import java.util.List;
 import java.util.Map;
 
 public interface PartitionManager {
@@ -14,4 +17,6 @@ public interface PartitionManager {
     PartitionManager updateHostHistory(double lastTime, int hostId);
 
     Map<Integer, HostStateHistory> getDelayPartitionState(double delay);
+
+    List<Double> getDelayWatchList();
 }
