@@ -22,11 +22,13 @@ public class CloudSimTag {
     public static final int LOAD_BALANCE_SEND = BASE + 11;
     public static final int INNER_SCHEDULE = BASE + 12;
     public static final int SEND_INNER_SCHEDULE_RESULT = BASE + 13;
-    public static final int ALLOCATE_RESOURCE = BASE + 14;
+    public static final int PRE_ALLOCATE_RESOURCE = BASE + 14;
+    public static final int ALLOCATE_RESOURCE = BASE + 15;
+    public static final int UPDATE_HOST_STATE = BASE + 16;
     private final int priority;
 
     //初始化一个值为1,2,3的set。
-    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE, ALLOCATE_RESOURCE);
+    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE, PRE_ALLOCATE_RESOURCE);
 
     public int priority() {
         return priority;
