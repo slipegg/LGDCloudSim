@@ -2,6 +2,7 @@ package org.scalecloudsim.datacenters;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.cloudsimplus.core.CloudSimEntity;
 import org.cloudsimplus.core.CloudSimTag;
 import org.cloudsimplus.core.SimEntity;
@@ -32,6 +33,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     List<InnerScheduler> innerSchedulers;
     @Getter
     LoadBalance loadBalance;
+    @Getter
+    @Setter
+    ResourceAllocateSelector resourceAllocateSelector;
 
     private Map<Integer, List<Instance>> innerSchedulerResult;
 
@@ -50,6 +54,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.instanceQueue = new InstanceQueueFifo();
         this.instanceGroupSendResultMap = new HashMap<>();
         this.innerSchedulerResult = new HashMap<>();
+        this.resourceAllocateSelector = new ResourceAllocateSelectorSimple();
+        this.resourceAllocateSelector.setDatacenter(this);
     }
 
     public DatacenterSimple(@NonNull Simulation simulation, int id) {
@@ -130,14 +136,48 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
             case CloudSimTag.INNER_SCHEDULE -> processInnerSchedule(evt);
             case CloudSimTag.SEND_INNER_SCHEDULE_RESULT -> processSendInnerScheduleResult(evt);
+            case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
             case CloudSimTag.ALLOCATE_RESOURCE -> processAllocateResource(evt);
+            case CloudSimTag.UPDATE_HOST_STATE -> processUpdateHostState(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
         }
     }
 
+    private void processUpdateHostState(SimEvent evt) {
+        int hostId = (int) evt.getData();
+        stateManager.updateHostState(hostId);
+    }
+
     private void processAllocateResource(SimEvent evt) {
-        //TODO
+        if (evt.getData() instanceof Map) {
+            Map<Integer, List<Instance>> allocateResult = (Map<Integer, List<Instance>>) evt.getData();
+            for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
+                int hostId = entry.getKey();
+                List<Instance> instances = entry.getValue();
+                for (Instance instance : instances) {
+                    stateManager.allocateResource(hostId, instance);
+                    List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
+                    sendUpdateStateEvt(hostId, watchDelays);
+                }
+            }
+        }
+    }
+
+    private void sendUpdateStateEvt(int hostId, List<Double> watchDelays) {
+        for (Double watchDelay : watchDelays) {
+            send(this, watchDelay, CloudSimTag.UPDATE_HOST_STATE, hostId);
+        }
+    }
+
+    private void processPreAllocateResource(SimEvent evt) {
+        Map<Integer, List<Instance>> allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResult);
+        double costTime = 0.1;
+        if (allocateResult.containsKey(-1)) {
+            innerScheduleFailed(allocateResult.get(-1), 0.0);
+            allocateResult.remove(-1);
+        }
+        send(this, costTime, CloudSimTag.ALLOCATE_RESOURCE, allocateResult);
     }
 
     private void processSendInnerScheduleResult(SimEvent evt) {
@@ -148,7 +188,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 mergedList.addAll(list2);
                 return mergedList;
             }));
-            sendNow(this, CloudSimTag.SEND_INNER_SCHEDULE_RESULT, this);
+            sendNow(this, CloudSimTag.PRE_ALLOCATE_RESOURCE, this);
         }
     }
 

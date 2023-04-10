@@ -27,4 +27,8 @@ public interface Datacenter extends SimEntity {
     Datacenter setLoadBalance(LoadBalance loadBalance);
 
     LoadBalance getLoadBalance();
+
+    Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector);
+
+    ResourceAllocateSelector getResourceAllocateSelector();
 }
