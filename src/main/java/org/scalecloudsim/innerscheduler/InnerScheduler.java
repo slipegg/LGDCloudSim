@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface InnerScheduler extends Nameable {
+    InnerScheduler setDatacenter(Datacenter datacenter);
+
     Datacenter getDatacenter();
 
-    void setPartitionDelay(Map<Integer, Double> partitionDelay);
+    InnerScheduler setPartitionDelay(Map<Integer, Double> partitionDelay);
 
     Map<Integer, Double> getPartitionDelay();
 
@@ -21,6 +23,8 @@ public interface InnerScheduler extends Nameable {
     InnerScheduler addInstance(Instance instance);
 
     boolean isQueueEmpty();
+
+    int queueSize();
 
     InnerScheduler schedule();
 }

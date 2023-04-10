@@ -3,6 +3,7 @@ package org.scalecloudsim.statemanager;
 import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
 import org.junit.jupiter.api.Test;
+import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class StateManagerSimpleTest {
         partitionRangesManager.setAverageCutting(0,hostNum-1,10);
 
         //初始化10个调度器，每个调度器对10个分区的延迟都不一样
-        List<InnerSchedulerSimple> schedulers = new ArrayList<>();
+        List<InnerScheduler> schedulers = new ArrayList<>();
         for(int i=0;i<10;i++){//10个调度器
             Map<Integer,Double> partitionDelay=new TreeMap<>();
             for(int j=0;j<10;j++){//对10个分区的延迟
@@ -99,13 +100,13 @@ public class StateManagerSimpleTest {
         stateManager.calcelAllSchedulers();
         partitionRangesManager.setAverageCutting(0,hostNum-1,5);
         stateManager.setPartitionRanges(partitionRangesManager);
-        List<InnerSchedulerSimple> newSchedulers = new ArrayList<>();
+        List<InnerScheduler> newSchedulers = new ArrayList<>();
         for(int i=0;i<5;i++){//5个调度器
             Map<Integer,Double> newPartitionDelay=new TreeMap<>();
             for(int j=0;j<5;j++){//对5个分区的延迟
                 newPartitionDelay.put((i+j)%5,2.0*j);
             }
-            InnerSchedulerSimple newScheduler = new InnerSchedulerSimple(i, newPartitionDelay);
+            InnerScheduler newScheduler = new InnerSchedulerSimple(i, newPartitionDelay);
             System.out.println(newScheduler.getPartitionDelay());
             newSchedulers.add(newScheduler);
         }

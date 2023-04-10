@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class InnerSchedulerSimple implements InnerScheduler {
     @Getter
+    @Setter
     Datacenter datacenter;
     @Getter
     @Setter
@@ -30,7 +31,12 @@ public class InnerSchedulerSimple implements InnerScheduler {
 
     public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
         this(partitionDelay);
+        setId(id);
+    }
+
+    private void setId(int id) {
         this.id = id;
+        this.name = "InScheduler" + id;
     }
 
     @Override
@@ -50,6 +56,11 @@ public class InnerSchedulerSimple implements InnerScheduler {
     @Override
     public boolean isQueueEmpty() {
         return instanceQueue.size() == 0;
+    }
+
+    @Override
+    public int queueSize() {
+        return instanceQueue.size();
     }
 
     @Override
