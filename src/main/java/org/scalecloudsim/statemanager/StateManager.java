@@ -1,6 +1,7 @@
 package org.scalecloudsim.statemanager;
 
 import org.cloudsimplus.core.Simulation;
+import org.scalecloudsim.Instances.Instance;
 import org.scalecloudsim.datacenters.Datacenter;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.slf4j.Logger;
@@ -37,6 +38,8 @@ public interface StateManager {
 
     HostStateHistory getnowHostStateHistory(int hostId);
 
+    HostState getnowHostState(int hostId);
+
     LinkedList<HostStateHistory> getHostHistory(int hostId);
 
     HostStateHistory getHostStateHistory(int hostId, double time);
@@ -54,4 +57,10 @@ public interface StateManager {
     int[] getHostStates();
 
     StateManager initHostStates(HostStateGenerator hostStateGenerator);
+
+    boolean isSuitable(int hostId, Instance instance);
+
+    StateManager allocateResource(int hostId, Instance instance);
+
+    List<Double> getPartitionWatchDelay(int hostId);
 }
