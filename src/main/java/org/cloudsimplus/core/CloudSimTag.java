@@ -21,10 +21,12 @@ public class CloudSimTag {
     public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 10;
     public static final int LOAD_BALANCE_SEND = BASE + 11;
     public static final int INNER_SCHEDULE = BASE + 12;
+    public static final int SEND_INNER_SCHEDULE_RESULT = BASE + 13;
+    public static final int ALLOCATE_RESOURCE = BASE + 14;
     private final int priority;
 
     //初始化一个值为1,2,3的set。
-    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE);
+    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE, ALLOCATE_RESOURCE);
 
     public int priority() {
         return priority;
