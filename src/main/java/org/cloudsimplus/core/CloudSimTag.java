@@ -17,6 +17,7 @@ public class CloudSimTag {
     public static final int RESPOND_DC_REVIVE_GROUP_REJECT = BASE + 8;
     public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = BASE + 9;
     public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 10;
+    public static final int INNER_SCHEDULE = BASE + 11;
     private final int priority;
 
     public int priority() {
