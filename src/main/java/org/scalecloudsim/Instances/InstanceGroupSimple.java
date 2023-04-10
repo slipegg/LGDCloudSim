@@ -53,6 +53,9 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Override
     public void setUserRequest(UserRequest userRequest) {
         this.userRequest = userRequest;
+        for (Instance instance : instanceList) {
+            instance.setUserRequest(userRequest);
+        }
     }
 
     @Override
@@ -63,6 +66,7 @@ public class InstanceGroupSimple implements InstanceGroup{
             bwSum += instance.getBw();
             cpuSum += instance.getCpu();
             ramSum += instance.getRam();
+            instance.setInstanceGroup(this);
         }
         return this;
     }
