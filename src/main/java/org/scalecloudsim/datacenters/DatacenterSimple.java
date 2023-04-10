@@ -33,6 +33,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Getter
     LoadBalance loadBalance;
 
+    private Map<Integer, List<Instance>> innerSchedulerResult;
+
     private Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap;
 
     /**
@@ -47,6 +49,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.groupQueue = new GroupQueueFifo();
         this.instanceQueue = new InstanceQueueFifo();
         this.instanceGroupSendResultMap = new HashMap<>();
+        this.innerSchedulerResult = new HashMap<>();
     }
 
     public DatacenterSimple(@NonNull Simulation simulation, int id) {
@@ -126,14 +129,53 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY -> processRespondDcReviveGroupEmploy(evt);
             case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
             case CloudSimTag.INNER_SCHEDULE -> processInnerSchedule(evt);
+            case CloudSimTag.SEND_INNER_SCHEDULE_RESULT -> processSendInnerScheduleResult(evt);
+            case CloudSimTag.ALLOCATE_RESOURCE -> processAllocateResource(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
         }
     }
 
+    private void processAllocateResource(SimEvent evt) {
+        //TODO
+    }
+
+    private void processSendInnerScheduleResult(SimEvent evt) {
+        if (evt.getData() instanceof Map innerSchedulerResultTmp) {
+            Map<Integer, List<Instance>> result = (Map<Integer, List<Instance>>) innerSchedulerResultTmp;
+            result.forEach((key, value) -> this.innerSchedulerResult.merge(key, value, (list1, list2) -> {
+                List<Instance> mergedList = new ArrayList<>(list1);
+                mergedList.addAll(list2);
+                return mergedList;
+            }));
+            sendNow(this, CloudSimTag.SEND_INNER_SCHEDULE_RESULT, this);
+        }
+    }
+
     private void processInnerSchedule(SimEvent evt) {
         if (evt.getData() instanceof InnerScheduler innerScheduler) {
-            innerScheduler.schedule();
+            Map<Integer, List<Instance>> scheduleResult = innerScheduler.schedule();
+            double costTime = 0.2;//TODO 如何计算调度花费的时间
+            if (scheduleResult.containsKey(-1)) {
+                innerScheduleFailed(scheduleResult.get(-1), costTime);
+                scheduleResult.remove(-1);
+            }
+            send(this, costTime, CloudSimTag.SEND_INNER_SCHEDULE_RESULT, scheduleResult);
+            if (innerScheduler.getQueueSize() != 0) {
+                send(this, costTime, CloudSimTag.INNER_SCHEDULE, innerScheduler);
+            }
+        }
+    }
+
+    private void innerScheduleFailed(List<Instance> instances, double delay) {
+        for (Instance instance : instances) {
+            instance.addRetryNum();
+            if (!instance.isFailed()) {
+                LOGGER.info("{}: {} failed to schedule instance{},it is retrying.", getSimulation().clockStr(), getName(), instance.getId());
+                send(this, delay, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instance);
+            } else {
+                LOGGER.warn("{}: {} failed to schedule instance{},The userRequest{} is failed.", getSimulation().clockStr(), getName(), instance.getId(), instance.getUserRequest().getId());
+            }
         }
     }
 
@@ -163,6 +205,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     getName(),
                     ((Datacenter) evt.getSource()).getName(),
                     instanceGroup.getId(),
+                    instanceQueue.size());
+        } else if (evt.getData() instanceof Instance instance) {
+            instanceQueue.add(instance);
+            LOGGER.info("{}: {} receives {}'s respond to employ Instance{}.Now the size of instanceQueue is {}.",
+                    getSimulation().clockStr(),
+                    getName(),
+                    ((Datacenter) evt.getSource()).getName(),
+                    instance.getId(),
                     instanceQueue.size());
         }
         sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
