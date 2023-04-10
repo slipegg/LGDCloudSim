@@ -3,11 +3,14 @@ package org.scalecloudsim.innerscheduler;
 import org.cloudsimplus.core.Nameable;
 import org.scalecloudsim.Instances.Instance;
 import org.scalecloudsim.datacenters.Datacenter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public interface InnerScheduler extends Nameable {
+    Logger LOGGER = LoggerFactory.getLogger(InnerScheduler.class.getSimpleName());
     InnerScheduler setDatacenter(Datacenter datacenter);
 
     Datacenter getDatacenter();
@@ -24,7 +27,7 @@ public interface InnerScheduler extends Nameable {
 
     boolean isQueueEmpty();
 
-    int queueSize();
+    int getQueueSize();
 
-    InnerScheduler schedule();
+    Map<Integer, List<Instance>> schedule();
 }

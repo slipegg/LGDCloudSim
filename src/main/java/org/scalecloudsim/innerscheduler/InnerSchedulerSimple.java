@@ -6,9 +6,13 @@ import org.scalecloudsim.Instances.Instance;
 import org.scalecloudsim.datacenters.Datacenter;
 import org.scalecloudsim.datacenters.InstanceQueue;
 import org.scalecloudsim.datacenters.InstanceQueueFifo;
+import org.scalecloudsim.statemanager.DelayState;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class InnerSchedulerSimple implements InnerScheduler {
     @Getter
@@ -17,6 +21,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
     @Getter
     @Setter
     Map<Integer, Double> partitionDelay;
+    List<Integer> partitionTraverseList;
     @Getter
     int id;
     @Getter
@@ -26,7 +31,11 @@ public class InnerSchedulerSimple implements InnerScheduler {
 
     public InnerSchedulerSimple(Map<Integer, Double> partitionDelay) {
         this.partitionDelay = partitionDelay;
-        instanceQueue = new InstanceQueueFifo();
+        //对于partitionDelay这个map，按照value从小到大排序，得到partitionTraverseList
+        this.partitionTraverseList = partitionDelay.entrySet().
+                stream().sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey).collect(Collectors.toList());
+        instanceQueue = new InstanceQueueFifo(4);
     }
 
     public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
@@ -59,13 +68,38 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     @Override
-    public int queueSize() {
+    public int getQueueSize() {
         return instanceQueue.size();
     }
 
     @Override
-    public InnerScheduler schedule() {
+    public Map<Integer, List<Instance>> schedule() {
         //TODO 域内调度
-        return this;
+        List<Instance> instances = instanceQueue.getBatchItem();
+        DelayState delayState = datacenter.getStateManager().getDelayState(this);
+        Map<Integer, List<Instance>> res = scheduleInstances(instances, delayState);
+        LOGGER.info("{}: {}'s {} schedule {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size());
+        return res;
+    }
+
+    private Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, DelayState delayState) {
+        //TODO 域内调度
+        Map<Integer, List<Instance>> res = new HashMap<>();
+        for (Instance instance : instances) {
+            int suitId = -1;
+            for (Integer partitionId : partitionTraverseList) {
+                int[] range = datacenter.getStateManager().getPartitionRangesManager().getRange(partitionId);
+                for (int i = range[0]; i <= range[1]; i++) {
+                    if (delayState.isSuitable(i, instance)) {
+                        suitId = i;
+                        break;
+                    }
+                }
+            }
+            delayState.allocateTmpResource(suitId, instance);
+            res.putIfAbsent(suitId, new ArrayList<>());
+            res.get(suitId).add(instance);
+        }
+        return res;
     }
 }
