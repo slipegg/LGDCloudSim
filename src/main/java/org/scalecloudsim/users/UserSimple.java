@@ -12,6 +12,7 @@ import org.scalecloudsim.datacenters.Datacenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,13 +66,22 @@ public class UserSimple extends CloudSimEntity {
     }
     private void sendUserRequest(){
         double nowTime=getSimulation().clock();
-        for(Datacenter datacenter:datacenterList){
-            Map<Double, List<UserRequest>> userRequests = userRequestManager.getUserRequestMap(nowTime,nowTime+sendOnceInterval,datacenter.getId());
-            for(Map.Entry<Double,List<UserRequest>> entry:userRequests.entrySet()){
-                double time = entry.getKey();
-                List<UserRequest> userRequestList = entry.getValue();
-                send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequestList);
-                LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), userRequestList.size(), String.format("%.2f", time), datacenter.getName());
+        for(Datacenter datacenter:datacenterList) {
+            List<UserRequest> userRequests = userRequestManager.getUserRequestMap(nowTime, nowTime + sendOnceInterval, datacenter.getId());
+            //按照userRequests的submitTime排序划分成不同的数组
+            List<List<UserRequest>> sendUserRequestList = new ArrayList<>();
+            double lastTime = userRequests.get(0).getSubmitTime();
+            int lastId = 0;
+            int id = 0;
+            for (UserRequest userRequest : userRequests) {
+                double time = userRequest.getSubmitTime();
+                if (time != lastTime) {
+                    send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequests.subList(lastId, id));
+                    LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
+                    lastTime = time;
+                    lastId = id;
+                }
+                id++;
             }
         }
         if(isSendLater) {
