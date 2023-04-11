@@ -25,6 +25,7 @@ public class CloudSimTag {
     public static final int PRE_ALLOCATE_RESOURCE = BASE + 14;
     public static final int ALLOCATE_RESOURCE = BASE + 15;
     public static final int UPDATE_HOST_STATE = BASE + 16;
+    public static final int END_INSTANCE_RUN = BASE + 17;
     private final int priority;
 
     //初始化一个值为1,2,3的set。
