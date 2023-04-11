@@ -10,6 +10,7 @@ import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 import org.scalecloudsim.statemanager.*;
 import org.scalecloudsim.users.UserRequestManager;
+import org.scalecloudsim.users.UserRequestManagerEasy;
 import org.scalecloudsim.users.UserRequestManagerSimple;
 import org.scalecloudsim.users.UserSimple;
 
@@ -36,7 +37,7 @@ public class test {
     }
 
     private test() {
-        Log.setLevel(Level.INFO);
+        Log.setLevel(Level.DEBUG);
         scaleCloudSim = new CloudSim();
         initUser();
         initDatacenters();
@@ -45,7 +46,7 @@ public class test {
     }
 
     private void initUser() {
-        userRequestManager = new UserRequestManagerSimple();
+        userRequestManager = new UserRequestManagerEasy();
         user = new UserSimple(scaleCloudSim, 100, userRequestManager);
     }
 
