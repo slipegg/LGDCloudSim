@@ -2,10 +2,10 @@ package org.scalecloudsim.innerscheduler;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.scalecloudsim.Instances.Instance;
-import org.scalecloudsim.datacenters.Datacenter;
-import org.scalecloudsim.datacenters.InstanceQueue;
-import org.scalecloudsim.datacenters.InstanceQueueFifo;
+import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.datacenter.Datacenter;
+import org.scalecloudsim.datacenter.InstanceQueue;
+import org.scalecloudsim.datacenter.InstanceQueueFifo;
 import org.scalecloudsim.statemanager.DelayState;
 
 import java.util.ArrayList;

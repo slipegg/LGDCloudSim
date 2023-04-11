@@ -3,7 +3,7 @@
  * Modeling and Simulation of Cloud Computing Infrastructures and Services.
  * http://cloudsimplus.org
  *
- *     Copyright (C) 2015-2021 Universidade da Beira Interior (UBI, Portugal) and
+ *     Copyright (C) 2015-2016  Universidade da Beira Interior (UBI, Portugal) and
  *     the Instituto Federal de Educação Ciência e Tecnologia do Tocantins (IFTO, Brazil).
  *
  *     This file is part of CloudSim Plus.
@@ -21,23 +21,23 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus.core;
+package org.cloudsimplus.resource;
 
-import org.scalecloudsim.user.User;
-
-
-public interface UserEntity extends UniquelyIdentifiable, ChangeableId, Delayable {
-
-    User getUser();
-
-    void setUser(User user);
-
-    Simulation getSimulation();
-
-    double getSubmittedTime();
-
-    boolean isSubmitted();
-
-    void setSubmittedTime(double time);
-
+/**
+ * A simple storage that just manages the device capacity and raw allocated (used) space (in Megabytes).
+ * It doesn't deals with files neither with file system operations such as
+ * file inclusion or deletion.
+ * Such a class allows managing the Storage capacity and allocation.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @since CloudSim Plus 1.0
+ */
+public final class Storage extends ResourceManageableAbstract {
+    /**
+     * Creates a new Storage device.
+     * @param capacity the storage capacity in Megabytes
+     */
+    public Storage(long capacity) {
+        super(capacity, "MB");
+    }
 }

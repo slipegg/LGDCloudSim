@@ -1,8 +1,8 @@
 package org.scalecloudsim.statemanager;
 
 import org.cloudsimplus.core.Simulation;
-import org.scalecloudsim.Instances.Instance;
-import org.scalecloudsim.datacenters.Datacenter;
+import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 public interface StateManager {
-    public Logger LOGGER = LoggerFactory.getLogger(StateManager.class.getSimpleName());
+    Logger LOGGER = LoggerFactory.getLogger(StateManager.class.getSimpleName());
 
     Datacenter getDatacenter();
 

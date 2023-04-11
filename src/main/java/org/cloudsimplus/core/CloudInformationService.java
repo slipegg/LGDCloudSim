@@ -10,7 +10,7 @@ package org.cloudsimplus.core;
 import lombok.Getter;
 import lombok.NonNull;
 import org.cloudsimplus.core.events.SimEvent;
-import org.scalecloudsim.datacenters.Datacenter;
+import org.scalecloudsim.datacenter.Datacenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,23 +21,21 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus.core;
+package org.cloudsimplus.resource;
 
-import org.scalecloudsim.user.User;
-
-
-public interface UserEntity extends UniquelyIdentifiable, ChangeableId, Delayable {
-
-    User getUser();
-
-    void setUser(User user);
-
-    Simulation getSimulation();
-
-    double getSubmittedTime();
-
-    boolean isSubmitted();
-
-    void setSubmittedTime(double time);
-
+/**
+ * Represents the Bandwidth (BW) capacity of a PM or VM in Megabits/s.
+ * Such a class allows managing the BW capacity and allocation.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @since CloudSim Plus 1.0
+ */
+public final class Bandwidth extends ResourceManageableAbstract {
+    /**
+     * Creates a new Bandwidth resource.
+     * @param capacity the bandwidth capacity in in Megabits/s
+     */
+    public Bandwidth(final long capacity) {
+        super(capacity, "Mbps");
+    }
 }

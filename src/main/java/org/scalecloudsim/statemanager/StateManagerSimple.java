@@ -3,9 +3,8 @@ package org.scalecloudsim.statemanager;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudsimplus.core.Simulation;
-import org.scalecloudsim.Instances.Instance;
-import org.scalecloudsim.datacenters.Datacenter;
-import org.scalecloudsim.innerscheduler.InnerScheduler;
+import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 
 import java.util.*;

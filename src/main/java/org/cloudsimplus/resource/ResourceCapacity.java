@@ -21,23 +21,19 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus.core;
+package org.cloudsimplus.resource;
 
-import org.scalecloudsim.user.User;
-
-
-public interface UserEntity extends UniquelyIdentifiable, ChangeableId, Delayable {
-
-    User getUser();
-
-    void setUser(User user);
-
-    Simulation getSimulation();
-
-    double getSubmittedTime();
-
-    boolean isSubmitted();
-
-    void setSubmittedTime(double time);
-
+/**
+ * An interface to allow getting the capacity of a given resource.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @since CloudSim Plus 1.0
+ */
+public interface ResourceCapacity {
+    /**
+     * Gets the total capacity of the resource.
+     *
+     * @return the total resource capacity
+     */
+    long getCapacity();
 }

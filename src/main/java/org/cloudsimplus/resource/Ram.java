@@ -21,23 +21,21 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus.core;
+package org.cloudsimplus.resource;
 
-import org.scalecloudsim.user.User;
-
-
-public interface UserEntity extends UniquelyIdentifiable, ChangeableId, Delayable {
-
-    User getUser();
-
-    void setUser(User user);
-
-    Simulation getSimulation();
-
-    double getSubmittedTime();
-
-    boolean isSubmitted();
-
-    void setSubmittedTime(double time);
-
+/**
+ * Represents the RAM resource of a PM or VM in Megabytes.
+ * Such a class allows managing the RAM capacity and allocation.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @since CloudSim Plus 1.0
+ */
+public final class Ram extends ResourceManageableAbstract {
+    /**
+     * Creates a new RAM resource.
+     * @param capacity the RAM capacity in Megabytes
+     */
+    public Ram(final long capacity) {
+        super(capacity, "MB");
+    }
 }

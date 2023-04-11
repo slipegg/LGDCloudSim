@@ -5,14 +5,13 @@ import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.util.Log;
-import org.scalecloudsim.datacenters.*;
+import org.scalecloudsim.datacenter.*;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 import org.scalecloudsim.statemanager.*;
-import org.scalecloudsim.users.UserRequestManager;
-import org.scalecloudsim.users.UserRequestManagerEasy;
-import org.scalecloudsim.users.UserRequestManagerSimple;
-import org.scalecloudsim.users.UserSimple;
+import org.scalecloudsim.user.UserRequestManager;
+import org.scalecloudsim.user.UserRequestManagerEasy;
+import org.scalecloudsim.user.UserSimple;
 
 import java.util.ArrayList;
 import java.util.List;

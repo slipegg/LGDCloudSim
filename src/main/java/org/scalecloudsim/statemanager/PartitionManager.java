@@ -1,7 +1,5 @@
 package org.scalecloudsim.statemanager;
 
-import org.scalecloudsim.datacenters.Datacenter;
-
 import java.util.List;
 import java.util.Map;
 

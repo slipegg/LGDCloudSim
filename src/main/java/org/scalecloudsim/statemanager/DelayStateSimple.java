@@ -1,11 +1,8 @@
 package org.scalecloudsim.statemanager;
 
-import org.scalecloudsim.Instances.Instance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.scalecloudsim.request.Instance;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 //一个大表加一堆小表用来表示状态

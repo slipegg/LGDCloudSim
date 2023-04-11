@@ -1,8 +1,8 @@
 package org.scalecloudsim.innerscheduler;
 
 import org.cloudsimplus.core.Nameable;
-import org.scalecloudsim.Instances.Instance;
-import org.scalecloudsim.datacenters.Datacenter;
+import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.datacenter.Datacenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

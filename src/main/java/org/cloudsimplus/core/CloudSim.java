@@ -2,10 +2,9 @@ package org.cloudsimplus.core;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
-import org.scalecloudsim.datacenters.CollaborationManager;
+import org.scalecloudsim.datacenter.CollaborationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
