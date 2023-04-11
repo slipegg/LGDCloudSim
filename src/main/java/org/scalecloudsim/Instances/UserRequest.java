@@ -6,7 +6,9 @@ import org.scalecloudsim.datacenters.Datacenter;
 import java.util.List;
 
 public interface UserRequest extends ChangeableId {
-    static int FAILED = 0;
+    public static int FAILED = 0;
+    public static int SUCCESS = 1;
+
     List<InstanceGroup> getInstanceGroups();
 
     UserRequest setInstanceGroups(List<InstanceGroup> instanceGroups);
