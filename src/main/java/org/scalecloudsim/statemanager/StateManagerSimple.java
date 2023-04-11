@@ -338,6 +338,30 @@ public class StateManagerSimple implements StateManager {
         return this;
     }
 
+    public StateManager releaseResource(int hostId, Instance instance) {
+        //TODO 有重复代码，待优化
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        PartitionManager partitionManager = partitionManagerMap.get(partitionId);
+        HostStateHistory hostStateHistory = new HostStateHistory(
+                hostStates[hostId * HostState.STATE_NUM],
+                hostStates[hostId * HostState.STATE_NUM + 1],
+                hostStates[hostId * HostState.STATE_NUM + 2],
+                hostStates[hostId * HostState.STATE_NUM + 3],
+                getLastChangeTime(hostId));
+        partitionManager.addHostHistory(hostId, hostStateHistory);
+        hostStates[hostId * HostState.STATE_NUM] += instance.getCpu();
+        hostStates[hostId * HostState.STATE_NUM + 1] += instance.getRam();
+        hostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
+        hostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
+        lastChangeTime.put(hostId, simulation.clock());
+
+        simpleState.updateCpuRamMap(hostStateHistory.getCpu(), hostStateHistory.getRam(),
+                hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
+        simpleState.updateStorageSum(instance.getStorage());
+        simpleState.updateBwSum(instance.getBw());
+        return this;
+    }
+
     @Override
     public List<Double> getPartitionWatchDelay(int hostId) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);

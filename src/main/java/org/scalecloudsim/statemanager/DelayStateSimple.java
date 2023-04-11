@@ -37,7 +37,6 @@ public class DelayStateSimple implements DelayState {
         System.arraycopy(nowHostState, 0, allState, 0, nowHostState.length);
         for (int partitionId : oldState.keySet()) {
             for (int hostId : oldState.get(partitionId).keySet()) {
-
                 int[] hostState = oldState.get(partitionId).get(hostId).getStateArray();
                 System.arraycopy(hostState, 0, allState, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
             }

@@ -62,5 +62,7 @@ public interface StateManager {
 
     StateManager allocateResource(int hostId, Instance instance);
 
+    StateManager releaseResource(int hostId, Instance instance);
+
     List<Double> getPartitionWatchDelay(int hostId);
 }
