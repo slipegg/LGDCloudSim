@@ -9,9 +9,9 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     Set<InstanceGroupEdge> graph;
     boolean directed;
 
-    InstanceGroupGraphSimple(boolean directed){
-        this.directed=directed;
-        graph= new HashSet<>();
+    public InstanceGroupGraphSimple(boolean directed) {
+        this.directed = directed;
+        graph = new HashSet<>();
     }
 
     @Override

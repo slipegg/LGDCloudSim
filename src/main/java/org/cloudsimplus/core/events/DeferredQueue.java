@@ -1,7 +1,9 @@
 package org.cloudsimplus.core.events;
 
 import lombok.Getter;
+import org.cloudsimplus.core.SimEntity;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -56,6 +58,8 @@ public class DeferredQueue implements EventQueue {
     @Getter
     private int maxSize;
 
+    double eventTime;
+
     /**
      * Adds a new event to the queue, preserving the temporal order
      * of the events.
@@ -65,7 +69,7 @@ public class DeferredQueue implements EventQueue {
     public void addEvent(final SimEvent newEvent) {
         // The event has to be inserted as the last of all events
         // with the same event_time(). Yes, this matters.
-        final double eventTime = newEvent.getTime();
+        eventTime = newEvent.getTime();
         maxSize = Math.max(maxSize, eventList.size());
         if (eventTime >= maxTime) {
             eventList.add(newEvent);
@@ -166,5 +170,25 @@ public class DeferredQueue implements EventQueue {
         }
 
         return eventList.get(0);
+    }
+
+    public boolean isExistSameEvent(SimEntity dst, int tag, Object data) {
+        //TODO 可以进行时间优化
+        for (SimEvent event : eventList) {
+            if (event.getDestination().equals(dst) && event.getTag() == tag && (event.getData() == null && data == null || event.getData().equals(data))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    @Override
+    public String toString() {
+        String str = "deferred queue(" + eventTime + "ms):\n";
+        for (SimEvent event : eventList) {
+            str += event.toString() + "\n";
+        }
+        return str;
     }
 }

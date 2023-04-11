@@ -12,11 +12,9 @@ import org.scalecloudsim.datacenters.Datacenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 public class UserSimple extends CloudSimEntity {
@@ -51,9 +49,9 @@ public class UserSimple extends CloudSimEntity {
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-            case CloudSimTag.DC_LIST_REQUEST->processDatacenterListRequest(evt);
-            case CloudSimTag.SEND_USER_REQUEST->sendUserRequest();
-            default-> LOGGER.warn("{} received an unknown event tag: {}", getName(), evt.getTag());
+            case CloudSimTag.DC_LIST_REQUEST -> processDatacenterListRequest(evt);
+            case CloudSimTag.NEED_SEND_USER_REQUEST -> sendUserRequest();
+            default -> LOGGER.warn("{} received an unknown event tag: {}", getName(), evt.getTag());
         }
     }
     private void processDatacenterListRequest(final SimEvent evt) {
@@ -68,18 +66,32 @@ public class UserSimple extends CloudSimEntity {
     }
     private void sendUserRequest(){
         double nowTime=getSimulation().clock();
-        for(Datacenter datacenter:datacenterList){
-            Map<Double, List<UserRequest>> userRequests = userRequestManager.getUserRequestMap(nowTime,nowTime+sendOnceInterval,datacenter.getId());
-            for(Map.Entry<Double,List<UserRequest>> entry:userRequests.entrySet()){
-                double time = entry.getKey();
-                List<UserRequest> userRequestList = entry.getValue();
-                send(datacenter,time-nowTime,CloudSimTag.USER_REQUEST_SEND,userRequestList);
-                LOGGER.info("{}: {}: Sending user {} request(time = {}) to {}", nowTime, getName(),userRequestList.size(),String.format("%.2f", time),datacenter.getName());
+        for(Datacenter datacenter:datacenterList) {
+            List<UserRequest> userRequests = userRequestManager.getUserRequestMap(nowTime, nowTime + sendOnceInterval, datacenter.getId());
+            if (userRequests.size() == 0)
+                continue;
+            //按照userRequests的submitTime排序划分成不同的数组
+            double lastTime = userRequests.get(0).getSubmitTime();
+            int lastId = 0;
+            int id = 0;
+            double time = userRequests.get(0).getSubmitTime();
+            for (UserRequest userRequest : userRequests) {
+                time = userRequest.getSubmitTime();
+                if (time != lastTime) {
+                    send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequests.subList(lastId, id));
+                    LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
+                    lastTime = time;
+                    lastId = id;
+                }
+                id++;
             }
+            send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequests.subList(lastId, id));
+            LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
+            break;
         }
-        if(isSendLater){
-            schedule(this,sendOnceInterval,CloudSimTag.SEND_USER_REQUEST);
-            LOGGER.info("{}: {} will send user request after {} seconds", nowTime, getName(),sendOnceInterval);
+        if(isSendLater) {
+            send(this, sendOnceInterval, CloudSimTag.NEED_SEND_USER_REQUEST, null);
+            LOGGER.info("{}: {} will send user request after {} seconds", getSimulation().clockStr(), getName(), sendOnceInterval);
         }
         isSendLater=false;
     }

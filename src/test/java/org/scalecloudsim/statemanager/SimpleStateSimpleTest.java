@@ -16,10 +16,14 @@ public class SimpleStateSimpleTest {
         simpleState.updateCpuRamMap(32, 64, 16, 32);
         simpleState.addCpuRamRecord(8, 17);
 
+        int expectCpuSum = 24;
+        assertEquals(expectCpuSum, simpleState.getCpuAvaiableSum());
+        int expectRamSum = 49;
+        assertEquals(expectRamSum, simpleState.getRamAvaiableSum());
         int expectStorageSum = 1024;
-        assertEquals(expectStorageSum, simpleState.getStorageSum());
+        assertEquals(expectStorageSum, simpleState.getStorageAvaiableSum());
         int expectBwSum = 512;
-        assertEquals(expectBwSum, simpleState.getBwSum());
+        assertEquals(expectBwSum, simpleState.getBwAvaiableSum());
         int expectCpuRamNum = 1;
         assertEquals(expectCpuRamNum, simpleState.getCpuRamSum(16, 32));
 
@@ -38,8 +42,8 @@ public class SimpleStateSimpleTest {
         StateManager stateManager = new StateManagerSimple(hostNum, sacleCloudSim);
         HostStateGenerator isomorphicHostStateGenerator = new IsomorphicHostStateGenerator(128, 512, 10240, 1024);
         stateManager.initHostStates(isomorphicHostStateGenerator);
-        long storageSum = stateManager.getSimpleState().getStorageSum();
-        long bwSum = stateManager.getSimpleState().getBwSum();
+        long storageSum = stateManager.getSimpleState().getStorageAvaiableSum();
+        long bwSum = stateManager.getSimpleState().getBwAvaiableSum();
         long expectStorageSum = 10240L * hostNum;
         assertEquals(expectStorageSum, storageSum);
         long expectBwSum = 1024L * hostNum;

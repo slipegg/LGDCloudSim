@@ -1,5 +1,6 @@
 package org.scalecloudsim.statemanager;
 
+import org.scalecloudsim.Instances.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,4 +10,9 @@ public interface DelayState {
     int[] getHostState(int hostId);
 
     int[] getAllState();
+
+    boolean isSuitable(int hostId, Instance instance);
+
+    //假装分配了资源，每次分配后都会修改对应的状态
+    void allocateTmpResource(int hostId, Instance instance);
 }

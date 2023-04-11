@@ -1,7 +1,6 @@
 package org.scalecloudsim.datacenters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.cloudsimplus.core.Simulation;
 
 import java.util.*;
 
@@ -10,6 +9,11 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     public CollaborationManagerSimple() {
         this.collaborationMap = new HashMap<>();
+    }
+
+    public CollaborationManagerSimple(Simulation simulation) {
+        this();
+        simulation.setCollaborationManager(this);
     }
 
     public CollaborationManagerSimple(Map<Integer, Set<Datacenter>> collaborationMap) {
@@ -86,23 +90,33 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     @Override
-    public Set<Datacenter> getOtherDatacenters(Datacenter datacenter, int collaborationId) {
+    public List<Datacenter> getOtherDatacenters(Datacenter datacenter, int collaborationId) {
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters == null) {
-            return new HashSet<>();
+            return new ArrayList<>();
         }
-        datacenters = new HashSet<>(datacenters);
-        datacenters.remove(datacenter);
-        return datacenters;
+        List<Datacenter> datacenterList = new ArrayList<>(datacenters);
+        datacenterList.remove(datacenter);
+        return datacenterList;
     }
 
     @Override
-    public Set<Datacenter> getDatacenters(int collaborationId) {
+    public List<Datacenter> getDatacenters(int collaborationId) {
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters == null) {
-            return new HashSet<>();
+            return new ArrayList<>();
         }
-        return new HashSet<>(datacenters);
+        return new ArrayList<>(datacenters);
+    }
+
+    @Override
+    public List<Datacenter> getDatacenters(Datacenter datacenter) {
+        Set<Datacenter> datacenters = new HashSet<>();
+        for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
+            Set<Datacenter> collaborationDatacenters = entry.getValue();
+            datacenters.addAll(collaborationDatacenters);
+        }
+        return new ArrayList<>(datacenters);
     }
 
     @Override
@@ -111,12 +125,8 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     @Override
-    public Set<Datacenter> getOtherDatacenters(Datacenter datacenter) {
-        Set<Datacenter> datacenters = new HashSet<>();
-        for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
-            Set<Datacenter> collaborationDatacenters = entry.getValue();
-            datacenters.addAll(collaborationDatacenters);
-        }
+    public List<Datacenter> getOtherDatacenters(Datacenter datacenter) {
+        List<Datacenter> datacenters = getDatacenters(datacenter);
         datacenters.remove(datacenter);
         return datacenters;
     }

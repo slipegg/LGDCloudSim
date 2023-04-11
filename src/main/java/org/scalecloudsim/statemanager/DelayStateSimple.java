@@ -1,5 +1,6 @@
 package org.scalecloudsim.statemanager;
 
+import org.scalecloudsim.Instances.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +37,37 @@ public class DelayStateSimple implements DelayState {
         System.arraycopy(nowHostState, 0, allState, 0, nowHostState.length);
         for (int partitionId : oldState.keySet()) {
             for (int hostId : oldState.get(partitionId).keySet()) {
-
                 int[] hostState = oldState.get(partitionId).get(hostId).getStateArray();
                 System.arraycopy(hostState, 0, allState, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
             }
         }
         return allState;
+    }
+
+    @Override
+    public boolean isSuitable(int hostId, Instance instance) {
+        int[] hostState = getHostState(hostId);
+        return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
+    }
+
+    @Override
+    public void allocateTmpResource(int hostId, Instance instance) {
+        if (oldState.get(partitionRangesManager.getPartitionId(hostId)).containsKey(hostId)) {
+            {
+                HostStateHistory hostStateHistory = oldState.get(partitionRangesManager.getPartitionId(hostId)).get(hostId);
+                hostStateHistory.setCpu(hostStateHistory.getCpu() - instance.getCpu());
+                hostStateHistory.setRam(hostStateHistory.getRam() - instance.getRam());
+                hostStateHistory.setStorage(hostStateHistory.getStorage() - instance.getStorage());
+                hostStateHistory.setBw(hostStateHistory.getBw() - instance.getBw());
+            }
+        } else {
+            int[] hostState = getHostState(hostId);
+            HostStateHistory hostStateHistory = new HostStateHistory(hostState[0] - instance.getCpu(),
+                    hostState[1] - instance.getRam(),
+                    hostState[2] - instance.getStorage(),
+                    hostState[3] - instance.getBw(),
+                    -1);
+            oldState.get(partitionRangesManager.getPartitionId(hostId)).put(hostId, hostStateHistory);
+        }
     }
 }

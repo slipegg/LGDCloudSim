@@ -157,4 +157,9 @@ public class PartitionManagerSimple implements PartitionManager {
     public Map<Integer, HostStateHistory> getDelayPartitionState(double delay) {
         return watchTable.get(delay);
     }
+
+    @Override
+    public List<Double> getDelayWatchList() {
+        return new ArrayList<>(delayWatchs);
+    }
 }

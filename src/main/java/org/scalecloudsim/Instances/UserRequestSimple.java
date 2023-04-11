@@ -9,18 +9,24 @@ import java.util.List;
 public class UserRequestSimple implements UserRequest {
     @Getter
     int id;
-    @Getter@Setter
+    @Getter
+    @Setter
     double submitTime;
     @Getter
     List<InstanceGroup> instanceGroups;
     @Getter
     InstanceGroupGraph instanceGroupGraph;
-    @Getter@Setter
+    @Getter
+    @Setter
     int belongDatacenterId;
+
+    @Getter
+    @Setter
+    int state;
 
     public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
         this.id = id;
-        this.instanceGroups = instanceGroups;
+        setInstanceGroups(instanceGroups);
         this.instanceGroupGraph = instanceGroupGraph;
     }
 

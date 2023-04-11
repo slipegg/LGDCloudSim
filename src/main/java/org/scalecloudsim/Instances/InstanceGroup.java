@@ -18,4 +18,28 @@ public interface InstanceGroup extends RequestEntity {
     double getAcessLatency();
 
     InstanceGroup setAcessLatency(double latency);
+
+    long getStorageSum();
+
+    long getBwSum();
+
+    long getCpuSum();
+
+    long getRamSum();
+
+    InstanceGroup addRetryNum();
+
+    boolean isFailed();
+
+    int getRetryNum();
+
+    int getRetryMaxNum();
+
+    int getState();
+
+    InstanceGroup setState(int state);
+
+    InstanceGroup setRetryNum(int retryNum);
+
+    InstanceGroup setRetryMaxNum(int retryMaxNum);
 }

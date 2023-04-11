@@ -18,11 +18,13 @@ public interface CollaborationManager {
 
     CollaborationManager removeDatacenter(Datacenter datacenter);
 
-    Set<Datacenter> getOtherDatacenters(Datacenter datacenter, int collaborationId);
+    List<Datacenter> getOtherDatacenters(Datacenter datacenter, int collaborationId);
 
-    Set<Datacenter> getOtherDatacenters(Datacenter datacenter);
+    List<Datacenter> getOtherDatacenters(Datacenter datacenter);
 
-    Set<Datacenter> getDatacenters(int collaborationId);
+    List<Datacenter> getDatacenters(int collaborationId);
+
+    List<Datacenter> getDatacenters(Datacenter datacenter);
 
     Map<Integer, Set<Datacenter>> getCollaborationMap();
 }

@@ -3,6 +3,9 @@ package org.scalecloudsim.statemanager;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudsimplus.core.Simulation;
+import org.scalecloudsim.Instances.Instance;
+import org.scalecloudsim.datacenters.Datacenter;
+import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 
 import java.util.*;
@@ -21,6 +24,9 @@ public class StateManagerSimple implements StateManager {
     @Getter
     @Setter
     SimpleState simpleState;
+    @Getter
+    @Setter
+    Datacenter datacenter;
 
     public StateManagerSimple(int hostNum, Simulation simulation) {
         this.hostNum = hostNum;
@@ -99,8 +105,8 @@ public class StateManagerSimple implements StateManager {
 
     @Override
     public StateManager registerSchedulers(List<InnerScheduler> scheduler) {
-        for (InnerScheduler innerScheduler : scheduler) {
-            registerScheduler(innerScheduler);
+        for (InnerScheduler InnerScheduler : scheduler) {
+            registerScheduler(InnerScheduler);
         }
         return this;
     }
@@ -202,6 +208,16 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
+    public HostState getnowHostState(int hostId) {
+        HostState hostState = new HostState(
+                hostStates[hostId * HostState.STATE_NUM],
+                hostStates[hostId * HostState.STATE_NUM + 1],
+                hostStates[hostId * HostState.STATE_NUM + 2],
+                hostStates[hostId * HostState.STATE_NUM + 3]);
+        return hostState;
+    }
+
+    @Override
     public LinkedList<HostStateHistory> getHostHistory(int hostId) {
         LinkedList<HostStateHistory> history = new LinkedList<>();
         HostStateHistory nowState = new HostStateHistory(
@@ -288,6 +304,69 @@ public class StateManagerSimple implements StateManager {
             simpleState.updateBwSum(state[3]);
         }
         return this;
+    }
+
+    @Override
+    public boolean isSuitable(int hostId, Instance instance) {
+        return hostStates[hostId * HostState.STATE_NUM] >= instance.getCpu() &&
+                hostStates[hostId * HostState.STATE_NUM + 1] >= instance.getRam() &&
+                hostStates[hostId * HostState.STATE_NUM + 2] >= instance.getStorage() &&
+                hostStates[hostId * HostState.STATE_NUM + 3] >= instance.getBw();
+    }
+
+    @Override
+    public StateManager allocateResource(int hostId, Instance instance) {
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        PartitionManager partitionManager = partitionManagerMap.get(partitionId);
+        HostStateHistory hostStateHistory = new HostStateHistory(
+                hostStates[hostId * HostState.STATE_NUM],
+                hostStates[hostId * HostState.STATE_NUM + 1],
+                hostStates[hostId * HostState.STATE_NUM + 2],
+                hostStates[hostId * HostState.STATE_NUM + 3],
+                getLastChangeTime(hostId));
+        partitionManager.addHostHistory(hostId, hostStateHistory);
+        hostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
+        hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
+        hostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
+        hostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+        lastChangeTime.put(hostId, simulation.clock());
+
+        simpleState.updateCpuRamMap(hostStateHistory.getCpu(), hostStateHistory.getRam(),
+                hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
+        simpleState.updateStorageSum(-1 * instance.getStorage());
+        simpleState.updateBwSum(-1 * instance.getBw());
+        return this;
+    }
+
+    public StateManager releaseResource(int hostId, Instance instance) {
+        //TODO 有重复代码，待优化
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        PartitionManager partitionManager = partitionManagerMap.get(partitionId);
+        HostStateHistory hostStateHistory = new HostStateHistory(
+                hostStates[hostId * HostState.STATE_NUM],
+                hostStates[hostId * HostState.STATE_NUM + 1],
+                hostStates[hostId * HostState.STATE_NUM + 2],
+                hostStates[hostId * HostState.STATE_NUM + 3],
+                getLastChangeTime(hostId));
+        partitionManager.addHostHistory(hostId, hostStateHistory);
+        hostStates[hostId * HostState.STATE_NUM] += instance.getCpu();
+        hostStates[hostId * HostState.STATE_NUM + 1] += instance.getRam();
+        hostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
+        hostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
+        lastChangeTime.put(hostId, simulation.clock());
+
+        simpleState.updateCpuRamMap(hostStateHistory.getCpu(), hostStateHistory.getRam(),
+                hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
+        simpleState.updateStorageSum(instance.getStorage());
+        simpleState.updateBwSum(instance.getBw());
+        return this;
+    }
+
+    @Override
+    public List<Double> getPartitionWatchDelay(int hostId) {
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        PartitionManager partitionManager = partitionManagerMap.get(partitionId);
+        return partitionManager.getDelayWatchList();
     }
 
 }

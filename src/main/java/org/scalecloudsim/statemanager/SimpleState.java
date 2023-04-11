@@ -14,9 +14,13 @@ public interface SimpleState {
 
     SimpleState updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam);
 
-    long getStorageSum();
+    long getCpuAvaiableSum();
 
-    long getBwSum();
+    long getRamAvaiableSum();
+
+    long getStorageAvaiableSum();
+
+    long getBwAvaiableSum();
 
     Map<Integer, Map<Integer, MutableInt>> getCpuRamMap();
 

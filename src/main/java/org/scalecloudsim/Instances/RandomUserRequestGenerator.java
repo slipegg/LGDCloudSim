@@ -25,11 +25,11 @@ public class RandomUserRequestGenerator implements UserRequestGenerator{
             InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupId++);
             List<Instance> instances = new ArrayList<>();
             for (int i = 0; i < instanceNum; i++) {
-                Instance instance = new InstanceSimple(instanceId++, i, i, i, i);
+                Instance instance = new InstanceSimple(instanceId++, i, i, i, i, 3000);
                 instances.add(instance);
             }
             instanceGroup.setInstanceList(instances);
-            instanceGroup.setAcessLatency(rand.nextDouble(1.0));
+            instanceGroup.setAcessLatency(rand.nextDouble(10) + 2);
             instanceGroups.add(instanceGroup);
         }
 
@@ -43,7 +43,7 @@ public class RandomUserRequestGenerator implements UserRequestGenerator{
                 to = rand.nextInt(instanceGroupNum);
             }
             double bandwidth = rand.nextDouble(10);
-            double latency = rand.nextDouble(10);
+            double latency = rand.nextDouble(20) + 4;
             InstanceGroupEdge instanceGroupEdge = new InstanceGroupEdgeSimple(instanceGroups.get(from), instanceGroups.get(to), bandwidth, latency);
             instanceGroupGraph.addEdge(instanceGroupEdge);
         }

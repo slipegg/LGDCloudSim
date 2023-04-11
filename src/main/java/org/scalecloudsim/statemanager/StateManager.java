@@ -1,6 +1,8 @@
 package org.scalecloudsim.statemanager;
 
 import org.cloudsimplus.core.Simulation;
+import org.scalecloudsim.Instances.Instance;
+import org.scalecloudsim.datacenters.Datacenter;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,10 @@ import java.util.TreeMap;
 
 public interface StateManager {
     public Logger LOGGER = LoggerFactory.getLogger(StateManager.class.getSimpleName());
+
+    Datacenter getDatacenter();
+
+    StateManager setDatacenter(Datacenter datacenter);
 
     StateManager setPartitionRanges(PartitionRangesManager partitionRangesManager);//支持删除原有分区，重新设置分区
 
@@ -32,6 +38,8 @@ public interface StateManager {
 
     HostStateHistory getnowHostStateHistory(int hostId);
 
+    HostState getnowHostState(int hostId);
+
     LinkedList<HostStateHistory> getHostHistory(int hostId);
 
     HostStateHistory getHostStateHistory(int hostId, double time);
@@ -49,4 +57,12 @@ public interface StateManager {
     int[] getHostStates();
 
     StateManager initHostStates(HostStateGenerator hostStateGenerator);
+
+    boolean isSuitable(int hostId, Instance instance);
+
+    StateManager allocateResource(int hostId, Instance instance);
+
+    StateManager releaseResource(int hostId, Instance instance);
+
+    List<Double> getPartitionWatchDelay(int hostId);
 }

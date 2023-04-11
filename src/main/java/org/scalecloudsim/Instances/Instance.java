@@ -71,4 +71,20 @@ public interface Instance extends RequestEntity {
     int getStatus();
 
     Instance setStatus(int status);
+
+    Instance addRetryNum();
+
+    boolean isFailed();
+
+    int getRetryNum();
+
+    int getRetryMaxNum();
+
+    int getState();
+
+    Instance setState(int state);
+
+    Instance setRetryNum(int retryNum);
+
+    Instance setRetryMaxNum(int retryMaxNum);
 }

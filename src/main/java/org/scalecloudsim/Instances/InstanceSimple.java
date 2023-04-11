@@ -1,5 +1,8 @@
 package org.scalecloudsim.Instances;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +25,16 @@ public class InstanceSimple implements Instance {
     int host;
     double startTime;
     double finishTime;
-
     int status;
+    @Getter
+    @Setter
+    int retryNum;
+    @Getter
+    @Setter
+    int retryMaxNum;
+    @Getter
+    @Setter
+    int state;
 
     //还缺userRequest和instanceGroup等待后面进行设置
     public InstanceSimple(int id, int cpu, int ram, int storage, int bw) {
@@ -35,16 +46,16 @@ public class InstanceSimple implements Instance {
         this.bw = bw;
 
         this.lifeTime = -1;
-        this.destHost=-1;
-        this.maxFailNum=0;
+        this.destHost = -1;
+        this.maxFailNum = 0;
 
-        this.failNum=0;
-        this.failedinfoList=new ArrayList<>();
-        this.host=-1;
-        this.startTime=-1;
-        this.finishTime=-1;
+        this.failNum = 0;
+        this.failedinfoList = new ArrayList<>();
+        this.host = -1;
+        this.startTime = -1;
+        this.finishTime = -1;
 
-        this.status=0;
+        this.status = 0;
     }
 
     public InstanceSimple(int id, int cpu, int ram, int storage, int bw, double lifeTime) {
@@ -56,16 +67,16 @@ public class InstanceSimple implements Instance {
         this.bw = bw;
 
         this.lifeTime = lifeTime;
-        this.destHost=-1;
-        this.maxFailNum=0;
+        this.destHost = -1;
+        this.maxFailNum = 0;
 
-        this.failNum=0;
-        this.failedinfoList=new ArrayList<>();
-        this.host=-1;
-        this.startTime=-1;
-        this.finishTime=-1;
+        this.failNum = 0;
+        this.failedinfoList = new ArrayList<>();
+        this.host = -1;
+        this.startTime = -1;
+        this.finishTime = -1;
 
-        this.status=0;
+        this.status = 0;
     }
 
     @Override
@@ -235,6 +246,22 @@ public class InstanceSimple implements Instance {
     public Instance setStatus(int status) {
         this.status = status;
         return this;
+    }
+
+    @Override
+    public Instance addRetryNum() {
+        this.retryNum++;
+        if (this.retryNum >= this.retryMaxNum) {
+            this.state = UserRequest.FAILED;
+            this.getInstanceGroup().setState(UserRequest.FAILED);
+            this.getUserRequest().setState(UserRequest.FAILED);
+        }
+        return this;
+    }
+
+    @Override
+    public boolean isFailed() {
+        return this.state == UserRequest.FAILED;
     }
 
     @Override

@@ -61,13 +61,13 @@ enum ParsingState {
 
             // List of fields in the line to parse
             // NodeID, xpos, ypos, inDegree, outDegree, AS_id, type(router/AS)
-            final Integer[] parsedFields = {0, 0, 0};
-            if (!reader.parseLine(line, parsedFields, Integer::valueOf)) {
+            final Double[] parsedFields = {0.0, 0.0, 0.0, 0.0};
+            if (!reader.parseLine(line, parsedFields, Double::valueOf)) {
                 return;
             }
-
-            final Point2D coordinates = new Point2D(parsedFields[1], parsedFields[2]);
-            final TopologicalNode topoNode = new TopologicalNode(parsedFields[0], coordinates);
+            final double accessLatency = parsedFields[1];
+            final Point2D coordinates = new Point2D(parsedFields[2], parsedFields[3]);
+            final TopologicalNode topoNode = new TopologicalNode(parsedFields[0].intValue(), accessLatency, coordinates);
             reader.getGraph().addNode(topoNode);
         }
     },

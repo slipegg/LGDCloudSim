@@ -378,7 +378,8 @@ public final class CloudSimEvent implements SimEvent {
         this.setSource(source);
         this.setDestination(destination);
         this.setSimulation(source.getSimulation());
-        this.time = simulation.clock() + delay;
+//        this.time = simulation.clock() + delay;
+        this.time = (double) Math.round((simulation.clock() + delay) * Math.pow(10, simulation.getSimulationAccuracy())) / Math.pow(10, simulation.getSimulationAccuracy());//需要对时间精度进行确认
         this.tag = tag;
         this.data = data;
     }
@@ -422,7 +423,7 @@ public final class CloudSimEvent implements SimEvent {
 
     @Override
     public String toString() {
-        return "Event tag = " + tag + " source = " + source.getName() +
+        return "Event tag = " + CloudSimTag.tagToString(tag) + " source = " + source.getName() +
                 " target = " + destination.getName() + " time = " + time;
     }
 }

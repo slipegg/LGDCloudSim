@@ -6,11 +6,13 @@ import org.scalecloudsim.Instances.UserRequest;
 import java.util.List;
 
 public interface GroupQueue {
-    GroupQueue addInstanceGroups(List<UserRequest> userRequests);
+    GroupQueue add(List<UserRequest> userRequests);
 
-    GroupQueue addInstanceGroups(UserRequest userRequest);
+    GroupQueue add(UserRequest userRequest);
 
-    List<InstanceGroup> getInstanceGroups();
+    GroupQueue add(InstanceGroup instanceGroup);
 
-    int getGroupNum();
+    List<InstanceGroup> getBatchItem();
+
+    int size();
 }

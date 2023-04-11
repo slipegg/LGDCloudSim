@@ -1,6 +1,5 @@
 package org.scalecloudsim.statemanager;
 
-import ch.qos.logback.core.joran.sanity.Pair;
 import lombok.Getter;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -8,8 +7,10 @@ import java.util.*;
 
 @Getter
 public class SimpleStateSimple implements SimpleState {
-    long storageSum;
-    long bwSum;
+    long cpuAvaiableSum;
+    long ramAvaiableSum;
+    long storageAvaiableSum;
+    long bwAvaiableSum;
     Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
     Map<Integer, Map<Integer, List<MutableInt>>> cpuRamSumMap;
 
@@ -19,8 +20,10 @@ public class SimpleStateSimple implements SimpleState {
     List<Integer> ramRecordListDec;
 
     public SimpleStateSimple() {
-        this.storageSum = 0;
-        this.bwSum = 0;
+        this.cpuAvaiableSum = 0;
+        this.ramAvaiableSum = 0;
+        this.storageAvaiableSum = 0;
+        this.bwAvaiableSum = 0;
         this.cpuRamMap = new TreeMap<>(Comparator.reverseOrder());
         this.cpuRamSumMap = new TreeMap<>(Comparator.reverseOrder());
 
@@ -98,13 +101,13 @@ public class SimpleStateSimple implements SimpleState {
 
     @Override
     public SimpleState updateStorageSum(int changeStorage) {
-        storageSum += changeStorage;
+        storageAvaiableSum += changeStorage;
         return this;
     }
 
     @Override
     public SimpleState updateBwSum(int changeBw) {
-        bwSum += changeBw;
+        bwAvaiableSum += changeBw;
         return this;
     }
 
@@ -115,6 +118,8 @@ public class SimpleStateSimple implements SimpleState {
         if (smallerCpu != -1 && smallerRam != -1) {
             cpuRamMap.get(smallerCpu).get(smallerRam).increment();
         }
+        cpuAvaiableSum += cpu;
+        ramAvaiableSum += ram;
         return this;
     }
 
@@ -130,6 +135,8 @@ public class SimpleStateSimple implements SimpleState {
         if (smallerNowCpu != -1 && smallerNowRam != -1) {
             cpuRamMap.get(smallerNowCpu).get(smallerNowRam).increment();
         }
+        cpuAvaiableSum += nowCpu - originCpu;
+        ramAvaiableSum += nowRam - originRam;
         return this;
     }
 
