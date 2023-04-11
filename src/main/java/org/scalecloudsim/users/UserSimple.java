@@ -68,13 +68,15 @@ public class UserSimple extends CloudSimEntity {
         double nowTime=getSimulation().clock();
         for(Datacenter datacenter:datacenterList) {
             List<UserRequest> userRequests = userRequestManager.getUserRequestMap(nowTime, nowTime + sendOnceInterval, datacenter.getId());
+            if (userRequests.size() == 0)
+                continue;
             //按照userRequests的submitTime排序划分成不同的数组
-            List<List<UserRequest>> sendUserRequestList = new ArrayList<>();
             double lastTime = userRequests.get(0).getSubmitTime();
             int lastId = 0;
             int id = 0;
+            double time = userRequests.get(0).getSubmitTime();
             for (UserRequest userRequest : userRequests) {
-                double time = userRequest.getSubmitTime();
+                time = userRequest.getSubmitTime();
                 if (time != lastTime) {
                     send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequests.subList(lastId, id));
                     LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
@@ -83,6 +85,9 @@ public class UserSimple extends CloudSimEntity {
                 }
                 id++;
             }
+            send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequests.subList(lastId, id));
+            LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
+            break;
         }
         if(isSendLater) {
             send(this, sendOnceInterval, CloudSimTag.NEED_SEND_USER_REQUEST, null);
