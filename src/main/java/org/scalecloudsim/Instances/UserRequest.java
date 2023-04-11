@@ -6,6 +6,7 @@ import org.scalecloudsim.datacenters.Datacenter;
 import java.util.List;
 
 public interface UserRequest extends ChangeableId {
+    public static int WAITING = -1;
     public static int FAILED = 0;
     public static int SUCCESS = 1;
 

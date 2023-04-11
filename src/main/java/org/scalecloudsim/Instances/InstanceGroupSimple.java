@@ -48,6 +48,8 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.groupType = 0;
         this.retryNum = 0;
         this.retryMaxNum = 3;
+        this.state = UserRequest.WAITING;
+        this.acessLatency = Double.MAX_VALUE;
     }
 
     @Override
