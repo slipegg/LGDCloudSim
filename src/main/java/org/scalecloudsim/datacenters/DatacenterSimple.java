@@ -139,8 +139,20 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
             case CloudSimTag.ALLOCATE_RESOURCE -> processAllocateResource(evt);
             case CloudSimTag.UPDATE_HOST_STATE -> processUpdateHostState(evt);
+            case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
+        }
+    }
+
+    private void processEndInstanceRun(SimEvent evt) {
+        if (evt.getData() instanceof Instance instance) {
+            int hostId = instance.getHost();
+            instance.setState(UserRequest.SUCCESS);
+            stateManager.releaseResource(hostId, instance);
+            List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
+            sendUpdateStateEvt(hostId, watchDelays);
+            LOGGER.info("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
         }
     }
 
@@ -157,8 +169,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 List<Instance> instances = entry.getValue();
                 for (Instance instance : instances) {
                     stateManager.allocateResource(hostId, instance);
+                    instance.setHost(hostId);
                     List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
                     sendUpdateStateEvt(hostId, watchDelays);
+                    double lifeTime = instance.getLifeTime();
+                    if (lifeTime > 0) {
+                        send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instance);
+                    }
                 }
             }
         }
