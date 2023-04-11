@@ -127,7 +127,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
-            case CloudSimTag.INTER_SCHEDULE -> processInterSchedule();
+            case CloudSimTag.GROUP_FILTER_DC -> processGroupFilterDc();
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT ->
                     processRespondDcReviveGroup(evt);
@@ -157,11 +157,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processUpdateHostState(SimEvent evt) {
+        LOGGER.info("{}: {} is updating host state.", getSimulation().clockStr(), getName());
         int hostId = (int) evt.getData();
         stateManager.updateHostState(hostId);
     }
 
     private void processAllocateResource(SimEvent evt) {
+        LOGGER.info("{}: {} is allocate resource.", getSimulation().clockStr(), getName());
         if (evt.getData() instanceof Map) {
             Map<Integer, List<Instance>> allocateResult = (Map<Integer, List<Instance>>) evt.getData();
             for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
@@ -188,6 +190,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processPreAllocateResource(SimEvent evt) {
+        LOGGER.info("{}: {}'s all innerScheduler result has been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
         Map<Integer, List<Instance>> allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResult);
         double costTime = 0.1;
         if (allocateResult.containsKey(-1)) {
@@ -379,13 +382,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             groupQueue.add((InstanceGroup) evt.getData());
             LOGGER.info("{}: {} received an InstanceGroup.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), groupQueue.size());
         }
-        sendNow(this, CloudSimTag.INTER_SCHEDULE);
+        sendNow(this, CloudSimTag.GROUP_FILTER_DC);
     }
 
-    private void processInterSchedule() {
+    private void processGroupFilterDc() {
         //得到本轮需要进行域间调度的亲和组
         List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
-        LOGGER.info("{}: {} is processing inter schedule for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
+        LOGGER.info("{}: {} is trying to find available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
         if (instanceGroups.size() == 0) {
             return;
         }
@@ -402,10 +405,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
 //        double costTime = (System.currentTimeMillis() - start) / 10;//假设在集群调度器中的性能更强。只需要花费十分之一的时间
         double costTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
-        LOGGER.info("{}: {} inter scheduling cost {} ms.", getSimulation().clockStr(), getName(), costTime);
+//        LOGGER.info("{}: {} inter scheduling cost {} ms.", getSimulation().clockStr(), getName(), costTime);
         interScheduleByResult(instanceGroupAvaiableDatacenters, costTime);
         if (groupQueue.size() > 0) {
-            send(this, costTime, CloudSimTag.INTER_SCHEDULE, null);
+            send(this, costTime, CloudSimTag.GROUP_FILTER_DC, null);
         }
         //根据网络拓扑中的时延和宽带情况对整个一批的进行排序
         //进行域间调度
