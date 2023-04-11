@@ -423,7 +423,7 @@ public final class CloudSimEvent implements SimEvent {
 
     @Override
     public String toString() {
-        return "Event tag = " + tag + " source = " + source.getName() +
+        return "Event tag = " + CloudSimTag.tagToString(tag) + " source = " + source.getName() +
                 " target = " + destination.getName() + " time = " + time;
     }
 }
