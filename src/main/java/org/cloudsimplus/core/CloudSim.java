@@ -127,6 +127,7 @@ public class CloudSim implements Simulation {
         if (!runClockTickAndProcessFutureEvents(until)) {
             return false;
         }
+        LOGGER.debug(this.deferred.toString());
         return true;
 //        if (!runClockTickAndProcessFutureEvents(until) && !isToWaitClockToReachTerminationTime()) {
 //            return false;
@@ -282,4 +283,5 @@ public class CloudSim implements Simulation {
     public void setSimulationAccuracy(int simulationAccuracy) {
         this.simulationAccuracy = simulationAccuracy;
     }
+
 }
