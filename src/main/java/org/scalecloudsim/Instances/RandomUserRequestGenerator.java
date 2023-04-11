@@ -25,7 +25,7 @@ public class RandomUserRequestGenerator implements UserRequestGenerator{
             InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupId++);
             List<Instance> instances = new ArrayList<>();
             for (int i = 0; i < instanceNum; i++) {
-                Instance instance = new InstanceSimple(instanceId++, i, i, i, i);
+                Instance instance = new InstanceSimple(instanceId++, i, i, i, i, 3000);
                 instances.add(instance);
             }
             instanceGroup.setInstanceList(instances);
