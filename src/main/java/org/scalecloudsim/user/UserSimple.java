@@ -26,7 +26,7 @@ public class UserSimple extends CloudSimEntity {
     @Getter
     @Setter
     boolean isSendLater = true;
-    int sendCount = 5;
+    int sendCount = 1_000;
 //    private Datacenter
     /**
      * Creates a new entity.

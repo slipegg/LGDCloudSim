@@ -11,9 +11,10 @@ public class UserRequestManagerEasy implements UserRequestManager {
 
     @Override
     public List<UserRequest> getUserRequestMap(double startTime, double endTime, int datacenterId) {
-        Instance instance = new InstanceSimple(instanceId++, 1, 1, 1, 1, 3000);
+        Instance instance1 = new InstanceSimple(instanceId++, 1, 1, 1, 1, 3000);
+        Instance instance2 = new InstanceSimple(instanceId++, 2, 2, 2, 2, 2000);
         InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupId++);
-        instanceGroup.setInstanceList(List.of(instance));
+        instanceGroup.setInstanceList(List.of(instance1, instance2));
         InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
         UserRequest userRequest = new UserRequestSimple(userRequestId++, List.of(instanceGroup), instanceGroupGraph);
         userRequest.setSubmitTime(startTime);
