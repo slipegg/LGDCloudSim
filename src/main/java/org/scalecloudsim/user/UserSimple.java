@@ -23,8 +23,10 @@ public class UserSimple extends CloudSimEntity {
     double sendOnceInterval;
     @Getter@Setter
     UserRequestManager userRequestManager;
-    @Getter@Setter
-    boolean isSendLater=true;
+    @Getter
+    @Setter
+    boolean isSendLater = true;
+    int sendCount = 5;
 //    private Datacenter
     /**
      * Creates a new entity.
@@ -87,11 +89,12 @@ public class UserSimple extends CloudSimEntity {
             LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
             break;
         }
-        if(isSendLater) {
+        sendCount--;
+        if (sendCount > 0) {
             send(this, sendOnceInterval, CloudSimTag.NEED_SEND_USER_REQUEST, null);
             LOGGER.info("{}: {} will send user request after {} seconds", getSimulation().clockStr(), getName(), sendOnceInterval);
         }
-        isSendLater=false;
+//        isSendLater=false;
     }
 
 }
