@@ -149,9 +149,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof Instance instance) {
             int hostId = instance.getHost();
             instance.setState(UserRequest.SUCCESS);
+            instance.setFinishTime(getSimulation().clock());
             stateManager.releaseResource(hostId, instance);
             List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
             sendUpdateStateEvt(hostId, watchDelays);
+            getSimulation().getCsvRecord().writeRecord(instance, this);
             LOGGER.info("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
         }
     }
@@ -172,6 +174,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 for (Instance instance : instances) {
                     stateManager.allocateResource(hostId, instance);
                     instance.setHost(hostId);
+                    instance.setStartTime(getSimulation().clock());
                     List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
                     sendUpdateStateEvt(hostId, watchDelays);
                     double lifeTime = instance.getLifeTime();
