@@ -3,6 +3,7 @@ package org.cloudsimplus.core;
 import org.cloudsimplus.core.events.SimEvent;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
+import org.scalecloudsim.record.CsvRecord;
 
 import java.util.function.Predicate;
 
@@ -87,5 +88,10 @@ public class SimulationNull implements Simulation {
     @Override
     public void setSimulationAccuracy(int simulationAccuracy) {
 
+    }
+
+    @Override
+    public CsvRecord getCsvRecord() {
+        return null;
     }
 }

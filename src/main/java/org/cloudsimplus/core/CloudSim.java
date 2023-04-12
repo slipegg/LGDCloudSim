@@ -5,9 +5,11 @@ import lombok.NonNull;
 import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
+import org.scalecloudsim.record.CsvRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -36,6 +38,8 @@ public class CloudSim implements Simulation {
     private NetworkTopology networkTopology;
     @Getter
     CollaborationManager collaborationManager;
+    @Getter
+    CsvRecord csvRecord;
 
     @Getter
     private int simulationAccuracy;
@@ -47,6 +51,7 @@ public class CloudSim implements Simulation {
         this.deferred = new DeferredQueue();
         this.cis = new CloudInformationService(this);
         this.simulationAccuracy = 2;
+        this.csvRecord = new CsvRecord();
     }
 
     @Override
@@ -119,6 +124,13 @@ public class CloudSim implements Simulation {
         }
 //
 //        finish();
+//        try {
+//            getCsvRecord().getPrinter().close();
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        getCsvRecord().close();
         return clock;
     }
 

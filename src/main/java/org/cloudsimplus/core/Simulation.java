@@ -3,6 +3,7 @@ package org.cloudsimplus.core;
 import org.cloudsimplus.core.events.SimEvent;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
+import org.scalecloudsim.record.CsvRecord;
 
 import java.util.function.Predicate;
 
@@ -42,4 +43,6 @@ public interface Simulation {
 
     //设置模拟的时间精度，即到小数点后几位，默认是2位，即0.01ms
     void setSimulationAccuracy(int simulationAccuracy);
+
+    CsvRecord getCsvRecord();
 }
