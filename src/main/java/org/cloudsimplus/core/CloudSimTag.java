@@ -28,8 +28,7 @@ public class CloudSimTag {
     public static final int END_INSTANCE_RUN = BASE + 17;
     private final int priority;
 
-    //初始化一个值为1,2,3的set。
-    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE, PRE_ALLOCATE_RESOURCE);
+    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE, PRE_ALLOCATE_RESOURCE, UPDATE_HOST_STATE);
 
     public int priority() {
         return priority;
