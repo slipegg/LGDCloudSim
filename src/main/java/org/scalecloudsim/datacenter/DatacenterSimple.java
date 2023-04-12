@@ -195,6 +195,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processPreAllocateResource(SimEvent evt) {
         LOGGER.info("{}: {}'s all innerScheduler result has been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
         Map<Integer, List<Instance>> allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResult);
+        this.innerSchedulerResult.clear();
         double costTime = 0.1;
         if (allocateResult.containsKey(-1)) {
             innerScheduleFailed(allocateResult.get(-1), 0.0);
@@ -328,7 +329,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             //表示调度失败
             return null;
         }
-        return datacenters.get(new Random().nextInt(datacenters.size()));
+        Random random = new Random(1);
+        return datacenters.get(random.nextInt(datacenters.size()));
     }
 
     private boolean isAllSendResultReceived(InstanceGroup instanceGroup) {
