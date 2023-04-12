@@ -27,7 +27,7 @@ public class test {
     UserSimple user;
     UserRequestManager userRequestManager;
     String NETWORK_TOPOLOGY_FILE = "topology.brite";
-    int hostNum = 5_000;
+    int hostNum = 500_000;
     HostStateGenerator hostStateGenerator;
 
     public static void main(String[] args) {
@@ -36,12 +36,23 @@ public class test {
     }
 
     private test() {
-        Log.setLevel(Level.DEBUG);
+        double start = System.currentTimeMillis();
+        Log.setLevel(Level.ERROR);
         scaleCloudSim = new CloudSim();
         initUser();
         initDatacenters();
         initNetwork();
         scaleCloudSim.start();
+        double end = System.currentTimeMillis();
+        System.out.println("\n运行情况：");
+        System.out.println("耗时：" + (end - start) / 1000 + "s");
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory(); //总内存
+        long freeMemory = runtime.freeMemory(); //空闲内存
+        long usedMemory = totalMemory - freeMemory; //已用内存
+        System.out.println("totalMemory: " + totalMemory / 1000000 + " Mb");
+        System.out.println("freeMemory: " + freeMemory / 1000000 + " Mb");
+        System.out.println("usedMemory: " + usedMemory / 1000000 + " Mb");
     }
 
     private void initUser() {
