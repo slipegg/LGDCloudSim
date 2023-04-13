@@ -50,7 +50,7 @@ public interface Instance extends RequestEntity {
 
     Instance setFailNum(int failNum);
 
-    List<InstanceFailInfo> getFailedHosts();
+    List<InstanceFailInfo> getFailedinfoList();
 
     Instance addFailedInfo(InstanceFailInfo instanceFailInfo);
 
@@ -66,11 +66,6 @@ public interface Instance extends RequestEntity {
     double getFinishTime();
 
     Instance setFinishTime(double finishTime);
-
-    //状态
-    int getStatus();
-
-    Instance setStatus(int status);
 
     Instance addRetryNum();
 
