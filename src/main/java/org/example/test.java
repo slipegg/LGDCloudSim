@@ -8,6 +8,8 @@ import org.cloudsimplus.util.Log;
 import org.scalecloudsim.datacenter.*;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
+import org.scalecloudsim.interscheduler.InterScheduler;
+import org.scalecloudsim.interscheduler.InterSchedulerSimple;
 import org.scalecloudsim.statemanager.*;
 import org.scalecloudsim.user.UserRequestManager;
 import org.scalecloudsim.user.UserRequestManagerEasy;
@@ -27,7 +29,7 @@ public class test {
     UserSimple user;
     UserRequestManager userRequestManager;
     String NETWORK_TOPOLOGY_FILE = "topology.brite";
-    int hostNum = 500_000;
+    int hostNum = 50_000;
     HostStateGenerator hostStateGenerator;
 
     public static void main(String[] args) {
@@ -50,9 +52,8 @@ public class test {
         long totalMemory = runtime.totalMemory(); //总内存
         long freeMemory = runtime.freeMemory(); //空闲内存
         long usedMemory = totalMemory - freeMemory; //已用内存
-        System.out.println("totalMemory: " + totalMemory / 1000000 + " Mb");
-        System.out.println("freeMemory: " + freeMemory / 1000000 + " Mb");
-        System.out.println("usedMemory: " + usedMemory / 1000000 + " Mb");
+        System.out.println("占用内存: " + usedMemory / 1000000 + " Mb");
+        System.out.println("运行结果保存路径:" + scaleCloudSim.getCsvRecord().getFilePath());
     }
 
     private void initUser() {
@@ -84,6 +85,8 @@ public class test {
         LoadBalance loadBalance = new LoadBalanceRound();
         dc.setLoadBalance(loadBalance);
         dc.getStateManager().initHostStates(hostStateGenerator);
+        InterScheduler interScheduler = new InterSchedulerSimple();
+        dc.setInterScheduler(interScheduler);
         return dc;
     }
 
