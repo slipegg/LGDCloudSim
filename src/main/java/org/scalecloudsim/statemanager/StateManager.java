@@ -65,4 +65,12 @@ public interface StateManager {
     StateManager releaseResource(int hostId, Instance instance);
 
     List<Double> getPartitionWatchDelay(int hostId);
+
+    boolean getPredictable();
+
+    StateManager setPredictable(boolean predictable);
+
+    PredictionManager getPredictionManager();
+
+    StateManager setPredictionManager(PredictionManager predictionManager);
 }

@@ -27,7 +27,14 @@ public class StateManagerSimple implements StateManager {
     @Setter
     Datacenter datacenter;
 
+    boolean predictable;
+
+    @Getter
+    @Setter
+    PredictionManager predictionManager;
+
     public StateManagerSimple(int hostNum, Simulation simulation) {
+        this.predictable = false;
         this.hostNum = hostNum;
         this.simulation = simulation;
         hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -171,11 +178,15 @@ public class StateManagerSimple implements StateManager {
         for (Map.Entry<Integer, Double> entry : partitionDelay.entrySet()) {
             int partitionId = entry.getKey();
             double delay = entry.getValue();
-            Map<Integer, HostStateHistory> partitionHistory = partitionManagerMap.get(partitionId).getDelayPartitionState(delay);
+            Map<Integer, HostStateHistory> partitionHistory;
+            if (predictable) {
+                partitionHistory = predictionManager.predictHostStates(partitionManagerMap.get(partitionId), delay);
+            } else {
+                partitionHistory = partitionManagerMap.get(partitionId).getDelayPartitionState(delay);
+            }
             oldState.put(partitionId, partitionHistory);
         }
-        DelayState delayState = new DelayStateSimple(hostStates, oldState, partitionRangesManager);
-        return delayState;
+        return new DelayStateSimple(hostStates, oldState, partitionRangesManager);
     }
 
     @Override
@@ -366,6 +377,26 @@ public class StateManagerSimple implements StateManager {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         PartitionManager partitionManager = partitionManagerMap.get(partitionId);
         return partitionManager.getDelayWatchList();
+    }
+
+    @Override
+    public boolean getPredictable() {
+        return predictable;
+    }
+
+    @Override
+    public StateManager setPredictable(boolean predictable) {
+        if (predictionManager == null) {
+            LOGGER.warn("PredictionManager is null, can't set predictable");
+        }
+        this.predictable = predictable;
+        return this;
+    }
+
+    @Override
+    public StateManager setPredictionManager(PredictionManager predictionManager) {
+        this.predictionManager = predictionManager;
+        return this;
     }
 
 }
