@@ -158,14 +158,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof Instance instance) {
+            if (instance.getState() != UserRequest.RUNNING) {
+                return;
+            }
             int hostId = instance.getHost();
-            instance.setState(UserRequest.SUCCESS);
+            if (getSimulation().clock() - instance.getStartTime() >= instance.getLifeTime()) {
+                instance.setState(UserRequest.SUCCESS);
+                LOGGER.info("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+            } else {
+                instance.setState(UserRequest.FAILED);
+                LOGGER.warn("{}: {}'s Instance{} is terminated prematurely on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+            }
             instance.setFinishTime(getSimulation().clock());
             stateManager.releaseResource(hostId, instance);
             List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
             sendUpdateStateEvt(hostId, watchDelays);
             getSimulation().getCsvRecord().writeRecord(instance, this);
-            LOGGER.info("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
         }
     }
 
@@ -176,14 +184,21 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processAllocateResource(SimEvent evt) {
-        LOGGER.info("{}: {} is allocate resource.", getSimulation().clockStr(), getName());
         if (evt.getData() instanceof Map) {
             Map<Integer, List<Instance>> allocateResult = (Map<Integer, List<Instance>>) evt.getData();
+            LOGGER.info("{}: {} is allocate resource for:{}.", getSimulation().clockStr(), getName(), allocateResult);
             for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
                 int hostId = entry.getKey();
                 List<Instance> instances = entry.getValue();
                 for (Instance instance : instances) {
+                    if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                        instance.setFinishTime(getSimulation().clock());
+                        instance.setState(UserRequest.FAILED);
+                        getSimulation().getCsvRecord().writeRecord(instance, this);
+                        continue;
+                    }
                     stateManager.allocateResource(hostId, instance);
+                    instance.setState(UserRequest.RUNNING);
                     instance.setHost(hostId);
                     instance.setStartTime(getSimulation().clock());
                     List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
@@ -245,11 +260,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void innerScheduleFailed(List<Instance> instances, double delay) {
         for (Instance instance : instances) {
             instance.addRetryNum();
-            if (!instance.isFailed()) {
+            if (instance.isFailed()) {
+                LOGGER.warn("{}: {} failed to schedule instance{},The userRequest{} is failed.", getSimulation().clockStr(), getName(), instance.getId(), instance.getUserRequest().getId());
+                failInstance(instance);
+                releaseScheduledInstance(instance.getUserRequest(), delay);
+            } else {
                 LOGGER.info("{}: {} failed to schedule instance{},it is retrying.", getSimulation().clockStr(), getName(), instance.getId());
                 send(this, delay, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instance);
-            } else {
-                LOGGER.warn("{}: {} failed to schedule instance{},The userRequest{} is failed.", getSimulation().clockStr(), getName(), instance.getId(), instance.getUserRequest().getId());
             }
         }
     }
@@ -438,6 +455,28 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instanceGroup.addRetryNum();
         if (!instanceGroup.isFailed()) {
             send(this, delay, CloudSimTag.USER_REQUEST_SEND, instanceGroup);
+        } else {
+            LOGGER.warn("{}:UserRequest{}'s instanceGroup{} is scheduled fail.", getSimulation().clockStr(), instanceGroup.getUserRequest().getId(), instanceGroup.getId());
+            for (Instance instance : instanceGroup.getInstanceList()) {
+                failInstance(instance);
+            }
+            releaseScheduledInstance(instanceGroup.getUserRequest(), delay);
+        }
+    }
+
+    private void failInstance(Instance instance) {
+        instance.setState(UserRequest.FAILED);
+        instance.setFinishTime(getSimulation().clock());
+        getSimulation().getCsvRecord().writeRecord(instance, this);
+    }
+
+    private void releaseScheduledInstance(UserRequest userRequest, double delay) {
+        for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
+            for (Instance instance : instanceGroup.getInstanceList()) {
+                if (instance.getState() == UserRequest.RUNNING) {
+                    send(this, delay, CloudSimTag.END_INSTANCE_RUN, instance);
+                }
+            }
         }
     }
 
