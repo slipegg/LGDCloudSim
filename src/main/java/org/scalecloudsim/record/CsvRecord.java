@@ -30,8 +30,9 @@ public class CsvRecord {
         try {
             writer = new BufferedWriter(new FileWriter(this.filePath));
             // 写入表头
-            printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("Instance", "InstanceGroup", "UserRequest", "cpu", "ram", "storage", "bandwidth", "lifetime", "datacenter", "host", "start time", "end time", "retry num", "state"
-            ));
+            printer = new CSVPrinter(writer, CSVFormat.Builder.create()
+                    .setHeader("Instance", "InstanceGroup", "UserRequest", "cpu", "ram", "storage", "bandwidth", "lifetime", "datacenter", "host", "start time", "end time", "retry num", "state")
+                    .build());
         } catch (IOException e) {
             e.printStackTrace();
         }
