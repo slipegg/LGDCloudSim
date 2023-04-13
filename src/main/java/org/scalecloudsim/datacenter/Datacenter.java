@@ -2,6 +2,7 @@ package org.scalecloudsim.datacenter;
 
 import org.cloudsimplus.core.SimEntity;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
+import org.scalecloudsim.interscheduler.InterScheduler;
 import org.scalecloudsim.statemanager.StateManager;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public interface Datacenter extends SimEntity {
     Set<Integer> getCollaborationIds();
 
     int getHostNum();
+
+    Datacenter setInterScheduler(InterScheduler interScheduler);
 
     Datacenter setInnerSchedulers(List<InnerScheduler> innerSchedulers);
 

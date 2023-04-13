@@ -9,6 +9,8 @@ import org.cloudsimplus.core.SimEntity;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
 import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.scalecloudsim.interscheduler.InterScheduler;
+import org.scalecloudsim.interscheduler.InterSchedulerSimple;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
 import org.scalecloudsim.request.UserRequest;
@@ -29,6 +31,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private StateManager stateManager;
     @Getter
     private int hostNum;
+    @Getter
+    InterScheduler interScheduler;
     @Getter
     List<InnerScheduler> innerSchedulers;
     @Getter
@@ -99,6 +103,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public Set<Integer> getCollaborationIds() {
         return collaborationIds;
+    }
+
+    @Override
+    public Datacenter setInterScheduler(InterScheduler interScheduler) {
+        this.interScheduler = interScheduler;
+        interScheduler.setDatacenter(this);
+        return this;
     }
 
     @Override
@@ -258,11 +269,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processRespondDcReviveGroupGiveUp(SimEvent evt) {
-        //TODO 因为没有资源预留，所以不需要处理
+        if (evt.getData() instanceof InstanceGroup instanceGroup) {
+            interScheduler.receiveNotEmployGroup(instanceGroup);
+        }
     }
 
     private void processRespondDcReviveGroupEmploy(SimEvent evt) {
         if (evt.getData() instanceof InstanceGroup instanceGroup) {
+            interScheduler.receiveEmployGroup(instanceGroup);
             instanceQueue.add(instanceGroup);
             LOGGER.info("{}: {} receives {}'s respond to employ InstanceGroup{}.Now the size of instanceQueue is {}.",
                     getSimulation().clockStr(),
@@ -292,14 +306,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 0);
                     }
                     if (isAllSendResultReceived((InstanceGroup) instanceGroup)) {
-                        Datacenter receiveDatacenter = decideReceiveDatacenter((InstanceGroup) instanceGroup);
-                        LOGGER.info("{}: {} decides to schedule InstanceGroup{} to {} after receiving all respond.", getSimulation().clockStr(), getName(), ((InstanceGroup) instanceGroup).getId(), receiveDatacenter.getName());
-                        double costTime = 0;//TODO 需要统计花费的时间
+                        //TODO 到底什么时候触发判断决策，是所有用户的亲和组请求都回应完了还是只要自己的被回应了就判断决策？目前是一个Group的所有请求都回应完了就决策这个Group
+                        Datacenter receiveDatacenter = interScheduler.decideTargetDatacenter(instanceGroupSendResultMap, (InstanceGroup) instanceGroup);
+                        double costTime = interScheduler.getDecideTargetDatacenterCostTime();
                         if (receiveDatacenter == null) {
                             interScheduleFail((InstanceGroup) instanceGroup, costTime);
                         } else {
                             //TODO 需要思考是否需要以List的形式回送，目前以单个的形式回送
                             respondAllReciveDatacenter((InstanceGroup) instanceGroup, receiveDatacenter, costTime);
+                            LOGGER.info("{}: {} decides to schedule InstanceGroup{} to {} after receiving all respond.", getSimulation().clockStr(), getName(), ((InstanceGroup) instanceGroup).getId(), receiveDatacenter.getName());
                         }
                         instanceGroupSendResultMap.remove(instanceGroup);
                     }
@@ -318,21 +333,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private Datacenter decideReceiveDatacenter(InstanceGroup instanceGroup) {
-        //TODO 决定接收的数据中心，目前先随机
-        //得到所有数值为1表示接收的数据中心
-        List<Datacenter> datacenters = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
-                .filter(entry -> entry.getValue() == 1)
-                .map(Map.Entry::getKey)
-                .toList();
-        if (datacenters.size() == 0) {
-            //表示调度失败
-            return null;
-        }
-        Random random = new Random(1);
-        return datacenters.get(random.nextInt(datacenters.size()));
-    }
-
     private boolean isAllSendResultReceived(InstanceGroup instanceGroup) {
         for (Map.Entry<Datacenter, Integer> entry : instanceGroupSendResultMap.get(instanceGroup).entrySet()) {
             if (entry.getValue() == -1) {
@@ -345,19 +345,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processAskDcReviveGroup(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroups) {
             LOGGER.info("{}: {} received {} instance groups from {} to schedule.", getSimulation().clockStr(), getName(), instanceGroups.size(), evt.getSource().getName());
-            Map<InstanceGroup, Boolean> reviveGroupResult = getReviveGroupResult((List<InstanceGroup>) instanceGroups);
-            double costTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+            Map<InstanceGroup, Boolean> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
+            double costTime = interScheduler.getDecideReciveGroupResultCostTime();
             respondAskDcReviveGroup(evt.getSource(), reviveGroupResult, costTime);
         }
-    }
-
-    private Map<InstanceGroup, Boolean> getReviveGroupResult(List<InstanceGroup> instanceGroups) {
-        //TODO 怎么判断是否接收，如果接收了怎么进行资源预留
-        Map<InstanceGroup, Boolean> result = new HashMap<>();
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            result.put(instanceGroup, true);
-        }
-        return result;
     }
 
     private void respondAskDcReviveGroup(SimEntity dst, Map<InstanceGroup, Boolean> reviveGroupResult, double costTime) {
@@ -397,89 +388,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (instanceGroups.size() == 0) {
             return;
         }
-        //得到其他数据中心的基础信息和资源抽样信息
-        List<Datacenter> allDatacenters = getSimulation().getCollaborationManager().getDatacenters(this);
-        NetworkTopology networkTopology = getSimulation().getNetworkTopology();
-        //根据接入时延和资源抽样信息得到每个亲和组可调度的数据中心
-//        double start = System.currentTimeMillis();
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> availableDatacenters = getAvaiableDatacenters(instanceGroup, allDatacenters, networkTopology);
-            instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
-        }
-        interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-//        double costTime = (System.currentTimeMillis() - start) / 10;//假设在集群调度器中的性能更强。只需要花费十分之一的时间
-        double costTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
-//        LOGGER.info("{}: {} inter scheduling cost {} ms.", getSimulation().clockStr(), getName(), costTime);
-        interScheduleByResult(instanceGroupAvaiableDatacenters, costTime);
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
+        double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
+        interScheduleByResult(instanceGroupAvaiableDatacenters, filterSuitableDatacenterCostTime);
         if (groupQueue.size() > 0) {
-            send(this, costTime, CloudSimTag.GROUP_FILTER_DC, null);
+            send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC, null);
         }
-        //根据网络拓扑中的时延和宽带情况对整个一批的进行排序
-        //进行域间调度
-        /*
-         * 0.得到同一个协作区的所有数据中心
-         * 1.根据接入时延要求得到可调度的数据中心
-         * 2.根据个数据中心的资源抽样信息得到可调度的数据中心
-         * 3.在可调度的数据中心中根据网络时延和宽带情况，每个个亲和组都可能会得到多个的调度方案
-         * 4.将亲和组发送给调度方案中的各个数据中心进行询问
-         * 4.如果没有可以的调度方案就当做失败将其返回给亲和组队列等待下次调度
-         * 5.各个数据中心接收亲和组调度请求，并进行决策，决定是否接收该亲和组，如果决定接收就为其预留资源，并返回结果信息
-         * 6.原数据中心接收发送出去的各个亲和组的调度结果，进行最终决策，为其决定指定的数据中心，并发送信息释放其他数据中心的资源
-         * 7.各个数据中心如果接收到释放资源的消息，就释放资源，如果接收到确认亲和组放置的信息就将其实例放入到域内实例调度请求队列中
-         */
-    }
-
-    //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
-    private List<Datacenter> getAvaiableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        //根据接入时延要求得到可调度的数据中心
-        filterDatacentersByAccessLatency(instanceGroup, allDatacenters, networkTopology);
-        //根据资源抽样信息得到可调度的数据中心
-        filterDatacentersByResourceSample(instanceGroup, allDatacenters);
-        //根据网络时延和宽带情况以及抽样信息得到最优的调度方案
-        return allDatacenters;
-    }
-
-    private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        allDatacenters.removeIf(datacenter -> instanceGroup.getAcessLatency() < networkTopology.getAcessLatency(this));
-    }
-
-    private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
-        allDatacenters.removeIf(
-                datacenter -> datacenter.getStateManager().getSimpleState().getCpuAvaiableSum() < instanceGroup.getCpuSum() ||
-                        datacenter.getStateManager().getSimpleState().getRamAvaiableSum() < instanceGroup.getRamSum() ||
-                        datacenter.getStateManager().getSimpleState().getStorageAvaiableSum() < instanceGroup.getStorageSum() ||
-                        datacenter.getStateManager().getSimpleState().getBwAvaiableSum() < instanceGroup.getBwSum()
-        );
-        for (Datacenter datacenter : allDatacenters) {
-            Map<Integer, Map<Integer, Integer>> instanceCpuRamNum = new HashMap<>();//记录一下所有Instance的cpu—ram的种类情况
-            for (Instance instance : instanceGroup.getInstanceList()) {
-                int allocateNum = instanceCpuRamNum.getOrDefault(instance.getCpu(), new HashMap<>()).getOrDefault(instance.getRam(), 0);
-                if (datacenter.getStateManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam()) - allocateNum <= 0) {
-                    //如果该数据中心的资源不足以满足亲和组的资源需求，那么就将其从可调度的数据中心中移除
-                    allDatacenters.remove(datacenter);
-                    break;
-                } else {
-                    //如果该数据中心的资源可以满足亲和组的资源需求，那么就记录更新所有Instance的cpu—ram的种类情况
-                    if (instanceCpuRamNum.containsKey(instance.getCpu())) {
-                        Map<Integer, Integer> ramNumMap = instanceCpuRamNum.get(instance.getCpu());
-                        if (ramNumMap.containsKey(instance.getRam())) {
-                            ramNumMap.put(instance.getRam(), ramNumMap.get(instance.getRam()) + 1);
-                        } else {
-                            ramNumMap.put(instance.getRam(), 1);
-                        }
-                    } else {
-                        Map<Integer, Integer> ramNumMap = new HashMap<>();
-                        ramNumMap.put(instance.getRam(), 1);
-                        instanceCpuRamNum.put(instance.getCpu(), ramNumMap);
-                    }
-                }
-            }
-        }
-    }
-
-    private void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
-        //TODO 根据网络拓扑中的时延和宽带进行筛选得到最优的调度方案
     }
 
     //根据筛选情况进行调度
