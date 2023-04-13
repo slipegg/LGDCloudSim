@@ -43,5 +43,8 @@ public class BriteNetworkTopologyTest {
         networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
 //        assertNotEquals(expectedDelay02, networkTopology.getDynamicDelay(dc0, dc2, 1));
         System.out.println(networkTopology.getDynamicDelay(dc0, dc2, 1));
+        double accessLatency = networkTopology.getAcessLatency(dc0, dc2);
+        double expectedAccessLatency = 2.0;
+        assertEquals(expectedAccessLatency, accessLatency);
     }
 }

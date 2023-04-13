@@ -100,14 +100,20 @@ public class TopologicalGraph {
 
     @Override
     public String toString() {
-        final var builder = new StringBuilder(61);
+        final var builder = new StringBuilder(300);
         builder.append("topological-node-information: ").append(System.lineSeparator());
 
         for (final TopologicalNode node : nodeList) {
-            builder.append("%d | access latency: %.2f,(%s)%n".formatted(node.getId(), node.getAccessLatency(), node.getWorldCoordinates()));
+            builder.append("%d | (%s)%n".formatted(node.getId(), node.getWorldCoordinates()));
         }
 
-        builder.append("%n%n node-link-information:%n".formatted());
+        builder.append("%n%nnode-access latency-information:%n".formatted());
+
+        for (final TopologicalNode node : nodeList) {
+            builder.append("node %d: %s%n".formatted(node.getId(), node.getAccessLatency()));
+        }
+
+        builder.append("%n%nnode-link-information:%n".formatted());
 
         for (final TopologicalLink link : linksList) {
             builder.append(

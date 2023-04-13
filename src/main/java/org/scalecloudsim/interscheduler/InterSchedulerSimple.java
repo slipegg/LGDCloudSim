@@ -63,11 +63,6 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     @Override
-    public double getDecideReciveGroupResultCostTime() {
-        return decideReciveGroupResultCostTime;
-    }
-
-    @Override
     public Datacenter decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap, InstanceGroup instanceGroup) {
         this.decideTargetDatacenterCostTime = 0.0;
         List<Datacenter> datacenters = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
@@ -102,7 +97,7 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        allDatacenters.removeIf(datacenter -> instanceGroup.getAcessLatency() < networkTopology.getAcessLatency(datacenter));
+        allDatacenters.removeIf(datacenter -> instanceGroup.getAcessLatency() < networkTopology.getAcessLatency(this.datacenter, datacenter));
     }
 
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {

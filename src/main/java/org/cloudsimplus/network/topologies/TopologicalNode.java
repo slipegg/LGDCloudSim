@@ -13,6 +13,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a topological network node that retrieves its information from a
  * topological-generated file (e.g. topology-generator)
@@ -43,7 +46,7 @@ public final class TopologicalNode {
     @NonNull
     private Point2D worldCoordinates;
 
-    private double accessLatency;
+    private Map<Integer, Double> accessLatency;
 
 
     /**
@@ -59,11 +62,7 @@ public final class TopologicalNode {
      * @param id The BRITE id of the node inside the network
      */
     public TopologicalNode(final int id) {
-        this(id, 0);
-    }
-
-    public TopologicalNode(final int id, final double accessLatency) {
-        this(id, accessLatency, new Point2D());
+        this(id, new Point2D(0, 0));
     }
 
     /**
@@ -72,8 +71,8 @@ public final class TopologicalNode {
      * @param id               The BRITE id of the node inside the network
      * @param worldCoordinates the x,y world-coordinates of the Node
      */
-    public TopologicalNode(final int id, final double accessLatency, final Point2D worldCoordinates) {
-        this(id, String.valueOf(id), accessLatency, worldCoordinates);
+    public TopologicalNode(final int id, final Point2D worldCoordinates) {
+        this(id, String.valueOf(id), worldCoordinates);
     }
 
     /**
@@ -83,10 +82,18 @@ public final class TopologicalNode {
      * @param nodeName         The name of the node inside the network
      * @param worldCoordinates the x,y world-coordinates of the Node
      */
-    public TopologicalNode(final int id, final String nodeName, final double accessLatency, final Point2D worldCoordinates) {
+    public TopologicalNode(final int id, final String nodeName, final Point2D worldCoordinates) {
         this.setId(id);
         this.setNodeName(nodeName);
-        this.setAccessLatency(accessLatency);
         this.setWorldCoordinates(worldCoordinates);
+        this.accessLatency = new HashMap<>();
+    }
+
+    public void setAccessLatency(int dstId, double latency) {
+        accessLatency.put(dstId, latency);
+    }
+
+    public double getAccessLatency(int dstId) {
+        return accessLatency.get(dstId);
     }
 }
