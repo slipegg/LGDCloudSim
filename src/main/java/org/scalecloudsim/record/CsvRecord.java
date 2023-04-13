@@ -8,6 +8,7 @@ import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.request.Instance;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -23,9 +24,11 @@ public class CsvRecord {
     CSVPrinter printer;
 
     public CsvRecord(String filePath) {
-        this.filePath = filePath;
+        this.filePath = "Record/" + filePath;
+        File dir = new File("Record");
+        dir.mkdirs();
         try {
-            writer = new BufferedWriter(new FileWriter(filePath));
+            writer = new BufferedWriter(new FileWriter(this.filePath));
             // 写入表头
             printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("Instance", "InstanceGroup", "UserRequest", "cpu", "ram", "storage", "bandwidth", "lifetime", "datacenter", "host", "start time", "end time", "retry num", "state"
             ));
