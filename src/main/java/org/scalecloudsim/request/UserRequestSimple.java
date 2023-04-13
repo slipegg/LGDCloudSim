@@ -25,6 +25,7 @@ public class UserRequestSimple implements UserRequest {
 
     public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
         this.id = id;
+        this.state = UserRequest.WAITING;
         setInstanceGroups(instanceGroups);
         this.instanceGroupGraph = instanceGroupGraph;
     }
