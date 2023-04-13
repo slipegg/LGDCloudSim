@@ -12,7 +12,8 @@ public class PartitionManagerSimple implements PartitionManager {
 
     //一些冗余变量，用来提高可读性
     int paritionId;
-    TreeMap<Integer, LinkedList<HostStateHistory>> hostHistoryMaps;//记录所有的历史状态，是一个对StateManager的引用
+    //最新时间在First，最旧时间在Last
+    TreeMap<Integer, LinkedList<HostStateHistory>> hostHistoryMaps;
     Simulation simulation;
     double nowTime;//记录当前时刻，当做一个全局变量
 
@@ -156,6 +157,20 @@ public class PartitionManagerSimple implements PartitionManager {
     @Override
     public Map<Integer, HostStateHistory> getDelayPartitionState(double delay) {
         return watchTable.get(delay);
+    }
+
+    @Override
+    public LinkedList<HostStateHistory> getHostHistory(int hostId, double delay) {
+        LinkedList<HostStateHistory> hostStateHistories = new LinkedList<>(hostHistoryMaps.get(hostId));
+        double nowTime = simulation.clock();
+        while (hostStateHistories.size() > 0) {
+            HostStateHistory hostStateHistory = hostStateHistories.getFirst();
+            if (hostStateHistory.time < nowTime - delay) {
+                break;
+            }
+            hostStateHistories.removeFirst();
+        }
+        return hostStateHistories;
     }
 
     @Override
