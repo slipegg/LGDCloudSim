@@ -17,7 +17,7 @@ public class InstanceGroupSimple implements InstanceGroup{
 
     int destDatacenterId;
 
-    double acessLatency;
+    double accessLatency;
 
     @Getter
     long storageSum;
@@ -49,7 +49,7 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.retryNum = 0;
         this.retryMaxNum = 3;
         this.state = UserRequest.WAITING;
-        this.acessLatency = Double.MAX_VALUE;
+        this.accessLatency = Double.MAX_VALUE;
     }
 
     @Override

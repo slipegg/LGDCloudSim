@@ -15,9 +15,9 @@ public interface InstanceGroup extends RequestEntity {
 
     InstanceGroup setDestDatacenterId(int destDatacenterId);
 
-    double getAcessLatency();
+    double getAccessLatency();
 
-    InstanceGroup setAcessLatency(double latency);
+    InstanceGroup setAccessLatency(double latency);
 
     long getStorageSum();
 
