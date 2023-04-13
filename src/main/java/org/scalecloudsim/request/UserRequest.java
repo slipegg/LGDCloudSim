@@ -8,6 +8,7 @@ public interface UserRequest extends ChangeableId {
     static int WAITING = -1;
     static int FAILED = 0;
     static int SUCCESS = 1;
+    static int RUNNING = 2;
 
     List<InstanceGroup> getInstanceGroups();
 
