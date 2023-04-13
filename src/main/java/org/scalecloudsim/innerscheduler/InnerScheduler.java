@@ -1,5 +1,6 @@
 package org.scalecloudsim.innerscheduler;
 
+import org.cloudsimplus.core.DatacenterEntity;
 import org.cloudsimplus.core.Nameable;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.datacenter.Datacenter;
@@ -9,11 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-public interface InnerScheduler extends Nameable {
+public interface InnerScheduler extends Nameable, DatacenterEntity {
     Logger LOGGER = LoggerFactory.getLogger(InnerScheduler.class.getSimpleName());
-    InnerScheduler setDatacenter(Datacenter datacenter);
-
-    Datacenter getDatacenter();
 
     InnerScheduler setPartitionDelay(Map<Integer, Double> partitionDelay);
 

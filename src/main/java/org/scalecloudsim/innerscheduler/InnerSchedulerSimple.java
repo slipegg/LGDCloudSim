@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 public class InnerSchedulerSimple implements InnerScheduler {
     @Getter
-    @Setter
     Datacenter datacenter;
     @Getter
     @Setter
@@ -43,7 +42,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
         setId(id);
     }
 
-    private void setId(int id) {
+    public void setId(int id) {
         this.id = id;
         this.name = "InScheduler" + id;
     }
@@ -104,5 +103,10 @@ public class InnerSchedulerSimple implements InnerScheduler {
             res.get(suitId).add(instance);
         }
         return res;
+    }
+
+    @Override
+    public void setDatacenter(Datacenter datacenter) {
+        this.datacenter = datacenter;
     }
 }
