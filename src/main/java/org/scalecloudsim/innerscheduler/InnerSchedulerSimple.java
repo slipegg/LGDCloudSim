@@ -98,7 +98,9 @@ public class InnerSchedulerSimple implements InnerScheduler {
                     break;
                 }
             }
-            delayState.allocateTmpResource(suitId, instance);
+            if (suitId != -1) {
+                delayState.allocateTmpResource(suitId, instance);
+            }
             res.putIfAbsent(suitId, new ArrayList<>());
             res.get(suitId).add(instance);
         }
