@@ -41,6 +41,44 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Setter
     ResourceAllocateSelector resourceAllocateSelector;
 
+    @Getter
+    @Setter
+    double unitCpuPrice;
+
+    @Getter
+    private double cpuCost;
+
+    @Getter
+    @Setter
+    private double unitRamPrice;
+
+    @Getter
+    private double ramCost;
+
+    @Getter
+    @Setter
+    private double unitStoragePrice;
+
+    @Getter
+    private double storageCost;
+
+    @Getter
+    @Setter
+    private double unitBwPrice;
+
+    private int usedCpuNum;
+
+    @Getter
+    @Setter
+    private int cpuNumPerRack;
+
+    @Getter
+    @Setter
+    private double unitRackPrice;
+
+    @Getter
+    private double bwCost;
+
     private Map<Integer, List<Instance>> innerSchedulerResult;
 
     private Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap;
@@ -60,6 +98,17 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.innerSchedulerResult = new HashMap<>();
         this.resourceAllocateSelector = new ResourceAllocateSelectorSimple();
         this.resourceAllocateSelector.setDatacenter(this);
+        this.unitCpuPrice = 1.0;
+        this.unitRamPrice = 1.0;
+        this.unitStoragePrice = 1.0;
+        this.unitBwPrice = 1.0;
+        this.unitRackPrice = 1.0;
+        this.cpuNumPerRack = 10;
+        this.usedCpuNum = 0;
+        this.cpuCost = 0.0;
+        this.ramCost = 0.0;
+        this.storageCost = 0.0;
+        this.bwCost = 0.0;
     }
 
     public DatacenterSimple(@NonNull Simulation simulation, int id) {
@@ -129,6 +178,16 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     @Override
+    public double getRackCost() {
+        return Math.ceil((double) usedCpuNum / cpuNumPerRack) * unitRackPrice;
+    }
+
+    @Override
+    public double getAllCost() {
+        return cpuCost + ramCost + storageCost + bwCost + getRackCost();
+    }
+
+    @Override
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         sendNow(getSimulation().getCis(), CloudSimTag.DC_REGISTRATION_REQUEST, this);
@@ -156,6 +215,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    private void calculateCost(Instance instance) {
+        if (instance.getStartTime() == -1 || instance.getFinishTime() == -1) {
+            return;
+        }
+        cpuCost += instance.getCpu() * unitCpuPrice * (instance.getFinishTime() - instance.getStartTime());
+        ramCost += instance.getRam() * unitRamPrice * (instance.getFinishTime() - instance.getStartTime());
+        storageCost += instance.getStorage() * unitStoragePrice * (instance.getFinishTime() - instance.getStartTime());
+        bwCost += instance.getBw() * unitBwPrice * (instance.getFinishTime() - instance.getStartTime());
+        usedCpuNum += instance.getCpu();
+    }
+
+
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof Instance instance) {
             if (instance.getState() != UserRequest.RUNNING) {
@@ -174,6 +245,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
             sendUpdateStateEvt(hostId, watchDelays);
             getSimulation().getCsvRecord().writeRecord(instance, this);
+            calculateCost(instance);
         }
     }
 
@@ -195,6 +267,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         instance.setFinishTime(getSimulation().clock());
                         instance.setState(UserRequest.FAILED);
                         getSimulation().getCsvRecord().writeRecord(instance, this);
+                        calculateCost(instance);
                         continue;
                     }
                     stateManager.allocateResource(hostId, instance);
@@ -468,6 +541,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instance.setState(UserRequest.FAILED);
         instance.setFinishTime(getSimulation().clock());
         getSimulation().getCsvRecord().writeRecord(instance, this);
+        calculateCost(instance);
     }
 
     private void releaseScheduledInstance(UserRequest userRequest, double delay) {
