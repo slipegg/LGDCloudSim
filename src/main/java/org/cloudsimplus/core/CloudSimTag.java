@@ -9,6 +9,7 @@ public class CloudSimTag {
      * Starting constant value for cloud-related tags.
      */
     private static final int BASE = 0;
+    public static final int USER_REQUEST_FAIL = BASE - 1;
     public static final int DC_REGISTRATION_REQUEST = BASE + 1;
     public static final int DC_LIST_REQUEST = BASE + 2;
     public static final int USER_REQUEST_SEND = BASE + 3;//需要dc处理接收到的用户请求
@@ -28,8 +29,7 @@ public class CloudSimTag {
     public static final int END_INSTANCE_RUN = BASE + 17;
     private final int priority;
 
-    //初始化一个值为1,2,3的set。
-    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE, PRE_ALLOCATE_RESOURCE);
+    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, INNER_SCHEDULE, PRE_ALLOCATE_RESOURCE, UPDATE_HOST_STATE);
 
     public int priority() {
         return priority;
@@ -37,6 +37,7 @@ public class CloudSimTag {
 
     public static String tagToString(int tag) {
         return switch (tag) {
+            case USER_REQUEST_FAIL -> "USER_REQUEST_FAIL";
             case DC_REGISTRATION_REQUEST -> "DC_REGISTRATION_REQUEST";
             case DC_LIST_REQUEST -> "DC_LIST_REQUEST";
             case USER_REQUEST_SEND -> "USER_REQUEST_SEND";

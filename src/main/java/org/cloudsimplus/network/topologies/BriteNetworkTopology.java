@@ -85,8 +85,6 @@ public class BriteNetworkTopology implements NetworkTopology {
 
     private DelayDynamicModel delayDynamicModel;
 
-    private double[] accessDelayMatrix;
-
     /**
      * Instantiates a Network Topology from a file inside the <b>application's resource directory</b>.
      *
@@ -115,7 +113,6 @@ public class BriteNetworkTopology implements NetworkTopology {
         bwMatrix = new double[0][0];
         graph = new TopologicalGraph();
         delayMatrix = new DelayMatrix();
-        accessDelayMatrix = new double[0];
     }
 
     /**
@@ -165,7 +162,6 @@ public class BriteNetworkTopology implements NetworkTopology {
         //TODO 后期如果有需要可以改为在文件中自定义是无向图还是有向图,现在是需要在代码中指定
         delayMatrix = new DelayMatrix(graph, directed);
         bwMatrix = createBwMatrix(graph, directed);
-        accessDelayMatrix = createAccessDelayMatrix(graph);
         networkEnabled = true;
     }
 
@@ -186,17 +182,6 @@ public class BriteNetworkTopology implements NetworkTopology {
             if (!directed) {
                 matrix[edge.getDestNodeID()][edge.getSrcNodeID()] = edge.getLinkBw();
             }
-        }
-
-        return matrix;
-    }
-
-    private double[] createAccessDelayMatrix(final TopologicalGraph graph) {
-        final int nodes = graph.getNumberOfNodes();
-        final double[] matrix = new double[nodes];
-
-        for (TopologicalNode node : graph.getNodeList()) {
-            matrix[node.getId()] = node.getAccessLatency();
         }
 
         return matrix;
@@ -306,7 +291,7 @@ public class BriteNetworkTopology implements NetworkTopology {
     }
 
     @Override
-    public void allocateBw(SimEntity src, SimEntity dest, long allocateBw) {
+    public void allocateBw(SimEntity src, SimEntity dest, double allocateBw) {
         double availableBw = getBw(src, dest);
         if (availableBw < allocateBw) {
             throw new IllegalArgumentException("The available bandwidth is not enough");
@@ -315,7 +300,7 @@ public class BriteNetworkTopology implements NetworkTopology {
     }
 
     @Override
-    public void releaseBw(SimEntity src, SimEntity dest, long releaseBw) {
+    public void releaseBw(SimEntity src, SimEntity dest, double releaseBw) {
         bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] += releaseBw;
     }
 
@@ -341,9 +326,10 @@ public class BriteNetworkTopology implements NetworkTopology {
     }
 
     @Override
-    public double getAcessLatency(SimEntity entity) {
-        int entityBriteId = entitiesMap.get(entity);
-        return accessDelayMatrix[entityBriteId];
+    public double getAcessLatency(SimEntity src, SimEntity dest) {
+        int srcId = entitiesMap.get(src);
+        int dstId = entitiesMap.get(dest);
+        return graph.getNodeList().get(srcId).getAccessLatency(dstId);
     }
 
 }

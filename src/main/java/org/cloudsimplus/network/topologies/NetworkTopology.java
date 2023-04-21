@@ -52,13 +52,13 @@ public interface NetworkTopology {
 
     double getBw(SimEntity src, SimEntity dest);
 
-    void allocateBw(SimEntity src, SimEntity dest, long allocateBw);
+    void allocateBw(SimEntity src, SimEntity dest, double allocateBw);
 
-    void releaseBw(SimEntity src, SimEntity dest, long releaseBw);
+    void releaseBw(SimEntity src, SimEntity dest, double releaseBw);
 
     void setDelayDynamicModel(DelayDynamicModel delayDynamicModel);
 
     double getDynamicDelay(SimEntity src, SimEntity dest, double time);
 
-    double getAcessLatency(SimEntity entity);
+    double getAcessLatency(SimEntity src, SimEntity dest);
 }

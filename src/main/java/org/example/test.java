@@ -5,14 +5,15 @@ import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.util.Log;
-import org.scalecloudsim.datacenters.*;
+import org.scalecloudsim.datacenter.*;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
+import org.scalecloudsim.interscheduler.InterScheduler;
+import org.scalecloudsim.interscheduler.InterSchedulerSimple;
 import org.scalecloudsim.statemanager.*;
-import org.scalecloudsim.users.UserRequestManager;
-import org.scalecloudsim.users.UserRequestManagerEasy;
-import org.scalecloudsim.users.UserRequestManagerSimple;
-import org.scalecloudsim.users.UserSimple;
+import org.scalecloudsim.user.UserRequestManager;
+import org.scalecloudsim.user.UserRequestManagerEasy;
+import org.scalecloudsim.user.UserSimple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class test {
     UserSimple user;
     UserRequestManager userRequestManager;
     String NETWORK_TOPOLOGY_FILE = "topology.brite";
-    int hostNum = 5_000;
+    int hostNum = 50_000;
     HostStateGenerator hostStateGenerator;
 
     public static void main(String[] args) {
@@ -37,12 +38,25 @@ public class test {
     }
 
     private test() {
+        double start = System.currentTimeMillis();
         Log.setLevel(Level.DEBUG);
         scaleCloudSim = new CloudSim();
         initUser();
         initDatacenters();
         initNetwork();
         scaleCloudSim.start();
+        double end = System.currentTimeMillis();
+        System.out.println("\n运行情况：");
+        System.out.println("耗时：" + (end - start) / 1000 + "s");
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory(); //总内存
+        long freeMemory = runtime.freeMemory(); //空闲内存
+        long usedMemory = totalMemory - freeMemory; //已用内存
+        System.out.println("占用内存: " + usedMemory / 1000000 + " Mb");
+        System.out.println("运行结果保存路径:" + scaleCloudSim.getCsvRecord().getFilePath());
+        System.out.println("dc1 cost:" + dc1.getAllCost());
+        System.out.println("dc2 cost:" + dc2.getAllCost());
+        System.out.println("dc3 cost:" + dc3.getAllCost());
     }
 
     private void initUser() {
@@ -70,10 +84,15 @@ public class test {
         List<InnerScheduler> innerSchedulers = getInnerSchedulers(partitionRangesManager);
         dc.setInnerSchedulers(innerSchedulers);
         StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        PredictionManager predictionManager = new PredictionManagerSimple();
+        stateManager.setPredictionManager(predictionManager);
+        stateManager.setPredictable(true);
         dc.setStateManager(stateManager);
         LoadBalance loadBalance = new LoadBalanceRound();
         dc.setLoadBalance(loadBalance);
         dc.getStateManager().initHostStates(hostStateGenerator);
+        InterScheduler interScheduler = new InterSchedulerSimple();
+        dc.setInterScheduler(interScheduler);
         return dc;
     }
 

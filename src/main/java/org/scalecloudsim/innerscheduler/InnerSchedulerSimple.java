@@ -2,10 +2,10 @@ package org.scalecloudsim.innerscheduler;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.scalecloudsim.Instances.Instance;
-import org.scalecloudsim.datacenters.Datacenter;
-import org.scalecloudsim.datacenters.InstanceQueue;
-import org.scalecloudsim.datacenters.InstanceQueueFifo;
+import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.datacenter.Datacenter;
+import org.scalecloudsim.datacenter.InstanceQueue;
+import org.scalecloudsim.datacenter.InstanceQueueFifo;
 import org.scalecloudsim.statemanager.DelayState;
 
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 public class InnerSchedulerSimple implements InnerScheduler {
     @Getter
-    @Setter
     Datacenter datacenter;
     @Getter
     @Setter
@@ -43,7 +42,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
         setId(id);
     }
 
-    private void setId(int id) {
+    public void setId(int id) {
         this.id = id;
         this.name = "InScheduler" + id;
     }
@@ -99,10 +98,17 @@ public class InnerSchedulerSimple implements InnerScheduler {
                     break;
                 }
             }
-            delayState.allocateTmpResource(suitId, instance);
+            if (suitId != -1) {
+                delayState.allocateTmpResource(suitId, instance);
+            }
             res.putIfAbsent(suitId, new ArrayList<>());
             res.get(suitId).add(instance);
         }
         return res;
+    }
+
+    @Override
+    public void setDatacenter(Datacenter datacenter) {
+        this.datacenter = datacenter;
     }
 }

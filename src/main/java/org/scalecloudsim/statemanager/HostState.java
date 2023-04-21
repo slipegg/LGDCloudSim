@@ -1,6 +1,6 @@
 package org.scalecloudsim.statemanager;
 
-import org.scalecloudsim.Instances.Instance;
+import org.scalecloudsim.request.Instance;
 
 public class HostState {
     public static int STATE_NUM = 4;

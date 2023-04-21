@@ -13,7 +13,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.cloudsimplus.core.events.CloudSimEvent;
 import org.cloudsimplus.core.events.SimEvent;
-import org.scalecloudsim.datacenters.DatacenterSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

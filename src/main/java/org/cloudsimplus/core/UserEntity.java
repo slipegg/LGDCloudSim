@@ -23,7 +23,7 @@
  */
 package org.cloudsimplus.core;
 
-import org.scalecloudsim.users.User;
+import org.scalecloudsim.user.User;
 
 
 public interface UserEntity extends UniquelyIdentifiable, ChangeableId, Delayable {
