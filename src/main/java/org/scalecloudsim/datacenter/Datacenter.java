@@ -8,7 +8,7 @@ import org.scalecloudsim.statemanager.StateManager;
 import java.util.List;
 import java.util.Set;
 
-public interface Datacenter extends SimEntity {
+public interface Datacenter extends SimEntity, DatacenterPrice {
     Datacenter setStateManager(StateManager stateManager);
 
     StateManager getStateManager();
@@ -35,39 +35,4 @@ public interface Datacenter extends SimEntity {
 
     ResourceAllocateSelector getResourceAllocateSelector();
 
-    Datacenter setUnitCpuPrice(double unitCpuPrice);
-
-    double getUnitCpuPrice();
-
-    double getCpuCost();
-
-    Datacenter setUnitRamPrice(double unitRamPrice);
-
-    double getUnitRamPrice();
-
-    double getRamCost();
-
-    Datacenter setUnitStoragePrice(double unitStoragePrice);
-
-    double getUnitStoragePrice();
-
-    double getStorageCost();
-
-    Datacenter setUnitBwPrice(double unitBwPrice);
-
-    double getUnitBwPrice();
-
-    double getBwCost();
-
-    Datacenter setCpuNumPerRack(int cpuNumPerRack);
-
-    int getCpuNumPerRack();
-
-    Datacenter setUnitRackPrice(double unitRackPrice);
-
-    double getUnitRackPrice();
-
-    double getRackCost();
-
-    double getAllCost();
 }
