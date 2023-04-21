@@ -52,9 +52,9 @@ public interface NetworkTopology {
 
     double getBw(SimEntity src, SimEntity dest);
 
-    void allocateBw(SimEntity src, SimEntity dest, long allocateBw);
+    void allocateBw(SimEntity src, SimEntity dest, double allocateBw);
 
-    void releaseBw(SimEntity src, SimEntity dest, long releaseBw);
+    void releaseBw(SimEntity src, SimEntity dest, double releaseBw);
 
     void setDelayDynamicModel(DelayDynamicModel delayDynamicModel);
 
