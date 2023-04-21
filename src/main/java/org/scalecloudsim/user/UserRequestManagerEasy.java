@@ -11,12 +11,19 @@ public class UserRequestManagerEasy implements UserRequestManager {
 
     @Override
     public List<UserRequest> getUserRequestMap(double startTime, double endTime, int datacenterId) {
-        Instance instance1 = new InstanceSimple(instanceId++, 1, 1, 1, 1, 3000);
-        Instance instance2 = new InstanceSimple(instanceId++, 2, 2, 2, 2, 2000);
-        InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupId++);
-        instanceGroup.setInstanceList(List.of(instance1, instance2));
+        Instance instance1 = new InstanceSimple(instanceId++, 1, 1, 1, 1, 2000);
+        Instance instance2 = new InstanceSimple(instanceId++, 2, 2, 20480 * 30_000, 2, 3000);
+        Instance instance3 = new InstanceSimple(instanceId++, 3, 3, 3, 3, 4000);
+        InstanceGroup instanceGroup1 = new InstanceGroupSimple(instanceGroupId++);
+        instanceGroup1.setInstanceList(List.of(instance1));
+        InstanceGroup instanceGroup2 = new InstanceGroupSimple(instanceGroupId++);
+        instanceGroup2.setInstanceList(List.of(instance2));
+        InstanceGroup instanceGroup3 = new InstanceGroupSimple(instanceGroupId++);
+        instanceGroup3.setInstanceList(List.of(instance3));
         InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
-        UserRequest userRequest = new UserRequestSimple(userRequestId++, List.of(instanceGroup), instanceGroupGraph);
+        instanceGroupGraph.addEdge(instanceGroup1, instanceGroup2, 2000, 12);
+        instanceGroupGraph.addEdge(instanceGroup3, instanceGroup2, 2000, 32);
+        UserRequest userRequest = new UserRequestSimple(userRequestId++, List.of(instanceGroup1, instanceGroup2, instanceGroup3), instanceGroupGraph);
         userRequest.setSubmitTime(startTime);
         userRequest.setBelongDatacenterId(datacenterId);
         return List.of(userRequest);

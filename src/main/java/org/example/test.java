@@ -39,7 +39,7 @@ public class test {
 
     private test() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.ERROR);
+        Log.setLevel(Level.DEBUG);
         scaleCloudSim = new CloudSim();
         initUser();
         initDatacenters();
@@ -54,6 +54,9 @@ public class test {
         long usedMemory = totalMemory - freeMemory; //已用内存
         System.out.println("占用内存: " + usedMemory / 1000000 + " Mb");
         System.out.println("运行结果保存路径:" + scaleCloudSim.getCsvRecord().getFilePath());
+        System.out.println("dc1 cost:" + dc1.getAllCost());
+        System.out.println("dc2 cost:" + dc2.getAllCost());
+        System.out.println("dc3 cost:" + dc3.getAllCost());
     }
 
     private void initUser() {
@@ -81,6 +84,9 @@ public class test {
         List<InnerScheduler> innerSchedulers = getInnerSchedulers(partitionRangesManager);
         dc.setInnerSchedulers(innerSchedulers);
         StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        PredictionManager predictionManager = new PredictionManagerSimple();
+        stateManager.setPredictionManager(predictionManager);
+        stateManager.setPredictable(true);
         dc.setStateManager(stateManager);
         LoadBalance loadBalance = new LoadBalanceRound();
         dc.setLoadBalance(loadBalance);
