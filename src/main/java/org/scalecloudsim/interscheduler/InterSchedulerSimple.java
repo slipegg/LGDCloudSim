@@ -1,11 +1,11 @@
 package org.scalecloudsim.interscheduler;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
+import org.scalecloudsim.request.InstanceGroupGraphSimple;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +26,8 @@ public class InterSchedulerSimple implements InterScheduler {
     double decideReciveGroupResultCostTime = 0.0;
     @Getter
     double decideTargetDatacenterCostTime = 0.0;
+
+    Random random = new Random(1);
 
     public InterSchedulerSimple() {
         this.id = 0;
@@ -73,7 +75,6 @@ public class InterSchedulerSimple implements InterScheduler {
             //表示调度失败
             return null;
         }
-        Random random = new Random(1);
         return datacenters.get(random.nextInt(datacenters.size()));
     }
 
@@ -97,7 +98,7 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        allDatacenters.removeIf(datacenter -> instanceGroup.getAcessLatency() < networkTopology.getAcessLatency(this.datacenter, datacenter));
+        allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(this.datacenter, datacenter));
     }
 
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
@@ -138,6 +139,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
     private void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
         //TODO 根据网络拓扑中的时延和宽带进行筛选得到最优的调度方案
+        //TODO 后续可以添加一个回溯算法来简单筛选
     }
 
     @Override
