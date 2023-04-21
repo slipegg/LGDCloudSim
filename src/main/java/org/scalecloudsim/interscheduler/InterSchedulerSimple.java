@@ -6,11 +6,9 @@ import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
 import org.scalecloudsim.request.InstanceGroupGraphSimple;
+import org.scalecloudsim.request.UserRequest;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class InterSchedulerSimple implements InterScheduler {
     @Getter
@@ -58,6 +56,9 @@ public class InterSchedulerSimple implements InterScheduler {
         //TODO 怎么判断是否接收，如果接收了怎么进行资源预留，目前是全部接收
         Map<InstanceGroup, Boolean> result = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
+            if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
+                continue;
+            }
             result.put(instanceGroup, true);
         }
         this.decideReciveGroupResultCostTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
@@ -90,11 +91,12 @@ public class InterSchedulerSimple implements InterScheduler {
 
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
     private List<Datacenter> getAvaiableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
+        List<Datacenter> avaiableDatacenters = new ArrayList<>(allDatacenters);
         //根据接入时延要求得到可调度的数据中心
-        filterDatacentersByAccessLatency(instanceGroup, allDatacenters, networkTopology);
+        filterDatacentersByAccessLatency(instanceGroup, avaiableDatacenters, networkTopology);
         //根据资源抽样信息得到可调度的数据中心
-        filterDatacentersByResourceSample(instanceGroup, allDatacenters);
-        return allDatacenters;
+        filterDatacentersByResourceSample(instanceGroup, avaiableDatacenters);
+        return avaiableDatacenters;
     }
 
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {

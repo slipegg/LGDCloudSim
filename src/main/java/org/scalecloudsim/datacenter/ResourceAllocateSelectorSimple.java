@@ -3,6 +3,7 @@ package org.scalecloudsim.datacenter;
 import lombok.Getter;
 import lombok.Setter;
 import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.request.UserRequest;
 import org.scalecloudsim.statemanager.HostState;
 import org.scalecloudsim.statemanager.StateManager;
 
@@ -22,6 +23,9 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
             List<Instance> instances = entry.getValue();
             HostState hostState = datacenter.getStateManager().getnowHostState(hostId);
             for (Instance instance : instances) {
+                if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                    continue;
+                }
                 if (hostState.isSuitable(instance)) {
                     hostState.allocate(instance);
                     res.putIfAbsent(hostId, new ArrayList<>());

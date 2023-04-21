@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface Datacenter extends SimEntity, DatacenterPrice {
+    public static final Datacenter NULL = new DatacenterNull();
     Datacenter setStateManager(StateManager stateManager);
 
     StateManager getStateManager();

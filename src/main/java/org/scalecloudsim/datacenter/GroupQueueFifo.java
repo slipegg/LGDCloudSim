@@ -40,14 +40,18 @@ public class GroupQueueFifo implements GroupQueue {
 
     @Override
     public List<InstanceGroup> getBatchItem() {
-        List<InstanceGroup> userRequests = new ArrayList<>();
+        List<InstanceGroup> sendInstanceGroups = new ArrayList<>();
         for (int i = 0; i < batchNum; i++) {
             if (instanceGroups.size() == 0) {
                 break;
             }
-            userRequests.add(instanceGroups.remove(0));
+            if (instanceGroups.get(0).getUserRequest().getState() == UserRequest.FAILED) {
+                instanceGroups.remove(0);
+                continue;
+            }
+            sendInstanceGroups.add(instanceGroups.remove(0));
         }
-        return userRequests;
+        return sendInstanceGroups;
     }
 
     @Override

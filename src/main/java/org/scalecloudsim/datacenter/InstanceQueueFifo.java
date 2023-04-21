@@ -2,6 +2,7 @@ package org.scalecloudsim.datacenter;
 
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
+import org.scalecloudsim.request.UserRequest;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,14 +29,18 @@ public class InstanceQueueFifo implements InstanceQueue {
 
     @Override
     public List<Instance> getBatchItem() {
-        List<Instance> instances = new ArrayList<>();
+        List<Instance> sendInstances = new ArrayList<>();
         for (int i = 0; i < batchNum; i++) {
             if (this.instances.size() == 0) {
                 break;
             }
-            instances.add(this.instances.remove(0));
+            if (this.instances.get(0).getUserRequest().getState() == UserRequest.FAILED) {
+                this.instances.remove(0);
+                continue;
+            }
+            sendInstances.add(this.instances.remove(0));
         }
-        return instances;
+        return sendInstances;
     }
 
     @Override

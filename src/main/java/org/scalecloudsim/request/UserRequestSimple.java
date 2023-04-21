@@ -3,6 +3,7 @@ package org.scalecloudsim.request;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserRequestSimple implements UserRequest {
@@ -23,6 +24,13 @@ public class UserRequestSimple implements UserRequest {
     @Setter
     int state;
 
+    @Getter
+    @Setter
+    String failReason;
+
+    @Getter
+    List<InstanceGroupEdge> allocatedEdges;
+
     int successGroupNum;
 
     public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
@@ -31,6 +39,7 @@ public class UserRequestSimple implements UserRequest {
         setInstanceGroups(instanceGroups);
         this.instanceGroupGraph = instanceGroupGraph;
         this.successGroupNum = 0;
+        this.allocatedEdges = new ArrayList<>();
     }
 
 
@@ -78,6 +87,12 @@ public class UserRequestSimple implements UserRequest {
         if (successGroupNum == instanceGroups.size()) {
             state = UserRequest.SUCCESS;
         }
+        return this;
+    }
+
+    @Override
+    public UserRequest addAllocatedEdge(InstanceGroupEdge edge) {
+        allocatedEdges.add(edge);
         return this;
     }
 }

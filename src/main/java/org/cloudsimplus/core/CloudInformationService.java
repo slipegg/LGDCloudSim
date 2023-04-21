@@ -11,6 +11,10 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.cloudsimplus.core.events.SimEvent;
 import org.scalecloudsim.datacenter.Datacenter;
+import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.request.InstanceGroup;
+import org.scalecloudsim.request.InstanceGroupEdge;
+import org.scalecloudsim.request.UserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +41,11 @@ public class CloudInformationService extends CloudSimEntity {
 
     @Getter
     private final List<Datacenter> datacenterList;
+
     /**
      * Creates a new entity.
      *
-     * @param simulation     The CloudSimPlus instance that represents the simulation the Entity belongs to
+     * @param simulation The CloudSimPlus instance that represents the simulation the Entity belongs to
      * @throws IllegalArgumentException when the entity name is invalid
      */
     public CloudInformationService(@NonNull Simulation simulation) {
@@ -61,6 +66,36 @@ public class CloudInformationService extends CloudSimEntity {
             case CloudSimTag.DC_REGISTRATION_REQUEST -> datacenterList.add((Datacenter) evt.getData());
             // A Broker is requesting a list of all datacenters.
             case CloudSimTag.DC_LIST_REQUEST -> super.send(evt.getSource(), 0, evt.getTag(), datacenterList);
+            case CloudSimTag.USER_REQUEST_FAIL -> processUserRequestFail(evt);
+        }
+    }
+
+    private void processUserRequestFail(SimEvent evt) {
+        if (evt.getData() instanceof UserRequest userRequest) {
+            LOGGER.warn("{}: The UserRequest{} has failed. Reason: {}", getSimulation().clockStr(), userRequest.getId(), userRequest.getFailReason());
+            userRequest.setState(UserRequest.FAILED);
+            //释放Bw资源
+            List<InstanceGroupEdge> allocateEdges = userRequest.getAllocatedEdges();
+            for (InstanceGroupEdge allocateEdge : allocateEdges) {
+                double allocatedBw = allocateEdge.getRequiredBw();
+                Datacenter src = allocateEdge.getSrc().getReceiveDatacenter();
+                Datacenter dest = allocateEdge.getDst().getReceiveDatacenter();
+                if (src != null && dest != null) {
+                    getSimulation().getNetworkTopology().releaseBw(src, dest, allocatedBw);
+                }
+            }
+            //释放主机资源,结束已经在运行的任务,并且记录未运行的instance
+            for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
+                for (Instance instance : instanceGroup.getInstanceList()) {
+                    if (instance.getState() == UserRequest.RUNNING) {
+                        send(instance.getInstanceGroup().getReceiveDatacenter(), 0, CloudSimTag.END_INSTANCE_RUN, instance);
+                    } else {
+                        instance.setState(UserRequest.FAILED);
+                        getSimulation().getCsvRecord().writeRecord(instance);
+                    }
+                }
+                instanceGroup.setState(UserRequest.FAILED);
+            }
         }
     }
 }

@@ -33,4 +33,12 @@ public interface UserRequest extends ChangeableId {
     UserRequest setState(int state);
 
     UserRequest addSuccessGroupNum();
+
+    UserRequest setFailReason(String failReason);
+
+    String getFailReason();
+
+    UserRequest addAllocatedEdge(InstanceGroupEdge edge);
+
+    List<InstanceGroupEdge> getAllocatedEdges();
 }
