@@ -26,7 +26,9 @@ public class CsvRecord {
     public CsvRecord(String filePath) {
         this.filePath = "Record/" + filePath;
         File dir = new File("Record");
-        dir.mkdirs();
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
         try {
             writer = new BufferedWriter(new FileWriter(this.filePath));
             // 写入表头
@@ -58,6 +60,20 @@ public class CsvRecord {
             printer.printRecord(instance.getId(), instance.getInstanceGroup().getId(), instance.getUserRequest().getId(),
                     instance.getCpu(), instance.getRam(), instance.getStorage(), instance.getBw(), instance.getLifeTime(),
                     datacenter.getId(), instance.getHost(), instance.getStartTime(), instance.getFinishTime(), instance.getRetryNum(), instance.getState());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeRecord(Instance instance) {
+        try {
+            int dcId = -1;
+            if (instance.getInstanceGroup().getReceiveDatacenter() != null) {
+                dcId = instance.getInstanceGroup().getReceiveDatacenter().getId();
+            }
+            printer.printRecord(instance.getId(), instance.getInstanceGroup().getId(), instance.getUserRequest().getId(),
+                    instance.getCpu(), instance.getRam(), instance.getStorage(), instance.getBw(), instance.getLifeTime(),
+                    dcId, instance.getHost(), instance.getStartTime(), instance.getFinishTime(), instance.getRetryNum(), instance.getState());
         } catch (IOException e) {
             e.printStackTrace();
         }
