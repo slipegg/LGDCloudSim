@@ -2,6 +2,7 @@ package org.scalecloudsim.request;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.scalecloudsim.datacenter.Datacenter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,11 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Setter
     int state;
 
+    @Getter
+    @Setter
+    Datacenter receiveDatacenter;
+
+
     public InstanceGroupSimple(int id) {
         this.id = id;
         this.instanceList = new ArrayList<>();
@@ -50,6 +56,7 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.retryMaxNum = 3;
         this.state = UserRequest.WAITING;
         this.accessLatency = Double.MAX_VALUE;
+        this.receiveDatacenter = null;//TODO 换成Datacenter.NULL
     }
 
     @Override
@@ -78,7 +85,6 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.retryNum++;
         if (this.retryNum >= this.retryMaxNum) {
             this.state = UserRequest.FAILED;
-            this.getUserRequest().setState(UserRequest.FAILED);
         }
         return this;
     }

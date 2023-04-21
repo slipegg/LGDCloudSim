@@ -1,5 +1,7 @@
 package org.scalecloudsim.request;
 
+import org.scalecloudsim.datacenter.Datacenter;
+
 import java.util.List;
 
 public interface InstanceGroup extends RequestEntity {
@@ -42,4 +44,8 @@ public interface InstanceGroup extends RequestEntity {
     InstanceGroup setRetryNum(int retryNum);
 
     InstanceGroup setRetryMaxNum(int retryMaxNum);
+
+    InstanceGroup setReceiveDatacenter(Datacenter receiveDatacenter);
+
+    Datacenter getReceiveDatacenter();
 }
