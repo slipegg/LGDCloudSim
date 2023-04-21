@@ -8,6 +8,7 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     UserRequest userRequest;
 
     Set<InstanceGroupEdge> graph;
+
     boolean directed;
 
     public InstanceGroupGraphSimple(boolean directed) {
@@ -36,8 +37,7 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     public InstanceGroupGraph addEdge(InstanceGroupEdge edge) {
         graph.add(Objects.requireNonNull(edge));
         if (!directed) {
-            if (graph.contains(new InstanceGroupEdgeSimple(edge.getDst(), edge.getSrc(), edge.getMinDelay(), edge.getRequiredBw())))
-                graph.add(new InstanceGroupEdgeSimple(edge.getDst(), edge.getSrc(), edge.getMinDelay(), edge.getRequiredBw()));
+            graph.add(new InstanceGroupEdgeSimple(edge.getDst(), edge.getSrc(), edge.getMinDelay(), edge.getRequiredBw()));
         }
         return this;
     }
@@ -55,11 +55,11 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
                 return instanceGroupEdge;
             }
-            if (!directed) {
-                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
-                    return instanceGroupEdge;
-                }
-            }
+//            if (!directed) {
+//                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
+//                    return instanceGroupEdge;
+//                }
+//            }
         }
         LOGGER.info("There is no edge(src={},dst={}).",src,dst);
         return null;
@@ -77,9 +77,9 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src) {
                 res.add(instanceGroupEdge.getDst());
             }
-            if (!this.directed && (instanceGroupEdge.getDst() == src)) {
-                res.add(instanceGroupEdge.getSrc());
-            }
+//            if (!this.directed && (instanceGroupEdge.getDst() == src)) {
+//                res.add(instanceGroupEdge.getSrc());
+//            }
         }
         return res;
     }
@@ -91,9 +91,9 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getDst() == dst) {
                 res.add(instanceGroupEdge.getSrc());
             }
-            if (!this.directed && (instanceGroupEdge.getSrc() == dst)) {
-                res.add(instanceGroupEdge.getDst());
-            }
+//            if (!this.directed && (instanceGroupEdge.getSrc() == dst)) {
+//                res.add(instanceGroupEdge.getDst());
+//            }
         }
         return res;
     }
@@ -104,11 +104,11 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
                 return instanceGroupEdge.getMinDelay();
             }
-            if (!directed) {
-                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
-                    return instanceGroupEdge.getMinDelay();
-                }
-            }
+//            if (!directed) {
+//                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
+//                    return instanceGroupEdge.getMinDelay();
+//                }
+//            }
         }
         return Double.MAX_VALUE;
     }
@@ -119,11 +119,11 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
                 return instanceGroupEdge.getRequiredBw();
             }
-            if (!directed) {
-                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
-                    return instanceGroupEdge.getRequiredBw();
-                }
-            }
+//            if (!directed) {
+//                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
+//                    return instanceGroupEdge.getRequiredBw();
+//                }
+//            }
         }
         return 0;
     }
