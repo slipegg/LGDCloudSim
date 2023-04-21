@@ -25,6 +25,8 @@ public interface InstanceGroupGraph extends RequestEntity{
 
     List<InstanceGroup> getDstList(InstanceGroup src);
 
+    List<InstanceGroup> getSrcList(InstanceGroup dst);
+
     double getDelay(InstanceGroup src, InstanceGroup dst);
 
     double getBw(InstanceGroup src, InstanceGroup dst);

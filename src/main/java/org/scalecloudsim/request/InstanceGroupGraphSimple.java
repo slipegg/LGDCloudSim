@@ -73,12 +73,26 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     @Override
     public List<InstanceGroup> getDstList(InstanceGroup src) {
         List<InstanceGroup> res = new ArrayList<>();
-        for(InstanceGroupEdge instanceGroupEdge : graph) {
+        for (InstanceGroupEdge instanceGroupEdge : graph) {
             if (instanceGroupEdge.getSrc() == src) {
                 res.add(instanceGroupEdge.getDst());
             }
             if (!this.directed && (instanceGroupEdge.getDst() == src)) {
                 res.add(instanceGroupEdge.getSrc());
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public List<InstanceGroup> getSrcList(InstanceGroup dst) {
+        List<InstanceGroup> res = new ArrayList<>();
+        for (InstanceGroupEdge instanceGroupEdge : graph) {
+            if (instanceGroupEdge.getDst() == dst) {
+                res.add(instanceGroupEdge.getSrc());
+            }
+            if (!this.directed && (instanceGroupEdge.getSrc() == dst)) {
+                res.add(instanceGroupEdge.getDst());
             }
         }
         return res;
