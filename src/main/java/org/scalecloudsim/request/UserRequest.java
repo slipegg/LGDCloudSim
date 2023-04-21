@@ -31,4 +31,6 @@ public interface UserRequest extends ChangeableId {
     int getState();
 
     UserRequest setState(int state);
+
+    UserRequest addSuccessGroupNum();
 }

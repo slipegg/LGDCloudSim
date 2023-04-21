@@ -48,4 +48,6 @@ public interface InstanceGroup extends RequestEntity {
     InstanceGroup setReceiveDatacenter(Datacenter receiveDatacenter);
 
     Datacenter getReceiveDatacenter();
+
+    InstanceGroup addSuccessInstanceNum();
 }

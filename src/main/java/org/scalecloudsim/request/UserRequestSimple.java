@@ -23,11 +23,14 @@ public class UserRequestSimple implements UserRequest {
     @Setter
     int state;
 
+    int successGroupNum;
+
     public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
         this.id = id;
         this.state = UserRequest.WAITING;
         setInstanceGroups(instanceGroups);
         this.instanceGroupGraph = instanceGroupGraph;
+        this.successGroupNum = 0;
     }
 
 
@@ -64,8 +67,17 @@ public class UserRequestSimple implements UserRequest {
 
     @Override
     public UserRequest setInstanceGroupGraph(InstanceGroupGraph instanceGroupGraph) {
-        this.instanceGroupGraph=instanceGroupGraph;
+        this.instanceGroupGraph = instanceGroupGraph;
         this.instanceGroupGraph.setUserRequest(this);
+        return this;
+    }
+
+    @Override
+    public UserRequest addSuccessGroupNum() {
+        successGroupNum++;
+        if (successGroupNum == instanceGroups.size()) {
+            state = UserRequest.SUCCESS;
+        }
         return this;
     }
 }

@@ -47,6 +47,8 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Setter
     Datacenter receiveDatacenter;
 
+    int successInstanceNum;
+
 
     public InstanceGroupSimple(int id) {
         this.id = id;
@@ -57,6 +59,7 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.state = UserRequest.WAITING;
         this.accessLatency = Double.MAX_VALUE;
         this.receiveDatacenter = null;//TODO 换成Datacenter.NULL
+        this.successInstanceNum = 0;
     }
 
     @Override
@@ -92,6 +95,15 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Override
     public boolean isFailed() {
         return this.state == UserRequest.FAILED;
+    }
+
+    @Override
+    public InstanceGroup addSuccessInstanceNum() {
+        this.successInstanceNum++;
+        if (this.successInstanceNum == this.instanceList.size()) {
+            this.state = UserRequest.SUCCESS;
+        }
+        return this;
     }
 
     @Override
