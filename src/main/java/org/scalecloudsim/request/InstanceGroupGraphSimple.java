@@ -2,6 +2,7 @@ package org.scalecloudsim.request;
 
 import java.util.*;
 
+//TODO 考虑用数组的方式来存储
 public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     int id;
     UserRequest userRequest;
@@ -34,6 +35,10 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     @Override
     public InstanceGroupGraph addEdge(InstanceGroupEdge edge) {
         graph.add(Objects.requireNonNull(edge));
+        if (!directed) {
+            if (graph.contains(new InstanceGroupEdgeSimple(edge.getDst(), edge.getSrc(), edge.getMinDelay(), edge.getRequiredBw())))
+                graph.add(new InstanceGroupEdgeSimple(edge.getDst(), edge.getSrc(), edge.getMinDelay(), edge.getRequiredBw()));
+        }
         return this;
     }
 
@@ -69,10 +74,10 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     public List<InstanceGroup> getDstList(InstanceGroup src) {
         List<InstanceGroup> res = new ArrayList<>();
         for(InstanceGroupEdge instanceGroupEdge : graph) {
-            if(instanceGroupEdge.getSrc()==src){
+            if (instanceGroupEdge.getSrc() == src) {
                 res.add(instanceGroupEdge.getDst());
             }
-            if(!this.directed&&(instanceGroupEdge.getDst()==src)){
+            if (!this.directed && (instanceGroupEdge.getDst() == src)) {
                 res.add(instanceGroupEdge.getSrc());
             }
         }
@@ -80,8 +85,39 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     }
 
     @Override
+    public double getDelay(InstanceGroup src, InstanceGroup dst) {
+        for (InstanceGroupEdge instanceGroupEdge : graph) {
+            if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
+                return instanceGroupEdge.getMinDelay();
+            }
+            if (!directed) {
+                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
+                    return instanceGroupEdge.getMinDelay();
+                }
+            }
+        }
+        return Double.MAX_VALUE;
+    }
+
+    @Override
+    public double getBw(InstanceGroup src, InstanceGroup dst) {
+        for (InstanceGroupEdge instanceGroupEdge : graph) {
+            if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
+                return instanceGroupEdge.getRequiredBw();
+            }
+            if (!directed) {
+                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
+                    return instanceGroupEdge.getRequiredBw();
+                }
+            }
+        }
+        return 0;
+    }
+
+
+    @Override
     public void setId(int id) {
-        this.id=id;
+        this.id = id;
     }
 
     @Override

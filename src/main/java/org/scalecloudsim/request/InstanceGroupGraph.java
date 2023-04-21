@@ -15,14 +15,18 @@ public interface InstanceGroupGraph extends RequestEntity{
 
      InstanceGroupGraph addEdge(InstanceGroup src, InstanceGroup dst, double delay, long bw);
 
-     InstanceGroupGraph addEdge(InstanceGroupEdge edge);
+    InstanceGroupGraph addEdge(InstanceGroupEdge edge);
 
-     int removeEdge(InstanceGroup src, InstanceGroup dst);
+    int removeEdge(InstanceGroup src, InstanceGroup dst);
 
-     InstanceGroupEdge getEdge(InstanceGroup src, InstanceGroup dst);
+    InstanceGroupEdge getEdge(InstanceGroup src, InstanceGroup dst);
 
-     Set<InstanceGroupEdge> getGraph();
+    Set<InstanceGroupEdge> getGraph();
 
-     List<InstanceGroup> getDstList(InstanceGroup src);
+    List<InstanceGroup> getDstList(InstanceGroup src);
+
+    double getDelay(InstanceGroup src, InstanceGroup dst);
+
+    double getBw(InstanceGroup src, InstanceGroup dst);
 
 }
