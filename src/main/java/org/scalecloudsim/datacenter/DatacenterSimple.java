@@ -8,9 +8,7 @@ import org.cloudsimplus.core.CloudSimTag;
 import org.cloudsimplus.core.SimEntity;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
-import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.interscheduler.InterScheduler;
-import org.scalecloudsim.interscheduler.InterSchedulerSimple;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
 import org.scalecloudsim.request.UserRequest;
@@ -102,7 +100,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.unitRamPrice = 1.0;
         this.unitStoragePrice = 1.0;
         this.unitBwPrice = 1.0;
-        this.unitRackPrice = 1.0;
+        this.unitRackPrice = 100.0;
         this.cpuNumPerRack = 10;
         this.usedCpuNum = 0;
         this.cpuCost = 0.0;
@@ -196,6 +194,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
+            //TODO 要思考怎么反应调度时间影响，调度应该还是要分为开始调度和结束调度两个事件
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
             case CloudSimTag.GROUP_FILTER_DC -> processGroupFilterDc();
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
@@ -226,7 +225,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         usedCpuNum += instance.getCpu();
     }
 
-
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof Instance instance) {
             if (instance.getState() != UserRequest.RUNNING) {
@@ -246,7 +244,36 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             sendUpdateStateEvt(hostId, watchDelays);
             getSimulation().getCsvRecord().writeRecord(instance, this);
             calculateCost(instance);
+            updateGroupAndUserRequestState(instance);
         }
+    }
+
+    private void updateGroupAndUserRequestState(Instance instance) {
+        InstanceGroup instanceGroup = instance.getInstanceGroup();
+        instanceGroup.addSuccessInstanceNum();
+        if (instanceGroup.getState() != UserRequest.SUCCESS) {
+            return;
+        }
+        //instanceGroup的所有实例都已经成功运行完毕
+        LOGGER.info("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
+        UserRequest userRequest = instanceGroup.getUserRequest();
+        //释放Bw资源
+        List<InstanceGroup> dstInstanceGroups = userRequest.getInstanceGroupGraph().getDstList(instanceGroup);
+        for (InstanceGroup dstInstanceGroup : dstInstanceGroups) {
+            if (dstInstanceGroup.getState() == UserRequest.SUCCESS) {
+                double releaseBw = userRequest.getInstanceGroupGraph().getBw(instanceGroup, dstInstanceGroup);
+                getSimulation().getNetworkTopology().releaseBw(instanceGroup.getReceiveDatacenter(), dstInstanceGroup.getReceiveDatacenter(), releaseBw);
+            }
+        }
+        List<InstanceGroup> srcInstanceGroups = userRequest.getInstanceGroupGraph().getSrcList(instanceGroup);
+        for (InstanceGroup srcInstanceGroup : srcInstanceGroups) {
+            if (srcInstanceGroup.getState() == UserRequest.SUCCESS) {
+                double releaseBw = userRequest.getInstanceGroupGraph().getBw(srcInstanceGroup, instanceGroup);
+                getSimulation().getNetworkTopology().releaseBw(srcInstanceGroup.getReceiveDatacenter(), instanceGroup.getReceiveDatacenter(), releaseBw);
+            }
+        }
+        //如果更新UserRequest状态信息
+        userRequest.addSuccessGroupNum();
     }
 
     private void processUpdateHostState(SimEvent evt) {
@@ -388,27 +415,47 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processRespondDcReviveGroup(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroups) {
-            for (Object instanceGroup : instanceGroups) {
-                if (instanceGroup instanceof InstanceGroup) {
+            for (Object instanceGroupTmp : instanceGroups) {
+                if (instanceGroupTmp instanceof InstanceGroup instanceGroup) {
                     if (evt.getTag() == CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT) {
                         instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 1);
                     } else if (evt.getTag() == CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT) {
                         instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 0);
                     }
-                    if (isAllSendResultReceived((InstanceGroup) instanceGroup)) {
+                    if (isAllSendResultReceived(instanceGroup)) {
                         //TODO 到底什么时候触发判断决策，是所有用户的亲和组请求都回应完了还是只要自己的被回应了就判断决策？目前是一个Group的所有请求都回应完了就决策这个Group
                         Datacenter receiveDatacenter = interScheduler.decideTargetDatacenter(instanceGroupSendResultMap, (InstanceGroup) instanceGroup);
                         double costTime = interScheduler.getDecideTargetDatacenterCostTime();
                         if (receiveDatacenter == null) {
-                            interScheduleFail((InstanceGroup) instanceGroup, costTime);
+                            interScheduleFail(instanceGroup, costTime);
                         } else {
+                            instanceGroup.setReceiveDatacenter(receiveDatacenter);
+                            instanceGroup.setState(UserRequest.SCHEDULING);
+                            allocateBw(instanceGroup, receiveDatacenter);
                             //TODO 需要思考是否需要以List的形式回送，目前以单个的形式回送
-                            respondAllReciveDatacenter((InstanceGroup) instanceGroup, receiveDatacenter, costTime);
+                            respondAllReciveDatacenter(instanceGroup, receiveDatacenter, costTime);
                             LOGGER.info("{}: {} decides to schedule InstanceGroup{} to {} after receiving all respond.", getSimulation().clockStr(), getName(), ((InstanceGroup) instanceGroup).getId(), receiveDatacenter.getName());
                         }
                         instanceGroupSendResultMap.remove(instanceGroup);
                     }
                 }
+            }
+        }
+    }
+
+    private void allocateBw(InstanceGroup instanceGroup, Datacenter receiveDatacenter) {
+        List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
+        for (InstanceGroup dst : dstInstanceGroups) {
+            if (dst.getReceiveDatacenter() != null) {
+                double allocateBw = instanceGroup.getUserRequest().getInstanceGroupGraph().getBw(instanceGroup, dst);
+                getSimulation().getNetworkTopology().allocateBw(receiveDatacenter, dst.getReceiveDatacenter(), allocateBw);
+            }
+        }
+        List<InstanceGroup> srcInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
+        for (InstanceGroup src : srcInstanceGroups) {
+            if (src.getReceiveDatacenter() != null) {
+                double allocateBw = instanceGroup.getUserRequest().getInstanceGroupGraph().getBw(src, instanceGroup);
+                getSimulation().getNetworkTopology().allocateBw(src.getReceiveDatacenter(), receiveDatacenter, allocateBw);
             }
         }
     }
@@ -529,6 +576,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (!instanceGroup.isFailed()) {
             send(this, delay, CloudSimTag.USER_REQUEST_SEND, instanceGroup);
         } else {
+            instanceGroup.getUserRequest().setState(UserRequest.FAILED);
             LOGGER.warn("{}:UserRequest{}'s instanceGroup{} is scheduled fail.", getSimulation().clockStr(), instanceGroup.getUserRequest().getId(), instanceGroup.getId());
             for (Instance instance : instanceGroup.getInstanceList()) {
                 failInstance(instance);
