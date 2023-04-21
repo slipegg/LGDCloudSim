@@ -7,8 +7,9 @@ import java.util.List;
 public interface UserRequest extends ChangeableId {
     static int WAITING = -1;
     static int FAILED = 0;
-    static int SUCCESS = 1;
-    static int RUNNING = 2;
+    static int SCHEDULING = 1;
+    static int SUCCESS = 2;
+    static int RUNNING = 3;
 
     List<InstanceGroup> getInstanceGroups();
 
