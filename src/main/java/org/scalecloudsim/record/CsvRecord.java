@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.request.Instance;
+import org.scalecloudsim.request.UserRequest;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -59,7 +60,7 @@ public class CsvRecord {
         try {
             printer.printRecord(instance.getId(), instance.getInstanceGroup().getId(), instance.getUserRequest().getId(),
                     instance.getCpu(), instance.getRam(), instance.getStorage(), instance.getBw(), instance.getLifeTime(),
-                    datacenter.getId(), instance.getHost(), instance.getStartTime(), instance.getFinishTime(), instance.getRetryNum(), instance.getState());
+                    datacenter.getId(), instance.getHost(), instance.getStartTime(), instance.getFinishTime(), instance.getRetryNum(), UserRequest.stateToString(instance.getState()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,7 +74,7 @@ public class CsvRecord {
             }
             printer.printRecord(instance.getId(), instance.getInstanceGroup().getId(), instance.getUserRequest().getId(),
                     instance.getCpu(), instance.getRam(), instance.getStorage(), instance.getBw(), instance.getLifeTime(),
-                    dcId, instance.getHost(), instance.getStartTime(), instance.getFinishTime(), instance.getRetryNum(), instance.getState());
+                    dcId, instance.getHost(), instance.getStartTime(), instance.getFinishTime(), instance.getRetryNum(), UserRequest.stateToString(instance.getState()));
         } catch (IOException e) {
             e.printStackTrace();
         }

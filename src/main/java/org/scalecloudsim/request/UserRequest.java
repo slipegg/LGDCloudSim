@@ -11,6 +11,23 @@ public interface UserRequest extends ChangeableId {
     static int SUCCESS = 2;
     static int RUNNING = 3;
 
+    public static String stateToString(int state) {
+        switch (state) {
+            case WAITING:
+                return "WAITING";
+            case FAILED:
+                return "FAILED";
+            case SCHEDULING:
+                return "SCHEDULING";
+            case SUCCESS:
+                return "SUCCESS";
+            case RUNNING:
+                return "RUNNING";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
     List<InstanceGroup> getInstanceGroups();
 
     UserRequest setInstanceGroups(List<InstanceGroup> instanceGroups);
