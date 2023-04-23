@@ -13,4 +13,6 @@ public interface InstanceQueue {
     InstanceQueue add(Instance instance);
 
     InstanceQueue add(InstanceGroup instanceGroup);
+
+    InstanceQueue add(List<InstanceGroup> instanceGroups);
 }

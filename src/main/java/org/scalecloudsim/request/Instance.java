@@ -50,10 +50,6 @@ public interface Instance extends RequestEntity {
 
     Instance setFailNum(int failNum);
 
-    List<InstanceFailInfo> getFailedinfoList();
-
-    Instance addFailedInfo(InstanceFailInfo instanceFailInfo);
-
     //记录成功相关的信息
     int getHost();
 

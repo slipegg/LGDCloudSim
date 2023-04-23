@@ -5,7 +5,6 @@ import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
-import org.scalecloudsim.request.InstanceGroupGraphSimple;
 import org.scalecloudsim.request.UserRequest;
 
 import java.util.*;
@@ -47,7 +46,7 @@ public class InterSchedulerSimple implements InterScheduler {
             instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
         }
         interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        this.filterSuitableDatacenterCostTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.filterSuitableDatacenterCostTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return instanceGroupAvaiableDatacenters;
     }
 
@@ -61,31 +60,37 @@ public class InterSchedulerSimple implements InterScheduler {
             }
             result.put(instanceGroup, true);
         }
-        this.decideReciveGroupResultCostTime = instanceGroups.size() * 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.decideReciveGroupResultCostTime = 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return result;
     }
 
     @Override
-    public Datacenter decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap, InstanceGroup instanceGroup) {
+    public Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups) {
         this.decideTargetDatacenterCostTime = 0.0;
-        List<Datacenter> datacenters = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
-                .filter(entry -> entry.getValue() == 1)
-                .map(Map.Entry::getKey)
-                .toList();
-        if (datacenters.size() == 0) {
-            //表示调度失败
-            return null;
+        Map<InstanceGroup, Datacenter> result = new HashMap<>();
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            List<Datacenter> datacenters = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
+                    .filter(entry -> entry.getValue() == 1)
+                    .map(Map.Entry::getKey)
+                    .toList();
+            if (datacenters.size() == 0) {
+                //表示调度失败
+                result.put(instanceGroup, null);
+            } else {
+                //表示调度成功
+                result.put(instanceGroup, datacenters.get(random.nextInt(datacenters.size())));
+            }
         }
-        return datacenters.get(random.nextInt(datacenters.size()));
+        return result;
     }
 
     @Override
-    public void receiveNotEmployGroup(InstanceGroup instanceGroup) {
+    public void receiveNotEmployGroup(List<InstanceGroup> instanceGroups) {
         // 目前不需要做任何处理
     }
 
     @Override
-    public void receiveEmployGroup(InstanceGroup instanceGroup) {
+    public void receiveEmployGroup(List<InstanceGroup> instanceGroups) {
         // 目前不需要做任何处理
     }
 

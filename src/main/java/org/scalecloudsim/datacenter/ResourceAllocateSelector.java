@@ -1,5 +1,6 @@
 package org.scalecloudsim.datacenter;
 
+import org.scalecloudsim.innerscheduler.InnerScheduleResult;
 import org.scalecloudsim.request.Instance;
 
 import java.util.List;
@@ -10,5 +11,5 @@ public interface ResourceAllocateSelector {
 
     Datacenter getDatacenter();
 
-    Map<Integer, List<Instance>> selectResourceAllocate(Map<Integer, List<Instance>> schedule);
+    Map<Integer, List<Instance>> selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults);
 }

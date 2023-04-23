@@ -54,4 +54,12 @@ public class InstanceQueueFifo implements InstanceQueue {
         this.instances.addAll(instanceGroup.getInstanceList());
         return this;
     }
+
+    @Override
+    public InstanceQueue add(List<InstanceGroup> instanceGroups) {
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            this.instances.addAll(instanceGroup.getInstanceList());
+        }
+        return this;
+    }
 }

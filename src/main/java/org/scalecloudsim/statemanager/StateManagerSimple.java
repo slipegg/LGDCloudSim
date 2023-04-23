@@ -325,7 +325,7 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public StateManager allocateResource(int hostId, Instance instance) {
+    public boolean allocateResource(int hostId, Instance instance) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         PartitionManager partitionManager = partitionManagerMap.get(partitionId);
         HostStateHistory hostStateHistory = new HostStateHistory(
@@ -334,6 +334,9 @@ public class StateManagerSimple implements StateManager {
                 hostStates[hostId * HostState.STATE_NUM + 2],
                 hostStates[hostId * HostState.STATE_NUM + 3],
                 getLastChangeTime(hostId));
+        if (!hostStateHistory.isSuitable(instance)) {
+            return false;
+        }
         partitionManager.addHostHistory(hostId, hostStateHistory);
         hostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
         hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
@@ -345,7 +348,7 @@ public class StateManagerSimple implements StateManager {
                 hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
         simpleState.updateStorageSum(-1 * instance.getStorage());
         simpleState.updateBwSum(-1 * instance.getBw());
-        return this;
+        return true;
     }
 
     public StateManager releaseResource(int hostId, Instance instance) {

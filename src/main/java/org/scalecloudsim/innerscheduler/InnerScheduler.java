@@ -28,4 +28,8 @@ public interface InnerScheduler extends Nameable, DatacenterEntity {
     int getQueueSize();
 
     Map<Integer, List<Instance>> schedule();
+
+    double getScheduleCostTime();
+
+    InnerScheduler setScheduleCostTime(double scheduleCostTime);
 }

@@ -24,7 +24,7 @@ public class InstanceSimple implements Instance {
     int maxFailNum;
 
     int failNum;
-    List<InstanceFailInfo> failedinfoList;
+
     int host;
     double startTime;
     double finishTime;
@@ -53,7 +53,6 @@ public class InstanceSimple implements Instance {
         this.retryMaxNum = 3;
 
         this.failNum = 0;
-        this.failedinfoList = new ArrayList<>();
         this.host = -1;
         this.startTime = -1;
         this.finishTime = -1;
@@ -74,12 +73,6 @@ public class InstanceSimple implements Instance {
     @Override
     public boolean isSetDestHost() {
         return destHost != -1;
-    }
-
-    @Override
-    public Instance addFailedInfo(InstanceFailInfo instanceFailInfo) {
-        failedinfoList.add(instanceFailInfo);
-        return this;
     }
 
     @Override

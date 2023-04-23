@@ -60,7 +60,7 @@ public interface StateManager {
 
     boolean isSuitable(int hostId, Instance instance);
 
-    StateManager allocateResource(int hostId, Instance instance);
+    boolean allocateResource(int hostId, Instance instance);
 
     StateManager releaseResource(int hostId, Instance instance);
 
