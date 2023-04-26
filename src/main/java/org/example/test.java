@@ -12,6 +12,7 @@ import org.scalecloudsim.interscheduler.InterScheduler;
 import org.scalecloudsim.interscheduler.InterSchedulerSimple;
 import org.scalecloudsim.statemanager.*;
 import org.scalecloudsim.user.UserRequestManager;
+import org.scalecloudsim.user.UserRequestManagerCsv;
 import org.scalecloudsim.user.UserRequestManagerEasy;
 import org.scalecloudsim.user.UserSimple;
 
@@ -60,7 +61,7 @@ public class test {
     }
 
     private void initUser() {
-        userRequestManager = new UserRequestManagerEasy();
+        userRequestManager = new UserRequestManagerCsv("src/main/resources/generateRequestParament.csv");
         user = new UserSimple(scaleCloudSim, 100, userRequestManager);
     }
 
