@@ -62,6 +62,11 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.successInstanceNum = 0;
     }
 
+    public InstanceGroupSimple(int id, List<Instance> instanceList) {
+        this(id);
+        setInstanceList(instanceList);
+    }
+
     @Override
     public void setUserRequest(UserRequest userRequest) {
         this.userRequest = userRequest;

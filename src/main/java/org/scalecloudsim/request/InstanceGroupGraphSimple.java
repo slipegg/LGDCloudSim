@@ -28,8 +28,8 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     }
 
     @Override
-    public InstanceGroupGraph addEdge(InstanceGroup src, InstanceGroup dst, double delay, long bw) {
-        addEdge(new InstanceGroupEdgeSimple(src,dst,delay,bw));
+    public InstanceGroupGraph addEdge(InstanceGroup src, InstanceGroup dst, double delay, double bw) {
+        addEdge(new InstanceGroupEdgeSimple(src, dst, delay, bw));
         return this;
     }
 
