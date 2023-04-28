@@ -40,6 +40,10 @@ public interface UserRequest extends ChangeableId {
 
     double getSubmitTime();
 
+    UserRequest setFinishTime(double finishTime);
+
+    double getFinishTime();
+
     //TODO 后期可以考虑用地理位置来查找属于的dc
     int getBelongDatacenterId();
 

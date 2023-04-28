@@ -21,10 +21,6 @@ public class InstanceSimple implements Instance {
     int lifeTime;
     InstanceGroup instanceGroup;
     int destHost;
-    int maxFailNum;
-
-    int failNum;
-
     int host;
     double startTime;
     double finishTime;
@@ -49,10 +45,8 @@ public class InstanceSimple implements Instance {
 
         this.lifeTime = -1;
         this.destHost = -1;
-        this.maxFailNum = 0;
         this.retryMaxNum = 3;
 
-        this.failNum = 0;
         this.host = -1;
         this.startTime = -1;
         this.finishTime = -1;

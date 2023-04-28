@@ -13,6 +13,9 @@ public class UserRequestSimple implements UserRequest {
     @Setter
     double submitTime;
     @Getter
+    @Setter
+    double finishTime;
+    @Getter
     List<InstanceGroup> instanceGroups;
     @Getter
     InstanceGroupGraph instanceGroupGraph;
@@ -36,6 +39,8 @@ public class UserRequestSimple implements UserRequest {
     public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
         this.id = id;
         this.state = UserRequest.WAITING;
+        this.finishTime = -1;
+        this.failReason = "";
         setInstanceGroups(instanceGroups);
         this.instanceGroupGraph = instanceGroupGraph;
         this.successGroupNum = 0;

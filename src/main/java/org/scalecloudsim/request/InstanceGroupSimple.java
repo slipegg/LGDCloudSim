@@ -47,6 +47,14 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Setter
     Datacenter receiveDatacenter;
 
+    @Getter
+    @Setter
+    double receivedTime;
+
+    @Getter
+    @Setter
+    double finishTime;
+
     int successInstanceNum;
 
 

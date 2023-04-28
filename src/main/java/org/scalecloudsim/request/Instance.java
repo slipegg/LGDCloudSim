@@ -40,16 +40,6 @@ public interface Instance extends RequestEntity {
 
     boolean isSetDestHost();
 
-    int getMaxFailNum();
-
-    Instance setMaxFailNum(int maxFailNum);
-
-    //调度结果
-    //记录失败相关的信息
-    int getFailNum();
-
-    Instance setFailNum(int failNum);
-
     //记录成功相关的信息
     int getHost();
 
