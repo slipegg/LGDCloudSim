@@ -320,7 +320,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     instance.setStartTime(getSimulation().clock());
                     List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
                     sendUpdateStateEvt(hostId, watchDelays);
-                    double lifeTime = instance.getLifeTime();
+                    int lifeTime = instance.getLifeTime();
                     if (lifeTime > 0) {
                         send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instance);
                     }

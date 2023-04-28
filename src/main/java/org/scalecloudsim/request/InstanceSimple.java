@@ -18,7 +18,7 @@ public class InstanceSimple implements Instance {
     int storage;
     int bw;
 
-    double lifeTime;
+    int lifeTime;
     InstanceGroup instanceGroup;
     int destHost;
     int maxFailNum;
@@ -60,7 +60,7 @@ public class InstanceSimple implements Instance {
         this.state = UserRequest.WAITING;
     }
 
-    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, double lifeTime) {
+    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, int lifeTime) {
         this(id, cpu, ram, storage, bw);
         this.lifeTime = lifeTime;
     }

@@ -42,8 +42,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceStorageNumMax = -2;
     private int InstanceBwNumMin = -2;
     private int InstanceBwNumMax = -2;
-    private double InstanceLifeTimeMin = -2;
-    private double InstanceLifeTimeMax = -2;
+    private int InstanceLifeTimeMin = -2;
+    private int InstanceLifeTimeMax = -2;
 
 
     private static int instanceId = 0;
@@ -101,8 +101,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "InstanceStorageNumMax" -> this.InstanceStorageNumMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNumMin" -> this.InstanceBwNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNumMax" -> this.InstanceBwNumMax = Integer.parseInt(csvRecord.get(1));
-                    case "InstanceLifeTimeMin" -> this.InstanceLifeTimeMin = Double.parseDouble(csvRecord.get(1));
-                    case "InstanceLifeTimeMax" -> this.InstanceLifeTimeMax = Double.parseDouble(csvRecord.get(1));
+                    case "InstanceLifeTimeMin" -> this.InstanceLifeTimeMin = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceLifeTimeMax" -> this.InstanceLifeTimeMax = Integer.parseInt(csvRecord.get(1));
                     default -> {
                         LOGGER.warn("The parameter name {} is not correct, please check the parameter name in the csv file", title);
                     }
@@ -119,7 +119,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
         int ramNum = random.nextInt(InstanceRamNumMax - InstanceRamNumMin + 1) + InstanceRamNumMin;
         int storageNum = random.nextInt(InstanceStorageNumMax - InstanceStorageNumMin + 1) + InstanceStorageNumMin;
         int bwNum = random.nextInt(InstanceBwNumMax - InstanceBwNumMin + 1) + InstanceBwNumMin;
-        double lifeTime = random.nextDouble() * (InstanceLifeTimeMax - InstanceLifeTimeMin) + InstanceLifeTimeMin;
+        int lifeTime = random.nextInt(InstanceLifeTimeMax - InstanceLifeTimeMin + 1) + InstanceLifeTimeMin;
         return new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
     }
 

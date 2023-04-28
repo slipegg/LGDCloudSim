@@ -26,9 +26,9 @@ public interface Instance extends RequestEntity {
     Instance setBw(int bw);
 
     //自身的其他有关请求的属性
-    double getLifeTime();
+    int getLifeTime();
 
-    Instance setLifeTime(double lifeTime);
+    Instance setLifeTime(int lifeTime);
 
     InstanceGroup getInstanceGroup();
 
