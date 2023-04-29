@@ -56,6 +56,13 @@ public class PartitionRangesManager {
         this.ranges = ranges;
     }
 
+    public void addRange(int partitionId, int startIndex, int length) {
+        int[] a = new int[2];
+        a[0] = startIndex;
+        a[1] = startIndex + length - 1;
+        ranges.put(partitionId, a);
+    }
+
     public int[] getRange(int partitionId) {
         return ranges.get(partitionId);
     }
