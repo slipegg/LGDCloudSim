@@ -13,7 +13,7 @@ public interface InstanceGroupGraph extends RequestEntity{
 
      InstanceGroupGraph setDirected(boolean directed);
 
-     InstanceGroupGraph addEdge(InstanceGroup src, InstanceGroup dst, double delay, long bw);
+    InstanceGroupGraph addEdge(InstanceGroup src, InstanceGroup dst, double delay, double bw);
 
     InstanceGroupGraph addEdge(InstanceGroupEdge edge);
 

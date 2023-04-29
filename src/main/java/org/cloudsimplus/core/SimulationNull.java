@@ -4,6 +4,7 @@ import org.cloudsimplus.core.events.SimEvent;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
 import org.scalecloudsim.record.CsvRecord;
+import org.scalecloudsim.record.SqlRecord;
 
 import java.util.function.Predicate;
 
@@ -91,7 +92,7 @@ public class SimulationNull implements Simulation {
     }
 
     @Override
-    public CsvRecord getCsvRecord() {
+    public SqlRecord getSqlRecord() {
         return null;
     }
 }

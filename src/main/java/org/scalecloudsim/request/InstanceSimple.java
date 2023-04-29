@@ -18,13 +18,9 @@ public class InstanceSimple implements Instance {
     int storage;
     int bw;
 
-    double lifeTime;
+    int lifeTime;
     InstanceGroup instanceGroup;
     int destHost;
-    int maxFailNum;
-
-    int failNum;
-    List<InstanceFailInfo> failedinfoList;
     int host;
     double startTime;
     double finishTime;
@@ -49,11 +45,8 @@ public class InstanceSimple implements Instance {
 
         this.lifeTime = -1;
         this.destHost = -1;
-        this.maxFailNum = 0;
         this.retryMaxNum = 3;
 
-        this.failNum = 0;
-        this.failedinfoList = new ArrayList<>();
         this.host = -1;
         this.startTime = -1;
         this.finishTime = -1;
@@ -61,7 +54,7 @@ public class InstanceSimple implements Instance {
         this.state = UserRequest.WAITING;
     }
 
-    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, double lifeTime) {
+    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, int lifeTime) {
         this(id, cpu, ram, storage, bw);
         this.lifeTime = lifeTime;
     }
@@ -77,18 +70,10 @@ public class InstanceSimple implements Instance {
     }
 
     @Override
-    public Instance addFailedInfo(InstanceFailInfo instanceFailInfo) {
-        failedinfoList.add(instanceFailInfo);
-        return this;
-    }
-
-    @Override
     public Instance addRetryNum() {
         this.retryNum++;
         if (this.retryNum >= this.retryMaxNum) {
             this.state = UserRequest.FAILED;
-            this.getInstanceGroup().setState(UserRequest.FAILED);
-            this.getUserRequest().setState(UserRequest.FAILED);
         }
         return this;
     }

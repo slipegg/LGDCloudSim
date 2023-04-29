@@ -28,6 +28,10 @@ public class InnerSchedulerSimple implements InnerScheduler {
     String name;
     InstanceQueue instanceQueue;
 
+    @Getter
+    @Setter
+    double scheduleCostTime = 0.2;
+
     public InnerSchedulerSimple(Map<Integer, Double> partitionDelay) {
         this.partitionDelay = partitionDelay;
         //对于partitionDelay这个map，按照value从小到大排序，得到partitionTraverseList
@@ -77,7 +81,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
         List<Instance> instances = instanceQueue.getBatchItem();
         DelayState delayState = datacenter.getStateManager().getDelayState(this);
         Map<Integer, List<Instance>> res = scheduleInstances(instances, delayState);
-        LOGGER.info("{}: {}'s {} schedule {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size());
+        LOGGER.info("{}: {}'s {} starts scheduling {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size());
+        this.scheduleCostTime = 0.2;
         return res;
     }
 

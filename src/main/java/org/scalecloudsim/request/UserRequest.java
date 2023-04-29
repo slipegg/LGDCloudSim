@@ -11,6 +11,23 @@ public interface UserRequest extends ChangeableId {
     static int SUCCESS = 2;
     static int RUNNING = 3;
 
+    public static String stateToString(int state) {
+        switch (state) {
+            case WAITING:
+                return "WAITING";
+            case FAILED:
+                return "FAILED";
+            case SCHEDULING:
+                return "SCHEDULING";
+            case SUCCESS:
+                return "SUCCESS";
+            case RUNNING:
+                return "RUNNING";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
     List<InstanceGroup> getInstanceGroups();
 
     UserRequest setInstanceGroups(List<InstanceGroup> instanceGroups);
@@ -22,6 +39,10 @@ public interface UserRequest extends ChangeableId {
     UserRequest setSubmitTime(double submitTime);
 
     double getSubmitTime();
+
+    UserRequest setFinishTime(double finishTime);
+
+    double getFinishTime();
 
     //TODO 后期可以考虑用地理位置来查找属于的dc
     int getBelongDatacenterId();

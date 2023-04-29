@@ -3,6 +3,7 @@ package org.scalecloudsim.user;
 import org.scalecloudsim.request.*;
 
 import java.util.List;
+import java.util.Map;
 
 public class UserRequestManagerEasy implements UserRequestManager {
     static int userRequestId = 0;
@@ -12,7 +13,7 @@ public class UserRequestManagerEasy implements UserRequestManager {
     @Override
     public List<UserRequest> getUserRequestMap(double startTime, double endTime, int datacenterId) {
         Instance instance1 = new InstanceSimple(instanceId++, 1, 1, 1, 1, 2000);
-        Instance instance2 = new InstanceSimple(instanceId++, 2, 2, 20480 * 30_000, 2, 3000);
+        Instance instance2 = new InstanceSimple(instanceId++, 2, 2, 2, 2, 3000);
         Instance instance3 = new InstanceSimple(instanceId++, 3, 3, 3, 3, 4000);
         InstanceGroup instanceGroup1 = new InstanceGroupSimple(instanceGroupId++);
         instanceGroup1.setInstanceList(List.of(instance1));
@@ -27,5 +28,15 @@ public class UserRequestManagerEasy implements UserRequestManager {
         userRequest.setSubmitTime(startTime);
         userRequest.setBelongDatacenterId(datacenterId);
         return List.of(userRequest);
+    }
+
+    @Override
+    public Map<Integer, List<UserRequest>> generateOnceUserRequests() {
+        return null;
+    }
+
+    @Override
+    public double getNextSendTime() {
+        return 0;
     }
 }

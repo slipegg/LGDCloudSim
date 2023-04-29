@@ -4,6 +4,7 @@ import org.scalecloudsim.request.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserRequestManagerSimple implements UserRequestManager {
     @Override
@@ -20,5 +21,15 @@ public class UserRequestManagerSimple implements UserRequestManager {
             }
         }
         return userRequests;
+    }
+
+    @Override
+    public Map<Integer, List<UserRequest>> generateOnceUserRequests() {
+        return null;
+    }
+
+    @Override
+    public double getNextSendTime() {
+        return 0;
     }
 }

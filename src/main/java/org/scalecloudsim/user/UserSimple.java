@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class UserSimple extends CloudSimEntity {
@@ -64,37 +65,24 @@ public class UserSimple extends CloudSimEntity {
 
         LOGGER.error("The date type of "+evt+"is not List<Datacenter>");
     }
-    private void sendUserRequest(){
-        double nowTime=getSimulation().clock();
-        for(Datacenter datacenter:datacenterList) {
-            List<UserRequest> userRequests = userRequestManager.getUserRequestMap(nowTime, nowTime + sendOnceInterval, datacenter.getId());
+    private void sendUserRequest() {
+        double nowTime = getSimulation().clock();
+        Map<Integer, List<UserRequest>> userRequestMap = userRequestManager.generateOnceUserRequests();
+        if (userRequestMap == null) {
+            LOGGER.info("{}: {}: No user request to send.", getSimulation().clockStr(), getName());
+            return;
+        }
+        for (Map.Entry<Integer, List<UserRequest>> entry : userRequestMap.entrySet()) {
+            int datacenterId = entry.getKey();
+            List<UserRequest> userRequests = entry.getValue();
             if (userRequests.size() == 0)
                 continue;
-            //按照userRequests的submitTime排序划分成不同的数组
-            double lastTime = userRequests.get(0).getSubmitTime();
-            int lastId = 0;
-            int id = 0;
-            double time = userRequests.get(0).getSubmitTime();
-            for (UserRequest userRequest : userRequests) {
-                time = userRequest.getSubmitTime();
-                if (time != lastTime) {
-                    send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequests.subList(lastId, id));
-                    LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
-                    lastTime = time;
-                    lastId = id;
-                }
-                id++;
-            }
-            send(datacenter, time - nowTime, CloudSimTag.USER_REQUEST_SEND, userRequests.subList(lastId, id));
-            LOGGER.info("{}: {}: Sending user {} request(time = {} ms) to {}", getSimulation().clockStr(), getName(), id - lastId, String.format("%.2f", time), datacenter.getName());
-            break;
+            Datacenter datacenter = datacenterList.get(datacenterId);
+            send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+            getSimulation().getSqlRecord().recordUserRequestSubmitInfo(userRequests);
+            LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
         }
-        sendCount--;
-        if (sendCount > 0) {
-            send(this, sendOnceInterval, CloudSimTag.NEED_SEND_USER_REQUEST, null);
-            LOGGER.info("{}: {} will send user request after {} seconds", getSimulation().clockStr(), getName(), sendOnceInterval);
-        }
-//        isSendLater=false;
+        send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);
     }
 
 }

@@ -317,6 +317,21 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
+    public StateManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length) {
+        int endId = startId + length - 1;
+        for (int i = startId; i <= endId; i++) {
+            hostStates[i * HostState.STATE_NUM + 0] = cpu;
+            hostStates[i * HostState.STATE_NUM + 1] = ram;
+            hostStates[i * HostState.STATE_NUM + 2] = storage;
+            hostStates[i * HostState.STATE_NUM + 3] = bw;
+            simpleState.addCpuRamRecord(cpu, ram);
+            simpleState.updateStorageSum(storage);
+            simpleState.updateBwSum(bw);
+        }
+        return this;
+    }
+
+    @Override
     public boolean isSuitable(int hostId, Instance instance) {
         return hostStates[hostId * HostState.STATE_NUM] >= instance.getCpu() &&
                 hostStates[hostId * HostState.STATE_NUM + 1] >= instance.getRam() &&
@@ -325,7 +340,7 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
-    public StateManager allocateResource(int hostId, Instance instance) {
+    public boolean allocateResource(int hostId, Instance instance) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         PartitionManager partitionManager = partitionManagerMap.get(partitionId);
         HostStateHistory hostStateHistory = new HostStateHistory(
@@ -334,6 +349,9 @@ public class StateManagerSimple implements StateManager {
                 hostStates[hostId * HostState.STATE_NUM + 2],
                 hostStates[hostId * HostState.STATE_NUM + 3],
                 getLastChangeTime(hostId));
+        if (!hostStateHistory.isSuitable(instance)) {
+            return false;
+        }
         partitionManager.addHostHistory(hostId, hostStateHistory);
         hostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
         hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
@@ -345,7 +363,7 @@ public class StateManagerSimple implements StateManager {
                 hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
         simpleState.updateStorageSum(-1 * instance.getStorage());
         simpleState.updateBwSum(-1 * instance.getBw());
-        return this;
+        return true;
     }
 
     public StateManager releaseResource(int hostId, Instance instance) {

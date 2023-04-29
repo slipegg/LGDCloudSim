@@ -26,9 +26,9 @@ public interface Instance extends RequestEntity {
     Instance setBw(int bw);
 
     //自身的其他有关请求的属性
-    double getLifeTime();
+    int getLifeTime();
 
-    Instance setLifeTime(double lifeTime);
+    Instance setLifeTime(int lifeTime);
 
     InstanceGroup getInstanceGroup();
 
@@ -39,20 +39,6 @@ public interface Instance extends RequestEntity {
     int getDestHost();
 
     boolean isSetDestHost();
-
-    int getMaxFailNum();
-
-    Instance setMaxFailNum(int maxFailNum);
-
-    //调度结果
-    //记录失败相关的信息
-    int getFailNum();
-
-    Instance setFailNum(int failNum);
-
-    List<InstanceFailInfo> getFailedinfoList();
-
-    Instance addFailedInfo(InstanceFailInfo instanceFailInfo);
 
     //记录成功相关的信息
     int getHost();

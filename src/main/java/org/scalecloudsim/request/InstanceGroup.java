@@ -50,4 +50,12 @@ public interface InstanceGroup extends RequestEntity {
     Datacenter getReceiveDatacenter();
 
     InstanceGroup addSuccessInstanceNum();
+
+    InstanceGroup setReceivedTime(double receivedTime);
+
+    double getReceivedTime();
+
+    InstanceGroup setFinishTime(double finishedTime);
+
+    double getFinishTime();
 }

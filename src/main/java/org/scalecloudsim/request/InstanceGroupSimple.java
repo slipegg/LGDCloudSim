@@ -47,6 +47,14 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Setter
     Datacenter receiveDatacenter;
 
+    @Getter
+    @Setter
+    double receivedTime;
+
+    @Getter
+    @Setter
+    double finishTime;
+
     int successInstanceNum;
 
 
@@ -58,8 +66,15 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.retryMaxNum = 3;
         this.state = UserRequest.WAITING;
         this.accessLatency = Double.MAX_VALUE;
-        this.receiveDatacenter = null;//TODO 换成Datacenter.NULL
+        this.receiveDatacenter = Datacenter.NULL;
+        this.receivedTime = -1;
+        this.finishTime = -1;
         this.successInstanceNum = 0;
+    }
+
+    public InstanceGroupSimple(int id, List<Instance> instanceList) {
+        this(id);
+        setInstanceList(instanceList);
     }
 
     @Override

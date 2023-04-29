@@ -6,6 +6,7 @@ import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
 import org.scalecloudsim.record.CsvRecord;
+import org.scalecloudsim.record.SqlRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class CloudSim implements Simulation {
     @Getter
     CollaborationManager collaborationManager;
     @Getter
-    CsvRecord csvRecord;
+    SqlRecord sqlRecord;
 
     @Getter
     private int simulationAccuracy;
@@ -51,7 +52,7 @@ public class CloudSim implements Simulation {
         this.deferred = new DeferredQueue();
         this.cis = new CloudInformationService(this);
         this.simulationAccuracy = 2;
-        this.csvRecord = new CsvRecord();
+        this.sqlRecord = new SqlRecord();
     }
 
     @Override
@@ -130,7 +131,7 @@ public class CloudSim implements Simulation {
 //        catch (IOException e) {
 //            e.printStackTrace();
 //        }
-        getCsvRecord().close();
+        getSqlRecord().close();
         return clock;
     }
 
