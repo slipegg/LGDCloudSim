@@ -9,6 +9,8 @@ import org.scalecloudsim.request.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class UserRequestManagerCsv implements UserRequestManager {
@@ -194,6 +196,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
             userRequestsMap.get(belongDatacenterId).add(userRequest);
         }
         nextSendTime = random.nextDouble() * (RequestTimeIntervalMax - RequestTimeIntervalMin) + RequestTimeIntervalMin;
+        nextSendTime = BigDecimal.valueOf(nextSendTime).setScale(2, RoundingMode.HALF_UP).doubleValue();
         sendTimes += 1;
         return userRequestsMap;
     }
