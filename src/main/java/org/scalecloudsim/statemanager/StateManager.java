@@ -58,6 +58,8 @@ public interface StateManager {
 
     StateManager initHostStates(HostStateGenerator hostStateGenerator);
 
+    StateManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length);
+
     boolean isSuitable(int hostId, Instance instance);
 
     boolean allocateResource(int hostId, Instance instance);

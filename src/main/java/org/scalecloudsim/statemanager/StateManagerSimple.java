@@ -317,6 +317,21 @@ public class StateManagerSimple implements StateManager {
     }
 
     @Override
+    public StateManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length) {
+        int endId = startId + length - 1;
+        for (int i = startId; i <= endId; i++) {
+            hostStates[i * HostState.STATE_NUM + 0] = cpu;
+            hostStates[i * HostState.STATE_NUM + 1] = ram;
+            hostStates[i * HostState.STATE_NUM + 2] = storage;
+            hostStates[i * HostState.STATE_NUM + 3] = bw;
+            simpleState.addCpuRamRecord(cpu, ram);
+            simpleState.updateStorageSum(storage);
+            simpleState.updateBwSum(bw);
+        }
+        return this;
+    }
+
+    @Override
     public boolean isSuitable(int hostId, Instance instance) {
         return hostStates[hostId * HostState.STATE_NUM] >= instance.getCpu() &&
                 hostStates[hostId * HostState.STATE_NUM + 1] >= instance.getRam() &&
