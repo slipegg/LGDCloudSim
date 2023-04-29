@@ -370,7 +370,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 scheduleResult.remove(-1);
             }
             innerSchedulerResults.add(innerSchedulerResult);
-            send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, null);
+            if (!scheduleResult.isEmpty()) {
+                send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, null);
+            }
             if (innerScheduler.getQueueSize() != 0) {
                 send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
             } else {
@@ -393,10 +395,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             instance.addRetryNum();
             if (instance.isFailed()) {
                 UserRequest userRequest = instance.getUserRequest();
-                userRequest.setFailReason("instance" + instance.getId() + " failed to schedule");
+                userRequest.setFailReason("instance" + instance.getId());
                 send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, userRequest);
             } else {
-                LOGGER.info("{}: {} failed to schedule instance{},it is retrying.", getSimulation().clockStr(), getName(), instance.getId());
+                LOGGER.warn("{}: {} failed to schedule instance{},it is retrying.", getSimulation().clockStr(), getName(), instance.getId());
                 send(this, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instance);
             }
         }
@@ -422,7 +424,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> instanceGroupsTmp) {
             List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
             instanceGroups.removeIf(instanceGroup -> instanceGroup.getUserRequest().getState() == UserRequest.FAILED);
-            interScheduler.receiveNotEmployGroup((List<InstanceGroup>) instanceGroups);
+            interScheduler.receiveNotEmployGroup(instanceGroups);
         }
     }
 
@@ -536,7 +538,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         UserRequest userRequest = instanceGroup.getUserRequest();
         List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
         for (InstanceGroup dst : dstInstanceGroups) {
-            if (dst.getReceiveDatacenter() != null) {
+            if (dst.getReceiveDatacenter() != Datacenter.NULL) {
                 InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dst);
                 getSimulation().getNetworkTopology().allocateBw(receiveDatacenter, dst.getReceiveDatacenter(), edge.getRequiredBw());
                 userRequest.addAllocatedEdge(edge);
@@ -544,7 +546,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         List<InstanceGroup> srcInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
         for (InstanceGroup src : srcInstanceGroups) {
-            if (src.getReceiveDatacenter() != null) {
+            if (src.getReceiveDatacenter() != Datacenter.NULL) {
                 InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
                 getSimulation().getNetworkTopology().allocateBw(src.getReceiveDatacenter(), receiveDatacenter, edge.getRequiredBw());
                 userRequest.addAllocatedEdge(edge);
@@ -677,7 +679,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (!instanceGroup.isFailed()) {
             send(this, 0, CloudSimTag.USER_REQUEST_SEND, instanceGroup);
         } else {
-            instanceGroup.getUserRequest().setFailReason("InstanceGroup" + instanceGroup.getId() + " failed to be scheduled.");
+            instanceGroup.getUserRequest().setFailReason("InstanceGroup" + instanceGroup.getId());
             send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, instanceGroup.getUserRequest());
         }
     }
