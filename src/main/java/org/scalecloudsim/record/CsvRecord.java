@@ -41,18 +41,9 @@ public class CsvRecord {
         }
     }
 
-
     public CsvRecord() {
         this("ScaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".csv");
         //    this("scalecloudsim_record.csv");
-    }
-
-    public void writeRecord(Instance instance, Datacenter datacenter) {
-        int dcId = -1;
-        if (datacenter != null) {
-            dcId = datacenter.getId();
-        }
-        writeRecord(instance, dcId);
     }
 
     public void writeRecord(Instance instance) {

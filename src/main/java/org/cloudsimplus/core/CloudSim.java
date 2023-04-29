@@ -40,8 +40,6 @@ public class CloudSim implements Simulation {
     @Getter
     CollaborationManager collaborationManager;
     @Getter
-    CsvRecord csvRecord;
-    @Getter
     SqlRecord sqlRecord;
 
     @Getter
@@ -54,7 +52,6 @@ public class CloudSim implements Simulation {
         this.deferred = new DeferredQueue();
         this.cis = new CloudInformationService(this);
         this.simulationAccuracy = 2;
-        this.csvRecord = new CsvRecord();
         this.sqlRecord = new SqlRecord();
     }
 
@@ -134,7 +131,6 @@ public class CloudSim implements Simulation {
 //        catch (IOException e) {
 //            e.printStackTrace();
 //        }
-        getCsvRecord().close();
         getSqlRecord().close();
         return clock;
     }

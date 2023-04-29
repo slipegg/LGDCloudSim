@@ -92,11 +92,6 @@ public class SimulationNull implements Simulation {
     }
 
     @Override
-    public CsvRecord getCsvRecord() {
-        return null;
-    }
-
-    @Override
     public SqlRecord getSqlRecord() {
         return null;
     }
