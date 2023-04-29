@@ -38,7 +38,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Getter
     LoadBalance loadBalance;
     @Getter
-    @Setter
     ResourceAllocateSelector resourceAllocateSelector;
 
     @Getter
@@ -100,8 +99,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.instanceQueue = new InstanceQueueFifo();
         this.instanceGroupSendResultMap = new HashMap<>();
         this.innerSchedulerResults = new ArrayList<>();
-        this.resourceAllocateSelector = new ResourceAllocateSelectorSimple();
-        this.resourceAllocateSelector.setDatacenter(this);
         this.unitCpuPrice = 1.0;
         this.unitRamPrice = 1.0;
         this.unitStoragePrice = 1.0;
@@ -178,6 +175,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public Datacenter setLoadBalance(LoadBalance loadBalance) {
         this.loadBalance = loadBalance;
         loadBalance.setDatacenter(this);
+        return this;
+    }
+
+    @Override
+    public Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector) {
+        this.resourceAllocateSelector = resourceAllocateSelector;
+        resourceAllocateSelector.setDatacenter(this);
         return this;
     }
 
