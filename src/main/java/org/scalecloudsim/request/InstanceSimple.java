@@ -74,8 +74,6 @@ public class InstanceSimple implements Instance {
         this.retryNum++;
         if (this.retryNum >= this.retryMaxNum) {
             this.state = UserRequest.FAILED;
-            this.getInstanceGroup().setState(UserRequest.FAILED);
-            this.getUserRequest().setState(UserRequest.FAILED);
         }
         return this;
     }
