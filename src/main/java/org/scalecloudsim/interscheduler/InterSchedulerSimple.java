@@ -42,7 +42,7 @@ public class InterSchedulerSimple implements InterScheduler {
         NetworkTopology networkTopology = datacenter.getSimulation().getNetworkTopology();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> availableDatacenters = getAvaiableDatacenters(instanceGroup, allDatacenters, networkTopology);
+            List<Datacenter> availableDatacenters = getAvailableDatacenters(instanceGroup, allDatacenters, networkTopology);
             instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
         }
         interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
@@ -95,13 +95,13 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
-    private List<Datacenter> getAvaiableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        List<Datacenter> avaiableDatacenters = new ArrayList<>(allDatacenters);
+    private List<Datacenter> getAvailableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
+        List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
         //根据接入时延要求得到可调度的数据中心
-        filterDatacentersByAccessLatency(instanceGroup, avaiableDatacenters, networkTopology);
+        filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
         //根据资源抽样信息得到可调度的数据中心
-        filterDatacentersByResourceSample(instanceGroup, avaiableDatacenters);
-        return avaiableDatacenters;
+        filterDatacentersByResourceSample(instanceGroup, availableDatacenters);
+        return availableDatacenters;
     }
 
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
