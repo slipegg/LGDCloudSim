@@ -93,7 +93,7 @@ public class SqlRecord {
     public void recordUserRequestFinishInfo(UserRequest userRequest) {
         try {
             //设置userRequest的finishTime,state,failReason
-            sql = "UPDATE " + this.userRequestTableName + " SET finishTime = " + userRequest.getFinishTime() + ", state = '" + userRequest.getState() + "', failReason = '" + userRequest.getFailReason() + "' WHERE id = " + userRequest.getId() + ";";
+            sql = "UPDATE " + this.userRequestTableName + " SET finishTime = " + userRequest.getFinishTime() + ", state = '" + UserRequest.stateToString(userRequest.getState()) + "', failReason = '" + userRequest.getFailReason() + "' WHERE id = " + userRequest.getId() + ";";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -124,13 +124,25 @@ public class SqlRecord {
         }
     }
 
+    public void recordInstanceGroupAllInfo(InstanceGroup instanceGroup) {
+        try {
+            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime) VALUES ("
+                    + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + ","
+                    + instanceGroup.getReceiveDatacenter().getId() + "," + instanceGroup.getReceivedTime() + ","
+                    + instanceGroup.getFinishTime() + ");";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void recordInstanceCreateInfo(Instance instance) {
         try {
             sql = "INSERT INTO " + this.instanceTableName +
-                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,host,startTime) VALUES ("
+                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime) VALUES ("
                     + instance.getId() + "," + instance.getInstanceGroup().getId() + "," + instance.getUserRequest().getId() + ","
                     + instance.getCpu() + "," + instance.getRam() + "," + instance.getStorage() + "," + instance.getBw() + ","
-                    + instance.getLifeTime() + "," + instance.getRetryNum() + "," + instance.getHost() + ","
+                    + instance.getLifeTime() + "," + instance.getRetryNum() + "," + instance.getInstanceGroup().getReceiveDatacenter().getId() + "," + instance.getHost() + ","
                     + instance.getStartTime() + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
@@ -141,6 +153,20 @@ public class SqlRecord {
     public void recordInstanceFinishInfo(Instance instance) {
         try {
             sql = "UPDATE " + this.instanceTableName + " SET finishTime = " + instance.getFinishTime() + " WHERE id = " + instance.getId() + ";";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void recordInstanceAllInfo(Instance instance) {
+        try {
+            sql = "INSERT INTO " + this.instanceTableName +
+                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime,finishTime) VALUES ("
+                    + instance.getId() + "," + instance.getInstanceGroup().getId() + "," + instance.getUserRequest().getId() + ","
+                    + instance.getCpu() + "," + instance.getRam() + "," + instance.getStorage() + "," + instance.getBw() + ","
+                    + instance.getLifeTime() + "," + instance.getRetryNum() + "," + instance.getInstanceGroup().getReceiveDatacenter().getId() + "," + instance.getHost() + ","
+                    + instance.getStartTime() + "," + instance.getFinishTime() + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -204,6 +230,7 @@ public class SqlRecord {
                 " bw INT NOT NULL, " +
                 " lifeTime INT NOT NULL, " +
                 " retryTimes INT NOT NULL, " +
+                " datacenter INT NOT NULL, " +
                 " host INT NOT NULL, " +
                 " startTime DOUBLE NOT NULL, " +
                 " finishTime DOUBLE," +

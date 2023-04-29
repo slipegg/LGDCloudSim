@@ -237,7 +237,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (instance.getState() != UserRequest.RUNNING) {
                 return;
             }
-            int hostId = instance.getHost();
             finishInstance(instance);
         }
     }
@@ -255,7 +254,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         stateManager.releaseResource(hostId, instance);
         List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
         sendUpdateStateEvt(hostId, watchDelays);
-        getSimulation().getCsvRecord().writeRecord(instance, this);
+        getSimulation().getSqlRecord().recordInstanceFinishInfo(instance);
         calculateCost(instance);
         updateGroupAndUserRequestState(instance);
     }
@@ -267,9 +266,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         if (instanceGroup.getState() != UserRequest.SUCCESS) {
             return;
+        } else {
+            instanceGroup.setFinishTime(getSimulation().clock());
         }
         //instanceGroup的所有实例都已经成功运行完毕
         LOGGER.info("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
+        getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
+
         UserRequest userRequest = instanceGroup.getUserRequest();
         //释放Bw资源
         List<InstanceGroup> dstInstanceGroups = userRequest.getInstanceGroupGraph().getDstList(instanceGroup);
@@ -286,8 +289,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 getSimulation().getNetworkTopology().releaseBw(srcInstanceGroup.getReceiveDatacenter(), instanceGroup.getReceiveDatacenter(), releaseBw);
             }
         }
-        //如果更新UserRequest状态信息
+        //如果InstanceGroup成功运行了就需要更新UserRequest状态信息
         userRequest.addSuccessGroupNum();
+        if (userRequest.getState() == UserRequest.SUCCESS) {
+            LOGGER.info("{}: {} successfully completed running.", getSimulation().clockStr(), getName());
+            userRequest.setFinishTime(getSimulation().clock());
+            getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
+        }
     }
 
     private void processUpdateHostState(SimEvent evt) {
@@ -324,6 +332,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     if (lifeTime > 0) {
                         send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instance);
                     }
+                    getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
                 }
             }
             if (failedInstances != null) {
@@ -421,6 +430,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> instanceGroupsTmp) {
             List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
             instanceGroups.removeIf(instanceGroup -> instanceGroup.getUserRequest().getState() == UserRequest.FAILED);
+            instanceGroups.forEach(instanceGroup -> instanceGroup.setReceivedTime(getSimulation().clock()));
             interScheduler.receiveEmployGroup(instanceGroups);
             instanceQueue.add(instanceGroups);
             LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
@@ -429,6 +439,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     evt.getSource().getName(),
                     instanceGroups.size(),
                     instanceQueue.size());
+            getSimulation().getSqlRecord().recordInstanceGroupReceivedInfo(instanceGroups);
         } else if (evt.getData() instanceof Instance instance) {
             if (instance.getUserRequest().getState() == UserRequest.FAILED) {
                 return;
@@ -668,23 +679,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         } else {
             instanceGroup.getUserRequest().setFailReason("InstanceGroup" + instanceGroup.getId() + " failed to be scheduled.");
             send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, instanceGroup.getUserRequest());
-        }
-    }
-
-    private void failInstance(Instance instance) {
-        instance.setState(UserRequest.FAILED);
-        instance.setFinishTime(getSimulation().clock());
-        getSimulation().getCsvRecord().writeRecord(instance, this);
-        calculateCost(instance);
-    }
-
-    private void releaseScheduledInstance(UserRequest userRequest, double delay) {
-        for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
-            for (Instance instance : instanceGroup.getInstanceList()) {
-                if (instance.getState() == UserRequest.RUNNING) {
-                    send(this, delay, CloudSimTag.END_INSTANCE_RUN, instance);
-                }
-            }
         }
     }
 

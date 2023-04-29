@@ -66,7 +66,9 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.retryMaxNum = 3;
         this.state = UserRequest.WAITING;
         this.accessLatency = Double.MAX_VALUE;
-        this.receiveDatacenter = null;//TODO 换成Datacenter.NULL
+        this.receiveDatacenter = Datacenter.NULL;
+        this.receivedTime = -1;
+        this.finishTime = -1;
         this.successInstanceNum = 0;
     }
 

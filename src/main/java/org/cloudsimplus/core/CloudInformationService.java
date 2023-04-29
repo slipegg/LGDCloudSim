@@ -72,8 +72,13 @@ public class CloudInformationService extends CloudSimEntity {
 
     private void processUserRequestFail(SimEvent evt) {
         if (evt.getData() instanceof UserRequest userRequest) {
+            if (userRequest.getState() == UserRequest.FAILED) {
+                return;
+            }
             LOGGER.warn("{}: The UserRequest{} has failed. Reason: {}", getSimulation().clockStr(), userRequest.getId(), userRequest.getFailReason());
             userRequest.setState(UserRequest.FAILED);
+            userRequest.setFinishTime(getSimulation().clock());
+            getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
             //释放Bw资源
             List<InstanceGroupEdge> allocateEdges = userRequest.getAllocatedEdges();
             for (InstanceGroupEdge allocateEdge : allocateEdges) {
@@ -86,15 +91,24 @@ public class CloudInformationService extends CloudSimEntity {
             }
             //释放主机资源,结束已经在运行的任务,并且记录未运行的instance
             for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
+                if (instanceGroup.getState() == UserRequest.SCHEDULING) {
+                    instanceGroup.setState(UserRequest.FAILED);
+                    instanceGroup.setFinishTime(getSimulation().clock());
+                    getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
+                } else {
+                    instanceGroup.setState(UserRequest.FAILED);
+                    instanceGroup.setFinishTime(getSimulation().clock());
+                    getSimulation().getSqlRecord().recordInstanceGroupAllInfo(instanceGroup);
+                }
                 for (Instance instance : instanceGroup.getInstanceList()) {
                     if (instance.getState() == UserRequest.RUNNING) {
                         send(instance.getInstanceGroup().getReceiveDatacenter(), 0, CloudSimTag.END_INSTANCE_RUN, instance);
                     } else {
                         instance.setState(UserRequest.FAILED);
-                        getSimulation().getCsvRecord().writeRecord(instance);
+                        instance.setFinishTime(getSimulation().clock());
+                        getSimulation().getSqlRecord().recordInstanceAllInfo(instance);
                     }
                 }
-                instanceGroup.setState(UserRequest.FAILED);
             }
         }
     }
