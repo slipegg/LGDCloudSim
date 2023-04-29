@@ -2,6 +2,8 @@ package org.example;
 
 import ch.qos.logback.classic.Level;
 import org.cloudsimplus.core.CloudSim;
+import org.cloudsimplus.core.Factory;
+import org.cloudsimplus.core.FactorySimple;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.util.Log;
@@ -23,6 +25,7 @@ import java.util.TreeMap;
 
 public class test {
     Simulation scaleCloudSim;
+    Factory factory;
     Datacenter dc1;
     Datacenter dc2;
     Datacenter dc3;
@@ -30,7 +33,7 @@ public class test {
     UserSimple user;
     UserRequestManager userRequestManager;
     String NETWORK_TOPOLOGY_FILE = "topology.brite";
-    int hostNum = 50_000;
+    int hostNum = 5_000;
     HostStateGenerator hostStateGenerator;
 
     public static void main(String[] args) {
@@ -40,24 +43,27 @@ public class test {
 
     private test() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.DEBUG);
+        Log.setLevel(Level.INFO);
         scaleCloudSim = new CloudSim();
+        factory = new FactorySimple();
         initUser();
         initDatacenters();
         initNetwork();
+        double endInit = System.currentTimeMillis();
         scaleCloudSim.start();
         double end = System.currentTimeMillis();
         System.out.println("\n运行情况：");
-        System.out.println("耗时：" + (end - start) / 1000 + "s");
+        System.out.println("初始化耗时：" + (endInit - start) / 1000 + "s");
+        System.out.println("模拟运行耗时：" + (end - endInit) / 1000 + "s");
         Runtime runtime = Runtime.getRuntime();
         long totalMemory = runtime.totalMemory(); //总内存
         long freeMemory = runtime.freeMemory(); //空闲内存
         long usedMemory = totalMemory - freeMemory; //已用内存
         System.out.println("占用内存: " + usedMemory / 1000000 + " Mb");
-        System.out.println("运行结果保存路径:" + scaleCloudSim.getCsvRecord().getFilePath());
-        System.out.println("dc1 cost:" + dc1.getAllCost());
-        System.out.println("dc2 cost:" + dc2.getAllCost());
-        System.out.println("dc3 cost:" + dc3.getAllCost());
+        System.out.println("运行结果保存路径:" + scaleCloudSim.getSqlRecord().getDbPath());
+        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(1)) {
+            System.out.println(datacenter.getName() + " cost:" + datacenter.getAllCost());
+        }
     }
 
     private void initUser() {
@@ -66,16 +72,17 @@ public class test {
     }
 
     private void initDatacenters() {
-        hostStateGenerator = new IsomorphicHostStateGenerator();
-
-        dc1 = getDatacenter(1);
-        dc2 = getDatacenter(2);
-        dc3 = getDatacenter(3);
-
-        collaborationManager = new CollaborationManagerSimple(scaleCloudSim);
-        collaborationManager.addDatacenter(dc1, 0);
-        collaborationManager.addDatacenter(dc2, 0);
-        collaborationManager.addDatacenter(dc3, 0);
+        InitDatacenter.initDatacenters(scaleCloudSim, factory, "src/main/resources/DatacentersConfig.json");
+//        hostStateGenerator = new IsomorphicHostStateGenerator();
+//
+//        dc1 = getDatacenter(1);
+//        dc2 = getDatacenter(2);
+//        dc3 = getDatacenter(3);
+//
+//        collaborationManager = new CollaborationManagerSimple(scaleCloudSim);
+//        collaborationManager.addDatacenter(dc1, 0);
+//        collaborationManager.addDatacenter(dc2, 0);
+//        collaborationManager.addDatacenter(dc3, 0);
     }
 
     private Datacenter getDatacenter(int id) {
@@ -114,8 +121,9 @@ public class test {
     private void initNetwork() {
         BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
         scaleCloudSim.setNetworkTopology(networkTopology);
-        networkTopology.mapNode(dc1, 0);
-        networkTopology.mapNode(dc2, 1);
-        networkTopology.mapNode(dc3, 2);
+        int i = 0;
+        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(1)) {
+            networkTopology.mapNode(datacenter, i++);
+        }
     }
 }
