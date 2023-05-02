@@ -74,7 +74,7 @@ public class CloudSim implements Simulation {
     @Override
     public void addEntity(@NonNull final CloudSimEntity entity) {
         if (running) {
-            final var evt = new CloudSimEvent(SimEvent.Type.CREATE, 0, entity, SimEntity.NULL, CloudSimTag.NONE, entity);
+            final var evt = new CloudSimEvent(0, entity, SimEntity.NULL, CloudSimTag.NONE, entity);
             future.addEvent(evt);
         }
 
@@ -214,37 +214,6 @@ public class CloudSim implements Simulation {
         }
 
         setClock(evt.getTime());
-        processEventByType(evt);
-    }
-
-    private void processEventByType(final SimEvent evt) {
-        switch (evt.getType()) {
-            case NULL -> throw new IllegalArgumentException("Event has a null type.");
-//            case CREATE -> processCreateEvent(evt);
-            case SEND -> processSendEvent(evt);
-//            case HOLD_DONE -> processHoldEvent(evt);
-        }
-    }
-
-    private void processSendEvent(final SimEvent evt) {
-//        if (evt.getDestination() == SimEntity.NULL) {
-//            throw new IllegalArgumentException("Attempt to send to a null entity detected.");
-//        }
-//
-//        final var destEnt = (CloudSimEntity)evt.getDestination();
-//        if (destEnt.getState() != SimEntity.State.WAITING) {
-//            deferred.addEvent(evt);
-//            return;
-//        }
-//
-//        final var eventPredicate = waitPredicates.get(destEnt);
-//        if (eventPredicate == null || eventPredicate.test(evt)) {
-//            destEnt.setEventBuffer(new CloudSimEvent(evt));
-//            destEnt.setState(SimEntity.State.RUNNABLE);
-//            waitPredicates.remove(destEnt);
-//            return;
-//        }
-
         if (CloudSimTag.UNIQUE_TAG.contains(evt.getTag())) {
             if (deferred.isExistSameEvent(evt.getDestination(), evt.getTag(), evt.getData())) {
                 return;
@@ -252,6 +221,7 @@ public class CloudSim implements Simulation {
         }
         deferred.addEvent(evt);
     }
+
 
     @Override
     public void startSync() {

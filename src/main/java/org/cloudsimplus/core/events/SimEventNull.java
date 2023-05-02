@@ -12,11 +12,6 @@ public class SimEventNull implements SimEvent{
     }
 
     @Override
-    public Type getType() {
-        return null;
-    }
-
-    @Override
     public SimEntity getDestination() {
         return null;
     }
