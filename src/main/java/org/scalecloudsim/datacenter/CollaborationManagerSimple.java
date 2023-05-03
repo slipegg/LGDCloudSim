@@ -113,8 +113,11 @@ public class CollaborationManagerSimple implements CollaborationManager {
     public List<Datacenter> getDatacenters(Datacenter datacenter) {
         Set<Datacenter> datacenters = new HashSet<>();
         for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
-            Set<Datacenter> collaborationDatacenters = entry.getValue();
-            datacenters.addAll(collaborationDatacenters);
+            Integer collaborationId = entry.getKey();
+            if (datacenter.getCollaborationIds().contains(collaborationId)) {
+                Set<Datacenter> collaborationDatacenters = entry.getValue();
+                datacenters.addAll(collaborationDatacenters);
+            }
         }
         return new ArrayList<>(datacenters);
     }
