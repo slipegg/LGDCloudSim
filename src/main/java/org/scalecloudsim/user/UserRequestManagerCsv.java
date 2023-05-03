@@ -195,8 +195,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
             }
             userRequestsMap.get(belongDatacenterId).add(userRequest);
         }
-        nextSendTime = random.nextDouble() * (RequestTimeIntervalMax - RequestTimeIntervalMin) + RequestTimeIntervalMin;
-        nextSendTime = BigDecimal.valueOf(nextSendTime).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        double nextSendInterval = random.nextDouble() * (RequestTimeIntervalMax - RequestTimeIntervalMin) + RequestTimeIntervalMin;
+        nextSendTime += BigDecimal.valueOf(nextSendInterval).setScale(2, RoundingMode.HALF_UP).doubleValue();
         sendTimes += 1;
         return userRequestsMap;
     }
