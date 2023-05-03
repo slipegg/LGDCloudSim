@@ -3,15 +3,29 @@ package org.scalecloudsim.statemanager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PartitionRangesManager {
     Map<Integer, int[]> ranges;
+    int[] rangePart;
+    int[] rangeId;
     public Logger LOGGER = LoggerFactory.getLogger(PartitionRangesManager.class.getSimpleName());
 
     public PartitionRangesManager(Map<Integer, int[]> ranges) {
         this.ranges = ranges;
+        rangePart = new int[ranges.size() * 2];
+        rangeId = new int[ranges.size()];
+        int i = 0;
+        for (Map.Entry<Integer, int[]> entry : ranges.entrySet()) {
+            int[] range = entry.getValue();
+            rangePart[i] = range[0];
+            rangePart[i + 1] = range[1];
+            rangeId[i / 2] = entry.getKey();
+            i += 2;
+        }
     }
 
     public PartitionRangesManager() {
@@ -19,11 +33,12 @@ public class PartitionRangesManager {
     }
 
     public Integer getPartitionId(int hostId) {
-        for (Map.Entry<Integer, int[]> entry : ranges.entrySet()) {
-            int[] range = entry.getValue();
-            if (hostId >= range[0] && hostId <= range[1]) {
-                return entry.getKey();
+        int index = 0;
+        while (index < rangePart.length) {
+            if (hostId >= rangePart[index] && hostId <= rangePart[index + 1]) {
+                return rangeId[index / 2];
             }
+            index += 2;
         }
         LOGGER.error("Host id not found in ranges");
         return -1;
@@ -36,12 +51,17 @@ public class PartitionRangesManager {
         int size = range / num;
         int remainder = range % num;
         int index = startIndex;
+        rangePart = new int[num * 2];
+        rangeId = new int[num];
         for (int i = 0; i < num; i++) {
             int length = size + (remainder-- > 0 ? 1 : 0);
             int[] a = new int[2];
             a[0] = index;
             a[1] = index + length - 1;
             ranges.put(nextPartitionId, a);
+            rangePart[i * 2] = index;
+            rangePart[i * 2 + 1] = index + length - 1;
+            rangeId[i] = nextPartitionId;
             index += length;
             nextPartitionId++;
         }
@@ -52,22 +72,11 @@ public class PartitionRangesManager {
         return ranges;
     }
 
-    public void setRanges(Map<Integer, int[]> ranges) {
-        this.ranges = ranges;
-    }
-
-    public void addRange(int partitionId, int startIndex, int length) {
-        int[] a = new int[2];
-        a[0] = startIndex;
-        a[1] = startIndex + length - 1;
-        ranges.put(partitionId, a);
-    }
-
     public int[] getRange(int partitionId) {
         return ranges.get(partitionId);
     }
 
     public int getPartitionNum() {
-        return ranges.size();
+        return rangePart.length / 2;
     }
 }

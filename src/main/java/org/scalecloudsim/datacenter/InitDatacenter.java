@@ -101,11 +101,15 @@ public class InitDatacenter {
     }
 
     private static PartitionRangesManager getPartitionRangesManager(JsonObject datacenterJson) {
-        PartitionRangesManager partitionRangesManager = new PartitionRangesManager();
+        int startId = 0;
+        Map<Integer, int[]> ranges = new HashMap<>();
         for (int k = 0; k < datacenterJson.getJsonArray("partitions").size(); k++) {
             JsonObject partition = datacenterJson.getJsonArray("partitions").getJsonObject(k);
-            partitionRangesManager.addRange(partition.getInt("id"), partition.getInt("start_id"), partition.getInt("length"));
+//            partitionRangesManager.addRange(partition.getInt("id"), startId, partition.getInt("length"));
+            ranges.put(partition.getInt("id"), new int[]{startId, startId + partition.getInt("length") - 1});
+            startId += partition.getInt("length");
         }
+        PartitionRangesManager partitionRangesManager = new PartitionRangesManager(ranges);
         return partitionRangesManager;
     }
 
@@ -118,15 +122,16 @@ public class InitDatacenter {
     }
 
     private static void initHostState(StateManager stateManager, JsonObject datacenterJson) {
+        int startId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("hostStates").size(); k++) {
             JsonObject hostStateJson = datacenterJson.getJsonArray("hostStates").getJsonObject(k);
             int cpu = hostStateJson.getInt("cpu");
             int ram = hostStateJson.getInt("ram");
             int storage = hostStateJson.getInt("storage");
             int bw = hostStateJson.getInt("bw");
-            int startId = hostStateJson.getInt("startId");
             int length = hostStateJson.getInt("length");
             stateManager.initHostStates(cpu, ram, storage, bw, startId, length);
+            startId += length;
         }
     }
 }
