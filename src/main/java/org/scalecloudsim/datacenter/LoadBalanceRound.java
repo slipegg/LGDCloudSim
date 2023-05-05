@@ -11,6 +11,10 @@ public class LoadBalanceRound implements LoadBalance {
     @Getter
     @Setter
     Datacenter datacenter;
+
+    @Getter
+    @Setter
+    double loadBalanceCostTime = 0.1;
     int lastInnerSchedulerId = 0;
 
     @Override
