@@ -6,6 +6,7 @@ import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
 import org.scalecloudsim.record.CsvRecord;
+import org.scalecloudsim.record.MemoryRecord;
 import org.scalecloudsim.record.SqlRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,8 +120,10 @@ public class CloudSim implements Simulation {
     public double start() {
 //        aborted = false;
         startSync();
+        MemoryRecord.recordMemory();
 //
         while (processEvents(Double.MAX_VALUE)) {
+            MemoryRecord.recordMemory();
             //All the processing happens inside the method called above
         }
 //
@@ -131,6 +134,7 @@ public class CloudSim implements Simulation {
 //        catch (IOException e) {
 //            e.printStackTrace();
 //        }
+        MemoryRecord.recordMemory();
         getSqlRecord().close();
         return clock;
     }

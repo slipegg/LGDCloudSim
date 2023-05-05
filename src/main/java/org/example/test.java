@@ -12,6 +12,7 @@ import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 import org.scalecloudsim.interscheduler.InterScheduler;
 import org.scalecloudsim.interscheduler.InterSchedulerSimple;
+import org.scalecloudsim.record.MemoryRecord;
 import org.scalecloudsim.statemanager.*;
 import org.scalecloudsim.user.UserRequestManager;
 import org.scalecloudsim.user.UserRequestManagerCsv;
@@ -43,7 +44,7 @@ public class test {
 
     private test() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.INFO);
+        Log.setLevel(Level.ERROR);
         scaleCloudSim = new CloudSim();
         factory = new FactorySimple();
         initUser();
@@ -55,11 +56,14 @@ public class test {
         System.out.println("\n运行情况：");
         System.out.println("初始化耗时：" + (endInit - start) / 1000 + "s");
         System.out.println("模拟运行耗时：" + (end - endInit) / 1000 + "s");
+        System.out.println("模拟总耗时：" + (end - start) / 1000 + "s");
+        MemoryRecord.recordMemory();
         Runtime runtime = Runtime.getRuntime();
         long totalMemory = runtime.totalMemory(); //总内存
         long freeMemory = runtime.freeMemory(); //空闲内存
         long usedMemory = totalMemory - freeMemory; //已用内存
         System.out.println("占用内存: " + usedMemory / 1000000 + " Mb");
+        System.out.println("运行过程占用最大内存: " + MemoryRecord.getMaxUsedMemory() / 1000000 + " Mb");
         System.out.println("运行结果保存路径:" + scaleCloudSim.getSqlRecord().getDbPath());
         for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(1)) {
             System.out.println(datacenter.getName() + " cost:" + datacenter.getAllCost());
