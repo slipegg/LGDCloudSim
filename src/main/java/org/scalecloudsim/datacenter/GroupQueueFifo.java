@@ -1,5 +1,6 @@
 package org.scalecloudsim.datacenter;
 
+import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
 import org.scalecloudsim.request.UserRequest;
 
@@ -14,7 +15,7 @@ public class GroupQueueFifo implements GroupQueue {
 
     public GroupQueueFifo() {
         instanceGroups = new LinkedList<>();
-        batchNum = 5;
+        batchNum = 100;
     }
 
     @Override
@@ -40,8 +41,17 @@ public class GroupQueueFifo implements GroupQueue {
 
     @Override
     public List<InstanceGroup> getBatchItem() {
+        return getItems(batchNum);
+    }
+
+    @Override
+    public List<InstanceGroup> getAllItem() {
+        return getItems(this.instanceGroups.size());
+    }
+
+    private List<InstanceGroup> getItems(int num) {
         List<InstanceGroup> sendInstanceGroups = new ArrayList<>();
-        for (int i = 0; i < batchNum; i++) {
+        for (int i = 0; i < num; i++) {
             if (instanceGroups.size() == 0) {
                 break;
             }

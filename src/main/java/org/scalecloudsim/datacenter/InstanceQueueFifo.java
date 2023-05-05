@@ -29,8 +29,17 @@ public class InstanceQueueFifo implements InstanceQueue {
 
     @Override
     public List<Instance> getBatchItem() {
+        return getItems(batchNum);
+    }
+
+    @Override
+    public List<Instance> getAllItem() {
+        return getItems(this.instances.size());
+    }
+
+    private List<Instance> getItems(int num) {
         List<Instance> sendInstances = new ArrayList<>();
-        for (int i = 0; i < batchNum; i++) {
+        for (int i = 0; i < num; i++) {
             if (this.instances.size() == 0) {
                 break;
             }
