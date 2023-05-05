@@ -236,6 +236,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         usedCpuNum += instance.getCpu();
     }
 
+    //TODO 正常的end事件只使用Integer
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof Instance instance) {
             if (instance.getState() != UserRequest.RUNNING) {
@@ -303,8 +304,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processUpdateHostState(SimEvent evt) {
-        LOGGER.info("{}: {} is updating host state.", getSimulation().clockStr(), getName());
         int hostId = (int) evt.getData();
+        LOGGER.info("{}: {} is updating host{} state.", getSimulation().clockStr(), getName(), hostId);
         stateManager.updateHostState(hostId);
     }
 
@@ -409,15 +410,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processLoadBalanceSend(SimEvent evt) {
-        List<Instance> instances = instanceQueue.getBatchItem();
+        List<Instance> instances = instanceQueue.getAllItem();
         if (instances.size() != 0) {
             List<InnerScheduler> sendedInnerScheduler = loadBalance.sendInstances(instances);
             if (instanceQueue.size() > 0) {
-                send(this, 0, CloudSimTag.LOAD_BALANCE_SEND, null);
+                send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
             }
             for (InnerScheduler innerScheduler : sendedInnerScheduler) {
                 if (!isInnerSchedulerBusy.containsKey(innerScheduler) || !isInnerSchedulerBusy.get(innerScheduler)) {
-                    send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
+                    send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
                     isInnerSchedulerBusy.put(innerScheduler, true);
                 }
             }
