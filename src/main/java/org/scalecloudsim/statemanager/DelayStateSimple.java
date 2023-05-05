@@ -43,8 +43,13 @@ public class DelayStateSimple implements DelayState {
 
     @Override
     public boolean isSuitable(int hostId, Instance instance) {
-        int[] hostState = getHostState(hostId);
-        return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        if (oldState.get(partitionId).containsKey(hostId)) {
+            int[] hostState = oldState.get(partitionId).get(hostId).getStateArray();
+            return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
+        } else {
+            return nowHostState[hostId * HostState.STATE_NUM] >= instance.getCpu() && nowHostState[hostId * HostState.STATE_NUM + 1] >= instance.getRam() && nowHostState[hostId * HostState.STATE_NUM + 2] >= instance.getStorage() && nowHostState[hostId * HostState.STATE_NUM + 3] >= instance.getBw();
+        }
     }
 
     @Override
