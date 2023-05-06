@@ -46,6 +46,8 @@ public class CloudSim implements Simulation {
     @Getter
     private int simulationAccuracy;
 
+    private double terminationTime = -1;
+
     public CloudSim() {
         clock = 0;
         this.entityList = new ArrayList<>();
@@ -108,6 +110,16 @@ public class CloudSim implements Simulation {
         else future.addEvent(evt);
     }
 
+    @Override
+    public boolean terminateAt(double time) {
+        if (time <= clock) {
+            return false;
+        }
+
+        terminationTime = time;
+        return true;
+    }
+
     private Stream<SimEvent> filterEventsToDestinationEntity(final EventQueue queue, final Predicate<SimEvent> predicate, final SimEntity dest) {
         return filterEvents(queue, predicate.and(evt -> evt.getDestination() == dest));
     }
@@ -127,7 +139,7 @@ public class CloudSim implements Simulation {
             //All the processing happens inside the method called above
         }
 //
-//        finish();
+        finish();
 //        try {
 //            getCsvRecord().getPrinter().close();
 //        }
@@ -144,7 +156,6 @@ public class CloudSim implements Simulation {
             return false;
         }
         LOGGER.debug(this.deferred.toString());
-        return true;
 //        if (!runClockTickAndProcessFutureEvents(until) && !isToWaitClockToReachTerminationTime()) {
 //            return false;
 //        }
@@ -159,17 +170,21 @@ public class CloudSim implements Simulation {
 //         * Cloudlets with a negative length must keep running
 //         * until a CLOUDLET_FINISH event is sent to the broker or the termination time is reached.
 //         */
-//        if (isTimeToTerminateSimulationUnderRequest()) {
-//            if(newTerminationTime != -1 && clock >= newTerminationTime){
-//                return false;
-//            }
-//
-//            if(newTerminationTime == -1) {
-//                newTerminationTime = Math.max(terminationTime, clock) + minTimeBetweenEvents*2;
-//            }
-//        }
+        if (isTimeToTerminateSimulationUnderRequest()) {
+            return false;
+        }
+        return true;
 //
 //        checkIfSimulationPauseRequested();
+    }
+
+    private void finish() {
+        LOGGER.info("Simulation finished at {}.", clockStr());
+    }
+
+    @Override
+    public boolean isTimeToTerminateSimulationUnderRequest() {
+        return isTerminationTimeSet() && clock >= terminationTime;
     }
 
     private boolean runClockTickAndProcessFutureEvents(final double until) {
@@ -270,4 +285,8 @@ public class CloudSim implements Simulation {
         this.simulationAccuracy = simulationAccuracy;
     }
 
+    @Override
+    public boolean isTerminationTimeSet() {
+        return terminationTime > 0.0;
+    }
 }

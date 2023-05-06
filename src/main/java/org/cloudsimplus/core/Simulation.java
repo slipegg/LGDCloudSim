@@ -26,6 +26,8 @@ public interface Simulation {
 
     CloudInformationService getCis();
 
+    boolean terminateAt(double time);
+
     double start();
 
     void startSync();
@@ -46,4 +48,8 @@ public interface Simulation {
     void setSimulationAccuracy(int simulationAccuracy);
 
     SqlRecord getSqlRecord();
+
+    boolean isTerminationTimeSet();
+
+    boolean isTimeToTerminateSimulationUnderRequest();
 }
