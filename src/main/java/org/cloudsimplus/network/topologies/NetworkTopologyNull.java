@@ -51,7 +51,8 @@ final class NetworkTopologyNull implements org.cloudsimplus.network.topologies.N
     }
 
     @Override
-    public void allocateBw(SimEntity src, SimEntity dest, double allocateBw) {
+    public boolean allocateBw(SimEntity src, SimEntity dest, double allocateBw) {
+        return false;
     }
 
     @Override

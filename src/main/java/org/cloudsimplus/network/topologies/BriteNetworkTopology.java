@@ -291,12 +291,13 @@ public class BriteNetworkTopology implements NetworkTopology {
     }
 
     @Override
-    public void allocateBw(SimEntity src, SimEntity dest, double allocateBw) {
+    public boolean allocateBw(SimEntity src, SimEntity dest, double allocateBw) {
         double availableBw = getBw(src, dest);
         if (availableBw < allocateBw) {
-            throw new IllegalArgumentException("The available bandwidth is not enough");
+            return false;
         }
         bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] -= allocateBw;
+        return true;
     }
 
     @Override
