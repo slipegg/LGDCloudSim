@@ -51,11 +51,11 @@ public class InitDatacenter {
     private static Datacenter getDatacenter(JsonObject datacenterJson) {
         Datacenter datacenter = new DatacenterSimple(scaleCloudSim, datacenterJson.getInt("id"));
 
-        List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson);
-        datacenter.setInnerSchedulers(innerSchedulers);
-
-        StateManager stateManager = getStateManager(datacenterJson, innerSchedulers);
+        StateManager stateManager = getStateManager(datacenterJson);
         datacenter.setStateManager(stateManager);
+
+        List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson, stateManager.getPartitionNum());
+        datacenter.setInnerSchedulers(innerSchedulers);
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"));
@@ -72,26 +72,23 @@ public class InitDatacenter {
         return datacenter;
     }
 
-    private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson) {
+    private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<InnerScheduler> innerSchedulers = new ArrayList<>();
         for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
-            Map<Integer, Double> partitionDelay = new HashMap<>();
-            JsonObject partitionDelayJson = schedulerJson.getJsonObject("partitionDelay");
-            for (String id : partitionDelayJson.keySet()) {
-                partitionDelay.put(Integer.parseInt(id), partitionDelayJson.getJsonNumber(id).doubleValue());
-            }
-            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), schedulerJson.getInt("id"), partitionDelay);
+            int firstPartitionId = schedulerJson.getInt("firstPartitionId");
+            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), schedulerJson.getInt("id"), firstPartitionId, partitionNum);
             innerSchedulers.add(scheduler);
         }
         return innerSchedulers;
     }
 
-    private static StateManager getStateManager(JsonObject datacenterJson, List<InnerScheduler> innerSchedulers) {
+    private static StateManager getStateManager(JsonObject datacenterJson) {
         int hostNum = datacenterJson.getInt("hostNum");
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
-
-        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        double synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
+//        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, synchronizationGap);
 
         setPrediction(stateManager, datacenterJson);
 
