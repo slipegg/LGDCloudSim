@@ -3,6 +3,7 @@ package org.scalecloudsim.statemanager;
 import org.scalecloudsim.request.Instance;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 //一个大表加一堆小表用来表示状态
@@ -10,11 +11,19 @@ public class DelayStateSimple implements DelayState {
     int[] nowHostState;
     Map<Integer, Map<Integer, HostStateHistory>> oldState;//partitionId, hostId, hostState
     PartitionRangesManager partitionRangesManager;
+    Map<Integer, Map<Integer, int[]>> selfHostState = new HashMap<>();
 
     public DelayStateSimple(int[] nowHostState, Map<Integer, Map<Integer, HostStateHistory>> oldState, PartitionRangesManager partitionRangesManager) {
         this.nowHostState = nowHostState;
         this.oldState = oldState;
         this.partitionRangesManager = partitionRangesManager;
+    }
+
+    public DelayStateSimple(int[] nowHostState, Map<Integer, Map<Integer, HostStateHistory>> oldState, Map<Integer, Map<Integer, int[]>> selfHostState, PartitionRangesManager partitionRangesManager) {
+        this.nowHostState = nowHostState;
+        this.oldState = oldState;
+        this.partitionRangesManager = partitionRangesManager;
+        this.selfHostState = selfHostState;
     }
 
     @Override
@@ -44,32 +53,40 @@ public class DelayStateSimple implements DelayState {
     @Override
     public boolean isSuitable(int hostId, Instance instance) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
-        if (oldState.get(partitionId).containsKey(hostId)) {
-            int[] hostState = oldState.get(partitionId).get(hostId).getStateArray();
+        if (selfHostState.get(partitionId).containsKey(hostId)) {
+            int[] hostState = selfHostState.get(partitionId).get(hostId);
             return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
         } else {
-            return nowHostState[hostId * HostState.STATE_NUM] >= instance.getCpu() && nowHostState[hostId * HostState.STATE_NUM + 1] >= instance.getRam() && nowHostState[hostId * HostState.STATE_NUM + 2] >= instance.getStorage() && nowHostState[hostId * HostState.STATE_NUM + 3] >= instance.getBw();
+            if (oldState.get(partitionId).containsKey(hostId)) {
+                int[] hostState = oldState.get(partitionId).get(hostId).getStateArray();
+                return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
+            } else {
+                return nowHostState[hostId * HostState.STATE_NUM] >= instance.getCpu() && nowHostState[hostId * HostState.STATE_NUM + 1] >= instance.getRam() && nowHostState[hostId * HostState.STATE_NUM + 2] >= instance.getStorage() && nowHostState[hostId * HostState.STATE_NUM + 3] >= instance.getBw();
+            }
         }
     }
 
     @Override
     public void allocateTmpResource(int hostId, Instance instance) {
-        if (oldState.get(partitionRangesManager.getPartitionId(hostId)).containsKey(hostId)) {
-            {
-                HostStateHistory hostStateHistory = oldState.get(partitionRangesManager.getPartitionId(hostId)).get(hostId);
-                hostStateHistory.setCpu(hostStateHistory.getCpu() - instance.getCpu());
-                hostStateHistory.setRam(hostStateHistory.getRam() - instance.getRam());
-                hostStateHistory.setStorage(hostStateHistory.getStorage() - instance.getStorage());
-                hostStateHistory.setBw(hostStateHistory.getBw() - instance.getBw());
-            }
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        if (selfHostState.get(partitionId).containsKey(hostId)) {
+            int[] hostState = selfHostState.get(partitionId).get(hostId);
+            hostState[0] -= instance.getCpu();
+            hostState[1] -= instance.getRam();
+            hostState[2] -= instance.getStorage();
+            hostState[3] -= instance.getBw();
+        } else if (oldState.get(partitionId).containsKey(hostId)) {
+            HostStateHistory hostStateHistory = oldState.get(partitionId).get(hostId);
+            selfHostState.get(partitionId).put(hostId, new int[]{hostStateHistory.getCpu() - instance.getCpu(),
+                    hostStateHistory.getRam() - instance.getRam(),
+                    hostStateHistory.getStorage() - instance.getStorage(),
+                    hostStateHistory.getBw() - instance.getBw()});
         } else {
             int[] hostState = getHostState(hostId);
-            HostStateHistory hostStateHistory = new HostStateHistory(hostState[0] - instance.getCpu(),
+            selfHostState.get(partitionId).put(hostId, new int[]{hostState[0] - instance.getCpu(),
                     hostState[1] - instance.getRam(),
                     hostState[2] - instance.getStorage(),
-                    hostState[3] - instance.getBw(),
-                    -1);
-            oldState.get(partitionRangesManager.getPartitionId(hostId)).put(hostId, hostStateHistory);
+                    hostState[3] - instance.getBw()});
         }
     }
 }
