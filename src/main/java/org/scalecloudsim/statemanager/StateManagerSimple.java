@@ -13,6 +13,7 @@ import java.util.*;
 public class StateManagerSimple implements StateManager {
     Simulation simulation;//驱动
     PartitionRangesManager partitionRangesManager;//分区范围管理器
+    @Getter
     Map<Integer, PartitionManager> partitionManagerMap;//区域管理器Map
     Set<InnerScheduler> validSchedulerSet;//注册的有效的scheduler
     Map<Integer, Double> lastChangeTime;//host状态上一次变化的时间，不存在在这里就是0.
@@ -32,6 +33,10 @@ public class StateManagerSimple implements StateManager {
     @Getter
     @Setter
     PredictionManager predictionManager;
+
+    double synchronizationGap = -1;
+
+    Map<InnerScheduler, Map<Integer, Map<Integer, int[]>>> innerSchedulerSelfHostStateMap = new HashMap<>();
 
     public StateManagerSimple(int hostNum, Simulation simulation) {
         this.predictable = false;
@@ -58,6 +63,26 @@ public class StateManagerSimple implements StateManager {
         setPartitionRanges(partitionRangesManager);
         for (InnerScheduler scheduler : schedulers) {
             registerScheduler(scheduler);
+        }
+        simpleState = new SimpleStateSimple();
+    }
+
+    public StateManagerSimple(int hostNum, Simulation simulation,
+                              PartitionRangesManager partitionRangesManager,
+                              double synchronizationGap) {
+        this.hostNum = hostNum;
+        this.simulation = simulation;
+        hostStates = new int[hostNum * HostState.STATE_NUM];
+        partitionManagerMap = new HashMap<>();
+        validSchedulerSet = new HashSet<>();
+        lastChangeTime = new TreeMap<>();
+        hostHistoryMaps = new TreeMap<>();
+        setPartitionRanges(partitionRangesManager);
+        this.synchronizationGap = synchronizationGap;
+        for (double i = 1; i <= synchronizationGap; i += 1) {
+            for (Integer partitionId : partitionRangesManager.getRanges().keySet()) {
+                partitionManagerMap.get(partitionId).addDelayWatch(i);
+            }
         }
         simpleState = new SimpleStateSimple();
     }
@@ -187,6 +212,56 @@ public class StateManagerSimple implements StateManager {
             oldState.put(partitionId, partitionHistory);
         }
         return new DelayStateSimple(hostStates, oldState, partitionRangesManager);
+    }
+
+    @Override
+    public DelayState getNewDelayState(InnerScheduler scheduler) {
+        int[] partitionIds = partitionRangesManager.getPartitionIds();
+        Map<Integer, Map<Integer, int[]>> selfHostState;
+        Map<Integer, Map<Integer, HostStateHistory>> oldState = new HashMap<>();
+        if (synchronizationGap == 0) {
+            selfHostState = new HashMap<>();
+            for (int partitionId : partitionIds) {
+                selfHostState.put(partitionId, new HashMap<>());
+                oldState.put(partitionId, new HashMap<>());
+            }
+            return new DelayStateSimple(hostStates, oldState, selfHostState, partitionRangesManager);
+        }
+        double lastScheduleTime = scheduler.getLastScheduleTime();
+        double nowTime = simulation.clock();
+        int partitionNum = partitionManagerMap.size();
+        int firstPartitionId = scheduler.getFirstPartitionId();
+        if (!innerSchedulerSelfHostStateMap.containsKey(scheduler)) {
+            innerSchedulerSelfHostStateMap.put(scheduler, new HashMap<>());
+            for (int partitionId : partitionIds) {
+                innerSchedulerSelfHostStateMap.get(scheduler).put(partitionId, new HashMap<>());
+            }
+        }
+        selfHostState = innerSchedulerSelfHostStateMap.get(scheduler);
+        for (int partitionId : partitionIds) {
+            int partitionSynGapTimes = (partitionId + partitionNum - firstPartitionId) % partitionNum;
+            int nowSynId = (int) ((nowTime - synchronizationGap / partitionNum * partitionSynGapTimes) / synchronizationGap);
+            int lastStnId = (int) ((lastScheduleTime - synchronizationGap / partitionNum * partitionSynGapTimes) / synchronizationGap);
+            if (nowSynId > lastStnId) {
+                selfHostState.get(partitionId).clear();
+            }
+        }
+
+        for (Map.Entry<Integer, PartitionManager> entry : partitionManagerMap.entrySet()) {
+            int partitionId = entry.getKey();
+            PartitionManager partitionManager = entry.getValue();
+
+            int partitionSynGapTimes = (partitionId + partitionNum - firstPartitionId) % partitionNum;
+            double delay = (int) (simulation.clock() % synchronizationGap + synchronizationGap / partitionNum * partitionSynGapTimes + 1);
+            Map<Integer, HostStateHistory> partitionHistory;
+            if (predictable) {
+                partitionHistory = predictionManager.predictHostStates(partitionManagerMap.get(partitionId), delay);
+            } else {
+                partitionHistory = partitionManager.getDelayPartitionState(delay);
+            }
+            oldState.put(partitionId, partitionHistory);
+        }
+        return new DelayStateSimple(hostStates, oldState, selfHostState, partitionRangesManager);
     }
 
     @Override
@@ -415,6 +490,11 @@ public class StateManagerSimple implements StateManager {
     public StateManager setPredictionManager(PredictionManager predictionManager) {
         this.predictionManager = predictionManager;
         return this;
+    }
+
+    @Override
+    public int getPartitionNum() {
+        return partitionRangesManager.getPartitionNum();
     }
 
 }

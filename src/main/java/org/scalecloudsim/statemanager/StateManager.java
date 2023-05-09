@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public interface StateManager {
@@ -29,6 +30,8 @@ public interface StateManager {
     StateManager calcelAllSchedulers();
 
     DelayState getDelayState(InnerScheduler scheduler);
+
+    DelayState getNewDelayState(InnerScheduler scheduler);
 
     Simulation getSimulation();
 
@@ -75,4 +78,8 @@ public interface StateManager {
     PredictionManager getPredictionManager();
 
     StateManager setPredictionManager(PredictionManager predictionManager);
+
+    int getPartitionNum();
+
+    Map<Integer, PartitionManager> getPartitionManagerMap();
 }
