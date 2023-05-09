@@ -6,6 +6,7 @@ import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
 import org.scalecloudsim.datacenter.Datacenter;
+import org.scalecloudsim.datacenter.DatacenterPowerOnRecord;
 import org.scalecloudsim.record.CsvRecord;
 import org.scalecloudsim.record.MemoryRecord;
 import org.scalecloudsim.record.SqlRecord;
@@ -187,6 +188,8 @@ public class CloudSim implements Simulation {
             for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
                 LOGGER.info("{}'s Partition{} has {} conflicts.", datacenter.getName(), entry.getKey(), entry.getValue());
             }
+            DatacenterPowerOnRecord record = datacenter.getStateManager().getDatacenterPowerOnRecord();
+            LOGGER.info("{} has a maximum of {} hosts powered on, with a total usage time of {} ms for all hosts", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
         }
     }
 

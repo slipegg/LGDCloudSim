@@ -3,6 +3,7 @@ package org.scalecloudsim.statemanager;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudsimplus.core.Simulation;
+import org.scalecloudsim.datacenter.DatacenterPowerOnRecord;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
@@ -37,6 +38,9 @@ public class StateManagerSimple implements StateManager {
     double synchronizationGap = -1;
 
     Map<InnerScheduler, Map<Integer, Map<Integer, int[]>>> innerSchedulerSelfHostStateMap = new HashMap<>();
+
+    @Getter
+    DatacenterPowerOnRecord datacenterPowerOnRecord = new DatacenterPowerOnRecord();
 
     public StateManagerSimple(int hostNum, Simulation simulation) {
         this.predictable = false;
@@ -438,6 +442,7 @@ public class StateManagerSimple implements StateManager {
                 hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
         simpleState.updateStorageSum(-1 * instance.getStorage());
         simpleState.updateBwSum(-1 * instance.getBw());
+        datacenterPowerOnRecord.hostAllocateInstance(hostId, simulation.clock());
         return true;
     }
 
@@ -462,6 +467,7 @@ public class StateManagerSimple implements StateManager {
                 hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
         simpleState.updateStorageSum(instance.getStorage());
         simpleState.updateBwSum(instance.getBw());
+        datacenterPowerOnRecord.hostReleaseInstance(hostId, simulation.clock());
         return this;
     }
 

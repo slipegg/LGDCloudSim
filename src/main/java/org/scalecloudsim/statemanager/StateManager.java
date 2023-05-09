@@ -1,6 +1,7 @@
 package org.scalecloudsim.statemanager;
 
 import org.cloudsimplus.core.Simulation;
+import org.scalecloudsim.datacenter.DatacenterPowerOnRecord;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
@@ -82,4 +83,6 @@ public interface StateManager {
     int getPartitionNum();
 
     Map<Integer, PartitionManager> getPartitionManagerMap();
+
+    DatacenterPowerOnRecord getDatacenterPowerOnRecord();
 }
