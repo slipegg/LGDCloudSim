@@ -1,27 +1,29 @@
 package org.scalecloudsim.statemanager;
 
+import lombok.Getter;
 import org.cloudsimplus.core.Simulation;
 
 import java.util.*;
 
 public class PartitionManagerSimple implements PartitionManager {
     TreeSet<Double> delayWatchs;//记录需要监控的时延，也用来维护需要监控的最大长度
+    @Getter
     Map<Double, Map<Integer, HostStateHistory>> watchTable;//一张表，记录需要监控的时延对应的历史状态，如果没有记录，就说明在记录的时间范围内其主机的状态都与大表相同
     Map<Double, Integer> delayWatchNum;//记录需要监控的时延的关联的个数
     StateManager stateManager;
 
     //一些冗余变量，用来提高可读性
-    int paritionId;
+    int partitionId;
     //最新时间在First，最旧时间在Last
     TreeMap<Integer, LinkedList<HostStateHistory>> hostHistoryMaps;
     Simulation simulation;
     double nowTime;//记录当前时刻，当做一个全局变量
 
-    public PartitionManagerSimple(StateManager stateManager, int paritionId) {
+    public PartitionManagerSimple(StateManager stateManager, int partitionId) {
         this.stateManager = stateManager;
         this.simulation = stateManager.getSimulation();
         this.hostHistoryMaps = stateManager.getHostHistoryMaps();
-        this.paritionId = paritionId;
+        this.partitionId = partitionId;
         this.delayWatchs = new TreeSet<>();
         this.watchTable = new TreeMap<>();
         this.delayWatchNum = new TreeMap<>();
@@ -45,7 +47,7 @@ public class PartitionManagerSimple implements PartitionManager {
     private void updateWatchTable(double delay) {
         nowTime = simulation.clock();
         Map<Integer, HostStateHistory> watchDate = watchTable.get(delay);
-        int[] range = stateManager.getPartitionRangesManager().getRange(paritionId);
+        int[] range = stateManager.getPartitionRangesManager().getRange(partitionId);
         Map<Integer, LinkedList<HostStateHistory>> hostStateHistoryMap = hostHistoryMaps.subMap(range[0], range[1] + 1);
         for (Integer hostId : hostStateHistoryMap.keySet()) {
             HostStateHistory hostStateHistory = stateManager.getHostStateHistory(hostId, nowTime - delay);
@@ -74,7 +76,6 @@ public class PartitionManagerSimple implements PartitionManager {
         delayWatchs.clear();
         delayWatchNum.clear();
         watchTable.clear();
-        ;
         return this;
     }
 
@@ -108,14 +109,14 @@ public class PartitionManagerSimple implements PartitionManager {
         //找到小于等于nowTime-timeRange的记录的个数
         while (lastiterator.hasNext()) {
             HostStateHistory last = lastiterator.next();
-            if (last.time <= nowTime - delayWatchs.last()) {
+            if (!delayWatchs.isEmpty() && last.time <= nowTime - delayWatchs.last()) {
                 removeSum++;
             } else {
                 break;
             }
         }
         //还需要和大表的那一个节点进行比较
-        if (lastTime <= nowTime - delayWatchs.last()) {
+        if (!delayWatchs.isEmpty() && lastTime <= nowTime - delayWatchs.last()) {
             removeSum++;
         }
         //额外保存小于等于nowTime-delayWatchs.last()的最新的一个记录
@@ -147,8 +148,13 @@ public class PartitionManagerSimple implements PartitionManager {
                     if (nowTime - delayTime >= nowState.time) {
                         hostStateHistoryMap.put(hostId, nowState);//记录过去的历史状态
                         break;
+                    } else if (nowTime - delayTime < 0) {
+                        //TODO 效率提升优化，除了第一次外其余都没必要再继续往后遍历了，应该需要及时break
+                        hostStateHistoryMap.put(hostId, nowState);//记录过去的历史状态
+                        break;
+                    } else {
+                        nowHistoryIndex++;
                     }
-                    nowHistoryIndex++;
                 }
             }
         }
@@ -156,6 +162,9 @@ public class PartitionManagerSimple implements PartitionManager {
 
     @Override
     public Map<Integer, HostStateHistory> getDelayPartitionState(double delay) {
+        if (delay == 0) {
+            return new HashMap<>();
+        }
         return watchTable.get(delay);
     }
 

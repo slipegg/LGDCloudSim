@@ -3,6 +3,7 @@ package org.scalecloudsim.statemanager;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 public interface PartitionManager {
     PartitionManager addDelayWatch(double delay);
@@ -20,4 +21,6 @@ public interface PartitionManager {
     LinkedList<HostStateHistory> getHostHistory(int hostId, double delay);
 
     List<Double> getDelayWatchList();
+
+    Map<Double, Map<Integer, HostStateHistory>> getWatchTable();
 }
