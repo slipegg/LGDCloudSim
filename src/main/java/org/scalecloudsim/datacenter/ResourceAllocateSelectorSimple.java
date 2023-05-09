@@ -14,6 +14,8 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
     @Getter
     @Setter
     Datacenter datacenter;
+    @Getter
+    Map<Integer, Integer> partitionConflicts = new HashMap<>();
 
     @Override
     public Map<Integer, List<Instance>> selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults) {
@@ -36,6 +38,12 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
                     } else {
                         res.putIfAbsent(-1, new ArrayList<>());
                         res.get(-1).add(instance);
+                        int partitionId = datacenter.getStateManager().getPartitionRangesManager().getPartitionId(hostId);
+                        if (partitionConflicts.containsKey(partitionId)) {
+                            partitionConflicts.put(partitionId, partitionConflicts.get(partitionId) + 1);
+                        } else {
+                            partitionConflicts.put(partitionId, 1);
+                        }
                     }
                 }
             }
