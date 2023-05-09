@@ -32,4 +32,10 @@ public interface InnerScheduler extends Nameable, DatacenterEntity {
     double getScheduleCostTime();
 
     InnerScheduler setScheduleCostTime(double scheduleCostTime);
+
+    InnerScheduler setFirstPartitionId(int firstPartitionId);
+
+    int getFirstPartitionId();
+
+    double getLastScheduleTime();
 }

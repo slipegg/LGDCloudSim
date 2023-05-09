@@ -32,17 +32,33 @@ public class InnerSchedulerSimple implements InnerScheduler {
     @Setter
     double scheduleCostTime = 0.2;
 
+    @Getter
+    @Setter
+    int firstPartitionId = -1;
+
+    int partitionNum = 0;
+
+    @Getter
+    double lastScheduleTime = 0;
+
     public InnerSchedulerSimple(Map<Integer, Double> partitionDelay) {
         this.partitionDelay = partitionDelay;
         //对于partitionDelay这个map，按照value从小到大排序，得到partitionTraverseList
         this.partitionTraverseList = partitionDelay.entrySet().
                 stream().sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).collect(Collectors.toList());
-        instanceQueue = new InstanceQueueFifo(4);
+        instanceQueue = new InstanceQueueFifo(1000);
     }
 
     public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
         this(partitionDelay);
+        setId(id);
+    }
+
+    public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
+        instanceQueue = new InstanceQueueFifo(1000);
+        this.firstPartitionId = firstPartitionId;
+        this.partitionNum = partitionNum;
         setId(id);
     }
 
@@ -79,10 +95,13 @@ public class InnerSchedulerSimple implements InnerScheduler {
     public Map<Integer, List<Instance>> schedule() {
         //TODO 域内调度
         List<Instance> instances = instanceQueue.getBatchItem();
-        DelayState delayState = datacenter.getStateManager().getDelayState(this);
+        DelayState delayState = datacenter.getStateManager().getNewDelayState(this);
+        double startTime = System.currentTimeMillis();
         Map<Integer, List<Instance>> res = scheduleInstances(instances, delayState);
-        LOGGER.info("{}: {}'s {} starts scheduling {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size());
-        this.scheduleCostTime = 0.2;
+        double endTime = System.currentTimeMillis();
+        lastScheduleTime = datacenter.getSimulation().clock();
+        this.scheduleCostTime = 0.2;//(endTime-startTime)/10;
+        LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size(), scheduleCostTime);
         return res;
     }
 
@@ -91,7 +110,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
         Map<Integer, List<Instance>> res = new HashMap<>();
         for (Instance instance : instances) {
             int suitId = -1;
-            for (Integer partitionId : partitionTraverseList) {
+            for (int partitionId = firstPartitionId; partitionId < firstPartitionId + partitionNum; partitionId++) {
                 int[] range = datacenter.getStateManager().getPartitionRangesManager().getRange(partitionId);
                 for (int i = range[0]; i <= range[1]; i++) {
                     if (delayState.isSuitable(i, instance)) {
