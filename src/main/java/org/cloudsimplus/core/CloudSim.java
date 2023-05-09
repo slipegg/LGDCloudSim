@@ -5,6 +5,7 @@ import lombok.NonNull;
 import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
+import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.record.CsvRecord;
 import org.scalecloudsim.record.MemoryRecord;
 import org.scalecloudsim.record.SqlRecord;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -180,6 +182,12 @@ public class CloudSim implements Simulation {
 
     private void finish() {
         LOGGER.info("Simulation finished at {}.", clockStr());
+        for (Datacenter datacenter : getCis().getDatacenterList()) {
+            Map<Integer, Integer> partitionConflicts = datacenter.getResourceAllocateSelector().getPartitionConflicts();
+            for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
+                LOGGER.info("{}'s Partition{} has {} conflicts.", datacenter.getName(), entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     @Override
