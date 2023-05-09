@@ -304,16 +304,24 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processUpdateHostState(SimEvent evt) {
-        int hostId = (int) evt.getData();
-        LOGGER.debug("{}: {} is updating host{} state.", getSimulation().clockStr(), getName(), hostId);
-        stateManager.updateHostState(hostId);
+        if (evt.getData() instanceof List<?> hostIds) {
+            LOGGER.debug("{}: {} is updating {} hosts state.", getSimulation().clockStr(), getName(), hostIds.size());
+            for (Object hostId : hostIds) {
+                stateManager.updateHostState((int) hostId);
+            }
+        }
+        if (evt.getData() instanceof Integer hostId) {
+            LOGGER.debug("{}: {} is updating host{} state.", getSimulation().clockStr(), getName(), hostId);
+            stateManager.updateHostState(hostId);
+        }
     }
 
     private void processAllocateResource(SimEvent evt) {
         if (evt.getData() instanceof Map) {
             Map<Integer, List<Instance>> allocateResult = (Map<Integer, List<Instance>>) evt.getData();
-            LOGGER.info("{}: {} is allocate resource for:{}.", getSimulation().clockStr(), getName(), allocateResult);
+            LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
             List<Instance> failedInstances = null;
+            List<Integer> updateHostIds = new ArrayList<>();
             for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
                 int hostId = entry.getKey();
                 List<Instance> instances = entry.getValue();
@@ -327,12 +335,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                             failedInstances = new ArrayList<>();
                         }
                         failedInstances.add(instance);
+                        continue;
                     }
                     instance.setState(UserRequest.RUNNING);
                     instance.setHost(hostId);
                     instance.setStartTime(getSimulation().clock());
-                    List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
-                    sendUpdateStateEvt(hostId, watchDelays);
+//                    List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostId);
+//                    sendUpdateStateEvt(hostId, watchDelays);
+                    updateHostIds.add(hostId);
                     int lifeTime = instance.getLifeTime();
                     if (lifeTime > 0) {
                         send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instance);
@@ -343,6 +353,19 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (failedInstances != null) {
                 innerScheduleFailed(failedInstances);
             }
+            if (!updateHostIds.isEmpty()) {
+                sendUpdateStateEvt(updateHostIds);
+            }
+        }
+    }
+
+    private void sendUpdateStateEvt(List<Integer> hostIds) {
+        if (hostIds.isEmpty()) {
+            return;
+        }
+        List<Double> watchDelays = stateManager.getPartitionWatchDelay(hostIds.get(0));
+        for (Double watchDelay : watchDelays) {
+            send(this, watchDelay, CloudSimTag.UPDATE_HOST_STATE, hostIds);
         }
     }
 
@@ -442,7 +465,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
             if (instancesTmp.get(0) instanceof InstanceGroup) {
                 List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instancesTmp;
-                instanceGroups.removeIf(instanceGroup -> instanceGroup.getUserRequest().getState() == UserRequest.FAILED);
+
+                for (InstanceGroup instanceGroup : instanceGroups) {
+                    if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
+                        instanceGroups.remove(instanceGroup);
+                    } else if (instanceGroup.getReceivedTime() == -1) {
+                        instanceGroup.setReceivedTime(getSimulation().clock());
+                    }
+                }
                 interScheduler.receiveEmployGroup(instanceGroups);
                 instanceQueue.add(instanceGroups);
                 LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
