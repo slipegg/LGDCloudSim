@@ -15,9 +15,9 @@ import java.util.Map;
 
 public class FactorySimple implements Factory {
 
-    public InnerScheduler getInnerScheduler(String type, int id, Map<Integer, Double> partitionDelay) {
+    public InnerScheduler getInnerScheduler(String type, int id, int firstPartitionId, int partitionNum) {
         return switch (type) {
-            case "simple", "Simple" -> new InnerSchedulerSimple(id, partitionDelay);
+            case "simple", "Simple" -> new InnerSchedulerSimple(id, firstPartitionId, partitionNum);
             default -> null;
         };
     }

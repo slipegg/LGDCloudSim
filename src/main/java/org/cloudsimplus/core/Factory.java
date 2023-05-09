@@ -9,7 +9,7 @@ import org.scalecloudsim.statemanager.PredictionManager;
 import java.util.Map;
 
 public interface Factory {
-    InnerScheduler getInnerScheduler(String type, int id, Map<Integer, Double> partitionDelay);
+    InnerScheduler getInnerScheduler(String type, int id, int firstPartitionId, int partitionNum);
 
     PredictionManager getPredictionManager(String type);
 
