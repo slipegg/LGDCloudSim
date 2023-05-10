@@ -17,8 +17,6 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
 
     Set<Integer> getCollaborationIds();
 
-    int getHostNum();
-
     Datacenter setInterScheduler(InterScheduler interScheduler);
 
     Datacenter setInnerSchedulers(List<InnerScheduler> innerSchedulers);

@@ -67,11 +67,6 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public int getHostNum() {
-        return 0;
-    }
-
-    @Override
     public Datacenter setInterScheduler(InterScheduler interScheduler) {
         return null;
     }
