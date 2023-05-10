@@ -14,6 +14,9 @@ public class InnerScheduleResult {
     @Getter
     @Setter
     Map<Integer, List<Instance>> scheduleResult;
+    @Getter
+    @Setter
+    double scheduleTime;
 
     public InnerScheduleResult(InnerScheduler innerScheduler) {
         this.innerScheduler = innerScheduler;
