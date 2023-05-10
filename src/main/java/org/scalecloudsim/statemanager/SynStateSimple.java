@@ -1,15 +1,20 @@
 package org.scalecloudsim.statemanager;
 
+import lombok.Getter;
 import org.scalecloudsim.request.Instance;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SynStateSimple implements SynState {
+    @Getter
     //partitionId, hostId, hostState
     Map<Integer, Map<Integer, int[]>> synState;
     int[] nowHostStates;
     PartitionRangesManager partitionRangesManager;
+    @Getter
     Map<Integer, Map<Integer, int[]>> selfHostState;
 
     public SynStateSimple(Map<Integer, Map<Integer, int[]>> synState, int[] nowHostStates, PartitionRangesManager partitionRangesManager, Map<Integer, Map<Integer, int[]>> selfHostState) {
