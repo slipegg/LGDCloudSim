@@ -46,6 +46,7 @@ public class test {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.ERROR);
         scaleCloudSim = new CloudSim();
+//        scaleCloudSim.terminateAt(1000);
         factory = new FactorySimple();
         initUser();
         initDatacenters();
@@ -95,14 +96,14 @@ public class test {
         partitionRangesManager.setAverageCutting(0, hostNum - 1, 5);
         List<InnerScheduler> innerSchedulers = getInnerSchedulers(partitionRangesManager);
         dc.setInnerSchedulers(innerSchedulers);
-        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, 500);
         PredictionManager predictionManager = new PredictionManagerSimple();
-        stateManager.setPredictionManager(predictionManager);
-        stateManager.setPredictable(true);
-        dc.setStateManager(stateManager);
+        statesManager.setPredictionManager(predictionManager);
+        statesManager.setPredictable(true);
+        dc.setStatesManager(statesManager);
         LoadBalance loadBalance = new LoadBalanceRound();
         dc.setLoadBalance(loadBalance);
-        dc.getStateManager().initHostStates(hostStateGenerator);
+        dc.getStatesManager().initHostStates(hostStateGenerator);
         InterScheduler interScheduler = new InterSchedulerSimple();
         dc.setInterScheduler(interScheduler);
         return dc;
