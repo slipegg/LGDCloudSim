@@ -3,16 +3,13 @@ package org.scalecloudsim.datacenter;
 import org.cloudsimplus.core.SimEntity;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.interscheduler.InterScheduler;
-import org.scalecloudsim.statemanager.StateManager;
+import org.scalecloudsim.statemanager.StatesManager;
 
 import java.util.List;
 import java.util.Set;
 
 public interface Datacenter extends SimEntity, DatacenterPrice {
     public static final Datacenter NULL = new DatacenterNull();
-    Datacenter setStateManager(StateManager stateManager);
-
-    StateManager getStateManager();
 
     Datacenter addCollaborationId(int collaborationId);
 
@@ -35,5 +32,9 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector);
 
     ResourceAllocateSelector getResourceAllocateSelector();
+
+    Datacenter setStatesManager(StatesManager statesManager);
+
+    StatesManager getStatesManager();
 
 }

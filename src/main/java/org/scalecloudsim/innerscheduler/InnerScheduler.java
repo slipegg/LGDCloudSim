@@ -4,6 +4,7 @@ import org.cloudsimplus.core.DatacenterEntity;
 import org.cloudsimplus.core.Nameable;
 import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.datacenter.Datacenter;
+import org.scalecloudsim.statemanager.SynState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,4 +39,6 @@ public interface InnerScheduler extends Nameable, DatacenterEntity {
     int getFirstPartitionId();
 
     double getLastScheduleTime();
+
+    Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState);
 }

@@ -6,7 +6,7 @@ import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.datacenter.InstanceQueue;
 import org.scalecloudsim.datacenter.InstanceQueueFifo;
-import org.scalecloudsim.statemanager.DelayState;
+import org.scalecloudsim.statemanager.SynState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
         this.partitionTraverseList = partitionDelay.entrySet().
                 stream().sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).collect(Collectors.toList());
-        instanceQueue = new InstanceQueueFifo(1000);
+        instanceQueue = new InstanceQueueFifo(100);
     }
 
     public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
@@ -56,7 +56,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
-        instanceQueue = new InstanceQueueFifo(1000);
+        instanceQueue = new InstanceQueueFifo(100);
         this.firstPartitionId = firstPartitionId;
         this.partitionNum = partitionNum;
         setId(id);
@@ -69,9 +69,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
 
     @Override
     public InnerScheduler addInstance(List<Instance> instances) {
-        for (Instance instance : instances) {
-            instanceQueue.add(instance);
-        }
+        instanceQueue.add(instances);
         return this;
     }
 
@@ -95,25 +93,31 @@ public class InnerSchedulerSimple implements InnerScheduler {
     public Map<Integer, List<Instance>> schedule() {
         //TODO 域内调度
         List<Instance> instances = instanceQueue.getBatchItem();
-        DelayState delayState = datacenter.getStateManager().getNewDelayState(this);
+        SynState synState = datacenter.getStatesManager().getSynState(this);
         double startTime = System.currentTimeMillis();
-        Map<Integer, List<Instance>> res = scheduleInstances(instances, delayState);
+        Map<Integer, List<Instance>> res = scheduleInstances(instances, synState);
         double endTime = System.currentTimeMillis();
         lastScheduleTime = datacenter.getSimulation().clock();
-        this.scheduleCostTime = 0.2;//(endTime-startTime)/10;
+        this.scheduleCostTime = 0.25 * instances.size();//(endTime-startTime)/10;
         LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size(), scheduleCostTime);
         return res;
     }
 
-    private Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, DelayState delayState) {
+    public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
         //TODO 域内调度
         Map<Integer, List<Instance>> res = new HashMap<>();
         for (Instance instance : instances) {
             int suitId = -1;
-            for (int partitionId = firstPartitionId; partitionId < firstPartitionId + partitionNum; partitionId++) {
-                int[] range = datacenter.getStateManager().getPartitionRangesManager().getRange(partitionId);
+
+            int synPartitionId = firstPartitionId;
+            if (datacenter.getStatesManager().getSmallSynGap() != 0) {
+                int smallSynNum = (int) (datacenter.getSimulation().clock() / datacenter.getStatesManager().getSmallSynGap());
+                synPartitionId = (firstPartitionId + smallSynNum) % partitionNum;
+            }
+            for (int p = 0; p < partitionNum; p++) {
+                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange(synPartitionId + p);
                 for (int i = range[0]; i <= range[1]; i++) {
-                    if (delayState.isSuitable(i, instance)) {
+                    if (synState.isSuitable(i, instance)) {
                         suitId = i;
                         break;
                     }
@@ -123,7 +127,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
                 }
             }
             if (suitId != -1) {
-                delayState.allocateTmpResource(suitId, instance);
+                synState.allocateTmpResource(suitId, instance);
             }
             res.putIfAbsent(suitId, new ArrayList<>());
             res.get(suitId).add(instance);

@@ -5,7 +5,7 @@ import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.interscheduler.InterScheduler;
-import org.scalecloudsim.statemanager.StateManager;
+import org.scalecloudsim.statemanager.StatesManager;
 
 import java.util.List;
 import java.util.Set;
@@ -49,16 +49,6 @@ public class DatacenterNull implements Datacenter {
     @Override
     public void processEvent(SimEvent evt) {
 
-    }
-
-    @Override
-    public Datacenter setStateManager(StateManager stateManager) {
-        return null;
-    }
-
-    @Override
-    public StateManager getStateManager() {
-        return null;
     }
 
     @Override
@@ -113,6 +103,16 @@ public class DatacenterNull implements Datacenter {
 
     @Override
     public ResourceAllocateSelector getResourceAllocateSelector() {
+        return null;
+    }
+
+    @Override
+    public Datacenter setStatesManager(StatesManager statesManager) {
+        return null;
+    }
+
+    @Override
+    public StatesManager getStatesManager() {
         return null;
     }
 
