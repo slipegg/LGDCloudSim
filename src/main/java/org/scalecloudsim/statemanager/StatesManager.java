@@ -7,6 +7,9 @@ import org.scalecloudsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Map;
+
 public interface StatesManager {
     Logger LOGGER = LoggerFactory.getLogger(StatesManager.class.getSimpleName());
 
@@ -43,4 +46,8 @@ public interface StatesManager {
     StatesManager initHostStates(HostStateGenerator hostStateGenerator);
 
     HostState getNowHostState(int hostId);
+
+    int getHostNum();
+
+    StatesManager revertHostState(Map<Integer, List<Instance>> scheduleResult, InnerScheduler innerScheduler);
 }

@@ -13,6 +13,7 @@ import static org.apache.commons.lang3.math.NumberUtils.max;
 
 public class StatesManagerSimple implements StatesManager {
     int[] hostStates;
+    @Getter
     int hostNum;
     //partitionId,synTime,hostId,hostState
     Map<Integer, Map<Double, Map<Integer, int[]>>> synStateMap;
@@ -200,6 +201,25 @@ public class StatesManagerSimple implements StatesManager {
                 hostStates[hostId * HostState.STATE_NUM + 2],
                 hostStates[hostId * HostState.STATE_NUM + 3]);
         return hostState;
+    }
+
+    @Override
+    public StatesManager revertHostState(Map<Integer, List<Instance>> scheduleResult, InnerScheduler innerScheduler) {
+        int clearPartitionId = ((int) (datacenter.getSimulation().clock() / smallSynGap) + innerScheduler.getFirstPartitionId()) % partitionNum;
+        for (int hostId : scheduleResult.keySet()) {
+            if (partitionRangesManager.getPartitionId(hostId) == clearPartitionId) {
+                int[] hostState = new int[HostState.STATE_NUM];
+                System.arraycopy(hostStates, hostId * HostState.STATE_NUM, hostState, 0, HostState.STATE_NUM);
+                for (Instance instance : scheduleResult.get(hostId)) {
+                    hostState[0] -= instance.getCpu();
+                    hostState[1] -= instance.getRam();
+                    hostState[2] -= instance.getStorage();
+                    hostState[3] -= instance.getBw();
+                }
+                selfHostStateMap.get(innerScheduler).get(clearPartitionId).put(hostId, hostState);
+            }
+        }
+        return this;
     }
 
 

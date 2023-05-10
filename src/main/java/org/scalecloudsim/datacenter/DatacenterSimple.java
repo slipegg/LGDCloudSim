@@ -29,8 +29,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private GroupQueue groupQueue;
     private InstanceQueue instanceQueue;
     @Getter
-    private int hostNum;
-    @Getter
     InterScheduler interScheduler;
     @Getter
     List<InnerScheduler> innerSchedulers;
@@ -403,6 +401,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             Map<Integer, List<Instance>> scheduleResult = innerSchedulerResult.getScheduleResult();
             InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
             LOGGER.info("{}: {}'s {} ends scheduling instances,it scheduling for {} hosts", getSimulation().clockStr(), getName(), innerScheduler.getName(), scheduleResult.size());
+            if (!isInSameSmallSynGap(innerSchedulerResult.getScheduleTime(), getSimulation().clock())) {//把同步时对这一调度的记录补回来
+                statesManager.revertHostState(scheduleResult, innerScheduler);
+            }
             if (scheduleResult.containsKey(-1)) {
                 innerScheduleFailed(scheduleResult.get(-1));
                 scheduleResult.remove(-1);
@@ -419,10 +420,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    private boolean isInSameSmallSynGap(double lastTime, double nowTime) {
+        return (int) (lastTime / statesManager.getSmallSynGap()) == (int) (nowTime / statesManager.getSmallSynGap());
+    }
+
     private void processInnerScheduleBegin(SimEvent evt) {
         if (evt.getData() instanceof InnerScheduler innerScheduler) {
             InnerScheduleResult innerScheduleResult = new InnerScheduleResult(innerScheduler);
             innerScheduleResult.setScheduleResult(innerScheduler.schedule());
+            innerScheduleResult.setScheduleTime(getSimulation().clock());
             double costTime = innerScheduler.getScheduleCostTime();
             send(this, costTime, CloudSimTag.INNER_SCHEDULE_END, innerScheduleResult);
         }
