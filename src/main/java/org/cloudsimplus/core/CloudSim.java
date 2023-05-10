@@ -186,10 +186,10 @@ public class CloudSim implements Simulation {
         for (Datacenter datacenter : getCis().getDatacenterList()) {
             Map<Integer, Integer> partitionConflicts = datacenter.getResourceAllocateSelector().getPartitionConflicts();
             for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
-                LOGGER.info("{}'s Partition{} has {} conflicts.", datacenter.getName(), entry.getKey(), entry.getValue());
+                System.out.printf("%s's Partition%d has %d conflicts.\n", datacenter.getName(), entry.getKey(), entry.getValue());
             }
-            DatacenterPowerOnRecord record = datacenter.getStateManager().getDatacenterPowerOnRecord();
-            LOGGER.info("{} has a maximum of {} hosts powered on, with a total usage time of {} ms for all hosts", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
+            DatacenterPowerOnRecord record = datacenter.getStatesManager().getDatacenterPowerOnRecord();
+            System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
         }
     }
 
@@ -200,7 +200,7 @@ public class CloudSim implements Simulation {
 
     private boolean runClockTickAndProcessFutureEvents(final double until) {
         executeRunnableEntities(until);
-        if (future.isEmpty()) {
+        if (future.isEmpty() || isOnlySyn()) {
             return false;
         }
 
@@ -211,6 +211,18 @@ public class CloudSim implements Simulation {
         }
 
         return false;
+    }
+
+    private boolean isOnlySyn() {
+        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size()) {
+            return false;
+        }
+        for (SimEvent simEvent : future.stream().toList()) {
+            if (simEvent.getTag() != CloudSimTag.SYN_STATE) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void executeRunnableEntities(final double until) {
