@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DatacenterPowerOnRecord {
+    @Getter
     Map<Integer, Integer> powerOnHostInstanceNum = new HashMap<>();
     Map<Integer, Double> powerOnHostStartTime = new HashMap<>();
     @Getter
@@ -37,5 +38,4 @@ public class DatacenterPowerOnRecord {
             powerOnHostInstanceNum.put(hostId, powerOnHostInstanceNum.get(hostId) - 1);
         }
     }
-
 }
