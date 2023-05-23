@@ -6,6 +6,7 @@ import org.scalecloudsim.datacenter.ResourceAllocateSelector;
 import org.scalecloudsim.datacenter.ResourceAllocateSelectorSimple;
 import org.scalecloudsim.innerscheduler.*;
 import org.scalecloudsim.interscheduler.InterScheduler;
+import org.scalecloudsim.interscheduler.InterSchedulerDirect;
 import org.scalecloudsim.interscheduler.InterSchedulerSimple;
 import org.scalecloudsim.statemanager.PredictionManager;
 import org.scalecloudsim.statemanager.PredictionManagerSimple;
@@ -36,6 +37,7 @@ public class FactorySimple implements Factory {
     public InterScheduler getInterScheduler(String type) {
         return switch (type) {
             case "simple", "Simple" -> new InterSchedulerSimple();
+            case "direct", "Direct" -> new InterSchedulerDirect();
             default -> null;
         };
     }
