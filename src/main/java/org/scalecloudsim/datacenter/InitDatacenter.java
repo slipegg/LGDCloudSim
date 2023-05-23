@@ -56,6 +56,9 @@ public class InitDatacenter {
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"));
+        if (interSchedulerJson.containsKey("isDirectSend")) {
+            interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
+        }
         datacenter.setInterScheduler(interScheduler);
 
         JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");

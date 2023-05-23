@@ -730,7 +730,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     //根据筛选情况进行调度
     private void interScheduleByResult(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters) {
-        Map<Datacenter, List<InstanceGroup>> sendMap = new HashMap<>();
+        boolean isDirectedSend = interScheduler.isDirectedSend();
+        Map<Datacenter, List<InstanceGroup>> sendMap = new HashMap<>();//记录每个数据中心需要发送的亲和组以统一发送
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
         for (Map.Entry<InstanceGroup, List<Datacenter>> entry : instanceGroupAvaiableDatacenters.entrySet()) {
             InstanceGroup instanceGroup = entry.getKey();
@@ -749,12 +750,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         sendMap.put(datacenter, instanceGroups);
                     }
                     //维护instanceGroupSendResultMap，以统计后续的返回结果
-                    if (instanceGroupSendResultMap.containsKey(instanceGroup)) {
-                        instanceGroupSendResultMap.get(instanceGroup).put(datacenter, -1);
-                    } else {
-                        Map<Datacenter, Integer> datacenterIntegerMap = new HashMap<>();
-                        datacenterIntegerMap.put(datacenter, -1);
-                        instanceGroupSendResultMap.put(instanceGroup, datacenterIntegerMap);
+                    if (!isDirectedSend) {
+                        if (instanceGroupSendResultMap.containsKey(instanceGroup)) {
+                            instanceGroupSendResultMap.get(instanceGroup).put(datacenter, -1);
+                        } else {
+                            Map<Datacenter, Integer> datacenterIntegerMap = new HashMap<>();
+                            datacenterIntegerMap.put(datacenter, -1);
+                            instanceGroupSendResultMap.put(instanceGroup, datacenterIntegerMap);
+                        }
                     }
                 }
             }
@@ -765,7 +768,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : sendMap.entrySet()) {
             Datacenter datacenter = entry.getKey();
             List<InstanceGroup> instanceGroups = entry.getValue();
-            sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
+            if (isDirectedSend) {
+                sendBetweenDc(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
+            } else {
+                sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
+            }
         }
     }
 
