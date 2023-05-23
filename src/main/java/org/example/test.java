@@ -44,7 +44,7 @@ public class test {
 
     private test() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.ERROR);
+        Log.setLevel(Level.DEBUG);
         scaleCloudSim = new CloudSim();
 //        scaleCloudSim.terminateAt(1000);
         factory = new FactorySimple();
@@ -127,7 +127,7 @@ public class test {
         BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
         scaleCloudSim.setNetworkTopology(networkTopology);
         int i = 0;
-        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(1)) {
+        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(0)) {
             networkTopology.mapNode(datacenter, i++);
         }
     }
