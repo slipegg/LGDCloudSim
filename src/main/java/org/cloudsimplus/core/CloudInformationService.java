@@ -91,13 +91,11 @@ public class CloudInformationService extends CloudSimEntity {
             }
             //释放主机资源,结束已经在运行的任务,并且记录未运行的instance
             for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
+                instanceGroup.setState(UserRequest.FAILED);
+                instanceGroup.setFinishTime(getSimulation().clock());
                 if (instanceGroup.getState() == UserRequest.SCHEDULING) {
-                    instanceGroup.setState(UserRequest.FAILED);
-                    instanceGroup.setFinishTime(getSimulation().clock());
                     getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
                 } else {
-                    instanceGroup.setState(UserRequest.FAILED);
-                    instanceGroup.setFinishTime(getSimulation().clock());
                     getSimulation().getSqlRecord().recordInstanceGroupAllInfo(instanceGroup);
                 }
                 for (Instance instance : instanceGroup.getInstanceList()) {
