@@ -36,6 +36,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private double GroupDelayPercent = -2;
     private int GroupDelayMin = -2;
     private int GroupDelayMax = -2;
+    private int GroupRetryTimesMin = -2;
+    private int GroupRetryTimesMax = -2;
     private int InstanceCpuNumMin = -2;
     private int InstanceCpuNumMax = -2;
     private int InstanceRamNumMin = -2;
@@ -46,6 +48,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceBwNumMax = -2;
     private int InstanceLifeTimeMin = -2;
     private int InstanceLifeTimeMax = -2;
+    private int InstanceRetryTimesMin = -2;
+    private int InstanceRetryTimesMax = -2;
 
 
     private static int instanceId = 0;
@@ -95,6 +99,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "GroupDelayPercent" -> this.GroupDelayPercent = Double.parseDouble(csvRecord.get(1));
                     case "GroupDelayMin" -> this.GroupDelayMin = Integer.parseInt(csvRecord.get(1));
                     case "GroupDelayMax" -> this.GroupDelayMax = Integer.parseInt(csvRecord.get(1));
+                    case "GroupRetryTimesMin" -> this.GroupRetryTimesMin = Integer.parseInt(csvRecord.get(1));
+                    case "GroupRetryTimesMax" -> this.GroupRetryTimesMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceCpuNumMin" -> this.InstanceCpuNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceCpuNumMax" -> this.InstanceCpuNumMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceRamNumMin" -> this.InstanceRamNumMin = Integer.parseInt(csvRecord.get(1));
@@ -105,6 +111,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "InstanceBwNumMax" -> this.InstanceBwNumMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTimeMin" -> this.InstanceLifeTimeMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTimeMax" -> this.InstanceLifeTimeMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceRetryTimesMin" -> this.InstanceRetryTimesMin = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceRetryTimesMax" -> this.InstanceRetryTimesMax = Integer.parseInt(csvRecord.get(1));
                     default -> {
                         LOGGER.warn("The parameter name {} is not correct, please check the parameter name in the csv file", title);
                     }
@@ -122,7 +130,10 @@ public class UserRequestManagerCsv implements UserRequestManager {
         int storageNum = random.nextInt(InstanceStorageNumMax - InstanceStorageNumMin + 1) + InstanceStorageNumMin;
         int bwNum = random.nextInt(InstanceBwNumMax - InstanceBwNumMin + 1) + InstanceBwNumMin;
         int lifeTime = random.nextInt(InstanceLifeTimeMax - InstanceLifeTimeMin + 1) + InstanceLifeTimeMin;
-        return new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
+        Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
+        int retryTimes = random.nextInt(InstanceRetryTimesMax - InstanceRetryTimesMin + 1) + InstanceRetryTimesMin;
+        instance.setRetryMaxNum(retryTimes);
+        return instance;
     }
 
     private InstanceGroup generateAnInstanceGroup() {
@@ -136,6 +147,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
             double accessLatency = random.nextDouble() * (GroupAccessDelayMax - GroupAccessDelayMin) + GroupAccessDelayMin;
             instanceGroup.setAccessLatency(accessLatency);
         }
+        int retryTimes = random.nextInt(GroupRetryTimesMax - GroupRetryTimesMin + 1) + GroupRetryTimesMin;
+        instanceGroup.setRetryMaxNum(retryTimes);
         return instanceGroup;
     }
 
