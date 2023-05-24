@@ -45,6 +45,7 @@ public class StatesManagerSimple implements StatesManager {
     @Getter
     @Setter
     PredictionManager predictionManager;
+//    Map<Integer,int[]> oldState;
 
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
         this.hostNum = hostNum;
@@ -57,6 +58,11 @@ public class StatesManagerSimple implements StatesManager {
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
         initSynStateMap();
+
+//        oldState=new HashMap<>();
+//        for(int i=0;i<partitionRangesManager.ranges.size();i++){
+//            oldState.put(i,new int[hostNum * HostState.STATE_NUM]);
+//        }
     }
 
     private void initSynStateMap() {
