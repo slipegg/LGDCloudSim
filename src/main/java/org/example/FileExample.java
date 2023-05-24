@@ -21,9 +21,9 @@ public class FileExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/comparedWithSelf/topology.brite";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithSelf/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithSelf/generateRequestParament.csv";
+    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/comparedWithSelfStatesManager/topology.brite";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithSelfStatesManager/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithSelfStatesManager/generateRequestParament.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();
