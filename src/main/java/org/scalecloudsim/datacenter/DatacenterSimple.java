@@ -364,7 +364,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void allocateResource(Map<Integer, List<Instance>> allocateResult) {
         LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
         List<Instance> failedInstances = null;
-        List<Integer> updateHostIds = new ArrayList<>();
         for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
             int hostId = entry.getKey();
             List<Instance> instances = entry.getValue();
@@ -383,7 +382,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 instance.setState(UserRequest.RUNNING);
                 instance.setHost(hostId);
                 instance.setStartTime(getSimulation().clock());
-                updateHostIds.add(hostId);
                 int lifeTime = instance.getLifeTime();
                 if (lifeTime > 0) {
                     send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instance);
@@ -762,18 +760,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
             }
         }
-        //处理调度失败的instanceGroup
-        interScheduleFail(retryInstanceGroups);
         //向每个dc以list的形式发送instanceGroups
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : sendMap.entrySet()) {
             Datacenter datacenter = entry.getKey();
             List<InstanceGroup> instanceGroups = entry.getValue();
             if (isDirectedSend) {
+                for(InstanceGroup instanceGroup:instanceGroups){
+                    instanceGroup.setReceiveDatacenter(datacenter);
+                    if (!allocateBwForGroup(instanceGroup, datacenter)) {
+                        retryInstanceGroups.add(instanceGroup);
+                        continue;
+                    }
+                    instanceGroup.setState(UserRequest.SCHEDULING);
+                }
                 sendBetweenDc(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
             } else {
                 sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
             }
         }
+        //处理调度失败的instanceGroup
+        interScheduleFail(retryInstanceGroups);
     }
 
     private void interScheduleFail(List<InstanceGroup> instanceGroups) {
