@@ -691,7 +691,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
                 LOGGER.info("{}: {} received {} instanceGroups.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), groupQueue.size());
             }
-        } else if (evt.getData() instanceof InstanceGroup instanceGroup) {
+        } else if(evt.getData() instanceof UserRequest userRequest){
+            if (userRequest.getState() != UserRequest.FAILED) {
+                groupQueue.add(userRequest);
+            }
+        }
+        else if (evt.getData() instanceof InstanceGroup instanceGroup) {
             groupQueue.add(instanceGroup);
             LOGGER.info("{}: {} received an InstanceGroup.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), groupQueue.size());
         }
