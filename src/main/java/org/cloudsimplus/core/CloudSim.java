@@ -185,9 +185,12 @@ public class CloudSim implements Simulation {
         LOGGER.info("Simulation finished at {}.", clockStr());
         for (Datacenter datacenter : getCis().getDatacenterList()) {
             Map<Integer, Integer> partitionConflicts = datacenter.getResourceAllocateSelector().getPartitionConflicts();
+            int conflictSum=0;
             for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
                 System.out.printf("%s's Partition%d has %d conflicts.\n", datacenter.getName(), entry.getKey(), entry.getValue());
+                conflictSum+=entry.getValue();
             }
+            System.out.printf("%s all has %d conflicts.\n", datacenter.getName(), conflictSum);
             DatacenterPowerOnRecord record = datacenter.getStatesManager().getDatacenterPowerOnRecord();
             System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
         }
