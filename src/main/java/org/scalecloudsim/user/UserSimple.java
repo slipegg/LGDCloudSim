@@ -21,8 +21,6 @@ public class UserSimple extends CloudSimEntity {
     @Getter@Setter
     private List<Datacenter> datacenterList;
     @Getter@Setter
-    double sendOnceInterval;
-    @Getter@Setter
     UserRequestManager userRequestManager;
     @Getter
     @Setter
@@ -35,9 +33,8 @@ public class UserSimple extends CloudSimEntity {
      * @param simulation The CloudSimPlus instance that represents the simulation the Entity belongs to
      * @throws IllegalArgumentException when the entity name is invalid
      */
-    public UserSimple(@NonNull Simulation simulation,double sendOnceInterval,UserRequestManager userRequestManager) {
+    public UserSimple(@NonNull Simulation simulation,UserRequestManager userRequestManager) {
         super(simulation);
-        this.sendOnceInterval = sendOnceInterval;
         this.userRequestManager = userRequestManager;
     }
 
