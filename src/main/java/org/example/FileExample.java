@@ -21,9 +21,9 @@ public class FileExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/changeProcess/topology.brite";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/changeProcess/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/changeProcess/generateRequestParament.csv";
+    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/conflict/onePartRandom/topology.brite";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/conflict/onePartRandom/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/conflict/onePartRandom/generateRequestParament.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();
@@ -31,7 +31,7 @@ public class FileExample {
 
     private FileExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.INFO);
+        Log.setLevel(Level.OFF);
         scaleCloudSim = new CloudSim();
         factory = new FactorySimple();
         initUser();
