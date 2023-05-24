@@ -21,9 +21,9 @@ public class FileExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/comparedWithSelfStatesManager/topology.brite";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithSelfStatesManager/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithSelfStatesManager/generateRequestParament.csv";
+    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/changeProcess/topology.brite";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/changeProcess/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/changeProcess/generateRequestParament.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();
@@ -31,7 +31,7 @@ public class FileExample {
 
     private FileExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.OFF);
+        Log.setLevel(Level.INFO);
         scaleCloudSim = new CloudSim();
         factory = new FactorySimple();
         initUser();
@@ -62,8 +62,10 @@ public class FileExample {
         BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
         scaleCloudSim.setNetworkTopology(networkTopology);
         int i = 0;
-        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(0)) {
-            networkTopology.mapNode(datacenter, i++);
+        for(int collabId : scaleCloudSim.getCollaborationManager().getCollaborationIds()) {
+            for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(collabId)) {
+                networkTopology.mapNode(datacenter, i++);
+            }
         }
     }
 }
