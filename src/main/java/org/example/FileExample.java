@@ -21,9 +21,9 @@ public class FileExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/storageOfRequest/topology.brite";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/storageOfRequest/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/storageOfRequest/generateRequestParament.csv";
+    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/comparedWithSelf/topology.brite";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithSelf/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithSelf/generateRequestParament.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();

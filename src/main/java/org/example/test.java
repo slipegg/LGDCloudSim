@@ -73,21 +73,11 @@ public class test {
 
     private void initUser() {
         userRequestManager = new UserRequestManagerCsv("src/main/resources/generateRequestParament.csv");
-        user = new UserSimple(scaleCloudSim, 100, userRequestManager);
+        user = new UserSimple(scaleCloudSim, userRequestManager);
     }
 
     private void initDatacenters() {
         InitDatacenter.initDatacenters(scaleCloudSim, factory, "src/main/resources/DatacentersConfig.json");
-//        hostStateGenerator = new IsomorphicHostStateGenerator();
-//
-//        dc1 = getDatacenter(1);
-//        dc2 = getDatacenter(2);
-//        dc3 = getDatacenter(3);
-//
-//        collaborationManager = new CollaborationManagerSimple(scaleCloudSim);
-//        collaborationManager.addDatacenter(dc1, 0);
-//        collaborationManager.addDatacenter(dc2, 0);
-//        collaborationManager.addDatacenter(dc3, 0);
     }
 
     private Datacenter getDatacenter(int id) {
