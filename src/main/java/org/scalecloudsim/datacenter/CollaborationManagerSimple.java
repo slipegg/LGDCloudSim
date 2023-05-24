@@ -128,6 +128,11 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     @Override
+    public List<Integer> getCollaborationIds() {
+        return new ArrayList<>(collaborationMap.keySet());
+    }
+
+    @Override
     public List<Datacenter> getOtherDatacenters(Datacenter datacenter) {
         List<Datacenter> datacenters = getDatacenters(datacenter);
         datacenters.remove(datacenter);
