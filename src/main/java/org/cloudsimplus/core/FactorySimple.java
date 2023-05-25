@@ -22,6 +22,7 @@ public class FactorySimple implements Factory {
             case "partitionRandom" -> new InnerSchedulerPartitionRandom(id, firstPartitionId, partitionNum);
             case "minHostOn" -> new InnerSchedulerMinHostOn(id, firstPartitionId, partitionNum);
             case "FirstFit" -> new InnerSchedulerFirstFit(id, firstPartitionId, partitionNum);
+            case "multiLevel" -> new InnerSchedulerPartitionMultiLevel(id, firstPartitionId, partitionNum);
             default -> null;
         };
     }
