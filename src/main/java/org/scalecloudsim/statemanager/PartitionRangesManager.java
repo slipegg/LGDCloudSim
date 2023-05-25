@@ -83,4 +83,8 @@ public class PartitionRangesManager {
     public int[] getPartitionIds() {
         return rangeId;
     }
+
+    public int getRangeLength(int partitionId) {
+        return ranges.get(partitionId)[1] - ranges.get(partitionId)[0] + 1;
+    }
 }
