@@ -79,13 +79,6 @@ public interface SimEvent extends Comparable<SimEvent>{
     SimEvent setSimulation(Simulation simulation);
 
     /**
-     * Gets the internal type
-     *
-     * @return
-     */
-    Type getType();
-
-    /**
      * Gets the entity which received this event.
      *
      * @return

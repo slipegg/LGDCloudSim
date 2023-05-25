@@ -27,4 +27,6 @@ public interface CollaborationManager {
     List<Datacenter> getDatacenters(Datacenter datacenter);
 
     Map<Integer, Set<Datacenter>> getCollaborationMap();
+
+    List<Integer> getCollaborationIds();
 }

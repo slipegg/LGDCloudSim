@@ -15,4 +15,8 @@ public interface LoadBalance {
     Datacenter getDatacenter();
 
     List<InnerScheduler> sendInstances(List<Instance> instances);
+
+    LoadBalance setLoadBalanceCostTime(double loadBalanceCostTime);
+
+    double getLoadBalanceCostTime();
 }

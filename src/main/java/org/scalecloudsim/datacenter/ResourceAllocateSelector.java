@@ -12,4 +12,6 @@ public interface ResourceAllocateSelector {
     Datacenter getDatacenter();
 
     Map<Integer, List<Instance>> selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults);
+
+    Map<Integer, Integer> getPartitionConflicts();
 }

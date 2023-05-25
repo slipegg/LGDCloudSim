@@ -12,6 +12,7 @@ import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
 import org.scalecloudsim.interscheduler.InterScheduler;
 import org.scalecloudsim.interscheduler.InterSchedulerSimple;
+import org.scalecloudsim.record.MemoryRecord;
 import org.scalecloudsim.statemanager.*;
 import org.scalecloudsim.user.UserRequestManager;
 import org.scalecloudsim.user.UserRequestManagerCsv;
@@ -43,8 +44,9 @@ public class test {
 
     private test() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.INFO);
+        Log.setLevel(Level.DEBUG);
         scaleCloudSim = new CloudSim();
+//        scaleCloudSim.terminateAt(1000);
         factory = new FactorySimple();
         initUser();
         initDatacenters();
@@ -55,11 +57,14 @@ public class test {
         System.out.println("\n运行情况：");
         System.out.println("初始化耗时：" + (endInit - start) / 1000 + "s");
         System.out.println("模拟运行耗时：" + (end - endInit) / 1000 + "s");
+        System.out.println("模拟总耗时：" + (end - start) / 1000 + "s");
+        MemoryRecord.recordMemory();
         Runtime runtime = Runtime.getRuntime();
         long totalMemory = runtime.totalMemory(); //总内存
         long freeMemory = runtime.freeMemory(); //空闲内存
         long usedMemory = totalMemory - freeMemory; //已用内存
         System.out.println("占用内存: " + usedMemory / 1000000 + " Mb");
+        System.out.println("运行过程占用最大内存: " + MemoryRecord.getMaxUsedMemory() / 1000000 + " Mb");
         System.out.println("运行结果保存路径:" + scaleCloudSim.getSqlRecord().getDbPath());
         for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(1)) {
             System.out.println(datacenter.getName() + " cost:" + datacenter.getAllCost());
@@ -68,21 +73,11 @@ public class test {
 
     private void initUser() {
         userRequestManager = new UserRequestManagerCsv("src/main/resources/generateRequestParament.csv");
-        user = new UserSimple(scaleCloudSim, 100, userRequestManager);
+        user = new UserSimple(scaleCloudSim, userRequestManager);
     }
 
     private void initDatacenters() {
         InitDatacenter.initDatacenters(scaleCloudSim, factory, "src/main/resources/DatacentersConfig.json");
-//        hostStateGenerator = new IsomorphicHostStateGenerator();
-//
-//        dc1 = getDatacenter(1);
-//        dc2 = getDatacenter(2);
-//        dc3 = getDatacenter(3);
-//
-//        collaborationManager = new CollaborationManagerSimple(scaleCloudSim);
-//        collaborationManager.addDatacenter(dc1, 0);
-//        collaborationManager.addDatacenter(dc2, 0);
-//        collaborationManager.addDatacenter(dc3, 0);
     }
 
     private Datacenter getDatacenter(int id) {
@@ -91,14 +86,14 @@ public class test {
         partitionRangesManager.setAverageCutting(0, hostNum - 1, 5);
         List<InnerScheduler> innerSchedulers = getInnerSchedulers(partitionRangesManager);
         dc.setInnerSchedulers(innerSchedulers);
-        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, 500);
         PredictionManager predictionManager = new PredictionManagerSimple();
-        stateManager.setPredictionManager(predictionManager);
-        stateManager.setPredictable(true);
-        dc.setStateManager(stateManager);
+        statesManager.setPredictionManager(predictionManager);
+        statesManager.setPredictable(true);
+        dc.setStatesManager(statesManager);
         LoadBalance loadBalance = new LoadBalanceRound();
         dc.setLoadBalance(loadBalance);
-        dc.getStateManager().initHostStates(hostStateGenerator);
+        dc.getStatesManager().initHostStates(hostStateGenerator);
         InterScheduler interScheduler = new InterSchedulerSimple();
         dc.setInterScheduler(interScheduler);
         return dc;
@@ -122,7 +117,7 @@ public class test {
         BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
         scaleCloudSim.setNetworkTopology(networkTopology);
         int i = 0;
-        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(1)) {
+        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(0)) {
             networkTopology.mapNode(datacenter, i++);
         }
     }

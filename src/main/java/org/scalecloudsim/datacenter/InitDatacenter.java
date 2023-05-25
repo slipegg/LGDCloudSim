@@ -4,10 +4,7 @@ import org.cloudsimplus.core.Factory;
 import org.cloudsimplus.core.Simulation;
 import org.scalecloudsim.innerscheduler.InnerScheduler;
 import org.scalecloudsim.interscheduler.InterScheduler;
-import org.scalecloudsim.statemanager.PartitionRangesManager;
-import org.scalecloudsim.statemanager.PredictionManager;
-import org.scalecloudsim.statemanager.StateManager;
-import org.scalecloudsim.statemanager.StateManagerSimple;
+import org.scalecloudsim.statemanager.*;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -51,14 +48,17 @@ public class InitDatacenter {
     private static Datacenter getDatacenter(JsonObject datacenterJson) {
         Datacenter datacenter = new DatacenterSimple(scaleCloudSim, datacenterJson.getInt("id"));
 
-        List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson);
-        datacenter.setInnerSchedulers(innerSchedulers);
+        StatesManager statesManager = getStatesManager(datacenterJson);
+        datacenter.setStatesManager(statesManager);
 
-        StateManager stateManager = getStateManager(datacenterJson, innerSchedulers);
-        datacenter.setStateManager(stateManager);
+        List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
+        datacenter.setInnerSchedulers(innerSchedulers);
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"));
+        if (interSchedulerJson.containsKey("isDirectSend")) {
+            interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
+        }
         datacenter.setInterScheduler(interScheduler);
 
         JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
@@ -72,61 +72,67 @@ public class InitDatacenter {
         return datacenter;
     }
 
-    private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson) {
+    private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<InnerScheduler> innerSchedulers = new ArrayList<>();
+        int innerSchdeuleId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
-            Map<Integer, Double> partitionDelay = new HashMap<>();
-            JsonObject partitionDelayJson = schedulerJson.getJsonObject("partitionDelay");
-            for (String id : partitionDelayJson.keySet()) {
-                partitionDelay.put(Integer.parseInt(id), partitionDelayJson.getJsonNumber(id).doubleValue());
-            }
-            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), schedulerJson.getInt("id"), partitionDelay);
+            int firstPartitionId = schedulerJson.getInt("firstPartitionIndex");
+            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchdeuleId, firstPartitionId, partitionNum);
             innerSchedulers.add(scheduler);
+            innerSchdeuleId++;
         }
         return innerSchedulers;
     }
 
-    private static StateManager getStateManager(JsonObject datacenterJson, List<InnerScheduler> innerSchedulers) {
+    private static StatesManager getStatesManager(JsonObject datacenterJson) {
         int hostNum = datacenterJson.getInt("hostNum");
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
+        double synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
+//        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap);
 
-        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+        setPrediction(statesManager, datacenterJson);
 
-        setPrediction(stateManager, datacenterJson);
+        initHostState(statesManager, datacenterJson);
 
-        initHostState(stateManager, datacenterJson);
-
-        return stateManager;
+        return statesManager;
     }
 
     private static PartitionRangesManager getPartitionRangesManager(JsonObject datacenterJson) {
-        PartitionRangesManager partitionRangesManager = new PartitionRangesManager();
+        int startId = 0;
+        int partitionId = 0;
+        Map<Integer, int[]> ranges = new HashMap<>();
         for (int k = 0; k < datacenterJson.getJsonArray("partitions").size(); k++) {
             JsonObject partition = datacenterJson.getJsonArray("partitions").getJsonObject(k);
-            partitionRangesManager.addRange(partition.getInt("id"), partition.getInt("start_id"), partition.getInt("length"));
+//            partitionRangesManager.addRange(partition.getInt("id"), startId, partition.getInt("length"));
+            ranges.put(partitionId, new int[]{startId, startId + partition.getInt("length") - 1});
+            startId += partition.getInt("length");
+            partitionId++;
         }
+        PartitionRangesManager partitionRangesManager = new PartitionRangesManager(ranges);
         return partitionRangesManager;
     }
 
-    private static void setPrediction(StateManager stateManager, JsonObject datacenterJson) {
+    private static void setPrediction(StatesManager statesManager, JsonObject datacenterJson) {
         JsonObject predictionJson = datacenterJson.getJsonObject("prediction");
         PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
-        stateManager.setPredictionManager(predictionManager);
+        statesManager.setPredictionManager(predictionManager);
         boolean isPredict = datacenterJson.getBoolean("isPredict");
-        stateManager.setPredictable(isPredict);
+        statesManager.setPredictable(isPredict);
     }
 
-    private static void initHostState(StateManager stateManager, JsonObject datacenterJson) {
+    private static void initHostState(StatesManager statesManager, JsonObject datacenterJson) {
+        int startId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("hostStates").size(); k++) {
             JsonObject hostStateJson = datacenterJson.getJsonArray("hostStates").getJsonObject(k);
             int cpu = hostStateJson.getInt("cpu");
             int ram = hostStateJson.getInt("ram");
             int storage = hostStateJson.getInt("storage");
             int bw = hostStateJson.getInt("bw");
-            int startId = hostStateJson.getInt("startId");
             int length = hostStateJson.getInt("length");
-            stateManager.initHostStates(cpu, ram, storage, bw, startId, length);
+            statesManager.initHostStates(cpu, ram, storage, bw, startId, length);
+            startId += length;
         }
     }
 }

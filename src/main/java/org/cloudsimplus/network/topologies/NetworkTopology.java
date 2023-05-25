@@ -52,7 +52,7 @@ public interface NetworkTopology {
 
     double getBw(SimEntity src, SimEntity dest);
 
-    void allocateBw(SimEntity src, SimEntity dest, double allocateBw);
+    boolean allocateBw(SimEntity src, SimEntity dest, double allocateBw);
 
     void releaseBw(SimEntity src, SimEntity dest, double releaseBw);
 

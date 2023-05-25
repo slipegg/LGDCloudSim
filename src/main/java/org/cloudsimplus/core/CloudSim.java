@@ -5,7 +5,10 @@ import lombok.NonNull;
 import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.CollaborationManager;
+import org.scalecloudsim.datacenter.Datacenter;
+import org.scalecloudsim.datacenter.DatacenterPowerOnRecord;
 import org.scalecloudsim.record.CsvRecord;
+import org.scalecloudsim.record.MemoryRecord;
 import org.scalecloudsim.record.SqlRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -45,6 +49,8 @@ public class CloudSim implements Simulation {
     @Getter
     private int simulationAccuracy;
 
+    private double terminationTime = -1;
+
     public CloudSim() {
         clock = 0;
         this.entityList = new ArrayList<>();
@@ -74,7 +80,7 @@ public class CloudSim implements Simulation {
     @Override
     public void addEntity(@NonNull final CloudSimEntity entity) {
         if (running) {
-            final var evt = new CloudSimEvent(SimEvent.Type.CREATE, 0, entity, SimEntity.NULL, CloudSimTag.NONE, entity);
+            final var evt = new CloudSimEvent(0, entity, SimEntity.NULL, CloudSimTag.NONE, entity);
             future.addEvent(evt);
         }
 
@@ -107,6 +113,16 @@ public class CloudSim implements Simulation {
         else future.addEvent(evt);
     }
 
+    @Override
+    public boolean terminateAt(double time) {
+        if (time <= clock) {
+            return false;
+        }
+
+        terminationTime = time;
+        return true;
+    }
+
     private Stream<SimEvent> filterEventsToDestinationEntity(final EventQueue queue, final Predicate<SimEvent> predicate, final SimEntity dest) {
         return filterEvents(queue, predicate.and(evt -> evt.getDestination() == dest));
     }
@@ -119,18 +135,21 @@ public class CloudSim implements Simulation {
     public double start() {
 //        aborted = false;
         startSync();
+        MemoryRecord.recordMemory();
 //
         while (processEvents(Double.MAX_VALUE)) {
+            MemoryRecord.recordMemory();
             //All the processing happens inside the method called above
         }
 //
-//        finish();
+        finish();
 //        try {
 //            getCsvRecord().getPrinter().close();
 //        }
 //        catch (IOException e) {
 //            e.printStackTrace();
 //        }
+        MemoryRecord.recordMemory();
         getSqlRecord().close();
         return clock;
     }
@@ -140,7 +159,6 @@ public class CloudSim implements Simulation {
             return false;
         }
         LOGGER.debug(this.deferred.toString());
-        return true;
 //        if (!runClockTickAndProcessFutureEvents(until) && !isToWaitClockToReachTerminationTime()) {
 //            return false;
 //        }
@@ -155,22 +173,37 @@ public class CloudSim implements Simulation {
 //         * Cloudlets with a negative length must keep running
 //         * until a CLOUDLET_FINISH event is sent to the broker or the termination time is reached.
 //         */
-//        if (isTimeToTerminateSimulationUnderRequest()) {
-//            if(newTerminationTime != -1 && clock >= newTerminationTime){
-//                return false;
-//            }
-//
-//            if(newTerminationTime == -1) {
-//                newTerminationTime = Math.max(terminationTime, clock) + minTimeBetweenEvents*2;
-//            }
-//        }
+        if (isTimeToTerminateSimulationUnderRequest()) {
+            return false;
+        }
+        return true;
 //
 //        checkIfSimulationPauseRequested();
     }
 
+    private void finish() {
+        LOGGER.info("Simulation finished at {}.", clockStr());
+        for (Datacenter datacenter : getCis().getDatacenterList()) {
+            Map<Integer, Integer> partitionConflicts = datacenter.getResourceAllocateSelector().getPartitionConflicts();
+            int conflictSum=0;
+            for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
+                System.out.printf("%s's Partition%d has %d conflicts.\n", datacenter.getName(), entry.getKey(), entry.getValue());
+                conflictSum+=entry.getValue();
+            }
+            System.out.printf("%s all has %d conflicts.\n", datacenter.getName(), conflictSum);
+            DatacenterPowerOnRecord record = datacenter.getStatesManager().getDatacenterPowerOnRecord();
+            System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
+        }
+    }
+
+    @Override
+    public boolean isTimeToTerminateSimulationUnderRequest() {
+        return isTerminationTimeSet() && clock >= terminationTime;
+    }
+
     private boolean runClockTickAndProcessFutureEvents(final double until) {
         executeRunnableEntities(until);
-        if (future.isEmpty()) {
+        if (future.isEmpty() || isOnlySyn()) {
             return false;
         }
 
@@ -181,6 +214,18 @@ public class CloudSim implements Simulation {
         }
 
         return false;
+    }
+
+    private boolean isOnlySyn() {
+        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size()) {
+            return false;
+        }
+        for (SimEvent simEvent : future.stream().toList()) {
+            if (simEvent.getTag() != CloudSimTag.SYN_STATE) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void executeRunnableEntities(final double until) {
@@ -214,37 +259,6 @@ public class CloudSim implements Simulation {
         }
 
         setClock(evt.getTime());
-        processEventByType(evt);
-    }
-
-    private void processEventByType(final SimEvent evt) {
-        switch (evt.getType()) {
-            case NULL -> throw new IllegalArgumentException("Event has a null type.");
-//            case CREATE -> processCreateEvent(evt);
-            case SEND -> processSendEvent(evt);
-//            case HOLD_DONE -> processHoldEvent(evt);
-        }
-    }
-
-    private void processSendEvent(final SimEvent evt) {
-//        if (evt.getDestination() == SimEntity.NULL) {
-//            throw new IllegalArgumentException("Attempt to send to a null entity detected.");
-//        }
-//
-//        final var destEnt = (CloudSimEntity)evt.getDestination();
-//        if (destEnt.getState() != SimEntity.State.WAITING) {
-//            deferred.addEvent(evt);
-//            return;
-//        }
-//
-//        final var eventPredicate = waitPredicates.get(destEnt);
-//        if (eventPredicate == null || eventPredicate.test(evt)) {
-//            destEnt.setEventBuffer(new CloudSimEvent(evt));
-//            destEnt.setState(SimEntity.State.RUNNABLE);
-//            waitPredicates.remove(destEnt);
-//            return;
-//        }
-
         if (CloudSimTag.UNIQUE_TAG.contains(evt.getTag())) {
             if (deferred.isExistSameEvent(evt.getDestination(), evt.getTag(), evt.getData())) {
                 return;
@@ -252,6 +266,7 @@ public class CloudSim implements Simulation {
         }
         deferred.addEvent(evt);
     }
+
 
     @Override
     public void startSync() {
@@ -296,4 +311,8 @@ public class CloudSim implements Simulation {
         this.simulationAccuracy = simulationAccuracy;
     }
 
+    @Override
+    public boolean isTerminationTimeSet() {
+        return terminationTime > 0.0;
+    }
 }

@@ -1,0 +1,53 @@
+{
+  "collaborations": [
+    {
+      "id": 0,
+      "datacenters": [
+        {
+          "id": 0,
+          "location": [
+            116.404,
+            39.915
+          ],
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 100,
+              "ram": 100,
+              "storage": 100,
+              "bw": 100,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "FirstFit"
+            }
+          ],
+          "interScheduler": {
+            "type": "direct",
+            "isDirectSend": true
+          },
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    }
+  ]
+}

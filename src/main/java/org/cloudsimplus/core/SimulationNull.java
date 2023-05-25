@@ -47,6 +47,11 @@ public class SimulationNull implements Simulation {
     }
 
     @Override
+    public boolean terminateAt(double time) {
+        return false;
+    }
+
+    @Override
     public double start() {
         return 0;
     }
@@ -94,5 +99,15 @@ public class SimulationNull implements Simulation {
     @Override
     public SqlRecord getSqlRecord() {
         return null;
+    }
+
+    @Override
+    public boolean isTerminationTimeSet() {
+        return false;
+    }
+
+    @Override
+    public boolean isTimeToTerminateSimulationUnderRequest() {
+        return false;
     }
 }

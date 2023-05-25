@@ -10,9 +10,11 @@ public interface InstanceQueue {
 
     List<Instance> getBatchItem();
 
+    List<Instance> getAllItem();
+
     InstanceQueue add(Instance instance);
 
     InstanceQueue add(InstanceGroup instanceGroup);
 
-    InstanceQueue add(List<InstanceGroup> instanceGroups);
+    InstanceQueue add(List instances);
 }

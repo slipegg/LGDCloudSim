@@ -79,7 +79,7 @@ public class SimpleStateSimple implements SimpleState {
 
     private List<Integer> getRamRecordList() {
         List<Integer> ramRecordList = new ArrayList<>();
-        int ramMax = 1024;
+        int ramMax = 256;
         ramRecordList.add(1);
         for (int i = 2; i < 32; i += 2) {
             ramRecordList.add(i);
@@ -87,14 +87,14 @@ public class SimpleStateSimple implements SimpleState {
         for (int i = 32; i < 128; i += 4) {
             ramRecordList.add(i);
         }
-        for (int i = 128; i <= 256; i += 16) {
+        for (int i = 128; i < 256; i += 16) {
             ramRecordList.add(i);
         }
         for (int i = 256; i <= ramMax; i += 128) {
             ramRecordList.add(i);
         }
         /*
-         * 实际返回：长度56，[1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 144, 160, 176, 192, 208, 224, 240, 256, 256, 384, 512, 640, 768, 896, 1024]
+         * 实际返回：长度56，[1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 144, 160, 176, 192, 208, 224, 240, 256, 256]
          * */
         return ramRecordList;
     }

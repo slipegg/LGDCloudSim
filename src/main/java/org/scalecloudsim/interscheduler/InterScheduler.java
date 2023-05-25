@@ -37,4 +37,7 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
 
     void receiveEmployGroup(List<InstanceGroup> instanceGroups);
 
+    boolean isDirectedSend();
+
+    InterScheduler setDirectedSend(boolean directedSend);
 }

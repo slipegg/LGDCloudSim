@@ -1,5 +1,6 @@
 package org.scalecloudsim.datacenter;
 
+import org.scalecloudsim.request.Instance;
 import org.scalecloudsim.request.InstanceGroup;
 import org.scalecloudsim.request.UserRequest;
 
@@ -13,6 +14,8 @@ public interface GroupQueue {
     GroupQueue add(InstanceGroup instanceGroup);
 
     List<InstanceGroup> getBatchItem();
+
+    List<InstanceGroup> getAllItem();
 
     int size();
 }

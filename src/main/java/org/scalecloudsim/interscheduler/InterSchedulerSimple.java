@@ -1,6 +1,7 @@
 package org.scalecloudsim.interscheduler;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.scalecloudsim.datacenter.Datacenter;
 import org.scalecloudsim.request.Instance;
@@ -23,6 +24,9 @@ public class InterSchedulerSimple implements InterScheduler {
     double decideReciveGroupResultCostTime = 0.0;
     @Getter
     double decideTargetDatacenterCostTime = 0.0;
+    @Getter
+    @Setter
+    boolean directedSend = false;
 
     Random random = new Random(1);
 
@@ -94,6 +98,11 @@ public class InterSchedulerSimple implements InterScheduler {
         // 目前不需要做任何处理
     }
 
+    @Override
+    public boolean isDirectedSend() {
+        return directedSend;
+    }
+
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
     private List<Datacenter> getAvailableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
@@ -111,17 +120,17 @@ public class InterSchedulerSimple implements InterScheduler {
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
         //首先是粗粒度地筛选总量是否满足
         allDatacenters.removeIf(
-                datacenter -> datacenter.getStateManager().getSimpleState().getCpuAvaiableSum() < instanceGroup.getCpuSum() ||
-                        datacenter.getStateManager().getSimpleState().getRamAvaiableSum() < instanceGroup.getRamSum() ||
-                        datacenter.getStateManager().getSimpleState().getStorageAvaiableSum() < instanceGroup.getStorageSum() ||
-                        datacenter.getStateManager().getSimpleState().getBwAvaiableSum() < instanceGroup.getBwSum()
+                datacenter -> datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() < instanceGroup.getCpuSum() ||
+                        datacenter.getStatesManager().getSimpleState().getRamAvaiableSum() < instanceGroup.getRamSum() ||
+                        datacenter.getStatesManager().getSimpleState().getStorageAvaiableSum() < instanceGroup.getStorageSum() ||
+                        datacenter.getStatesManager().getSimpleState().getBwAvaiableSum() < instanceGroup.getBwSum()
         );
         //然后细粒度地查看CPU-RAM的组合是否满足
         for (Datacenter datacenter : allDatacenters) {
             Map<Integer, Map<Integer, Integer>> instanceCpuRamNum = new HashMap<>();//记录一下所有Instance的cpu—ram的种类情况
             for (Instance instance : instanceGroup.getInstanceList()) {
                 int allocateNum = instanceCpuRamNum.getOrDefault(instance.getCpu(), new HashMap<>()).getOrDefault(instance.getRam(), 0);
-                if (datacenter.getStateManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam()) - allocateNum <= 0) {
+                if (datacenter.getStatesManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam()) - allocateNum <= 0) {
                     //如果该数据中心的资源不足以满足亲和组的资源需求，那么就将其从可调度的数据中心中移除
                     allDatacenters.remove(datacenter);
                     break;

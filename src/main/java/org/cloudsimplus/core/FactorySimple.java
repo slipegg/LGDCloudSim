@@ -4,9 +4,9 @@ import org.scalecloudsim.datacenter.LoadBalance;
 import org.scalecloudsim.datacenter.LoadBalanceRound;
 import org.scalecloudsim.datacenter.ResourceAllocateSelector;
 import org.scalecloudsim.datacenter.ResourceAllocateSelectorSimple;
-import org.scalecloudsim.innerscheduler.InnerScheduler;
-import org.scalecloudsim.innerscheduler.InnerSchedulerSimple;
+import org.scalecloudsim.innerscheduler.*;
 import org.scalecloudsim.interscheduler.InterScheduler;
+import org.scalecloudsim.interscheduler.InterSchedulerDirect;
 import org.scalecloudsim.interscheduler.InterSchedulerSimple;
 import org.scalecloudsim.statemanager.PredictionManager;
 import org.scalecloudsim.statemanager.PredictionManagerSimple;
@@ -15,9 +15,14 @@ import java.util.Map;
 
 public class FactorySimple implements Factory {
 
-    public InnerScheduler getInnerScheduler(String type, int id, Map<Integer, Double> partitionDelay) {
+    public InnerScheduler getInnerScheduler(String type, int id, int firstPartitionId, int partitionNum) {
         return switch (type) {
-            case "simple", "Simple" -> new InnerSchedulerSimple(id, partitionDelay);
+            case "simple", "Simple" -> new InnerSchedulerSimple(id, firstPartitionId, partitionNum);
+            case "random" -> new InnerSchedulerRandom(id, firstPartitionId, partitionNum);
+            case "partitionRandom" -> new InnerSchedulerPartitionRandom(id, firstPartitionId, partitionNum);
+            case "minHostOn" -> new InnerSchedulerMinHostOn(id, firstPartitionId, partitionNum);
+            case "FirstFit" -> new InnerSchedulerFirstFit(id, firstPartitionId, partitionNum);
+            case "multiLevel" -> new InnerSchedulerPartitionMultiLevel(id, firstPartitionId, partitionNum);
             default -> null;
         };
     }
@@ -34,6 +39,7 @@ public class FactorySimple implements Factory {
     public InterScheduler getInterScheduler(String type) {
         return switch (type) {
             case "simple", "Simple" -> new InterSchedulerSimple();
+            case "direct", "Direct" -> new InterSchedulerDirect();
             default -> null;
         };
     }
