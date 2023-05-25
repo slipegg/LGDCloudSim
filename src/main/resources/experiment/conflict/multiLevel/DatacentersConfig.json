@@ -1,0 +1,116 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "datacenters": [
+        {
+          "id": 1,
+          "location": [
+            116.404,
+            39.915
+          ],
+          "hostNum": 25000,
+          "partitions": [
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 128,
+              "storage": 1024,
+              "bw": 1024,
+              "startId": 0,
+              "length": 25000
+            }
+          ],
+          "synchronizationGap": 300,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 1,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 2,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 3,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 4,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 5,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 6,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 7,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 8,
+              "type": "multiLevel"
+            },
+            {
+              "firstPartitionIndex": 9,
+              "type": "multiLevel"
+            }
+          ],
+          "interScheduler": {
+            "type": "simple",
+            "isDirectSend": false
+          },
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    }
+  ]
+}
