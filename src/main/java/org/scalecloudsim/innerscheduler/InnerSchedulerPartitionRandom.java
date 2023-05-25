@@ -6,7 +6,7 @@ import org.scalecloudsim.statemanager.SynState;
 import java.util.*;
 
 public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
-    Random random = new Random(1);
+    Random random = new Random();
 
     public InnerSchedulerPartitionRandom(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
