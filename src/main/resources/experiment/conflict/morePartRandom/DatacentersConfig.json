@@ -1,43 +1,58 @@
 {
   "collaborations": [
     {
-      "id": 0,
+      "id": 1,
       "datacenters": [
         {
-          "id": 0,
+          "id": 1,
           "location": [
             116.404,
             39.915
           ],
-          "hostNum": 100000,
+          "hostNum": 25000,
           "partitions": [
             {
-              "length": 20000
+              "length": 2500
             },
             {
-              "length": 20000
+              "length": 2500
             },
             {
-              "length": 20000
+              "length": 2500
             },
             {
-              "length": 20000
+              "length": 2500
             },
             {
-              "length": 20000
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
+            },
+            {
+              "length": 2500
             }
           ],
           "hostStates": [
             {
               "cpu": 128,
-              "ram": 256,
+              "ram": 128,
               "storage": 1024,
-              "bw": 10240,
+              "bw": 1024,
               "startId": 0,
-              "length": 100000
+              "length": 25000
             }
           ],
-          "synchronizationGap": 500,
+          "synchronizationGap": 50,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -57,6 +72,26 @@
             },
             {
               "firstPartitionIndex": 4,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 5,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 6,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 7,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 8,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 9,
               "type": "partitionRandom"
             }
           ],

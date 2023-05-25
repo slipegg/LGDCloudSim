@@ -1,10 +1,10 @@
 {
   "collaborations": [
     {
-      "id": 0,
+      "id": 1,
       "datacenters": [
         {
-          "id": 0,
+          "id": 1,
           "location": [
             116.404,
             39.915
@@ -18,15 +18,35 @@
           "hostStates": [
             {
               "cpu": 128,
-              "ram": 256,
+              "ram": 128,
               "storage": 1024,
-              "bw": 10240,
+              "bw": 1024,
               "startId": 0,
               "length": 25000
             }
           ],
-          "synchronizationGap": 400,
+          "synchronizationGap": 100,
           "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
             {
               "firstPartitionIndex": 0,
               "type": "random"

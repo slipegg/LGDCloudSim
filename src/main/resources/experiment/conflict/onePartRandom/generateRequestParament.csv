@@ -1,4 +1,4 @@
-Parament Name,Parament
+  Parament Name,Parament
 FromDcPercent,"[1.0]"
 RequestPerNumMin,3500
 RequestPerNumMax,4500
@@ -22,15 +22,15 @@ GroupDelayMin,100
 GroupDelayMax,1000
 GroupRetryTimesMin,3
 GroupRetryTimesMax,3
-InstanceCpuNumMin,14
-InstanceCpuNumMax,18
-InstanceRamNumMin,30
-InstanceRamNumMax,34
-InstanceStorageNumMin,200
-InstanceStorageNumMax,300
-InstanceBwNumMin,2000
-InstanceBwNumMax,3000
-InstanceLifeTimeMin,2000
-InstanceLifeTimeMax,8000
+InstanceCpuNumMin,1
+InstanceCpuNumMax,32
+InstanceRamNumMin,1
+InstanceRamNumMax,32
+InstanceStorageNumMin,32
+InstanceStorageNumMax,256
+InstanceBwNumMin,16
+InstanceBwNumMax,256
+InstanceLifeTimeMin,1000
+InstanceLifeTimeMax,10000
 InstanceRetryTimesMin,3
 InstanceRetryTimesMax,3
