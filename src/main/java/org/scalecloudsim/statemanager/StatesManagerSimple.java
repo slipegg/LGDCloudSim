@@ -112,8 +112,12 @@ public class StatesManagerSimple implements StatesManager {
             int synPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionNum;
             for (int i = 0; i < partitionNum; i++) {
                 int partitionId = (synPartitionId + i) % partitionNum;
-                double synTime = max(0.0, smallSynGap * (smallSynNum - i));
-                synState.put(partitionId, synStateMap.get(partitionId).get(synTime));
+                double synTime = max(0.0, smallSynGap * (smallSynNum - i));//TODO 有问题，如果分区和时间不能被整除应该要处理
+                if (synStateMap.get(partitionId).get(synTime) == null) {
+                    synState.put(partitionId, new HashMap<>());
+                } else {
+                    synState.put(partitionId, synStateMap.get(partitionId).get(synTime));
+                }
             }
             return new SynStateSimple(synState, hostStates, partitionRangesManager, selfHostState);
         }

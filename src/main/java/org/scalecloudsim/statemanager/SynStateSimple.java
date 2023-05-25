@@ -31,7 +31,7 @@ public class SynStateSimple implements SynState {
         if (selfHostState.get(partitionId).containsKey(hostId)) {
             int[] hostState = selfHostState.get(partitionId).get(hostId);
             return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
-        } else if (synState.get(partitionId).containsKey(hostId)) {
+        } else if (synState.get(partitionId) != null && synState.get(partitionId).containsKey(hostId)) {//TODO:这里有问题
             int[] hostState = synState.get(partitionId).get(hostId);
             return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
         } else {
