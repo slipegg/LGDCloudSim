@@ -28,11 +28,11 @@ of hosts and corresponding tens of thousands of requests per second.</p>
 
 The simulation system architecture of CPNSim is as follows:
 
-![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/%E6%A8%A1%E6%8B%9F%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg)
+![image](https://github.com/slipegg/CPNSim/assets/65942634/cea2c8ad-1691-4a0c-8943-e15156ab50fe)
 
 The simulation scenario is as follows:
 
-![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/%E6%A8%A1%E6%8B%9F%E5%9C%BA%E6%99%AF.jpg)
+![image](https://github.com/slipegg/CPNSim/assets/65942634/29d0bd2a-46d4-497f-9ea6-4914239afd52)
 
 <br></br>
 
@@ -73,16 +73,16 @@ The comparison between CPNSim and [CloudsimPlus](https://github.com/cloudsimplus
 
 Comparison of memory consumption for different numbers of hosts:
 
-![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E4%B8%BB%E6%9C%BA%E6%95%B0%E9%87%8F%E7%9A%84%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97.png)
+![image](https://github.com/slipegg/CPNSim/assets/65942634/2a201b29-5957-4c7c-a03b-b0d7312bec72)
 
 Comparison of memory consumption for different numbers of requests:
 
-![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E8%AF%B7%E6%B1%82%E6%95%B0%E9%87%8F%E7%9A%84%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97.png)
+![image](https://github.com/slipegg/CPNSim/assets/65942634/2347c641-c7d0-4aef-8a4a-cc6cc3e3496e)
 
 Comparison of simulation speed for different numbers of requests:
 
-![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E8%AF%B7%E6%B1%82%E6%95%B0%E9%87%8F%E7%9A%84%E6%97%B6%E9%97%B4%E6%B6%88%E8%80%972.png)
+![image](https://github.com/slipegg/CPNSim/assets/65942634/374c5955-678d-4362-9be9-efb0fcdd750b)
 
-![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E8%AF%B7%E6%B1%82%E6%95%B0%E9%87%8F%E7%9A%84%E6%97%B6%E9%97%B4%E6%B6%88%E8%80%971.png)
+![image](https://github.com/slipegg/CPNSim/assets/65942634/9b8cbd5c-d117-4cb4-830a-8e37ee32d0d5)
 
 <br></br>
