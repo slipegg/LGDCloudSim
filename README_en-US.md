@@ -1,27 +1,88 @@
 <div align="right">
-  <img src="https://img.shields.io/badge/-English-003366?style=for-the-badge" alt="English" />
-  <a title="zh-CN" href="README.md">  <img src="https://img.shields.io/badge/-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-545759?style=for-the-badge" alt="简体中文"></a>
+  <img src="https://img.shields.io/badge/-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-03396c?style=flat-square" alt="简体中文" />
+  <a title="en-US" href="README_en-US.md">  <img src="https://img.shields.io/badge/-English-545759?style=flat-squaree" alt="English"></a>
 </div>
 
-<!-- TODO: 前面加个图标 -->
+<img width= "20%" src="https://user-images.githubusercontent.com/46229052/196671093-21ba3438-719d-4dd4-ad79-bfddd1395663.png" align="right" />
 
-# scaleCloudsim
+# CPNSim
 
-This repository is used to architect a large-scale cloud computing simulator——scaleCloudsim。
+CPNSim: CPNSim is a simulation system for computing networks that is designed for large-scale, cross-regional, and
+multi-data center scenarios.
 
-<p align="center">
-    <img src="https://visitor-badge.glitch.me/badge?page_id=slipegg.scalecloudsim" referrerpolicy="no-referrer" alt="visitor badge" />
-    <img src="https://img.shields.io/badge/node-%3E=12.0-6497b1?style=?style=flat-square&amp;logo=node.js&amp;logoColor=6497b1" referrerpolicy="no-referrer" alt="NodeJS Version" />
-</p>
+There is also a visualization project for CPNSim that can be found
+here: [CPNSim-visualization](https://github.com/slipegg/CPNSim-visualization).
 
-## :hammer_and_pick: Code Architecture
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-## :camera: Screenshots
+<br></br>
+![image](https://user-images.githubusercontent.com/46229052/196704278-4d04778b-1a9e-46da-9ae2-18e6a7a1bae5.png)
+<a id="overview"></a>
+<img width="20%" src="https://user-images.githubusercontent.com/46229052/196671599-c2c33b14-be0b-4f7a-92b2-533978afb029.png" align="right" />
+<p align="justify">
+CPNSim is designed for large-scale, cross-regional, and multi-data center scenarios for computing networks, and it supports affinity group task requests. In addition to supporting scheduling of user requests within data centers, it also supports partition state periodic synchronization, algorithm running time millisecond-level characterization, and provides the ability to schedule between data centers and parallel scheduling of multiple schedulers within data centers.</p>
 
-![scaleCloudsim-1]()
+On the one hand, CPNSim optimizes memory consumption during simulation runs, and on the other hand, it optimizes
+simulation run efficiency, making the simulation system capable of fast simulation of tens of millions or even billions
+of hosts and corresponding tens of thousands of requests per second.</p>
 
-![scaleCloudsim-2]()
+The simulation system architecture of CPNSim is as follows:
 
-![scaleCloudsim-3]()
+![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/%E6%A8%A1%E6%8B%9F%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg)
 
-## :cloud: Installation
+The simulation scenario is as follows:
+
+![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/%E6%A8%A1%E6%8B%9F%E5%9C%BA%E6%99%AF.jpg)
+
+<br></br>
+
+![image](https://user-images.githubusercontent.com/46229052/196704803-9a9f53b2-8255-4042-9c16-6c8470489791.png)
+<a id="important"></a>
+
+> * <p align="justify">Developing and maintaining this project requires considerable effort. Therefore, any form of contribution is welcome. </p>
+>* <p align="justify">If you want to use this framework to implement your own project, creating a fork is a bad solution. You should not modify the codebase to implement your project, but extend it by creating some subclasses. Unless you plan to redistribute your changes, you will end up with an incompatible and outdated framework version. The project is constantly evolving, and error correction is the top priority. Your fork and personal changes will miss these updates and high-performance improvements.</p>
+>* <p align="justify">If you just came across this project and want to check it out later, don't forget to add a star :star: :wink:. </p>
+<br></br>
+![image](https://user-images.githubusercontent.com/46229052/196704930-a1ef92c7-b62e-42a2-8e82-b6ba8b949070.png)
+<a id="exclusive-features"></a>
+
+<p align="justify">
+CPNSim provides many features, mainly as follows.
+
+<img width= "20%" src="https://user-images.githubusercontent.com/46229052/196670148-8f647e7f-ffe2-49ea-865b-2c37ca044cb2.png" align="right" />
+
+- More comprehensive computing network scenarios supported, including:
+    - Simulation of affinity group task requests.
+    - Support for custom affinity group structures through files, and automatic generation of user requests.
+    - Support for rich network situation simulation, including access latency, connection latency, assignable bandwidth,
+      and dynamic access latency.
+    - Support for custom network topology structures between data centers through files, similar
+      to [CloudsimPlus](https://github.com/cloudsimplus/cloudsimplus).
+    - Support for custom data center situations through files.
+    - Support for scheduling between data centers with or without negotiation
+    - Support for parallel scheduling of multiple schedulers within data centers
+    - Support for handling conflicts generated by multiple schedulers
+    - Support for partitioning data centers
+    - Support for periodic synchronization of partition states
+    - ...
+- Support for simulation of large numbers of hosts and requests
+    - Simulate up to 536,870,911 hosts
+    - Simulate tens of thousands of requests per second
+
+The comparison between CPNSim and [CloudsimPlus](https://github.com/cloudsimplus/cloudsimplus) is as follows:
+
+Comparison of memory consumption for different numbers of hosts:
+
+![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E4%B8%BB%E6%9C%BA%E6%95%B0%E9%87%8F%E7%9A%84%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97.png)
+
+Comparison of memory consumption for different numbers of requests:
+
+![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E8%AF%B7%E6%B1%82%E6%95%B0%E9%87%8F%E7%9A%84%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97.png)
+
+Comparison of simulation speed for different numbers of requests:
+
+![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E8%AF%B7%E6%B1%82%E6%95%B0%E9%87%8F%E7%9A%84%E6%97%B6%E9%97%B4%E6%B6%88%E8%80%972.png)
+
+![](https://slipegg-md-pic.oss-cn-shanghai.aliyuncs.com/CPNSim%E5%92%8CCloudsimPlus%E4%B8%8D%E5%90%8C%E8%AF%B7%E6%B1%82%E6%95%B0%E9%87%8F%E7%9A%84%E6%97%B6%E9%97%B4%E6%B6%88%E8%80%971.png)
+
+<br></br>
