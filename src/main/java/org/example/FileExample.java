@@ -7,14 +7,12 @@ import org.cloudsimplus.core.FactorySimple;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.util.Log;
-import org.scalecloudsim.datacenter.CollaborationManager;
-import org.scalecloudsim.datacenter.Datacenter;
-import org.scalecloudsim.datacenter.InitDatacenter;
-import org.scalecloudsim.record.MemoryRecord;
-import org.scalecloudsim.statemanager.HostStateGenerator;
-import org.scalecloudsim.user.UserRequestManager;
-import org.scalecloudsim.user.UserRequestManagerCsv;
-import org.scalecloudsim.user.UserSimple;
+import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.datacenter.InitDatacenter;
+import org.cpnsim.record.MemoryRecord;
+import org.cpnsim.user.UserRequestManager;
+import org.cpnsim.user.UserRequestManagerCsv;
+import org.cpnsim.user.UserSimple;
 
 public class FileExample {
     Simulation scaleCloudSim;

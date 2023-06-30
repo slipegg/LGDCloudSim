@@ -1,12 +1,7 @@
 package org.example;
 
-import org.scalecloudsim.record.MemoryRecord;
-import org.scalecloudsim.statemanager.HostState;
-import org.scalecloudsim.statemanager.SimpleState;
-import org.scalecloudsim.statemanager.SimpleStateSimple;
+import org.cpnsim.record.MemoryRecord;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 public class TestSimpleState {

@@ -10,11 +10,11 @@ package org.cloudsimplus.core;
 import lombok.Getter;
 import lombok.NonNull;
 import org.cloudsimplus.core.events.SimEvent;
-import org.scalecloudsim.datacenter.Datacenter;
-import org.scalecloudsim.request.Instance;
-import org.scalecloudsim.request.InstanceGroup;
-import org.scalecloudsim.request.InstanceGroupEdge;
-import org.scalecloudsim.request.UserRequest;
+import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.request.Instance;
+import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.InstanceGroupEdge;
+import org.cpnsim.request.UserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
