@@ -283,6 +283,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         UserRequest userRequest = instanceGroup.getUserRequest();
         //释放Bw资源
+
         List<InstanceGroup> dstInstanceGroups = userRequest.getInstanceGroupGraph().getDstList(instanceGroup);
         for (InstanceGroup dstInstanceGroup : dstInstanceGroups) {
             if (dstInstanceGroup.getState() == UserRequest.SUCCESS) {
@@ -575,6 +576,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 if (!getSimulation().getNetworkTopology().allocateBw(receiveDatacenter, dst.getReceiveDatacenter(), edge.getRequiredBw())) {
                     return false;
                 }
+                //记录bw分配结果到数据库中
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(receiveDatacenter.getId(),instanceGroup.getId(),dst.getDestDatacenterId(),dst.getId(),edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
             }
         }
@@ -584,7 +587,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
                 if (!getSimulation().getNetworkTopology().allocateBw(src.getReceiveDatacenter(), receiveDatacenter, edge.getRequiredBw())) {
                     return false;
-                }
+                }//记录bw分配结果到数据库中
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(src.getReceiveDatacenter().getId(),src.getId(),receiveDatacenter.getId(),instanceGroup.getId(),edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
             }
         }

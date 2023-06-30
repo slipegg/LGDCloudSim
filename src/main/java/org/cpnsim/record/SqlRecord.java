@@ -11,10 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SqlRecord {
@@ -23,6 +21,7 @@ public class SqlRecord {
     private Statement stmt = null;
     private String userRequestTableName = null;
     private String instanceGroupTableName = null;
+    private String groupGraphTableName = null;
     private String instanceTableName = null;
     private String dbName = null;
     private String dbDir = null;
@@ -33,11 +32,11 @@ public class SqlRecord {
 
     public SqlRecord() {
 //        this("./RecordDb", "scaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".db", "userRequest", "instanceGroup", "instance");
-        this("./RecordDb", "scaleCloudsimRecord.db", "userRequest", "instanceGroup", "instance");
+        this("./RecordDb", "scaleCloudsimRecord.db", "userRequest", "instanceGroup", "instanceGroupGraph", "instance");
     }
 
 
-    public SqlRecord(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceTableName) {
+    public SqlRecord(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String groupGraphTableName, String instanceTableName) {
         this.dbDir = dbDir;
         this.dbName = dbName;
         Path folder = Paths.get(this.dbDir);
@@ -49,7 +48,7 @@ public class SqlRecord {
         this.dbPath = folder.resolve(file).toString();
         this.userRequestTableName = userRequestTableName;
         this.instanceGroupTableName = instanceGroupTableName;
-        //TODO graphTbale是否需要
+        this.groupGraphTableName = groupGraphTableName;
         this.instanceTableName = instanceTableName;
         try {
             Class.forName("org.sqlite.JDBC");
@@ -65,6 +64,7 @@ public class SqlRecord {
 
             createUserRequestTable();
             createInstanceGroupTable();
+            createGroupGraphTable();
             createInstanceTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -117,6 +117,52 @@ public class SqlRecord {
         try {
             sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + " WHERE id = " + instanceGroup.getId() + ";";
             stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void recordInstanceGroupGraphAllocateInfo(int srcDcId, int srcInstanceGroupId, int dstDcId, int dstInstanceGroupId,double bw, double startTime){
+        try{
+            sql = "INSERT INTO " + this.groupGraphTableName + " (srcDcId,srcInstanceGroupId,dstDcId,dstInstanceGroupId,bw,startTime) VALUES (" + srcDcId + "," + srcInstanceGroupId + "," + dstDcId + "," + dstInstanceGroupId + "," + bw + "," + startTime + ");";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<Integer> getAllLinkedFinishGroupId(int instanceGroupId){
+        List<Integer> result = new ArrayList<>();
+        try{
+            sql = "SELECT dstInstanceGroupId FROM " + this.groupGraphTableName + " WHERE srcInstanceGroupId = " + instanceGroupId + " or dstInstanceGroupId = "+ instanceGroupId+";";
+            ResultSet rs = stmt.executeQuery(sql);
+            while(rs.next()){
+                result.add(rs.getInt("dstInstanceGroupId"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public void recordInstanceGroupGraphReleaseInfo(int instanceGroupId, double finishTime){
+        String sql = "SELECT srcInstanceGroupId, dstInstanceGroupId " +
+                "FROM " + this.groupGraphTableName  +
+                "WHERE srcInstanceGroupId = ? OR dstInstanceGroupId = ? " +
+                "  AND (srcInstanceGroupId IN (" +
+                "        SELECT id FROM "+instanceGroupTableName +" WHERE finishTime IS NOT NULL" +
+                "      ) OR dstInstanceGroupId IN (" +
+                "        SELECT id FROM "+instanceGroupTableName +" WHERE finishTime IS NOT NULL" +
+                "      ));";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, instanceGroupId);
+            pstmt.setInt(2, instanceGroupId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int srcInstanceGroupId = rs.getInt("srcInstanceGroupId");
+                int dstInstanceGroupId = rs.getInt("dstInstanceGroupId");
+                // Do something with the srcInstanceGroupId and dstInstanceGroupId
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -211,6 +257,26 @@ public class SqlRecord {
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+
+    private void createGroupGraphTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.groupGraphTableName;
+        stmt.executeUpdate(sql);
+        //创建一个这种格式的表id:int(注意需要自动增长)，srcDcId:int,srcInstanceGroupId:int,dstDcId:int,dstInstanceGroupId:int,bw:double,startTime:double,finishTime:double,state:char(10);注意srcInstanceGroupId和dstInstanceGroupId是instanceGroup这个表的外键
+        sql = "CREATE TABLE IF NOT EXISTS " + this.groupGraphTableName + " " +
+                "(id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " srcDcId INT NOT NULL, " +
+                " srcInstanceGroupId INT NOT NULL, " +
+                " dstDcId INT NOT NULL, " +
+                " dstInstanceGroupId INT NOT NULL, " +
+                " bw DOUBLE NOT NULL, " +
+                " startTime DOUBLE NOT NULL, " +
+                " finishTime DOUBLE, " +
+                " state CHAR(10) )"+
+                " FOREIGN KEY(srcInstanceGroupId) REFERENCES " + this.instanceGroupTableName + "(id)," +
+                " FOREIGN KEY(dstInstanceGroupId) REFERENCES " + this.instanceGroupTableName + "(id))";
         stmt.executeUpdate(sql);
         conn.commit();
     }
