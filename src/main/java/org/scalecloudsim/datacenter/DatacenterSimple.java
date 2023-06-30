@@ -203,7 +203,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-            //TODO 要思考怎么反应调度时间影响，调度应该还是要分为开始调度和结束调度两个事件
             case CloudSimTag.SYN_STATE -> processSynState();
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
@@ -217,7 +216,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.INNER_SCHEDULE_BEGIN -> processInnerScheduleBegin(evt);
             case CloudSimTag.INNER_SCHEDULE_END -> processInnerScheduleEnd(evt);
             case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
-            case CloudSimTag.ALLOCATE_RESOURCE -> processAllocateResource(evt);
             case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
@@ -305,45 +303,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             LOGGER.debug("{}: userRequest{} successfully completed running.", getSimulation().clockStr(), getName());
             userRequest.setFinishTime(getSimulation().clock());
             getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
-        }
-    }
-
-
-    private void processAllocateResource(SimEvent evt) {
-        if (evt.getData() instanceof Map) {
-            Map<Integer, List<Instance>> allocateResult = (Map<Integer, List<Instance>>) evt.getData();
-            LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
-            List<Instance> failedInstances = null;
-            List<Integer> updateHostIds = new ArrayList<>();
-            for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
-                int hostId = entry.getKey();
-                List<Instance> instances = entry.getValue();
-                for (Instance instance : instances) {
-                    if (instance.getUserRequest().getState() == UserRequest.FAILED) {
-                        continue;
-                    }
-                    if (!statesManager.allocate(hostId, instance))//理论上到这里不会出现分配失败的情况
-                    {
-                        if (failedInstances == null) {
-                            failedInstances = new ArrayList<>();
-                        }
-                        failedInstances.add(instance);
-                        continue;
-                    }
-                    instance.setState(UserRequest.RUNNING);
-                    instance.setHost(hostId);
-                    instance.setStartTime(getSimulation().clock());
-                    updateHostIds.add(hostId);
-                    int lifeTime = instance.getLifeTime();
-                    if (lifeTime > 0) {
-                        send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instance);
-                    }
-                    getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
-                }
-            }
-            if (failedInstances != null) {
-                innerScheduleFailed(failedInstances);
-            }
         }
     }
 
