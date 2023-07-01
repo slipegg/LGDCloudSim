@@ -165,7 +165,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
                 if (random.nextDouble() < GroupEdgePercent && j != i) {
                     double bw = random.nextDouble() * (GroupBwMax - GroupBwMin) + GroupBwMin;
                     double delay = random.nextDouble() * (GroupDelayMax - GroupDelayMin) + GroupDelayMin;
-                    instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), bw, delay);
+                    instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), delay, bw);
                 }
             }
         }
