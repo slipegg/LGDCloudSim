@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -197,7 +199,7 @@ public class SqlRecord {
         //         LEFT JOIN instanceGroup AS dst ON instanceGroupGraph.dstInstanceGroupId = dst.id AND dst.finishTime IS NOT NULL
         //WHERE (srcInstanceGroupId = instanceGroupId AND dst.finishTime IS NOT NULL)
         //   OR (dstInstanceGroupId = instanceGroupId AND src.finishTime IS NOT NULL)
-        sql = "SELECT DISTINCT srcDcId, dstDcId, bw" +
+        sql = "SELECT srcInstanceGroupId, dstInstanceGroupId, srcDcId, dstDcId, bw" +
                 " FROM " + this.instanceGroupGraphTableName +
                 " LEFT JOIN " + this.instanceGroupTableName + " AS src ON " + this.instanceGroupGraphTableName + ".srcInstanceGroupId = src.id AND src.finishTime IS NOT NULL" +
                 " LEFT JOIN " + this.instanceGroupTableName + " AS dst ON " + this.instanceGroupGraphTableName + ".dstInstanceGroupId = dst.id AND dst.finishTime IS NOT NULL" +
@@ -211,6 +213,9 @@ public class SqlRecord {
                 double bw = rs.getDouble("bw");
                 if (!releaseBw.containsKey(srcInstanceGroupId)) {
                     releaseBw.put(srcInstanceGroupId, new HashMap<>());
+                }
+                if (releaseBw.get(srcInstanceGroupId).containsKey(dstInstanceGroupId)) {
+                    bw += releaseBw.get(srcInstanceGroupId).get(dstInstanceGroupId);
                 }
                 releaseBw.get(srcInstanceGroupId).put(dstInstanceGroupId, bw);
             }
@@ -317,10 +322,10 @@ public class SqlRecord {
         sql = "DROP TABLE IF EXISTS " + this.instanceGroupGraphTableName;
         stmt.executeUpdate(sql);
         sql = "CREATE TABLE IF NOT EXISTS " + this.instanceGroupGraphTableName + " " +
-                "(srcDcId INT NOT NULL, " +
-                " srcInstanceGroupId INT NOT NULL, " +
-                " dstDcId INT NOT NULL, " +
+                "(srcInstanceGroupId INT NOT NULL, " +
                 " dstInstanceGroupId INT NOT NULL, " +
+                " srcDcId INT NOT NULL, " +
+                " dstDcId INT NOT NULL, " +
                 " bw DOUBLE NOT NULL, " +
                 " startTime DOUBLE NOT NULL, " +
                 " finishTime DOUBLE, " +
