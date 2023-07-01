@@ -59,10 +59,9 @@ public class FileExample {
     private void initNetwork() {
         BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
         scaleCloudSim.setNetworkTopology(networkTopology);
-        int i = 0;
         for(int collabId : scaleCloudSim.getCollaborationManager().getCollaborationIds()) {
             for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(collabId)) {
-                networkTopology.mapNode(datacenter, i++);
+                networkTopology.mapNode(datacenter, datacenter.getId());
             }
         }
     }

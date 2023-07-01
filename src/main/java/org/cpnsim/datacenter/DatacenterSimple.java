@@ -284,18 +284,25 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         UserRequest userRequest = instanceGroup.getUserRequest();
         //释放Bw资源
 
-        List<InstanceGroup> dstInstanceGroups = userRequest.getInstanceGroupGraph().getDstList(instanceGroup);
-        for (InstanceGroup dstInstanceGroup : dstInstanceGroups) {
-            if (dstInstanceGroup.getState() == UserRequest.SUCCESS) {
-                double releaseBw = userRequest.getInstanceGroupGraph().getBw(instanceGroup, dstInstanceGroup);
-                getSimulation().getNetworkTopology().releaseBw(instanceGroup.getReceiveDatacenter(), dstInstanceGroup.getReceiveDatacenter(), releaseBw);
-            }
-        }
-        List<InstanceGroup> srcInstanceGroups = userRequest.getInstanceGroupGraph().getSrcList(instanceGroup);
-        for (InstanceGroup srcInstanceGroup : srcInstanceGroups) {
-            if (srcInstanceGroup.getState() == UserRequest.SUCCESS) {
-                double releaseBw = userRequest.getInstanceGroupGraph().getBw(srcInstanceGroup, instanceGroup);
-                getSimulation().getNetworkTopology().releaseBw(srcInstanceGroup.getReceiveDatacenter(), instanceGroup.getReceiveDatacenter(), releaseBw);
+//        List<InstanceGroup> dstInstanceGroups = userRequest.getInstanceGroupGraph().getDstList(instanceGroup);
+//        for (InstanceGroup dstInstanceGroup : dstInstanceGroups) {
+//            if (dstInstanceGroup.getState() == UserRequest.SUCCESS) {
+//                double releaseBw = userRequest.getInstanceGroupGraph().getBw(instanceGroup, dstInstanceGroup);
+//                getSimulation().getNetworkTopology().releaseBw(instanceGroup.getReceiveDatacenter(), dstInstanceGroup.getReceiveDatacenter(), releaseBw);
+//            }
+//        }
+//        List<InstanceGroup> srcInstanceGroups = userRequest.getInstanceGroupGraph().getSrcList(instanceGroup);
+//        for (InstanceGroup srcInstanceGroup : srcInstanceGroups) {
+//            if (srcInstanceGroup.getState() == UserRequest.SUCCESS) {
+//                double releaseBw = userRequest.getInstanceGroupGraph().getBw(srcInstanceGroup, instanceGroup);
+//                getSimulation().getNetworkTopology().releaseBw(srcInstanceGroup.getReceiveDatacenter(), instanceGroup.getReceiveDatacenter(), releaseBw);
+//            }
+//        }
+        getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(instance.getInstanceGroup().getId(), getSimulation().clock());
+        Map<Integer, Map<Integer, Double>> releaseBw = getSimulation().getSqlRecord().getReleaseBw(instance.getInstanceGroup().getId());
+        for (Map.Entry<Integer, Map<Integer, Double>> entry : releaseBw.entrySet()) {
+            for (Map.Entry<Integer, Double> entry1 : entry.getValue().entrySet()) {
+                getSimulation().getNetworkTopology().releaseBw(entry.getKey(), entry1.getKey(), entry1.getValue());
             }
         }
         //如果InstanceGroup成功运行了就需要更新UserRequest状态信息

@@ -242,7 +242,6 @@ public class BriteNetworkTopology implements NetworkTopology {
             LOGGER.warn("BRITE node {} already in use.", briteID);
             return;
         }
-
         entitiesMap.put(entity, briteID);
     }
 
@@ -303,6 +302,18 @@ public class BriteNetworkTopology implements NetworkTopology {
     @Override
     public void releaseBw(SimEntity src, SimEntity dest, double releaseBw) {
         bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] += releaseBw;
+    }
+
+    @Override
+    public void releaseBw(int srcId, int destId, double releaseBw) {
+        bwMatrix[srcId][destId] += releaseBw;
+        //打印bwMatrix
+//        for (int i = 0; i < bwMatrix.length; i++) {
+//            for (int j = 0; j < bwMatrix[i].length; j++) {
+//                System.out.print(bwMatrix[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
     }
 
     @Override

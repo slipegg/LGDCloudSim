@@ -56,6 +56,8 @@ public interface NetworkTopology {
 
     void releaseBw(SimEntity src, SimEntity dest, double releaseBw);
 
+    void releaseBw(int srcId, int destId, double releaseBw);
+
     void setDelayDynamicModel(DelayDynamicModel delayDynamicModel);
 
     double getDynamicDelay(SimEntity src, SimEntity dest, double time);

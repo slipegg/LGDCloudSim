@@ -61,6 +61,11 @@ final class NetworkTopologyNull implements org.cloudsimplus.network.topologies.N
     }
 
     @Override
+    public void releaseBw(int srcId, int destId, double releaseBw) {
+
+    }
+
+    @Override
     public void setDelayDynamicModel(DelayDynamicModel delayDynamicModel) {
 
     }
