@@ -584,7 +584,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     return false;
                 }
                 //记录bw分配结果到数据库中
-                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(receiveDatacenter.getId(),instanceGroup.getId(),dst.getDestDatacenterId(),dst.getId(),edge.getRequiredBw(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(receiveDatacenter.getId(), instanceGroup.getId(), dst.getReceiveDatacenter().getId(), dst.getId(), edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
             }
         }
