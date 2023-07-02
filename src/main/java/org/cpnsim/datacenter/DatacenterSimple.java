@@ -10,6 +10,9 @@ import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
 import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.record.InstanceGroupRecord;
+import org.cpnsim.record.InstanceRecord;
+import org.cpnsim.record.UserRequestRecord;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
@@ -240,13 +243,49 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         usedCpuNum += instance.getCpu();
     }
 
+    private void calculateCost(InstanceRecord instance) {
+        if (instance.getStartTime() == -1 || instance.getFinishTime() == -1) {
+            return;
+        }
+        cpuCost += instance.getCpu() * unitCpuPrice * (instance.getFinishTime() - instance.getStartTime());
+        ramCost += instance.getRam() * unitRamPrice * (instance.getFinishTime() - instance.getStartTime());
+        storageCost += instance.getStorage() * unitStoragePrice * (instance.getFinishTime() - instance.getStartTime());
+        bwCost += instance.getBw() * unitBwPrice * (instance.getFinishTime() - instance.getStartTime());
+        usedCpuNum += instance.getCpu();
+    }
+
     //TODO 正常的end事件只使用Integer
     private void processEndInstanceRun(SimEvent evt) {
-        if (evt.getData() instanceof Instance instance) {
-            if (instance.getState() != UserRequest.RUNNING) {
-                return;
+        if (evt.getData() instanceof List<?> list) {
+            if (list.size() > 0 && list.get(0) instanceof Instance) {
+                for (Instance instance : (List<Instance>) list) {
+                    finishInstance(instance);
+//                finishInstanceById(instance.getId());
+                }
+            } else {
+                if (list.size() > 0 && list.get(0) instanceof Integer) {
+                    for (Integer instanceId : (List<Integer>) list) {
+                        finishInstanceById(instanceId);
+                    }
+                }
             }
-            finishInstance(instance);
+        }
+    }
+
+    private void finishInstanceById(int instanceId) {
+        InstanceRecord instance = getSimulation().getSqlRecord().getInstanceRecord(instanceId);
+        boolean isSuccess = getSimulation().clock() - instance.getStartTime() >= instance.getLifeTime() - 0.01 && instance.getLifeTime() != -1;
+        if (isSuccess) {
+            LOGGER.debug("{}: {}'s Instance{} successfully completed running on dc{}'s host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), instance.getDataCenterId(), instance.getHostId());
+        } else {
+            LOGGER.warn("{}: {}'s Instance{} is terminated prematurely on dc{}'s host{} it lack {}ms and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), instance.getDataCenterId(), instance.getHostId(), getSimulation().clock() - instance.getStartTime() - instance.getLifeTime());
+        }
+        instance.setFinishTime(getSimulation().clock());
+        statesManager.release(instance.getHostId(), instance);
+        getSimulation().getSqlRecord().recordInstanceFinishInfo(instance);
+        calculateCost(instance);
+        if (isSuccess) {
+            updateGroupAndUserRequestState(instance);
         }
     }
 
@@ -265,6 +304,36 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         getSimulation().getSqlRecord().recordInstanceFinishInfo(instance);
         calculateCost(instance);
         updateGroupAndUserRequestState(instance);
+    }
+
+    private void updateGroupAndUserRequestState(InstanceRecord instance) {
+        InstanceGroupRecord instanceGroup = getSimulation().getSqlRecord().getInstanceGroupRecord(instance.getInstanceGroupId());
+        instanceGroup.setSuccessInstanceNum(instanceGroup.getSuccessInstanceNum() + 1);
+        if (instanceGroup.getSuccessInstanceNum() != instanceGroup.getInstanceNum()) {
+            getSimulation().getSqlRecord().updateInstanceGroupSuccessInfo(instanceGroup);
+            return;
+        }
+        instanceGroup.setFinishTime(getSimulation().clock());
+        LOGGER.debug("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
+        getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
+
+        getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(instanceGroup.getId(), getSimulation().clock());
+        Map<Integer, Map<Integer, Double>> releaseBw = getSimulation().getSqlRecord().getReleaseBw(instanceGroup.getId());
+        for (Map.Entry<Integer, Map<Integer, Double>> entry : releaseBw.entrySet()) {
+            for (Map.Entry<Integer, Double> entry1 : entry.getValue().entrySet()) {
+                getSimulation().getNetworkTopology().releaseBw(entry.getKey(), entry1.getKey(), entry1.getValue());
+            }
+        }
+
+        UserRequestRecord userRequest = getSimulation().getSqlRecord().getUserRequestRecord(instanceGroup.getUserRequestId());
+        userRequest.setSuccessInstanceGroupNum(userRequest.getSuccessInstanceGroupNum() + 1);
+        if (userRequest.getSuccessInstanceGroupNum() != userRequest.getInstanceGroupNum()) {
+            getSimulation().getSqlRecord().updateUserRequestSuccessInfo(userRequest);
+            return;
+        }
+        LOGGER.debug("{}: userRequest{} successfully completed running.", getSimulation().clockStr(), getName());
+        userRequest.setFinishTime(getSimulation().clock());
+        getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
     }
 
     private void updateGroupAndUserRequestState(Instance instance) {
@@ -331,6 +400,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void allocateResource(Map<Integer, List<Instance>> allocateResult) {
         LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
         List<Instance> failedInstances = null;
+        Map<Integer, List<Instance>> finishInstances = new HashMap<>();
+        Map<Integer, List<Integer>> finishInstanceIds = new HashMap<>();
         for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
             int hostId = entry.getKey();
             List<Instance> instances = entry.getValue();
@@ -351,13 +422,35 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 instance.setStartTime(getSimulation().clock());
                 int lifeTime = instance.getLifeTime();
                 if (lifeTime > 0) {
-                    send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instance);
+//                    finishInstances.putIfAbsent(lifeTime, new ArrayList<>());
+//                    finishInstances.get(lifeTime).add(instance);
+                    finishInstanceIds.putIfAbsent(lifeTime, new ArrayList<>());
+                    finishInstanceIds.get(lifeTime).add(instance.getId());
                 }
                 getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
             }
         }
         if (failedInstances != null) {
             innerScheduleFailed(failedInstances);
+        }
+//        sendFinishInstanceRunEvt(finishInstances);
+        sendFinishInstanceIdRunEvt(finishInstanceIds);
+    }
+
+    private void sendFinishInstanceRunEvt(Map<Integer, List<Instance>> finishInstances) {
+        for (Map.Entry<Integer, List<Instance>> entry : finishInstances.entrySet()) {
+            int lifeTime = entry.getKey();
+            List<Instance> instances = entry.getValue();
+            send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
+        }
+    }
+
+
+    private void sendFinishInstanceIdRunEvt(Map<Integer, List<Integer>> finishInstances) {
+        for (Map.Entry<Integer, List<Integer>> entry : finishInstances.entrySet()) {
+            int lifeTime = entry.getKey();
+            List<Integer> instances = entry.getValue();
+            send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
         }
     }
 

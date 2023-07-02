@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -84,8 +82,8 @@ public class SqlRecord {
 
     public void recordUserRequestSubmitInfo(UserRequest userRequest) {
         try {
-            sql = "INSERT INTO " + this.userRequestTableName + " (id,belongDc,submitTime) " +
-                    "VALUES (" + userRequest.getId() + ", " + userRequest.getBelongDatacenterId() + ", " + userRequest.getSubmitTime() + ");";
+            sql = "INSERT INTO " + this.userRequestTableName + " (id,belongDc,submitTime,instanceGroupNum,successInstanceGroupNum) " +
+                    "VALUES (" + userRequest.getId() + ", " + userRequest.getBelongDatacenterId() + ", " + userRequest.getSubmitTime() + ", " + userRequest.getInstanceGroups().size() + ", " + "0);";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,6 +100,26 @@ public class SqlRecord {
         }
     }
 
+    public void recordUserRequestFinishInfo(UserRequestRecord userRequest) {
+        try {
+            //设置userRequest的finishTime,state,failReason
+            sql = "UPDATE " + this.userRequestTableName + " SET finishTime = " + userRequest.getFinishTime() + ", state = '" + UserRequest.stateToString(UserRequest.SUCCESS) + "', successInstanceGroupNum = " + userRequest.getSuccessInstanceGroupNum() + " WHERE id = " + userRequest.getId() + ";";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateUserRequestSuccessInfo(UserRequestRecord userRequest) {
+        try {
+            //设置userRequest的finishTime,state,failReason
+            sql = "UPDATE " + this.userRequestTableName + " SET successInstanceGroupNum = " + userRequest.getSuccessInstanceGroupNum() + " WHERE id = " + userRequest.getId() + ";";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void recordInstanceGroupReceivedInfo(List<InstanceGroup> instanceGroups) {
         for (InstanceGroup instanceGroup : instanceGroups) {
             recordInstanceGroupReceivedInfo(instanceGroup);
@@ -110,7 +128,9 @@ public class SqlRecord {
 
     public void recordInstanceGroupReceivedInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime) VALUES (" + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + "," + instanceGroup.getReceiveDatacenter().getId() + "," + instanceGroup.getReceivedTime() + ");";
+            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,successInstanceNum)"
+                    + " VALUES (" + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + "," + instanceGroup.getReceiveDatacenter().getId()
+                    + "," + instanceGroup.getReceivedTime() + "," + instanceGroup.getInstanceList().size() + "," + 0 + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,6 +140,24 @@ public class SqlRecord {
     public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup) {
         try {
             sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + " WHERE id = " + instanceGroup.getId() + ";";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void recordInstanceGroupFinishInfo(InstanceGroupRecord instanceGroup) {
+        try {
+            sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + ", successInstanceNum = " + instanceGroup.getSuccessInstanceNum() + " WHERE id = " + instanceGroup.getId() + ";";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateInstanceGroupSuccessInfo(InstanceGroupRecord instanceGroup) {
+        try {
+            sql = "UPDATE " + this.instanceGroupTableName + " SET successInstanceNum = " + instanceGroup.getSuccessInstanceNum() + " WHERE id = " + instanceGroup.getId() + ";";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -227,10 +265,12 @@ public class SqlRecord {
 
     public void recordInstanceGroupAllInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime) VALUES ("
+            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum,successInstanceNum) VALUES ("
                     + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + ","
                     + instanceGroup.getReceiveDatacenter().getId() + "," + instanceGroup.getReceivedTime() + ","
-                    + instanceGroup.getFinishTime() + ");";
+                    + instanceGroup.getFinishTime() + "," +
+                    +instanceGroup.getInstanceList().size() + "," +
+                    +0 + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -260,6 +300,15 @@ public class SqlRecord {
         }
     }
 
+    public void recordInstanceFinishInfo(InstanceRecord instance) {
+        try {
+            sql = "UPDATE " + this.instanceTableName + " SET finishTime = " + instance.getFinishTime() + " WHERE id = " + instance.getId() + ";";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void recordInstanceAllInfo(Instance instance) {
         try {
             sql = "INSERT INTO " + this.instanceTableName +
@@ -272,6 +321,67 @@ public class SqlRecord {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public UserRequestRecord getUserRequestRecord(int userRequestId) {
+        String sql = "SELECT * FROM " + this.userRequestTableName + " WHERE id = " + userRequestId + ";";
+        try {
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                int instanceGroupNum = rs.getInt("instanceGroupNum");
+                int successInstanceGroupNum = rs.getInt("successInstanceGroupNum");
+                return new UserRequestRecord(id, instanceGroupNum, successInstanceGroupNum);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public InstanceRecord getInstanceRecord(int instanceId) {
+        String sql = "SELECT * FROM " + this.instanceTableName + " WHERE id = " + instanceId + ";";
+        try {
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                int instanceGroupId = rs.getInt("instanceGroupId");
+                int userRequestId = rs.getInt("userRequestId");
+                int cpu = rs.getInt("cpu");
+                int ram = rs.getInt("ram");
+                int storage = rs.getInt("storage");
+                int bw = rs.getInt("bw");
+                int lifeTime = rs.getInt("lifeTime");
+                int datacenter = rs.getInt("datacenter");
+                int host = rs.getInt("host");
+                double startTime = rs.getDouble("startTime");
+                return new InstanceRecord(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, datacenter, host, lifeTime, startTime);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public InstanceGroupRecord getInstanceGroupRecord(int instanceGroupId) {
+        String sql = "SELECT * FROM " + this.instanceGroupTableName + " WHERE id = " + instanceGroupId + ";";
+        try {
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                int userRequestId = rs.getInt("userRequestId");
+//                int retryTimes = rs.getInt("retryTimes");
+//                int receivedDc = rs.getInt("receivedDc");
+//                double receivedTime = rs.getDouble("receivedTime");
+//                double finishTime = rs.getDouble("finishTime");
+                int instanceNum = rs.getInt("instanceNum");
+                int successInstanceNum = rs.getInt("successInstanceNum");
+                return new InstanceGroupRecord(id, userRequestId, instanceNum, successInstanceNum);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void close() {
@@ -293,6 +403,8 @@ public class SqlRecord {
                 " belongDc INT NOT NULL, " +
                 " submitTime DOUBLE NOT NULL, " +
                 " finishTime DOUBLE, " +
+                " instanceGroupNum INT NOT NULL, " +
+                " successInstanceGroupNum INT NOT NULL, " +
                 " state CHAR(10) , " +
                 " failReason CHAR(100))";
         stmt.executeUpdate(sql);
@@ -311,6 +423,8 @@ public class SqlRecord {
                 " receivedDc INT NOT NULL," +
                 " receivedTime DOUBLE NOT NULL," +
                 " finishTime DOUBLE," +
+                " instanceNum INT NOT NULL, " +
+                " successInstanceNum INT NOT NULL, " +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;

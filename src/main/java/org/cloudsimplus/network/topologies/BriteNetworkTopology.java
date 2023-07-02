@@ -296,6 +296,16 @@ public class BriteNetworkTopology implements NetworkTopology {
             return false;
         }
         bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] -= allocateBw;
+//        打印bwMatrix
+//        System.out.println("allocate bwMatrix:"+src.getId()+" "+dest.getId() + " "+allocateBw);
+//        for (int i = 0; i < bwMatrix.length; i++) {
+//            for (int j = 0; j < bwMatrix[i].length; j++) {
+//                System.out.print(bwMatrix[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
+//        System.out.println();
+
         return true;
     }
 
@@ -307,13 +317,15 @@ public class BriteNetworkTopology implements NetworkTopology {
     @Override
     public void releaseBw(int srcId, int destId, double releaseBw) {
         bwMatrix[srcId][destId] += releaseBw;
-        //打印bwMatrix
+//        打印bwMatrix
+        System.out.println("release bwMatrix:" + srcId + " " + destId + " " + releaseBw);
 //        for (int i = 0; i < bwMatrix.length; i++) {
 //            for (int j = 0; j < bwMatrix[i].length; j++) {
 //                System.out.print(bwMatrix[i][j] + " ");
 //            }
 //            System.out.println();
 //        }
+//        System.out.println();
     }
 
     @Override

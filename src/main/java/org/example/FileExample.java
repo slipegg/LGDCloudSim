@@ -29,7 +29,7 @@ public class FileExample {
 
     private FileExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.OFF);
+        Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
         factory = new FactorySimple();
         initUser();
