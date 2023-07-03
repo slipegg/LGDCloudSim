@@ -1,7 +1,7 @@
 Parament Name,Parament
 FromDcPercent,"[0.2,0.3,0.2,0.1,0.2]"
-RequestPerNumMin,10
-RequestPerNumMax,10
+RequestPerNumMin,100
+RequestPerNumMax,100
 RequestTimeIntervalMin,90
 RequestTimeIntervalMax,110
 RequestTimes,20
@@ -15,8 +15,8 @@ GroupAccessDelayMax,40
 GroupEdgePercent,1.0
 GroupEdgeIsDirected,0
 GroupBwPercent,1.0
-GroupBwMin,10
-GroupBwMax,100
+GroupBwMin,1
+GroupBwMax,1
 GroupDelayPercent,0.3
 GroupDelayMin,5
 GroupDelayMax,40
