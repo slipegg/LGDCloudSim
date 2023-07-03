@@ -98,14 +98,24 @@ public class CloudInformationService extends CloudSimEntity {
                 }
                 instanceGroup.setState(UserRequest.FAILED);
                 instanceGroup.setFinishTime(getSimulation().clock());
+                Map<Datacenter, List<Integer>> endInstanceIds = new HashMap<>();
                 for (Instance instance : instanceGroup.getInstanceList()) {
                     if (instance.getState() == UserRequest.RUNNING) {
-                        send(instance.getInstanceGroup().getReceiveDatacenter(), 0, CloudSimTag.END_INSTANCE_RUN, instance);
+                        Datacenter placedDc = instance.getInstanceGroup().getReceiveDatacenter();
+                        if (!endInstanceIds.containsKey(placedDc)) {
+                            endInstanceIds.put(placedDc, new ArrayList<>());
+                        }
+                        endInstanceIds.put(placedDc, new ArrayList<>());
                     } else {
                         instance.setState(UserRequest.FAILED);
                         instance.setFinishTime(getSimulation().clock());
                         getSimulation().getSqlRecord().recordInstanceAllInfo(instance);
                     }
+                }
+                for (Map.Entry<Datacenter, List<Integer>> entry : endInstanceIds.entrySet()) {
+                    Datacenter datacenter = entry.getKey();
+                    List<Integer> instanceIds = entry.getValue();
+                    send(datacenter, 0, CloudSimTag.END_INSTANCE_RUN, instanceIds);
                 }
             }
         }

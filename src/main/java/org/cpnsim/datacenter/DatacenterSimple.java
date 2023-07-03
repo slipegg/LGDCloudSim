@@ -260,7 +260,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (list.size() > 0 && list.get(0) instanceof Instance) {
                 for (Instance instance : (List<Instance>) list) {
                     finishInstance(instance);
-//                finishInstanceById(instance.getId());
                 }
             } else {
                 if (list.size() > 0 && list.get(0) instanceof Integer) {
@@ -623,6 +622,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 failInstanceGroups.add(instanceGroup);
             } else {
                 instanceGroup.setReceiveDatacenter(receiveDatacenter);
+                System.out.println("instanceGroup" + instanceGroup.getId() + ",retry nums = " + instanceGroup.getRetryNum());
                 if (!allocateBwForGroup(instanceGroup, receiveDatacenter)) {
                     failInstanceGroups.add(instanceGroup);
                     continue;

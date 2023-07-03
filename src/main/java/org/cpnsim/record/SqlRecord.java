@@ -210,7 +210,7 @@ public class SqlRecord {
             e.printStackTrace();
         }
         //打印linkedFinishGroupId
-        System.out.println("linkedFinishGroupId: " + linkedFinishGroupId);
+//        System.out.println("linkedFinishGroupId: " + linkedFinishGroupId);
     }
 
     public void recordInstanceGroupGraphReleaseInfo(int instanceGroupId, double finishTime) {
