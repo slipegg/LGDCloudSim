@@ -14,7 +14,7 @@ public class InstanceQueueFifo implements InstanceQueue {
 
     public InstanceQueueFifo() {
         instances = new LinkedList<>();
-        batchNum = 6;
+        batchNum = 100000;
     }
 
     public InstanceQueueFifo(int batchNum) {
