@@ -1,17 +1,15 @@
 package org.cloudsimplus.core;
 
-import org.scalecloudsim.datacenter.LoadBalance;
-import org.scalecloudsim.datacenter.LoadBalanceRound;
-import org.scalecloudsim.datacenter.ResourceAllocateSelector;
-import org.scalecloudsim.datacenter.ResourceAllocateSelectorSimple;
-import org.scalecloudsim.innerscheduler.*;
-import org.scalecloudsim.interscheduler.InterScheduler;
-import org.scalecloudsim.interscheduler.InterSchedulerDirect;
-import org.scalecloudsim.interscheduler.InterSchedulerSimple;
-import org.scalecloudsim.statemanager.PredictionManager;
-import org.scalecloudsim.statemanager.PredictionManagerSimple;
-
-import java.util.Map;
+import org.cpnsim.datacenter.LoadBalance;
+import org.cpnsim.datacenter.LoadBalanceRound;
+import org.cpnsim.datacenter.ResourceAllocateSelector;
+import org.cpnsim.datacenter.ResourceAllocateSelectorSimple;
+import org.cpnsim.innerscheduler.*;
+import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.interscheduler.InterSchedulerDirect;
+import org.cpnsim.interscheduler.InterSchedulerSimple;
+import org.cpnsim.statemanager.PredictionManager;
+import org.cpnsim.statemanager.PredictionManagerSimple;
 
 public class FactorySimple implements Factory {
 

@@ -1,12 +1,10 @@
 package org.cloudsimplus.core;
 
-import org.scalecloudsim.datacenter.LoadBalance;
-import org.scalecloudsim.datacenter.ResourceAllocateSelector;
-import org.scalecloudsim.innerscheduler.InnerScheduler;
-import org.scalecloudsim.interscheduler.InterScheduler;
-import org.scalecloudsim.statemanager.PredictionManager;
-
-import java.util.Map;
+import org.cpnsim.datacenter.LoadBalance;
+import org.cpnsim.datacenter.ResourceAllocateSelector;
+import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.statemanager.PredictionManager;
 
 public interface Factory {
     InnerScheduler getInnerScheduler(String type, int id, int firstPartitionId, int partitionNum);

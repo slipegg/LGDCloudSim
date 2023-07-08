@@ -10,11 +10,11 @@ package org.cloudsimplus.core;
 import lombok.Getter;
 import lombok.NonNull;
 import org.cloudsimplus.core.events.SimEvent;
-import org.scalecloudsim.datacenter.Datacenter;
-import org.scalecloudsim.request.Instance;
-import org.scalecloudsim.request.InstanceGroup;
-import org.scalecloudsim.request.InstanceGroupEdge;
-import org.scalecloudsim.request.UserRequest;
+import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.request.Instance;
+import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.InstanceGroupEdge;
+import org.cpnsim.request.UserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,14 +98,24 @@ public class CloudInformationService extends CloudSimEntity {
                 }
                 instanceGroup.setState(UserRequest.FAILED);
                 instanceGroup.setFinishTime(getSimulation().clock());
+                Map<Datacenter, List<Instance>> endInstances = new HashMap<>();
                 for (Instance instance : instanceGroup.getInstanceList()) {
                     if (instance.getState() == UserRequest.RUNNING) {
-                        send(instance.getInstanceGroup().getReceiveDatacenter(), 0, CloudSimTag.END_INSTANCE_RUN, instance);
+                        Datacenter placedDc = instance.getInstanceGroup().getReceiveDatacenter();
+                        if (!endInstances.containsKey(placedDc)) {
+                            endInstances.put(placedDc, new ArrayList<>());
+                        }
+                        endInstances.put(placedDc, new ArrayList<>());
                     } else {
                         instance.setState(UserRequest.FAILED);
                         instance.setFinishTime(getSimulation().clock());
                         getSimulation().getSqlRecord().recordInstanceAllInfo(instance);
                     }
+                }
+                for (Map.Entry<Datacenter, List<Instance>> entry : endInstances.entrySet()) {
+                    Datacenter datacenter = entry.getKey();
+                    List<Instance> instances = entry.getValue();
+                    send(datacenter, 0, CloudSimTag.END_INSTANCE_RUN, instances);
                 }
             }
         }
