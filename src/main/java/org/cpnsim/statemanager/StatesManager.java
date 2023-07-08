@@ -3,7 +3,6 @@ package org.cpnsim.statemanager;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
 import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.record.InstanceRecord;
 import org.cpnsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,6 @@ public interface StatesManager {
     boolean allocate(int hostId, Instance instance);
 
     StatesManager release(int hostId, Instance instance);
-
-    StatesManager release(int hostId, InstanceRecord instance);
 
     DatacenterPowerOnRecord getDatacenterPowerOnRecord();
 

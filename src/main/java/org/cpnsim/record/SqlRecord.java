@@ -100,26 +100,6 @@ public class SqlRecord {
         }
     }
 
-    public void recordUserRequestFinishInfo(UserRequestRecord userRequest) {
-        try {
-            //设置userRequest的finishTime,state,failReason
-            sql = "UPDATE " + this.userRequestTableName + " SET finishTime = " + userRequest.getFinishTime() + ", state = '" + UserRequest.stateToString(UserRequest.SUCCESS) + "', successInstanceGroupNum = " + userRequest.getSuccessInstanceGroupNum() + " WHERE id = " + userRequest.getId() + ";";
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updateUserRequestSuccessInfo(UserRequestRecord userRequest) {
-        try {
-            //设置userRequest的finishTime,state,failReason
-            sql = "UPDATE " + this.userRequestTableName + " SET successInstanceGroupNum = " + userRequest.getSuccessInstanceGroupNum() + " WHERE id = " + userRequest.getId() + ";";
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void recordInstanceGroupReceivedInfo(List<InstanceGroup> instanceGroups) {
         for (InstanceGroup instanceGroup : instanceGroups) {
             recordInstanceGroupReceivedInfo(instanceGroup);
@@ -146,23 +126,6 @@ public class SqlRecord {
         }
     }
 
-    public void recordInstanceGroupFinishInfo(InstanceGroupRecord instanceGroup) {
-        try {
-            sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + ", successInstanceNum = " + instanceGroup.getSuccessInstanceNum() + " WHERE id = " + instanceGroup.getId() + ";";
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updateInstanceGroupSuccessInfo(InstanceGroupRecord instanceGroup) {
-        try {
-            sql = "UPDATE " + this.instanceGroupTableName + " SET successInstanceNum = " + instanceGroup.getSuccessInstanceNum() + " WHERE id = " + instanceGroup.getId() + ";";
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void recordInstanceGroupGraphAllocateInfo(int srcDcId, int srcInstanceGroupId, int dstDcId, int dstInstanceGroupId, double bw, double startTime) {
         try {
@@ -173,94 +136,16 @@ public class SqlRecord {
         }
     }
 
-    private void getAllLinkedFinishGroupId(int instanceGroupId) {
-        Map<String, List<Integer>> linkedFinishGroupId = new HashMap<>();
-        linkedFinishGroupId.put("src", new ArrayList<>());
-        linkedFinishGroupId.put("dst", new ArrayList<>());
-        String sql = "SELECT DISTINCT srcInstanceGroupId" +
-                " FROM " + this.instanceGroupGraphTableName +
-                " WHERE dstInstanceGroupId = " + instanceGroupId + " AND srcInstanceGroupId IN (" +
-                " SELECT id" +
-                " FROM " + this.instanceGroupTableName +
-                " WHERE id = " + this.instanceGroupGraphTableName + ".srcInstanceGroupId AND finishTime IS NOT NULL" +
-                ")";
-        //执行这个sql语句，并把结果放到linkedFinishGroupId的src中
-        try {
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                linkedFinishGroupId.get("src").add(rs.getInt("srcInstanceGroupId"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        sql = "SELECT DISTINCT dstInstanceGroupId" +
-                " FROM " + this.instanceGroupGraphTableName +
-                " WHERE srcInstanceGroupId = " + instanceGroupId + " AND dstInstanceGroupId IN (" +
-                " SELECT id" +
-                " FROM " + this.instanceGroupTableName +
-                " WHERE id = " + this.instanceGroupGraphTableName + ".dstInstanceGroupId AND finishTime IS NOT NULL" +
-                ")";
-        //执行这个sql语句，并把结果放到linkedFinishGroupId的dst中
-        try {
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                linkedFinishGroupId.get("dst").add(rs.getInt("dstInstanceGroupId"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //打印linkedFinishGroupId
-//        System.out.println("linkedFinishGroupId: " + linkedFinishGroupId);
-    }
-
-    public void recordInstanceGroupGraphReleaseInfo(int instanceGroupId, double finishTime) {
-        getAllLinkedFinishGroupId(instanceGroupId);
+    public void recordInstanceGroupGraphReleaseInfo(int srcDcId, int dstDcId, double finishTime) {
         try {
             sql = "UPDATE " + this.instanceGroupGraphTableName +
                     " SET finishTime = " + finishTime +
-                    " WHERE (srcInstanceGroupId = " + instanceGroupId +
-                    " AND dstInstanceGroupId IN (SELECT id FROM " + this.instanceGroupTableName +
-                    " WHERE id = " + this.instanceGroupGraphTableName + ".dstInstanceGroupId AND finishTime IS NOT NULL)) OR (dstInstanceGroupId = " + instanceGroupId +
-                    " AND srcInstanceGroupId IN (SELECT id FROM " + this.instanceGroupTableName +
-                    " WHERE id = " + this.instanceGroupGraphTableName + ".srcInstanceGroupId AND finishTime IS NOT NULL))";
+                    " WHERE (srcInstanceGroupId = " + srcDcId +
+                    " AND dstInstanceGroupId = " + dstDcId + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public Map<Integer, Map<Integer, Double>> getReleaseBw(int instanceGroupId) {
-        Map<Integer, Map<Integer, Double>> releaseBw = new HashMap<>();
-        //sql语句为：SELECT DISTINCT srcInstanceGroupId, dstInstanceGroupId, bw
-        //FROM instanceGroupGraph
-        //         LEFT JOIN instanceGroup AS src ON instanceGroupGraph.srcInstanceGroupId = src.id AND src.finishTime IS NOT NULL
-        //         LEFT JOIN instanceGroup AS dst ON instanceGroupGraph.dstInstanceGroupId = dst.id AND dst.finishTime IS NOT NULL
-        //WHERE (srcInstanceGroupId = instanceGroupId AND dst.finishTime IS NOT NULL)
-        //   OR (dstInstanceGroupId = instanceGroupId AND src.finishTime IS NOT NULL)
-        sql = "SELECT srcInstanceGroupId, dstInstanceGroupId, srcDcId, dstDcId, bw" +
-                " FROM " + this.instanceGroupGraphTableName +
-                " LEFT JOIN " + this.instanceGroupTableName + " AS src ON " + this.instanceGroupGraphTableName + ".srcInstanceGroupId = src.id AND src.finishTime IS NOT NULL" +
-                " LEFT JOIN " + this.instanceGroupTableName + " AS dst ON " + this.instanceGroupGraphTableName + ".dstInstanceGroupId = dst.id AND dst.finishTime IS NOT NULL" +
-                " WHERE (" + this.instanceGroupGraphTableName + ".srcInstanceGroupId = " + instanceGroupId + " AND dst.finishTime IS NOT NULL)" +
-                " OR (" + this.instanceGroupGraphTableName + ".dstInstanceGroupId = " + instanceGroupId + " AND src.finishTime IS NOT NULL)";
-        try {
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                int srcInstanceGroupId = rs.getInt("srcDcId");
-                int dstInstanceGroupId = rs.getInt("dstDcId");
-                double bw = rs.getDouble("bw");
-                if (!releaseBw.containsKey(srcInstanceGroupId)) {
-                    releaseBw.put(srcInstanceGroupId, new HashMap<>());
-                }
-                if (releaseBw.get(srcInstanceGroupId).containsKey(dstInstanceGroupId)) {
-                    bw += releaseBw.get(srcInstanceGroupId).get(dstInstanceGroupId);
-                }
-                releaseBw.get(srcInstanceGroupId).put(dstInstanceGroupId, bw);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return releaseBw;
     }
 
     public void recordInstanceGroupAllInfo(InstanceGroup instanceGroup) {
@@ -300,15 +185,6 @@ public class SqlRecord {
         }
     }
 
-    public void recordInstanceFinishInfo(InstanceRecord instance) {
-        try {
-            sql = "UPDATE " + this.instanceTableName + " SET finishTime = " + instance.getFinishTime() + " WHERE id = " + instance.getId() + ";";
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void recordInstanceAllInfo(Instance instance) {
         try {
             sql = "INSERT INTO " + this.instanceTableName +
@@ -321,67 +197,6 @@ public class SqlRecord {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public UserRequestRecord getUserRequestRecord(int userRequestId) {
-        String sql = "SELECT * FROM " + this.userRequestTableName + " WHERE id = " + userRequestId + ";";
-        try {
-            ResultSet rs = stmt.executeQuery(sql);
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                int instanceGroupNum = rs.getInt("instanceGroupNum");
-                int successInstanceGroupNum = rs.getInt("successInstanceGroupNum");
-                return new UserRequestRecord(id, instanceGroupNum, successInstanceGroupNum);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public InstanceRecord getInstanceRecord(int instanceId) {
-        String sql = "SELECT * FROM " + this.instanceTableName + " WHERE id = " + instanceId + ";";
-        try {
-            ResultSet rs = stmt.executeQuery(sql);
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                int instanceGroupId = rs.getInt("instanceGroupId");
-                int userRequestId = rs.getInt("userRequestId");
-                int cpu = rs.getInt("cpu");
-                int ram = rs.getInt("ram");
-                int storage = rs.getInt("storage");
-                int bw = rs.getInt("bw");
-                int lifeTime = rs.getInt("lifeTime");
-                int datacenter = rs.getInt("datacenter");
-                int host = rs.getInt("host");
-                double startTime = rs.getDouble("startTime");
-                return new InstanceRecord(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, datacenter, host, lifeTime, startTime);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public InstanceGroupRecord getInstanceGroupRecord(int instanceGroupId) {
-        String sql = "SELECT * FROM " + this.instanceGroupTableName + " WHERE id = " + instanceGroupId + ";";
-        try {
-            ResultSet rs = stmt.executeQuery(sql);
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                int userRequestId = rs.getInt("userRequestId");
-//                int retryTimes = rs.getInt("retryTimes");
-//                int receivedDc = rs.getInt("receivedDc");
-//                double receivedTime = rs.getDouble("receivedTime");
-//                double finishTime = rs.getDouble("finishTime");
-                int instanceNum = rs.getInt("instanceNum");
-                int successInstanceNum = rs.getInt("successInstanceNum");
-                return new InstanceGroupRecord(id, userRequestId, instanceNum, successInstanceNum);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public void close() {
