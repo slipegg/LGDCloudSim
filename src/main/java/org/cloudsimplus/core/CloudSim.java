@@ -2,6 +2,7 @@ package org.cloudsimplus.core;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.CollaborationManager;
@@ -9,6 +10,8 @@ import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
 import org.cpnsim.record.MemoryRecord;
 import org.cpnsim.record.SqlRecord;
+import org.cpnsim.record.SqlRecordNull;
+import org.cpnsim.record.SqlRecordSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +43,11 @@ public class CloudSim implements Simulation {
     @Getter
     private NetworkTopology networkTopology;
     @Getter
-    CollaborationManager collaborationManager;
+    private CollaborationManager collaborationManager;
     @Getter
+    @Setter
+    private boolean isSqlRecord;
+
     SqlRecord sqlRecord;
 
     @Getter
@@ -56,7 +62,7 @@ public class CloudSim implements Simulation {
         this.deferred = new DeferredQueue();
         this.cis = new CloudInformationService(this);
         this.simulationAccuracy = 2;
-        this.sqlRecord = new SqlRecord();
+        this.isSqlRecord = true;
     }
 
     @Override
@@ -132,6 +138,11 @@ public class CloudSim implements Simulation {
     @Override
     public double start() {
 //        aborted = false;
+        if (isSqlRecord) {
+            this.sqlRecord = new SqlRecordSimple();
+        } else {
+            this.sqlRecord = new SqlRecordNull();
+        }
         startSync();
         MemoryRecord.recordMemory();
 //
@@ -197,6 +208,16 @@ public class CloudSim implements Simulation {
     @Override
     public boolean isTimeToTerminateSimulationUnderRequest() {
         return isTerminationTimeSet() && clock >= terminationTime;
+    }
+
+    @Override
+    public boolean getIsSqlRecord() {
+        return isSqlRecord;
+    }
+
+    @Override
+    public void setIsSqlRecord(boolean isSqlRecord) {
+        this.isSqlRecord = isSqlRecord;
     }
 
     private boolean runClockTickAndProcessFutureEvents(final double until) {
@@ -307,6 +328,11 @@ public class CloudSim implements Simulation {
     @Override
     public void setSimulationAccuracy(int simulationAccuracy) {
         this.simulationAccuracy = simulationAccuracy;
+    }
+
+    @Override
+    public SqlRecord getSqlRecord() {
+        return sqlRecord;
     }
 
     @Override
