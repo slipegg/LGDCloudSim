@@ -240,13 +240,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         usedCpuNum += instance.getCpu();
     }
 
-    //TODO 正常的end事件只使用Integer
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof List<?> list) {
             if (list.size() > 0 && list.get(0) instanceof Instance) {
+                LOGGER.info("{}: {} received {} instances to finish", getSimulation().clockStr(), getName(), list.size());
                 for (Instance instance : (List<Instance>) list) {
                     finishInstance(instance);
                 }
+                getSimulation().getSqlRecord().recordInstancesFinishInfo((List<Instance>) list);
             }
         }
     }
@@ -255,15 +256,16 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         int hostId = instance.getHost();
         if (getSimulation().clock() - instance.getStartTime() >= instance.getLifeTime() - 0.01 && instance.getLifeTime() != -1) {
             instance.setState(UserRequest.SUCCESS);
-            LOGGER.debug("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+            }
         } else {
             instance.setState(UserRequest.FAILED);
             LOGGER.warn("{}: {}'s Instance{} is terminated prematurely on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
         }
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
-//        sendUpdateStateEvt(hostId, watchDelays);
-        getSimulation().getSqlRecord().recordInstanceFinishInfo(instance);
+//        getSimulation().getSqlRecord().recordInstanceFinishInfo(instance);
         calculateCost(instance);
         updateGroupAndUserRequestState(instance);
     }
@@ -279,7 +281,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             instanceGroup.setFinishTime(getSimulation().clock());
         }
         //instanceGroup的所有实例都已经成功运行完毕
-        LOGGER.debug("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
+        }
         getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
 
         UserRequest userRequest = instanceGroup.getUserRequest();
@@ -305,7 +310,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         //如果InstanceGroup成功运行了就需要更新UserRequest状态信息
         userRequest.addSuccessGroupNum();
         if (userRequest.getState() == UserRequest.SUCCESS) {
-            LOGGER.debug("{}: userRequest{} successfully completed running.", getSimulation().clockStr(), getName());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("{}: userRequest{} successfully completed running.", getSimulation().clockStr(), getName());
+            }
             userRequest.setFinishTime(getSimulation().clock());
             getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
         }
@@ -328,7 +335,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
         List<Instance> failedInstances = null;
         Map<Integer, List<Instance>> finishInstances = new HashMap<>();
-        Map<Integer, List<Integer>> finishInstanceIds = new HashMap<>();
         for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
             int hostId = entry.getKey();
             List<Instance> instances = entry.getValue();
@@ -352,9 +358,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     finishInstances.putIfAbsent(lifeTime, new ArrayList<>());
                     finishInstances.get(lifeTime).add(instance);
                 }
-                getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
+//                getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
             }
         }
+        getSimulation().getSqlRecord().recordInstancesCreateInfo(finishInstances);
         if (failedInstances != null) {
             innerScheduleFailed(failedInstances);
         }

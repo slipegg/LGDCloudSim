@@ -31,6 +31,7 @@ public class SqlRecord {
     @Setter
     private String dbPath = null;
     private String sql = null;
+    private PreparedStatement statement;
 
     public SqlRecord() {
 //        this("./RecordDb", "scaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".db", "userRequest", "instanceGroup", "instance");
@@ -101,17 +102,19 @@ public class SqlRecord {
     }
 
     public void recordInstanceGroupReceivedInfo(List<InstanceGroup> instanceGroups) {
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            recordInstanceGroupReceivedInfo(instanceGroup);
-        }
-    }
-
-    public void recordInstanceGroupReceivedInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,successInstanceNum)"
-                    + " VALUES (" + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + "," + instanceGroup.getReceiveDatacenter().getId()
-                    + "," + instanceGroup.getReceivedTime() + "," + instanceGroup.getInstanceList().size() + "," + 0 + ");";
-            stmt.executeUpdate(sql);
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,successInstanceNum) VALUES (?,?,?,?,?,?,?);");
+            for (InstanceGroup instanceGroup : instanceGroups) {
+                statement.setInt(1, instanceGroup.getId());
+                statement.setInt(2, instanceGroup.getUserRequest().getId());
+                statement.setInt(3, instanceGroup.getRetryNum());
+                statement.setInt(4, instanceGroup.getReceiveDatacenter().getId());
+                statement.setDouble(5, instanceGroup.getReceivedTime());
+                statement.setInt(6, instanceGroup.getInstanceList().size());
+                statement.setInt(7, 0);
+                statement.addBatch();
+            }
+            statement.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -176,10 +179,55 @@ public class SqlRecord {
         }
     }
 
+    public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
+        try {
+            statement = conn.prepareStatement("INSERT INTO instance " +
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //遍历instances的value
+            for (List<Instance> instanceList : instances.values()) {
+                for (Instance instance : instanceList) {
+                    if (instance.getState() == UserRequest.RUNNING) {
+                        statement.setInt(1, instance.getId());
+                        statement.setInt(2, instance.getInstanceGroup().getId());
+                        statement.setInt(3, instance.getUserRequest().getId());
+                        statement.setDouble(4, instance.getCpu());
+                        statement.setDouble(5, instance.getRam());
+                        statement.setDouble(6, instance.getStorage());
+                        statement.setDouble(7, instance.getBw());
+                        statement.setDouble(8, instance.getLifeTime());
+                        statement.setInt(9, instance.getRetryNum());
+                        statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
+                        statement.setInt(11, instance.getHost());
+                        statement.setDouble(12, instance.getStartTime());
+                        statement.addBatch();
+                    }
+                }
+            }
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void recordInstanceFinishInfo(Instance instance) {
         try {
             sql = "UPDATE " + this.instanceTableName + " SET finishTime = " + instance.getFinishTime() + " WHERE id = " + instance.getId() + ";";
             stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void recordInstancesFinishInfo(List<Instance> instances) {
+        try {
+            statement = conn.prepareStatement("UPDATE instance SET finishTime = ? WHERE id = ?");
+            for (Instance instance : instances) {
+                statement.setDouble(1, instance.getFinishTime());
+                statement.setInt(2, instance.getId());
+                statement.addBatch();
+            }
+            statement.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
