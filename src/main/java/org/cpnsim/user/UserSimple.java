@@ -76,7 +76,7 @@ public class UserSimple extends CloudSimEntity {
                 continue;
             Datacenter datacenter = datacenterList.get(datacenterId);
             send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
-            getSimulation().getSqlRecord().recordUserRequestSubmitInfo(userRequests);
+            getSimulation().getSqlRecord().recordUserRequestsSubmitinfo(userRequests);
             LOGGER.error("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
         }
         send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);

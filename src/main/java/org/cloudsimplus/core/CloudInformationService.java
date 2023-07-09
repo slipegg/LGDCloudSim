@@ -90,6 +90,7 @@ public class CloudInformationService extends CloudSimEntity {
                 }
             }
             //释放主机资源,结束已经在运行的任务,并且记录未运行的instance
+            List<Instance> recordInstances = new ArrayList<>();
             for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
                 if (instanceGroup.getState() == UserRequest.SCHEDULING) {
                     getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
@@ -109,7 +110,8 @@ public class CloudInformationService extends CloudSimEntity {
                     } else {
                         instance.setState(UserRequest.FAILED);
                         instance.setFinishTime(getSimulation().clock());
-                        getSimulation().getSqlRecord().recordInstanceAllInfo(instance);
+//                        getSimulation().getSqlRecord().recordInstanceAllInfo(instance);
+                        recordInstances.add(instance);
                     }
                 }
                 for (Map.Entry<Datacenter, List<Instance>> entry : endInstances.entrySet()) {
@@ -118,6 +120,7 @@ public class CloudInformationService extends CloudSimEntity {
                     send(datacenter, 0, CloudSimTag.END_INSTANCE_RUN, instances);
                 }
             }
+            getSimulation().getSqlRecord().recordInstancesAllInfo(recordInstances);
         }
     }
 }

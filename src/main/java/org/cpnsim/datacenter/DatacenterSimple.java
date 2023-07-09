@@ -479,7 +479,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         evt.getSource().getName(),
                         instanceGroups.size(),
                         instanceQueue.size());
-                getSimulation().getSqlRecord().recordInstanceGroupReceivedInfo(instanceGroups);
+                getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
             } else if (instancesTmp.get(0) instanceof Instance) {
                 List<Instance> instances = (List<Instance>) instancesTmp;
                 instances.removeIf(instance -> instance.getUserRequest().getState() == UserRequest.FAILED);
