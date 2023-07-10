@@ -248,6 +248,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     finishInstance(instance);
                 }
                 getSimulation().getSqlRecord().recordInstancesFinishInfo((List<Instance>) list);
+                System.gc();
             }
         }
     }
