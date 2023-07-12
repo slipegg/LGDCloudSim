@@ -1,5 +1,7 @@
 package org.cpnsim.historyrecord;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +10,7 @@ public class DArraySimple implements DArray {
     private List<Integer> arrayRange;
     private List<int[]> arraysPointer;
     private int[] array;
+    @Getter
     private int capacity;
 
     public DArraySimple() {

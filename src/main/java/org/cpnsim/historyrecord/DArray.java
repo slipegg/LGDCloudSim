@@ -6,4 +6,5 @@ public interface DArray {
     void put(int position, int element);
 
     void expand(double factor);
+    int getCapacity();
 }
