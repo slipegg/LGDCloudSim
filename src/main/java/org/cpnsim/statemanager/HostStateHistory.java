@@ -8,6 +8,11 @@ public class HostStateHistory extends HostState {
         this.time = time;
     }
 
+    public HostStateHistory(int[] hostState, double time) {
+        super(hostState[0], hostState[1], hostState[2], hostState[3]);
+        this.time = time;
+    }
+
     public HostStateHistory() {
         super(-1, -1, -1, -1);
         this.time = -1;

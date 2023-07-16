@@ -16,7 +16,7 @@ public class StatesManagerSimple implements StatesManager {
     @Getter
     int hostNum;
     //partitionId,synTime,hostId,hostState
-    Map<Integer, Map<Double, Map<Integer, int[]>>> synStateMap;
+    Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synStateMap;
     Map<InnerScheduler, Map<Integer, Map<Integer, int[]>>> selfHostStateMap;
     @Getter
     @Setter
@@ -45,6 +45,10 @@ public class StatesManagerSimple implements StatesManager {
     @Getter
     @Setter
     PredictionManager predictionManager;
+
+    @Getter
+    @Setter
+    int predictRecordNum = 0;
 //    Map<Integer,int[]> oldState;
 
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
@@ -68,7 +72,7 @@ public class StatesManagerSimple implements StatesManager {
     private void initSynStateMap() {
         synStateMap = new HashMap<>();
         for (int partitionId : partitionRangesManager.getPartitionIds()) {
-            Map<Double, Map<Integer, int[]>> partitionSynStateMap = new TreeMap<>();
+            TreeMap<Double, Map<Integer, int[]>> partitionSynStateMap = new TreeMap<>();
             partitionSynStateMap.put(0.0, new HashMap<>());
             synStateMap.put(partitionId, partitionSynStateMap);
         }
@@ -91,7 +95,7 @@ public class StatesManagerSimple implements StatesManager {
 
     @Override
     public SynState getSynState(InnerScheduler scheduler) {
-        Map<Integer, Map<Integer, int[]>> synState = new HashMap<>();
+        Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState = new HashMap<>();
         Map<Integer, Map<Integer, int[]>> selfHostState;
         int[] partitionIds = partitionRangesManager.getPartitionIds();
 
@@ -102,25 +106,40 @@ public class StatesManagerSimple implements StatesManager {
             }
         }
         selfHostState = selfHostStateMap.get(scheduler);
-        if (synGap == 0) {
-            for (int partitionId : partitionIds) {
-                synState.put(partitionId, new HashMap<>());
-            }
-            return new SynStateSimple(synState, hostStates, partitionRangesManager, selfHostState);
-        } else {
-            int smallSynNum = (int) (datacenter.getSimulation().clock() / smallSynGap);
-            int synPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionNum;
-            for (int i = 0; i < partitionNum; i++) {
-                int partitionId = (synPartitionId + i) % partitionNum;
-                double synTime = max(0.0, smallSynGap * (smallSynNum - i));//TODO 有问题，如果分区和时间不能被整除应该要处理
-                if (synStateMap.get(partitionId).get(synTime) == null) {
-                    synState.put(partitionId, new HashMap<>());
-                } else {
-                    synState.put(partitionId, synStateMap.get(partitionId).get(synTime));
-                }
-            }
-            return new SynStateSimple(synState, hostStates, partitionRangesManager, selfHostState);
-        }
+        return new SynStateSimple(this, synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler);
+//        if (synGap == 0) {
+//            for (int partitionId : partitionIds) {
+//                synState.put(partitionId, new TreeMap<>());
+//                synState.get(partitionId).put(datacenter.getSimulation().clock(), new HashMap<>());
+//            }
+//            return new SynStateSimple(this, synState, hostStates, partitionRangesManager, selfHostState, scheduler);
+//        } else {
+//            int smallSynNum = (int) (datacenter.getSimulation().clock() / smallSynGap);
+//            int synPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionNum;
+//            for (int i = 0; i < partitionNum; i++) {
+//                int partitionId = (synPartitionId + partitionNum - i) % partitionNum;
+//                double synTime = max(0.0, smallSynGap * (smallSynNum - i));//TODO 有问题，如果分区和时间不能被整除应该要处理
+//                synState.put(partitionId, new TreeMap<>());
+//                if(!predictable){
+//                    if (synStateMap.get(partitionId).get(synTime) == null) {
+//                        synState.get(partitionId).put(synTime, new HashMap<>());
+//                    } else {
+//                        synState.get(partitionId).put(synTime, synStateMap.get(partitionId).get(synTime));
+//                    }
+//                }
+//                else{
+//                    for(int j = 0;j < predictRecordNum;j++){
+//                        double recordTime = synTime - synGap * j;
+//                        if (synStateMap.get(partitionId).get(recordTime) == null) {
+//                            synState.get(partitionId).put(recordTime, new HashMap<>());
+//                        } else {
+//                            synState.get(partitionId).put(recordTime, synStateMap.get(partitionId).get(recordTime));
+//                        }
+//                    }
+//                }
+//            }
+//            return new SynStateSimple(this, synState, hostStates, partitionRangesManager, selfHostState, scheduler);
+//        }
     }
 
 
@@ -131,8 +150,10 @@ public class StatesManagerSimple implements StatesManager {
         }
         double nowTime = datacenter.getSimulation().clock();
         for (Map<Double, Map<Integer, int[]>> partitionSynStateMap : synStateMap.values()) {
-            if (nowTime - synGap >= 0) {
+            if (!predictable && nowTime - synGap >= 0) {
                 partitionSynStateMap.remove(nowTime - synGap);
+            } else if (predictable && nowTime - synGap * predictRecordNum >= 0) {
+                partitionSynStateMap.remove(nowTime - synGap * predictRecordNum);
             }
             partitionSynStateMap.put(nowTime, new HashMap<>());
         }
@@ -235,11 +256,10 @@ public class StatesManagerSimple implements StatesManager {
 
     private void updateSynStateMap(int hostId, int[] synHostState) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
-        Map<Double, Map<Integer, int[]>> partitionSynStateMap = synStateMap.get(partitionId);
-        for (Double synTime : partitionSynStateMap.keySet()) {
-            if (!partitionSynStateMap.get(synTime).containsKey(hostId)) {//第一次变化的时候将原本的状态存入进去，如果原本就存了就不需要变
-                partitionSynStateMap.get(synTime).put(hostId, synHostState);
-            }
+        TreeMap<Double, Map<Integer, int[]>> partitionSynStateMap = synStateMap.get(partitionId);
+        double largestSynTime = partitionSynStateMap.lastKey();
+        if (!partitionSynStateMap.get(largestSynTime).containsKey(hostId)) {
+            partitionSynStateMap.get(largestSynTime).put(hostId, synHostState);
         }
     }
 
