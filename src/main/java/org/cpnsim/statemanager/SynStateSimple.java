@@ -5,10 +5,7 @@ import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.request.Instance;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.apache.commons.lang3.math.NumberUtils.max;
 
@@ -23,26 +20,43 @@ public class SynStateSimple implements SynState {
     InnerScheduler scheduler;
     StatesManagerSimple statesManagerSimple;
     Datacenter datacenter;
+    int smallSynNum;
+    double smallSynGap;
+    int latestSynPartitionId;
+    Map<Integer,Double> partitionLatestSynTime = new HashMap<>();
+    Map<Integer,Double> partitionOldestSynTime = new HashMap<>();
+    double nowTime;
 
     public SynStateSimple(StatesManagerSimple statesManagerSimple, Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState, int[] nowHostStates, PartitionRangesManager partitionRangesManager, Map<Integer, Map<Integer, int[]>> selfHostState, InnerScheduler scheduler) {
         this.synState = synState;
         this.nowHostStates = nowHostStates;
         this.partitionRangesManager = partitionRangesManager;
-        this.statesManagerSimple = statesManagerSimple;
         this.selfHostState = selfHostState;
         this.scheduler = scheduler;
+        this.statesManagerSimple = statesManagerSimple;
         this.datacenter = statesManagerSimple.getDatacenter();
+        this.smallSynGap = statesManagerSimple.smallSynGap;
+        this.nowTime = datacenter.getSimulation().clock();
+        this.smallSynNum = (int) (nowTime / smallSynGap);
+        this.latestSynPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionRangesManager.getPartitionNum();
+
+        for(int partitionId : partitionRangesManager.getPartitionIds()){
+            double latestSynTime = max(0.0, statesManagerSimple.smallSynGap * (smallSynNum - (latestSynPartitionId + partitionRangesManager.getPartitionNum() - partitionId) % partitionRangesManager.getPartitionNum()));//TODO 有问题，如果分区和时间不能被整除应该要处理
+            double oldestSynTime = max(0.0, latestSynTime - statesManagerSimple.synGap * (statesManagerSimple.predictRecordNum - 1));
+            partitionLatestSynTime.put(partitionId,latestSynTime);
+            partitionOldestSynTime.put(partitionId,oldestSynTime);
+        }
     }
 
     private int[] getSynHostState(int hostId) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
-        int smallSynNum = (int) (datacenter.getSimulation().clock() / statesManagerSimple.smallSynGap);
-        int synPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionRangesManager.getPartitionNum();
-        double synTime = max(0.0, statesManagerSimple.smallSynGap * (smallSynNum - (synPartitionId + partitionRangesManager.getPartitionNum() - partitionId)));//TODO 有问题，如果分区和时间不能被整除应该要处理
-        for (double time : synState.get(synPartitionId).keySet()) {
-            if (time >= synTime && synState.get(synPartitionId).get(time).containsKey(hostId)) {
-                return synState.get(synPartitionId).get(time).get(hostId);
+        TreeMap<Double,Map<Integer,int[]>> partitionSynState = synState.get(partitionId);
+        double synTime = partitionLatestSynTime.get(partitionId);
+        while(synTime<=nowTime){
+            if(partitionSynState.containsKey(synTime) && partitionSynState.get(synTime).containsKey(hostId)){
+                return partitionSynState.get(synTime).get(hostId);
             }
+            synTime += smallSynGap;
         }
         return null;
     }
@@ -50,18 +64,17 @@ public class SynStateSimple implements SynState {
     private int[] getPredictSynState(int hostId) {
         List<HostStateHistory> hostStateHistories = new ArrayList<>();
         int partitionId = partitionRangesManager.getPartitionId(hostId);
-        int smallSynNum = (int) (datacenter.getSimulation().clock() / statesManagerSimple.smallSynGap);
-        int synPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionRangesManager.getPartitionNum();
-        double synTime = max(0.0, statesManagerSimple.smallSynGap * (smallSynNum - (synPartitionId + partitionRangesManager.getPartitionNum() - partitionId)));//TODO 有问题，如果分区和时间不能被整除应该要处理
-        double predictTime = synTime - statesManagerSimple.synGap * (statesManagerSimple.predictRecordNum - 1);
-        for (double time : synState.get(synPartitionId).keySet()) {
-            if (time >= predictTime && synState.get(synPartitionId).get(time).containsKey(hostId)) {
-                hostStateHistories.add(new HostStateHistory(synState.get(synPartitionId).get(time).get(hostId), time));
+        TreeMap<Double,Map<Integer,int[]>> partitionSynState = synState.get(partitionId);
+        double synTime = partitionLatestSynTime.get(partitionId);
+        double oldTime = partitionOldestSynTime.get(partitionId);
+        for (double time : partitionSynState.keySet()) {
+            if (time >= oldTime && partitionSynState.get(time).containsKey(hostId)) {
+                hostStateHistories.add(new HostStateHistory(partitionSynState.get(time).get(hostId), time));
                 do {
-                    predictTime += statesManagerSimple.synGap;
-                } while (time >= predictTime);
+                    oldTime += statesManagerSimple.synGap;
+                } while (time >= oldTime);
             }
-            if (predictTime > synTime) {
+            if (oldTime > synTime) {
                 break;
             }
         }
