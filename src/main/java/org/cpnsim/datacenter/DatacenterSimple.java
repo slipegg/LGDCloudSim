@@ -548,7 +548,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 failInstanceGroups.add(instanceGroup);
             } else {
                 instanceGroup.setReceiveDatacenter(receiveDatacenter);
-                System.out.println("instanceGroup" + instanceGroup.getId() + ",retry nums = " + instanceGroup.getRetryNum());
                 if (!allocateBwForGroup(instanceGroup, receiveDatacenter)) {
                     failInstanceGroups.add(instanceGroup);
                     continue;

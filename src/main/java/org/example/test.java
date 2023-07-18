@@ -8,6 +8,10 @@ import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.util.Log;
 import org.cpnsim.datacenter.*;
+import org.cpnsim.historyrecord.DArray;
+import org.cpnsim.historyrecord.DArraySimple;
+import org.cpnsim.historyrecord.HistoryRecord;
+import org.cpnsim.historyrecord.HostRecordSimple;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.innerscheduler.InnerSchedulerSimple;
 import org.cpnsim.interscheduler.InterScheduler;
@@ -18,10 +22,7 @@ import org.cpnsim.user.UserRequestManager;
 import org.cpnsim.user.UserRequestManagerCsv;
 import org.cpnsim.user.UserSimple;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class test {
     Simulation scaleCloudSim;
@@ -43,31 +44,31 @@ public class test {
 
     private test() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.DEBUG);
-        scaleCloudSim = new CloudSim();
-//        scaleCloudSim.terminateAt(1000);
-        factory = new FactorySimple();
-        initUser();
-        initDatacenters();
-        initNetwork();
-        double endInit = System.currentTimeMillis();
-        scaleCloudSim.start();
-        double end = System.currentTimeMillis();
-        System.out.println("\n运行情况：");
-        System.out.println("初始化耗时：" + (endInit - start) / 1000 + "s");
-        System.out.println("模拟运行耗时：" + (end - endInit) / 1000 + "s");
-        System.out.println("模拟总耗时：" + (end - start) / 1000 + "s");
-        MemoryRecord.recordMemory();
-        Runtime runtime = Runtime.getRuntime();
-        long totalMemory = runtime.totalMemory(); //总内存
-        long freeMemory = runtime.freeMemory(); //空闲内存
-        long usedMemory = totalMemory - freeMemory; //已用内存
-        System.out.println("占用内存: " + usedMemory / 1000000 + " Mb");
-        System.out.println("运行过程占用最大内存: " + MemoryRecord.getMaxUsedMemory() / 1000000 + " Mb");
-        System.out.println("运行结果保存路径:" + scaleCloudSim.getSqlRecord().getDbPath());
-        for (Datacenter datacenter : scaleCloudSim.getCollaborationManager().getDatacenters(1)) {
-            System.out.println(datacenter.getName() + " cost:" + datacenter.getAllCost());
+//        HistoryRecord historyRecord = new HostRecordSimple();
+//        Map<Integer,HostStateHistory> recordMap = new HashMap<>();
+//        Map<Integer,int[]> recordMapNew = new HashMap<>();
+        Map<Integer,Integer> hostIndexMap = new HashMap<>();
+        DArray dArray = new DArraySimple(30_000_000);
+        int time = 0;
+        for(;time<1;time++){
+            for(int hostId = 0;hostId<6_000_000;hostId++){
+//                historyRecord.record(hostId,time,time,time,time,time);
+//                recordMap.put(hostId,new HostStateHistory(time,time,time,time,time));
+//                recordMapNew.put(hostId,new int[]{time,time,time,time,time});
+                hostIndexMap.put(hostId,hostId*5);
+                for(int i=0;i<5;i++)
+                    dArray.put(hostId*5+i,time);
+            }
         }
+        double end = System.currentTimeMillis();
+        System.out.println(end-start);
+
+//        time= 19;
+//        historyRecord.record(6,time,time,time,time,time);
+//        List<HostStateHistory> hostStateHistories = historyRecord.get(6);
+//        for(HostStateHistory hostStateHistory:hostStateHistories){
+//            System.out.println(hostStateHistory);
+//        }
     }
 
     private void initUser() {
