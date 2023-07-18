@@ -115,7 +115,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
                 synPartitionId = (firstPartitionId + smallSynNum) % partitionNum;
             }
             for (int p = 0; p < partitionNum; p++) {
-                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange(synPartitionId + p);
+                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + p) % partitionNum);
                 for (int i = range[0]; i <= range[1]; i++) {
                     if (synState.isSuitable(i, instance)) {
                         suitId = i;
