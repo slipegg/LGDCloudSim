@@ -106,7 +106,7 @@ public class StatesManagerSimple implements StatesManager {
             }
         }
         selfHostState = selfHostStateMap.get(scheduler);
-        return new SynStateSimple(this, synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler);
+        return new SynStateSimple(synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler, predictionManager, getDatacenter().getSimulation().clock(), smallSynGap, synGap, predictRecordNum, predictable);
 //        if (synGap == 0) {
 //            for (int partitionId : partitionIds) {
 //                synState.put(partitionId, new TreeMap<>());

@@ -50,4 +50,8 @@ public interface StatesManager {
     int getHostNum();
 
     StatesManager revertHostState(Map<Integer, List<Instance>> scheduleResult, InnerScheduler innerScheduler);
+
+    StatesManager setPredictRecordNum(int predictRecordNum);
+
+    int getPredictRecordNum();
 }
