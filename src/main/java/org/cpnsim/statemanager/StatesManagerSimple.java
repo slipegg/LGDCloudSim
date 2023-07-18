@@ -179,7 +179,7 @@ public class StatesManagerSimple implements StatesManager {
         hostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
         hostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
 
-        updateSimpleState(hostId, synHostState, instance);
+        updateSimpleState(hostId, synHostState);
         datacenterPowerOnRecord.hostAllocateInstance(hostId, datacenter.getSimulation().clock());
         return true;
     }
@@ -196,7 +196,7 @@ public class StatesManagerSimple implements StatesManager {
         hostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
         hostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
 
-        updateSimpleState(hostId, synHostState, instance);
+        updateSimpleState(hostId, synHostState);
         datacenterPowerOnRecord.hostReleaseInstance(hostId, datacenter.getSimulation().clock());
         return this;
     }
@@ -263,10 +263,10 @@ public class StatesManagerSimple implements StatesManager {
         }
     }
 
-    private void updateSimpleState(int hostId, int[] synHostState, Instance instance) {
+    private void updateSimpleState(int hostId, int[] synHostState) {
         simpleState.updateCpuRamMap(synHostState[0], synHostState[1],
                 hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
-        simpleState.updateStorageSum(-1 * instance.getStorage());
-        simpleState.updateBwSum(-1 * instance.getBw());
+        simpleState.updateStorageSum(hostStates[hostId * HostState.STATE_NUM + 2] - synHostState[2]);
+        simpleState.updateBwSum(hostStates[hostId * HostState.STATE_NUM + 3] - synHostState[3]);
     }
 }
