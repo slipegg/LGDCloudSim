@@ -49,6 +49,9 @@ public class SynStateSimple implements SynState {
     }
 
     private int[] getSynHostState(int hostId) {
+        if(smallSynGap == 0){
+            return null;
+        }
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         TreeMap<Double,Map<Integer,int[]>> partitionSynState = synState.get(partitionId);
         double synTime = partitionLatestSynTime.get(partitionId);
@@ -62,6 +65,9 @@ public class SynStateSimple implements SynState {
     }
 
     private int[] getPredictSynState(int hostId) {
+        if (smallSynGap == 0) {
+            return null;
+        }
         List<HostStateHistory> hostStateHistories = new ArrayList<>();
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         TreeMap<Double,Map<Integer,int[]>> partitionSynState = synState.get(partitionId);
@@ -115,21 +121,24 @@ public class SynStateSimple implements SynState {
             hostState[1] -= instance.getRam();
             hostState[2] -= instance.getStorage();
             hostState[3] -= instance.getBw();
-        } else if (synState.get(partitionId).containsKey(hostId)) {
-            int[] hostState = getSynHostState(hostId);
-            selfHostState.get(partitionId).put(hostId, new int[]{
-                    hostState[0] - instance.getCpu(),
-                    hostState[1] - instance.getRam(),
-                    hostState[2] - instance.getStorage(),
-                    hostState[3] - instance.getBw()
-            });
-        } else {
-            selfHostState.get(partitionId).put(hostId, new int[]{
-                    nowHostStates[hostId * HostState.STATE_NUM] - instance.getCpu(),
-                    nowHostStates[hostId * HostState.STATE_NUM + 1] - instance.getRam(),
-                    nowHostStates[hostId * HostState.STATE_NUM + 2] - instance.getStorage(),
-                    nowHostStates[hostId * HostState.STATE_NUM + 3] - instance.getBw()
-            });
+        } else
+            {
+                int[] hostState = getSynHostState(hostId);
+                if (hostState != null){
+                    selfHostState.get(partitionId).put(hostId, new int[]{
+                            hostState[0] - instance.getCpu(),
+                            hostState[1] - instance.getRam(),
+                            hostState[2] - instance.getStorage(),
+                            hostState[3] - instance.getBw()
+                    });
+                } else {
+                    selfHostState.get(partitionId).put(hostId, new int[]{
+                            nowHostStates[hostId * HostState.STATE_NUM] - instance.getCpu(),
+                            nowHostStates[hostId * HostState.STATE_NUM + 1] - instance.getRam(),
+                            nowHostStates[hostId * HostState.STATE_NUM + 2] - instance.getStorage(),
+                            nowHostStates[hostId * HostState.STATE_NUM + 3] - instance.getBw()
+                    });
+                }
         }
     }
 }
