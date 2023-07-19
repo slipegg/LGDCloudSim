@@ -115,11 +115,15 @@ public class InitDatacenter {
     }
 
     private static void setPrediction(StatesManager statesManager, JsonObject datacenterJson) {
-        JsonObject predictionJson = datacenterJson.getJsonObject("prediction");
-        PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
-        statesManager.setPredictionManager(predictionManager);
         boolean isPredict = datacenterJson.getBoolean("isPredict");
         statesManager.setPredictable(isPredict);
+        if (isPredict) {
+            JsonObject predictionJson = datacenterJson.getJsonObject("prediction");
+            PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
+            statesManager.setPredictionManager(predictionManager);
+            int predictRecordNum = predictionJson.getInt("predictRecordNum");
+            statesManager.setPredictRecordNum(predictRecordNum);
+        }
     }
 
     private static void initHostState(StatesManager statesManager, JsonObject datacenterJson) {
