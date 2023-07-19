@@ -9,6 +9,7 @@ public class CloudSimTag {
      * Starting constant value for cloud-related tags.
      */
     private static final int BASE = 0;
+    public static final int CHANGE_COLLABORATION_SYN = BASE - 4;
     public static final int END_INSTANCE_RUN = -3;
     public static final int SYN_STATE = BASE - 2;
     public static final int USER_REQUEST_FAIL = BASE - 1;
@@ -38,6 +39,7 @@ public class CloudSimTag {
 
     public static String tagToString(int tag) {
         return switch (tag) {
+            case CHANGE_COLLABORATION_SYN -> "CHANGE_COLLABORATION_SYN";
             case SYN_STATE -> "SYN_STATE";
             case USER_REQUEST_FAIL -> "USER_REQUEST_FAIL";
             case DC_REGISTRATION_REQUEST -> "DC_REGISTRATION_REQUEST";

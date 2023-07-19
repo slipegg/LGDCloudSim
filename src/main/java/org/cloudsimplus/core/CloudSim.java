@@ -236,11 +236,11 @@ public class CloudSim implements Simulation {
     }
 
     private boolean isOnlySyn() {
-        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size()) {
+        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size() + 1) {
             return false;
         }
         for (SimEvent simEvent : future.stream().toList()) {
-            if (simEvent.getTag() != CloudSimTag.SYN_STATE) {
+            if (simEvent.getTag() != CloudSimTag.SYN_STATE && simEvent.getTag() != CloudSimTag.CHANGE_COLLABORATION_SYN) {
                 return false;
             }
         }

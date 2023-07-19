@@ -29,4 +29,14 @@ public interface CollaborationManager {
     Map<Integer, Set<Datacenter>> getCollaborationMap();
 
     List<Integer> getCollaborationIds();
+
+    double getChangeCollaborationSynTime();
+
+    CollaborationManager setChangeCollaborationSynTime(double changeCollaborationSynTime);
+
+    boolean getIsChangeCollaborationSyn();
+
+    CollaborationManager setIsChangeCollaborationSyn(boolean isChangeCollaborationSyn);
+
+    CollaborationManager changeCollaboration();
 }

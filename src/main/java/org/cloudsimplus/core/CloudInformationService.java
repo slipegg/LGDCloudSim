@@ -10,6 +10,7 @@ package org.cloudsimplus.core;
 import lombok.Getter;
 import lombok.NonNull;
 import org.cloudsimplus.core.events.SimEvent;
+import org.cpnsim.datacenter.CollaborationManager;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
@@ -55,7 +56,10 @@ public class CloudInformationService extends CloudSimEntity {
 
     @Override
     protected void startInternal() {
-
+        CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
+        if (collaborationManager.getIsChangeCollaborationSyn()) {
+            send(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
+        }
     }
 
     @Override
@@ -67,6 +71,15 @@ public class CloudInformationService extends CloudSimEntity {
             // A Broker is requesting a list of all datacenters.
             case CloudSimTag.DC_LIST_REQUEST -> super.send(evt.getSource(), 0, evt.getTag(), datacenterList);
             case CloudSimTag.USER_REQUEST_FAIL -> processUserRequestFail(evt);
+            case CloudSimTag.CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
+        }
+    }
+
+    public void processChangeCollaborationSyn(SimEvent evt) {
+        CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
+        collaborationManager.changeCollaboration();
+        if (collaborationManager.getIsChangeCollaborationSyn()) {
+            send(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
         }
     }
 
