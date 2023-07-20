@@ -4,6 +4,7 @@ import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
@@ -54,9 +55,9 @@ public class CollaborationManagerSimpleTest {
         Datacenter dc2 = new DatacenterSimple(scaleCloudSim);
         Map<Integer, Set<Datacenter>> collaborationMap = Map.of(0, Set.of(dc1), 1, Set.of(dc0, dc2));
         collaborationManager.addDatacenter(collaborationMap);
-        List<Datacenter> excepted = List.of(dc1);
-        assertEquals(excepted, collaborationManager.getOtherDatacenters(dc0, 0));
-        List<Datacenter> excepted1 = List.of(dc1, dc2);
-        assertEquals(excepted1, collaborationManager.getOtherDatacenters(dc0));
+        Set<Datacenter> excepted = Set.of(dc1);
+        assertEquals(excepted, new HashSet<>(collaborationManager.getOtherDatacenters(dc0, 0)));
+        Set<Datacenter> excepted1 = Set.of(dc1, dc2);
+        assertEquals(excepted1, new HashSet<>(collaborationManager.getOtherDatacenters(dc0)));
     }
 }
