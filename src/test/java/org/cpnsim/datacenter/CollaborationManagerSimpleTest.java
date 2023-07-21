@@ -63,13 +63,8 @@ public class CollaborationManagerSimpleTest {
     }
 
     private <T> Map<Integer, Set<T>> ignoreEmptyValue(Map<Integer, Set<T>> m) {
-        Map<Integer, Set<T>> result = new HashMap<Integer, Set<T>>();
-        for (Map.Entry<Integer, Set<T>> entry : m.entrySet()) {
-            if (!entry.getValue().isEmpty()) {
-                // add this entry to result
-                result.put(entry.getKey(), entry.getValue());
-            }
-        }
+        Map<Integer, Set<T>> result = new HashMap<>(m);
+        result.entrySet().removeIf((e) -> e.getValue().isEmpty());
         return result;
     }
 
@@ -105,6 +100,11 @@ public class CollaborationManagerSimpleTest {
         Simulation scaleCloudSim = new CloudSim();
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
         Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
+
+        // remove dc0 from empty collaborationManager
+        // excepted: collaborationMap = Map.of();
+        collaborationManager.removeDatacenter(dc0);
+        assertEquals(Map.of(), collaborationManager.getCollaborationMap());
         
         // add (dc0, 0) and (dc0, 1) to collaborationManager
         // expected: collaborationMap = Map.of(0, Set.of(dc0), 1, Set.of(dc0));
