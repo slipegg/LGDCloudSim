@@ -56,10 +56,8 @@ public class CollaborationManagerSimpleTest {
         Datacenter dc2 = new DatacenterSimple(scaleCloudSim);
         Map<Integer, Set<Datacenter>> collaborationMap = Map.of(0, Set.of(dc1), 1, Set.of(dc0, dc2));
         collaborationManager.addDatacenter(collaborationMap);
-        Set<Datacenter> excepted = Set.of(dc1);
-        assertEquals(excepted, new HashSet<>(collaborationManager.getOtherDatacenters(dc0, 0)));
-        Set<Datacenter> excepted1 = Set.of(dc1, dc2);
-        assertEquals(excepted1, new HashSet<>(collaborationManager.getOtherDatacenters(dc0)));
+        assertEquals(Set.of(dc1), unordered(collaborationManager.getOtherDatacenters(dc0, 0)));
+        assertEquals(Set.of(dc1, dc2), unordered(collaborationManager.getOtherDatacenters(dc0)));
     }
 
     private <T> Map<Integer, Set<T>> ignoreEmptyValue(Map<Integer, Set<T>> m) {
@@ -70,6 +68,7 @@ public class CollaborationManagerSimpleTest {
 
     @Test
     public void testRemoveDatacenter1() {
+        // test for CollaborationManager removeDatacenter(Datacenter datacenter, int collaborationId)
         Simulation scaleCloudSim = new CloudSim();
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
         Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
@@ -97,6 +96,7 @@ public class CollaborationManagerSimpleTest {
 
     @Test
     public void testRemoveDatacenter2() {
+        // test for CollaborationManager removeDatacenter(Datacenter datacenter)
         Simulation scaleCloudSim = new CloudSim();
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
         Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
@@ -116,5 +116,45 @@ public class CollaborationManagerSimpleTest {
         // excepted: collaborationMap = Map.of();
         collaborationManager.removeDatacenter(dc0);
         assertEquals(Map.of(), ignoreEmptyValue(collaborationManager.getCollaborationMap()));
+    }
+
+    private <T> Set<T> unordered(List<T> list) {
+        return new HashSet<>(list);
+    }
+
+    @Test
+    public void testGetDatacenters1() {
+        // test for List<Datacenter> getDatacenters(int collaborationId)
+        Simulation scaleCloudSim = new CloudSim();
+        CollaborationManager collaborationManager = new CollaborationManagerSimple();
+        // expect: getDatacenters(0) = List.of();
+        assertEquals(List.of(), collaborationManager.getDatacenters(0));
+
+        // add (dc0, 0), (dc1, 0), (dc0, 1), (dc2, 1) to collaborationManager
+        // expect: getDatacenters(0) = List.of(dc0, dc1);      
+        Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
+        Datacenter dc1 = new DatacenterSimple(scaleCloudSim);
+        Datacenter dc2 = new DatacenterSimple(scaleCloudSim);
+        Map<Integer, Set<Datacenter>> collaborationMap = Map.of(0, Set.of(dc0, dc1), 1, Set.of(dc0, dc2));
+        collaborationManager.addDatacenter(collaborationMap);
+        assertEquals(Set.of(dc0, dc1), unordered(collaborationManager.getDatacenters(0)));
+    }
+
+    @Test
+    public void testGetDatacenters2() {
+        // test for List<Datacenter> getDatacenters(Datacenter datacenter)
+        Simulation scaleCloudSim = new CloudSim();
+        CollaborationManager collaborationManager = new CollaborationManagerSimple();
+        Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
+        // expect: getDatacenters(dc0) = List.of();
+        assertEquals(List.of(), collaborationManager.getDatacenters(dc0));
+
+        // add (dc0, 0), (dc1, 0), (dc0, 1), (dc2, 1) to collaborationManager
+        // expect: getDatacenters(dc0) = List.of(dc0, dc1, dc2);
+        Datacenter dc1 = new DatacenterSimple(scaleCloudSim);
+        Datacenter dc2 = new DatacenterSimple(scaleCloudSim);
+        Map<Integer, Set<Datacenter>> collaborationMap = Map.of(0, Set.of(dc0, dc1), 1, Set.of(dc0, dc2));
+        collaborationManager.addDatacenter(collaborationMap);
+        assertEquals(Set.of(dc0, dc1, dc2), unordered(collaborationManager.getDatacenters(dc0)));
     }
 }
