@@ -23,18 +23,19 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     @Override
     public CollaborationManager addDatacenter(Datacenter datacenter, int collaborationId) {
+        // if (datacenter == null)  return this;
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters == null) {
             datacenters = new HashSet<>();
             collaborationMap.put(collaborationId, datacenters);
         }
-
         datacenters.add(datacenter);
         datacenterAddCollaborationId(datacenter, collaborationId);
         return this;
     }
 
     private void datacenterAddCollaborationId(Datacenter datacenter, int collaborationId) {
+        if (datacenter == null) return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
         if (collaborationIds.contains(collaborationId)) {
             LOGGER.warn("the datacenter(" + datacenter + ") already belongs to the collaboration " + collaborationId);
@@ -48,6 +49,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
         for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
             int collaborationId = entry.getKey();
             Set<Datacenter> addDatacenters = entry.getValue();
+            // if (addDatacenters == null) continue;
             Set<Datacenter> datacenters = this.collaborationMap.get(entry.getKey());
             if (datacenters == null) {
                 datacenters = new HashSet<>();
@@ -63,6 +65,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     @Override
     public CollaborationManager removeDatacenter(Datacenter datacenter, int collaborationId) {
+        if (datacenter == null) return this;
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters != null) {
             datacenters.remove(datacenter);
@@ -72,6 +75,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     private void datacenterRemoveCollaborationId(Datacenter datacenter, int collaborationId) {
+        if (datacenter == null)  return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
         if (!collaborationIds.contains(collaborationId)) {
             LOGGER.warn("the datacenter(" + datacenter + ") does not belong to the collaboration " + collaborationId + " to be removed");
@@ -82,6 +86,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     @Override
     public CollaborationManager removeDatacenter(Datacenter datacenter) {
+        if (datacenter == null) return this;
         Set<Integer> collaborationIds = new HashSet<>(datacenter.getCollaborationIds());
         for (Integer collaborationId : collaborationIds) {
             removeDatacenter(datacenter, collaborationId);

@@ -83,6 +83,11 @@ public class CollaborationManagerSimpleTest {
         collaborationManager.addDatacenter(dc0, 0);
         collaborationManager.addDatacenter(dc1, 0);
 
+        // remove (null, 0) from collaborationManager
+        // excepted: collaborationMap = Map.of(0, Set.of(dc0, dc1));
+        collaborationManager.removeDatacenter(null, 0);
+        assertEquals(Map.of(0, Set.of(dc0, dc1)), ignoreEmptyValue(collaborationManager.getCollaborationMap()));
+
         // remove (dc1, 0) from collaborationManager
         // excepted: collaborationMap = Map.of(0, Set.of(dc0));
         collaborationManager.removeDatacenter(dc1, 0);
@@ -127,6 +132,8 @@ public class CollaborationManagerSimpleTest {
         // test for List<Datacenter> getDatacenters(int collaborationId)
         Simulation scaleCloudSim = new CloudSim();
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
+        // expect: getDatacenters(null) = List.of();
+        assertEquals(List.of(), collaborationManager.getDatacenters(null));
         // expect: getDatacenters(0) = List.of();
         assertEquals(List.of(), collaborationManager.getDatacenters(0));
 
@@ -145,6 +152,8 @@ public class CollaborationManagerSimpleTest {
         // test for List<Datacenter> getDatacenters(Datacenter datacenter)
         Simulation scaleCloudSim = new CloudSim();
         CollaborationManager collaborationManager = new CollaborationManagerSimple();
+        // expect: getDatacenters(null) = List.of();
+        assertEquals(List.of(), collaborationManager.getDatacenters(null));
         Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
         // expect: getDatacenters(dc0) = List.of();
         assertEquals(List.of(), collaborationManager.getDatacenters(dc0));
