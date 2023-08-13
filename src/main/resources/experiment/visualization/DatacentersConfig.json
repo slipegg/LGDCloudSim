@@ -336,9 +336,10 @@
             "type": "simple"
           },
           "prediction": {
-            "type": "simple"
+            "type": "simple",
+            "predictRecordNum": 10
           },
-          "isPredict": false
+          "isPredict": true
         }
       ]
     }

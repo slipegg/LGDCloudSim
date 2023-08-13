@@ -6,65 +6,42 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 public class UserRequestSimple implements UserRequest {
     @Getter
-    int id;
+    private int id;
+    private double submitTime;
+    private double finishTime;
+    private int belongDatacenterId;
+    private int state;
+    private String failReason;
     @Getter
-    @Setter
-    double submitTime;
+    private List<InstanceGroupEdge> allocatedEdges;
+    private int successGroupNum;
     @Getter
-    @Setter
-    double finishTime;
+    private List<InstanceGroup> instanceGroups;
     @Getter
-    List<InstanceGroup> instanceGroups;
-    @Getter
-    InstanceGroupGraph instanceGroupGraph;
-    @Getter
-    @Setter
-    int belongDatacenterId;
+    private InstanceGroupGraph instanceGroupGraph;
 
-    @Getter
-    @Setter
-    int state;
-
-    @Getter
-    @Setter
-    String failReason;
-
-    @Getter
-    List<InstanceGroupEdge> allocatedEdges;
-
-    int successGroupNum;
-
-    public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
+    public UserRequestSimple(int id) {
         this.id = id;
         this.state = UserRequest.WAITING;
         this.finishTime = -1;
         this.failReason = "";
-        setInstanceGroups(instanceGroups);
-        this.instanceGroupGraph = instanceGroupGraph;
         this.successGroupNum = 0;
         this.allocatedEdges = new ArrayList<>();
     }
 
-
-    public UserRequestSimple(int id) {
-        this.id = id;
-    }
-
-    public UserRequestSimple() {
-        this.id = -1;
-    }
-
-    @Override
-    public String toString() {
-        return "UserRequestSimple [id=" + id + ", submitTime=" + submitTime + ", instanceGroups=" + instanceGroups
-                + ", instanceGroupGraph=" + instanceGroupGraph + "]";
+    public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
+        this(id);
+        setInstanceGroups(instanceGroups);
+        this.instanceGroupGraph = instanceGroupGraph;
     }
 
     @Override
     public void setId(int id) {
-        this.id=id;
+        this.id = id;
     }
 
     @Override
@@ -99,5 +76,11 @@ public class UserRequestSimple implements UserRequest {
     public UserRequest addAllocatedEdge(InstanceGroupEdge edge) {
         allocatedEdges.add(edge);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "UserRequestSimple [id=" + id + ", submitTime=" + submitTime + ", instanceGroups=" + instanceGroups
+                + ", instanceGroupGraph=" + instanceGroupGraph + "]";
     }
 }

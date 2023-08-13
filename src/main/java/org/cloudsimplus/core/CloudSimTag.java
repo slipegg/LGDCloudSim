@@ -3,7 +3,7 @@ package org.cloudsimplus.core;
 import java.util.Set;
 
 public class CloudSimTag {
-    public static final int NONE = -1;
+    public static final int NONE = -99;
 
     /**
      * Starting constant value for cloud-related tags.
@@ -29,13 +29,8 @@ public class CloudSimTag {
     public static final int ALLOCATE_RESOURCE = BASE + 16;
     public static final int PRE_ALLOCATE_RESOURCE = BASE + 17;//需要在ALLOCATE_RESOURCE之后
     public static final int INNER_SCHEDULE_BEGIN = BASE + 18;//需要在ALLOCATE_RESOURCE之后,因为单调器在决策开始和结束期间不应该有资源在变化
-    private final int priority;
 
     public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, PRE_ALLOCATE_RESOURCE);
-
-    public int priority() {
-        return priority;
-    }
 
     public static String tagToString(int tag) {
         return switch (tag) {
@@ -59,11 +54,9 @@ public class CloudSimTag {
             case PRE_ALLOCATE_RESOURCE -> "PRE_ALLOCATE_RESOURCE";
             case ALLOCATE_RESOURCE -> "ALLOCATE_RESOURCE";
             case END_INSTANCE_RUN -> "END_INSTANCE_RUN";
+            case NONE -> "NONE";
+            case BASE -> "Base";
             default -> "UNKNOWN";
         };
-    }
-
-    CloudSimTag() {
-        this.priority = 0;
     }
 }

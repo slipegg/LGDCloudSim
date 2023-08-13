@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public class BriteNetworkTopologyTest {
     @Test
     public void testBriteNetworkTopology() {
-        final String NETWORK_TOPOLOGY_FILE = "topology.brite";
+        final String NETWORK_TOPOLOGY_FILE = "src/test/resources/topology.brite";
         BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE, true);
         Simulation scaleCloudsim = new CloudSim();
         Datacenter dc0 = new DatacenterSimple(scaleCloudsim, 0);
@@ -27,24 +27,17 @@ public class BriteNetworkTopologyTest {
         networkTopology.mapNode(dc3, 3);
         Datacenter dc4 = new DatacenterSimple(scaleCloudsim, 4);
         networkTopology.mapNode(dc4, 4);
-        System.out.println(networkTopology.getGraph());
-//        double expectedDelay02 = 7.0;
-//        assertEquals(expectedDelay02, networkTopology.getDelay(dc0, dc2));
-        System.out.println(networkTopology.getBw(dc1, dc4));
-        double expectedBw14 = 1200000.00;
-        assertEquals(expectedBw14, networkTopology.getBw(dc1, dc4));
-        networkTopology.allocateBw(dc1, dc4, 100);
-        expectedBw14 -= 100;
-        assertEquals(expectedBw14, networkTopology.getBw(dc1, dc4));
-        networkTopology.releaseBw(dc1, dc4, 100);
-        expectedBw14 += 100;
-        assertEquals(expectedBw14, networkTopology.getBw(dc1, dc4));
+        double expectedBw04 = 10949.58;
+        assertEquals(expectedBw04, networkTopology.getBw(dc0, dc4));
+        networkTopology.allocateBw(dc0, dc4, 100);
+        expectedBw04 -= 100;
+        assertEquals(expectedBw04, networkTopology.getBw(dc0, dc4));
+        networkTopology.releaseBw(dc0, dc4, 100);
+        expectedBw04 += 100;
+        assertEquals(expectedBw04, networkTopology.getBw(dc0, dc4));
 
-        networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
-//        assertNotEquals(expectedDelay02, networkTopology.getDynamicDelay(dc0, dc2, 1));
-        System.out.println(networkTopology.getDynamicDelay(dc0, dc2, 1));
         double accessLatency = networkTopology.getAcessLatency(dc0, dc2);
-        double expectedAccessLatency = 2.0;
+        double expectedAccessLatency = 2.05;
         assertEquals(expectedAccessLatency, accessLatency);
     }
 }

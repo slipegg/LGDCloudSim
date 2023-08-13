@@ -15,25 +15,16 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-
+@Getter
+@Setter
 public class UserSimple extends CloudSimEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSimple.class.getSimpleName());
-    @Getter@Setter
+
     private List<Datacenter> datacenterList;
-    @Getter@Setter
-    UserRequestManager userRequestManager;
-    @Getter
-    @Setter
-    boolean isSendLater = true;
-    int sendCount = 2;
-//    private Datacenter
-    /**
-     * Creates a new entity.
-     *
-     * @param simulation The CloudSimPlus instance that represents the simulation the Entity belongs to
-     * @throws IllegalArgumentException when the entity name is invalid
-     */
-    public UserSimple(@NonNull Simulation simulation,UserRequestManager userRequestManager) {
+
+    private UserRequestManager userRequestManager;
+
+    public UserSimple(@NonNull Simulation simulation, UserRequestManager userRequestManager) {
         super(simulation);
         this.userRequestManager = userRequestManager;
     }
@@ -52,6 +43,7 @@ public class UserSimple extends CloudSimEntity {
             default -> LOGGER.warn("{} received an unknown event tag: {}", getName(), evt.getTag());
         }
     }
+
     private void processDatacenterListRequest(final SimEvent evt) {
         if(evt.getData() instanceof List dcList) {
             setDatacenterList(dcList);
@@ -62,6 +54,7 @@ public class UserSimple extends CloudSimEntity {
 
         LOGGER.error("The date type of "+evt+"is not List<Datacenter>");
     }
+
     private void sendUserRequest() {
         double nowTime = getSimulation().clock();
         Map<Integer, List<UserRequest>> userRequestMap = userRequestManager.generateOnceUserRequests();
@@ -81,5 +74,4 @@ public class UserSimple extends CloudSimEntity {
         }
         send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);
     }
-
 }

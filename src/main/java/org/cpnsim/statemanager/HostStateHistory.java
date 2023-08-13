@@ -13,11 +13,6 @@ public class HostStateHistory extends HostState {
         this.time = time;
     }
 
-    public HostStateHistory() {
-        super(-1, -1, -1, -1);
-        this.time = -1;
-    }
-
     public double getTime() {
         return time;
     }

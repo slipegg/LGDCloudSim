@@ -1,7 +1,12 @@
 package org.cpnsim.request;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Objects;
 
+@Getter
+@Setter
 public class InstanceGroupEdgeSimple implements InstanceGroupEdge{
     InstanceGroup src;
     InstanceGroup dst;
@@ -15,50 +20,6 @@ public class InstanceGroupEdgeSimple implements InstanceGroupEdge{
         this.requiredBw = requiredBw;
     }
 
-
-    @Override
-    public double getMinDelay() {
-        return minDelay;
-    }
-
-    @Override
-    public InstanceGroupEdge setMinDelay(double minDelay) {
-        this.minDelay = minDelay;
-        return this;
-    }
-
-    @Override
-    public double getRequiredBw() {
-        return requiredBw;
-    }
-
-    @Override
-    public InstanceGroupEdge setRequiredBw(double requiredBw) {
-        this.requiredBw = requiredBw;
-        return this;
-    }
-
-    @Override
-    public InstanceGroup getSrc() {
-        return src;
-    }
-
-    @Override
-    public InstanceGroupEdge setSrc(InstanceGroup source) {
-        this.src = source;
-        return this;
-    }
-
-    @Override
-    public InstanceGroup getDst() {
-        return dst;
-    }
-
-    @Override
-    public InstanceGroupEdge setDst(InstanceGroup destination) {
-        this.dst = destination;
-        return this;
-    }
     @Override
     public String toString() {
         return "InstanceGroupEdgeSimple{" +
