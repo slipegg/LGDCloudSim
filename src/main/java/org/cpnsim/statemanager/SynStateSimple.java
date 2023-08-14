@@ -11,7 +11,6 @@ import static org.apache.commons.lang3.math.NumberUtils.min;
 
 public class SynStateSimple implements SynState {
     @Getter
-    //partitionId, time, hostId, hostState
     Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState;
     int[] nowHostStates;
     PartitionRangesManager partitionRangesManager;
@@ -150,7 +149,7 @@ public class SynStateSimple implements SynState {
                             nowHostStates[hostId * HostState.STATE_NUM + 2] - instance.getStorage(),
                             nowHostStates[hostId * HostState.STATE_NUM + 3] - instance.getBw()
                     });
-                }
+            }
         }
     }
 }

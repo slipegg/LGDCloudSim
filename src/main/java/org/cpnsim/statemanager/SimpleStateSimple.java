@@ -7,17 +7,17 @@ import java.util.*;
 
 @Getter
 public class SimpleStateSimple implements SimpleState {
-    long cpuAvaiableSum;
-    long ramAvaiableSum;
-    long storageAvaiableSum;
-    long bwAvaiableSum;
-    Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
-    Map<Integer, Map<Integer, List<MutableInt>>> cpuRamSumMap;
+    private long cpuAvaiableSum;
+    private long ramAvaiableSum;
+    private long storageAvaiableSum;
+    private long bwAvaiableSum;
+    private Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
+    private Map<Integer, Map<Integer, List<MutableInt>>> cpuRamSumMap;
 
-    List<Integer> cpuRecordListInc;
-    List<Integer> cpuRecordListDec;
-    List<Integer> ramRecordListInc;
-    List<Integer> ramRecordListDec;
+    private List<Integer> cpuRecordListInc;
+    private List<Integer> cpuRecordListDec;
+    private List<Integer> ramRecordListInc;
+    private List<Integer> ramRecordListDec;
 
     public SimpleStateSimple() {
         this.cpuAvaiableSum = 0;
@@ -165,19 +165,5 @@ public class SimpleStateSimple implements SimpleState {
 
     private int getBiggerRam(int ram) {
         return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(-1);
-    }
-
-    @Override
-    public List<List<Integer>> getCpuRamItem() {
-        List<List<Integer>> cpuRamItemList = new ArrayList<>();
-        for (Map.Entry<Integer, Map<Integer, MutableInt>> cpuItem : cpuRamMap.entrySet()) {
-            for (Integer ram : cpuItem.getValue().keySet()) {
-                List<Integer> cpuRamItem = new ArrayList<>();
-                cpuRamItem.add(cpuItem.getKey());
-                cpuRamItem.add(ram);
-                cpuRamItemList.add(cpuRamItem);
-            }
-        }
-        return cpuRamItemList;
     }
 }

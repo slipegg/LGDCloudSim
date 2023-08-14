@@ -26,10 +26,6 @@ public class PartitionRangesManager {
         }
     }
 
-    public PartitionRangesManager() {
-        ranges = new HashMap<>();
-    }
-
     public Integer getPartitionId(int hostId) {
         int index = 0;
         while (index < rangePart.length) {

@@ -12,45 +12,32 @@ import java.util.*;
 import static org.apache.commons.lang3.math.NumberUtils.max;
 
 public class StatesManagerSimple implements StatesManager {
-    int[] hostStates;
+    private int[] hostStates;
+    private double synGap;
+    private boolean predictable;
+    private Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synStateMap;
+    private Map<InnerScheduler, Map<Integer, Map<Integer, int[]>>> selfHostStateMap;
+    private int partitionNum;
     @Getter
-    int hostNum;
-    //partitionId,synTime,hostId,hostState
-    Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synStateMap;
-    Map<InnerScheduler, Map<Integer, Map<Integer, int[]>>> selfHostStateMap;
+    private int hostNum;
     @Getter
-    @Setter
-    Datacenter datacenter;
-
+    private DatacenterPowerOnRecord datacenterPowerOnRecord;
     @Getter
-    DatacenterPowerOnRecord datacenterPowerOnRecord;
-
+    private PartitionRangesManager partitionRangesManager;
     @Getter
-    @Setter
-    SimpleState simpleState;
-
-    @Getter
-    PartitionRangesManager partitionRangesManager;
-
-    double synGap;
-
-    @Getter
-    double smallSynGap;
-
-    int partitionNum;
-
-
-    boolean predictable;
-
+    private double smallSynGap;
     @Getter
     @Setter
-    PredictionManager predictionManager;
-
+    private PredictionManager predictionManager;
     @Getter
     @Setter
-    int predictRecordNum = 0;
-//    Map<Integer,int[]> oldState;
-
+    private int predictRecordNum = 0;
+    @Getter
+    @Setter
+    private Datacenter datacenter;
+    @Getter
+    @Setter
+    private SimpleState simpleState;
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -62,20 +49,6 @@ public class StatesManagerSimple implements StatesManager {
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
         initSynStateMap();
-
-//        oldState=new HashMap<>();
-//        for(int i=0;i<partitionRangesManager.ranges.size();i++){
-//            oldState.put(i,new int[hostNum * HostState.STATE_NUM]);
-//        }
-    }
-
-    private void initSynStateMap() {
-        synStateMap = new HashMap<>();
-        for (int partitionId : partitionRangesManager.getPartitionIds()) {
-            TreeMap<Double, Map<Integer, int[]>> partitionSynStateMap = new TreeMap<>();
-            partitionSynStateMap.put(0.0, new HashMap<>());
-            synStateMap.put(partitionId, partitionSynStateMap);
-        }
     }
 
     @Override
@@ -95,7 +68,6 @@ public class StatesManagerSimple implements StatesManager {
 
     @Override
     public SynState getSynState(InnerScheduler scheduler) {
-        Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState = new HashMap<>();
         Map<Integer, Map<Integer, int[]>> selfHostState;
         int[] partitionIds = partitionRangesManager.getPartitionIds();
 
@@ -107,41 +79,7 @@ public class StatesManagerSimple implements StatesManager {
         }
         selfHostState = selfHostStateMap.get(scheduler);
         return new SynStateSimple(synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler, predictionManager, getDatacenter().getSimulation().clock(), smallSynGap, synGap, predictRecordNum, predictable);
-//        if (synGap == 0) {
-//            for (int partitionId : partitionIds) {
-//                synState.put(partitionId, new TreeMap<>());
-//                synState.get(partitionId).put(datacenter.getSimulation().clock(), new HashMap<>());
-//            }
-//            return new SynStateSimple(this, synState, hostStates, partitionRangesManager, selfHostState, scheduler);
-//        } else {
-//            int smallSynNum = (int) (datacenter.getSimulation().clock() / smallSynGap);
-//            int synPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionNum;
-//            for (int i = 0; i < partitionNum; i++) {
-//                int partitionId = (synPartitionId + partitionNum - i) % partitionNum;
-//                double synTime = max(0.0, smallSynGap * (smallSynNum - i));//TODO 有问题，如果分区和时间不能被整除应该要处理
-//                synState.put(partitionId, new TreeMap<>());
-//                if(!predictable){
-//                    if (synStateMap.get(partitionId).get(synTime) == null) {
-//                        synState.get(partitionId).put(synTime, new HashMap<>());
-//                    } else {
-//                        synState.get(partitionId).put(synTime, synStateMap.get(partitionId).get(synTime));
-//                    }
-//                }
-//                else{
-//                    for(int j = 0;j < predictRecordNum;j++){
-//                        double recordTime = synTime - synGap * j;
-//                        if (synStateMap.get(partitionId).get(recordTime) == null) {
-//                            synState.get(partitionId).put(recordTime, new HashMap<>());
-//                        } else {
-//                            synState.get(partitionId).put(recordTime, synStateMap.get(partitionId).get(recordTime));
-//                        }
-//                    }
-//                }
-//            }
-//            return new SynStateSimple(this, synState, hostStates, partitionRangesManager, selfHostState, scheduler);
-//        }
     }
-
 
     @Override
     public StatesManager synAllState() {
@@ -253,7 +191,6 @@ public class StatesManagerSimple implements StatesManager {
         return this;
     }
 
-
     private void updateSynStateMap(int hostId, int[] synHostState) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         TreeMap<Double, Map<Integer, int[]>> partitionSynStateMap = synStateMap.get(partitionId);
@@ -268,5 +205,14 @@ public class StatesManagerSimple implements StatesManager {
                 hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
         simpleState.updateStorageSum(hostStates[hostId * HostState.STATE_NUM + 2] - synHostState[2]);
         simpleState.updateBwSum(hostStates[hostId * HostState.STATE_NUM + 3] - synHostState[3]);
+    }
+
+    private void initSynStateMap() {
+        synStateMap = new HashMap<>();
+        for (int partitionId : partitionRangesManager.getPartitionIds()) {
+            TreeMap<Double, Map<Integer, int[]>> partitionSynStateMap = new TreeMap<>();
+            partitionSynStateMap.put(0.0, new HashMap<>());
+            synStateMap.put(partitionId, partitionSynStateMap);
+        }
     }
 }
