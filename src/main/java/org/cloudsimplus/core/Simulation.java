@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 public interface Simulation {
     Simulation NULL=new SimulationNull();
+
     double clock();
 
     String clockStr();

@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 public class CloudSim implements Simulation {
     public static final Logger LOGGER = LoggerFactory.getLogger(CloudSim.class.getSimpleName());
-    public static final String VERSION = "ScaleCloudSim 0.0.0";
+    public static final String VERSION = "CPNSim 0.0.0";
     double clock;
     @Getter
     private boolean running;
@@ -31,13 +31,11 @@ public class CloudSim implements Simulation {
      * The queue of events that will be sent in a future simulation time.
      */
     private final FutureQueue future;
-
     /**
      * The deferred event queue.
      */
     private final DeferredQueue deferred;
     private final List<CloudSimEntity> entityList;
-
     @Getter
     private final CloudInformationService cis;
     @Getter
@@ -47,12 +45,9 @@ public class CloudSim implements Simulation {
     @Getter
     @Setter
     private boolean isSqlRecord;
-
     SqlRecord sqlRecord;
-
     @Getter
     private int simulationAccuracy;
-
     private double terminationTime = -1;
 
     public CloudSim() {
@@ -137,7 +132,6 @@ public class CloudSim implements Simulation {
 
     @Override
     public double start() {
-//        aborted = false;
         if (isSqlRecord) {
             this.sqlRecord = new SqlRecordSimple();
         } else {
@@ -145,19 +139,11 @@ public class CloudSim implements Simulation {
         }
         startSync();
         MemoryRecord.recordMemory();
-//
+
         while (processEvents(Double.MAX_VALUE)) {
             MemoryRecord.recordMemory();
-            //All the processing happens inside the method called above
         }
-//
         finish();
-//        try {
-//            getCsvRecord().getPrinter().close();
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//        }
         MemoryRecord.recordMemory();
         getSqlRecord().close();
         return clock;
@@ -168,26 +154,15 @@ public class CloudSim implements Simulation {
             return false;
         }
         LOGGER.debug(this.deferred.toString());
-//        if (!runClockTickAndProcessFutureEvents(until) && !isToWaitClockToReachTerminationTime()) {
-//            return false;
-//        }
-//
-//        notifyOnSimulationStartListeners(); //it's ensured to run just once.
-//        if (logSimulationAborted()) {
-//            return false;
-//        }
-//
-//        /* If it's time to terminate the simulation, sets a new termination time
-//         * so that events to finish Cloudlets with a negative length are received.
-//         * Cloudlets with a negative length must keep running
-//         * until a CLOUDLET_FINISH event is sent to the broker or the termination time is reached.
-//         */
+        /* If it's time to terminate the simulation, sets a new termination time
+         * so that events to finish Cloudlets with a negative length are received.
+         * Cloudlets with a negative length must keep running
+         * until a CLOUDLET_FINISH event is sent to the broker or the termination time is reached.
+         */
         if (isTimeToTerminateSimulationUnderRequest()) {
             return false;
         }
         return true;
-//
-//        checkIfSimulationPauseRequested();
     }
 
     private void finish() {
@@ -289,15 +264,8 @@ public class CloudSim implements Simulation {
 
     @Override
     public void startSync() {
-//        if(alreadyRunOnce){
-//            throw new UnsupportedOperationException(
-//                    "You can't run a simulation that has already run previously. " +
-//                            "If you've paused the simulation and want to resume it, call the resume() method.");
-//        }
-
         LOGGER.info("{}================== Starting {} =================={}", System.lineSeparator(), VERSION, System.lineSeparator());
         startEntitiesIfNotRunning();
-//        this.alreadyRunOnce = true;
     }
 
     @Override

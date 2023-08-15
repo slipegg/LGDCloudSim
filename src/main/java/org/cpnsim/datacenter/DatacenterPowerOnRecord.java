@@ -7,13 +7,13 @@ import java.util.Map;
 
 public class DatacenterPowerOnRecord {
     @Getter
-    Map<Integer, Integer> powerOnHostInstanceNum = new HashMap<>();
-    Map<Integer, Double> powerOnHostStartTime = new HashMap<>();
+    private Map<Integer, Integer> powerOnHostInstanceNum = new HashMap<>();
+    private Map<Integer, Double> powerOnHostStartTime = new HashMap<>();
     @Getter
-    int maxHostNum = 0;
-    int nowHostNum = 0;
+    private int maxHostNum = 0;
+    private int nowHostNum = 0;
     @Getter
-    double allPowerOnTime = 0;
+    private double allPowerOnTime = 0;
 
     public void hostAllocateInstance(int hostId, double clock) {
         if (!powerOnHostInstanceNum.containsKey(hostId)) {

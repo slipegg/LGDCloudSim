@@ -13,19 +13,15 @@ public class CollaborationManagerSimple implements CollaborationManager {
     public Logger LOGGER = LoggerFactory.getLogger(CollaborationManagerSimple.class.getSimpleName());
     @Getter
     @Setter
-    double changeCollaborationSynTime = 0.0;
-    boolean isChangeCollaborationSyn = false;
+    private double changeCollaborationSynTime = 0.0;
+    private boolean isChangeCollaborationSyn = false;
     private Map<Integer, Set<Datacenter>> collaborationMap;
 
-    Simulation cloudSim;
-
-    public CollaborationManagerSimple() {
-        this.collaborationMap = new HashMap<>();
-    }
+    private Simulation cloudSim;
 
     public CollaborationManagerSimple(Simulation simulation) {
-        this();
         this.cloudSim = simulation;
+        this.collaborationMap = new HashMap<>();
         simulation.setCollaborationManager(this);
     }
 

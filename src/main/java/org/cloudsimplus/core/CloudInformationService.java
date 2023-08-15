@@ -65,10 +65,7 @@ public class CloudInformationService extends CloudSimEntity {
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-//            case CloudSimTag.REGISTER_REGIONAL_CIS -> cisList.add((CloudInformationService) evt.getData());
-//            case CloudSimTag.REQUEST_REGIONAL_CIS -> super.send(evt.getSource(), 0, evt.getTag(), cisList);
             case CloudSimTag.DC_REGISTRATION_REQUEST -> datacenterList.add((Datacenter) evt.getData());
-            // A Broker is requesting a list of all datacenters.
             case CloudSimTag.DC_LIST_REQUEST -> super.send(evt.getSource(), 0, evt.getTag(), datacenterList);
             case CloudSimTag.USER_REQUEST_FAIL -> processUserRequestFail(evt);
             case CloudSimTag.CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
@@ -123,7 +120,6 @@ public class CloudInformationService extends CloudSimEntity {
                     } else {
                         instance.setState(UserRequest.FAILED);
                         instance.setFinishTime(getSimulation().clock());
-//                        getSimulation().getSqlRecord().recordInstanceAllInfo(instance);
                         recordInstances.add(instance);
                     }
                 }

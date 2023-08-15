@@ -11,10 +11,6 @@ import java.util.Set;
 public interface Datacenter extends SimEntity, DatacenterPrice {
     public static final Datacenter NULL = new DatacenterNull();
 
-    Datacenter addCollaborationId(int collaborationId);
-
-    Datacenter removeCollaborationId(int collaborationId);
-
     Set<Integer> getCollaborationIds();
 
     Datacenter setInterScheduler(InterScheduler interScheduler);

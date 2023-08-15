@@ -13,11 +13,6 @@ public class SimEntityNull implements SimEntity{
         return null;
     }
 
-//    @Override
-//    public SimEntity setSimulation(Simulation simulation) {
-//        return null;
-//    }
-
     @Override
     public Simulation getSimulation() {
         return null;

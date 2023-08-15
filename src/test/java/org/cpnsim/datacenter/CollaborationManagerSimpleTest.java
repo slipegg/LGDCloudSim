@@ -13,11 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //还有一些测试没有写完，但是这个类的功能已经实现了
 public class CollaborationManagerSimpleTest {
+    CloudSim cloudSim = new CloudSim();
     @Test
     public void testAddDatacenter() {
         Simulation scaleCloudSim = new CloudSim();
         Datacenter dc1 = new DatacenterSimple(scaleCloudSim);
-        CollaborationManager collaborationManager = new CollaborationManagerSimple();
+        CollaborationManager collaborationManager = new CollaborationManagerSimple(cloudSim);
         collaborationManager.addDatacenter(dc1, 0);
         Map<Integer, Set<Datacenter>> excepted = Map.of(0, Set.of(dc1));
         assertEquals(excepted, collaborationManager.getCollaborationMap());
@@ -28,7 +29,7 @@ public class CollaborationManagerSimpleTest {
     @Test
     public void testAddDatacenter2() {
         Simulation scaleCloudSim = new CloudSim();
-        CollaborationManager collaborationManager = new CollaborationManagerSimple();
+        CollaborationManager collaborationManager = new CollaborationManagerSimple(cloudSim);
         Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
         collaborationManager.addDatacenter(dc0, 0);
         Datacenter dc1 = new DatacenterSimple(scaleCloudSim);
@@ -48,7 +49,7 @@ public class CollaborationManagerSimpleTest {
     @Test
     public void testGetOtherDatacenters() {
         Simulation scaleCloudSim = new CloudSim();
-        CollaborationManager collaborationManager = new CollaborationManagerSimple();
+        CollaborationManager collaborationManager = new CollaborationManagerSimple(cloudSim);
         Datacenter dc0 = new DatacenterSimple(scaleCloudSim);
         collaborationManager.addDatacenter(dc0, 0);
         Datacenter dc1 = new DatacenterSimple(scaleCloudSim);

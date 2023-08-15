@@ -12,7 +12,6 @@ import org.cpnsim.statemanager.PredictionManager;
 import org.cpnsim.statemanager.PredictionManagerSimple;
 
 public class FactorySimple implements Factory {
-
     public InnerScheduler getInnerScheduler(String type, int id, int firstPartitionId, int partitionNum) {
         return switch (type) {
             case "simple", "Simple" -> new InnerSchedulerSimple(id, firstPartitionId, partitionNum);

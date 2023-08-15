@@ -23,64 +23,50 @@ import java.util.*;
 
 public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public Logger LOGGER = LoggerFactory.getLogger(DatacenterSimple.class.getSimpleName());
-    @Getter
-    StatesManager statesManager;
-    private Set<Integer> collaborationIds;
     private GroupQueue groupQueue;
     private InstanceQueue instanceQueue;
     @Getter
-    InterScheduler interScheduler;
+    private StatesManager statesManager;
     @Getter
-    List<InnerScheduler> innerSchedulers;
+    private Set<Integer> collaborationIds;
     @Getter
-    LoadBalance loadBalance;
+    private InterScheduler interScheduler;
     @Getter
-    ResourceAllocateSelector resourceAllocateSelector;
-
+    private List<InnerScheduler> innerSchedulers;
+    @Getter
+    private LoadBalance loadBalance;
+    @Getter
+    private ResourceAllocateSelector resourceAllocateSelector;
     @Getter
     @Setter
     double unitCpuPrice;
-
     @Getter
     private double cpuCost;
-
     @Getter
     @Setter
     private double unitRamPrice;
-
     @Getter
     private double ramCost;
-
     @Getter
     @Setter
     private double unitStoragePrice;
-
     @Getter
     private double storageCost;
-
     @Getter
     @Setter
     private double unitBwPrice;
-
     private int usedCpuNum;
-
     @Getter
     @Setter
     private int cpuNumPerRack;
-
     @Getter
     @Setter
     private double unitRackPrice;
-
     @Getter
     private double bwCost;
-
     private List<InnerScheduleResult> innerSchedulerResults;
-
     private Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap;
-
     private boolean isGroupFilterDcBusy = false;
-
     private Map<InnerScheduler, Boolean> isInnerSchedulerBusy = new HashMap<>();
 
     /**
@@ -114,35 +100,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.setId(id);
     }
 
-    public DatacenterSimple(@NonNull Simulation simulation, int id, int hostNum) {
-        this(simulation);
-        this.setId(id);
-    }
-
-    @Override
-    public Datacenter addCollaborationId(int collaborationId) {
-        if (collaborationIds.contains(collaborationId)) {
-            LOGGER.warn("the datacenter(" + this + ") already belongs to the collaboration " + collaborationId);
-        } else {
-            collaborationIds.add(collaborationId);
-        }
-        return this;
-    }
-
-    @Override
-    public Datacenter removeCollaborationId(int collaborationId) {
-        if (!collaborationIds.contains(collaborationId)) {
-            LOGGER.warn("the datacenter(" + this + ") does not belong to the collaboration " + collaborationId + " to be removed");
-        } else {
-            collaborationIds.remove(collaborationId);
-        }
-        return this;
-    }
-
-    @Override
-    public Set<Integer> getCollaborationIds() {
-        return collaborationIds;
-    }
 
     @Override
     public Datacenter setInterScheduler(InterScheduler interScheduler) {
