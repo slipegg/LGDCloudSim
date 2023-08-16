@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <version>3.40.1.0</version>
+            <version>3.42.0.0</version>
         </dependency>
         <dependency>
             <groupId>javax.json</groupId>
@@ -75,12 +75,6 @@
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
             <version>1.1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.python</groupId>
-            <artifactId>jython-standalone</artifactId>
-            <!--python版本是2.x还是3.x在这里指定-->
-            <version>3.6.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
