@@ -91,7 +91,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     @Override
     public CollaborationManager removeDatacenter(Datacenter datacenter) {
-        Set<Integer> collaborationIds = datacenter.getCollaborationIds();
+        Set<Integer> collaborationIds = new HashSet<>(datacenter.getCollaborationIds());
         for (Integer collaborationId : collaborationIds) {
             removeDatacenter(datacenter, collaborationId);
         }
