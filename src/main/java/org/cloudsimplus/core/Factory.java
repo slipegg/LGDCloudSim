@@ -16,5 +16,4 @@ public interface Factory {
     LoadBalance getLoadBalance(String type);
 
     ResourceAllocateSelector getResourceAllocateSelector(String type);
-
 }

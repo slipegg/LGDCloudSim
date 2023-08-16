@@ -31,12 +31,10 @@ import static java.util.Objects.requireNonNullElse;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class CloudSimEntity implements SimEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudSimEntity.class.getSimpleName());
-
     @Getter @EqualsAndHashCode.Include
     private int id;
     @Getter @NonNull @EqualsAndHashCode.Include
     private final Simulation simulation;
-
     @Getter
     private String name;
 
@@ -109,19 +107,9 @@ public abstract class CloudSimEntity implements SimEntity {
     }
 
     public SimEvent getNextEvent(final Predicate<SimEvent> predicate) {
-//        if (simulation.isRunning()) {
-//            return selectEvent(predicate);
-//        }
-//        return SimEvent.NULL;
-
         return selectEvent(predicate);
     }
     public SimEvent selectEvent(final Predicate<SimEvent> predicate) {
-//        if (simulation.isRunning()) {
-//            return simulation.select(this, predicate);
-//        }
-//        return SimEvent.NULL;
-
         return simulation.select(this, predicate);
     }
     @Override
@@ -150,12 +138,6 @@ public abstract class CloudSimEntity implements SimEntity {
 
     @Override
     public boolean schedule(final SimEvent evt) {
-//        if (canSendEvent(evt)) {
-//            simulation.send(evt);
-//            return true;
-//        }
-//
-//        return false;
         simulation.send(evt);
         return true;
     }
@@ -182,10 +164,6 @@ public abstract class CloudSimEntity implements SimEntity {
         if (Double.isInfinite(delay)) {
             throw new IllegalArgumentException("The specified delay is infinite value");
         }
-
-//        if (dest.getId() != getId()&&dest instanceof DatacenterSimple) {
-//            delay += getNetworkDelay(this, dest);
-//        }
 
         schedule(dest, delay, tag, data);
     }

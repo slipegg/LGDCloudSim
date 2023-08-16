@@ -17,7 +17,7 @@ public interface InstanceGroupGraph extends RequestEntity{
 
     InstanceGroupGraph addEdge(InstanceGroupEdge edge);
 
-    int removeEdge(InstanceGroup src, InstanceGroup dst);
+    InstanceGroupGraph removeEdge(InstanceGroup src, InstanceGroup dst);
 
     InstanceGroupEdge getEdge(InstanceGroup src, InstanceGroup dst);
 

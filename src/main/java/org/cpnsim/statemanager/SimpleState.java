@@ -22,10 +22,7 @@ public interface SimpleState {
 
     long getBwAvaiableSum();
 
-    Map<Integer, Map<Integer, MutableInt>> getCpuRamMap();
-
     int getCpuRamSum(int cpu, int ram);
 
-    List<List<Integer>> getCpuRamItem();
-
+    Map<Integer, Map<Integer, MutableInt>> getCpuRamMap();
 }

@@ -1,7 +1,11 @@
 package org.cpnsim.statemanager;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.cpnsim.request.Instance;
 
+@Getter
+@Setter
 public class HostState {
     public static int STATE_NUM = 4;
     int cpu;
@@ -17,10 +21,7 @@ public class HostState {
     }
 
     public HostState(int[] state) {
-        this.cpu = state[0];
-        this.ram = state[1];
-        this.storage = state[2];
-        this.bw = state[3];
+        this(state[0], state[1], state[2], state[3]);
     }
 
     public int[] getStateArray() {
@@ -30,38 +31,6 @@ public class HostState {
         state[2] = storage;
         state[3] = bw;
         return state;
-    }
-
-    public int getRam() {
-        return ram;
-    }
-
-    public void setRam(int ram) {
-        this.ram = ram;
-    }
-
-    public int getStorage() {
-        return storage;
-    }
-
-    public void setStorage(int storage) {
-        this.storage = storage;
-    }
-
-    public int getBw() {
-        return bw;
-    }
-
-    public void setBw(int bw) {
-        this.bw = bw;
-    }
-
-    public int getCpu() {
-        return cpu;
-    }
-
-    public void setCpu(int cpu) {
-        this.cpu = cpu;
     }
 
     public void setState(HostState hostState) {

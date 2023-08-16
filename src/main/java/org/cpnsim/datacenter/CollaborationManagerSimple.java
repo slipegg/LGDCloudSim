@@ -1,18 +1,27 @@
 package org.cpnsim.datacenter;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class CollaborationManagerSimple implements CollaborationManager {
+    public Logger LOGGER = LoggerFactory.getLogger(CollaborationManagerSimple.class.getSimpleName());
+    @Getter
+    @Setter
+    private double changeCollaborationSynTime = 0.0;
+    private boolean isChangeCollaborationSyn = false;
     private Map<Integer, Set<Datacenter>> collaborationMap;
 
-    public CollaborationManagerSimple() {
-        this.collaborationMap = new HashMap<>();
-    }
+    private Simulation cloudSim;
 
     public CollaborationManagerSimple(Simulation simulation) {
-        this();
+        this.cloudSim = simulation;
+        this.collaborationMap = new HashMap<>();
         simulation.setCollaborationManager(this);
     }
 
@@ -23,18 +32,19 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     @Override
     public CollaborationManager addDatacenter(Datacenter datacenter, int collaborationId) {
+        // if (datacenter == null)  return this;
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters == null) {
             datacenters = new HashSet<>();
             collaborationMap.put(collaborationId, datacenters);
         }
-
         datacenters.add(datacenter);
         datacenterAddCollaborationId(datacenter, collaborationId);
         return this;
     }
 
     private void datacenterAddCollaborationId(Datacenter datacenter, int collaborationId) {
+        if (datacenter == null) return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
         if (collaborationIds.contains(collaborationId)) {
             LOGGER.warn("the datacenter(" + datacenter + ") already belongs to the collaboration " + collaborationId);
@@ -48,6 +58,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
         for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
             int collaborationId = entry.getKey();
             Set<Datacenter> addDatacenters = entry.getValue();
+            // if (addDatacenters == null) continue;
             Set<Datacenter> datacenters = this.collaborationMap.get(entry.getKey());
             if (datacenters == null) {
                 datacenters = new HashSet<>();
@@ -63,6 +74,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     @Override
     public CollaborationManager removeDatacenter(Datacenter datacenter, int collaborationId) {
+        if (datacenter == null) return this;
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters != null) {
             datacenters.remove(datacenter);
@@ -72,6 +84,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     private void datacenterRemoveCollaborationId(Datacenter datacenter, int collaborationId) {
+        if (datacenter == null)  return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
         if (!collaborationIds.contains(collaborationId)) {
             LOGGER.warn("the datacenter(" + datacenter + ") does not belong to the collaboration " + collaborationId + " to be removed");
@@ -82,7 +95,8 @@ public class CollaborationManagerSimple implements CollaborationManager {
 
     @Override
     public CollaborationManager removeDatacenter(Datacenter datacenter) {
-        Set<Integer> collaborationIds = datacenter.getCollaborationIds();
+        if (datacenter == null) return this;
+        Set<Integer> collaborationIds = new HashSet<>(datacenter.getCollaborationIds());
         for (Integer collaborationId : collaborationIds) {
             removeDatacenter(datacenter, collaborationId);
         }
@@ -133,9 +147,64 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     @Override
+    public boolean getIsChangeCollaborationSyn() {
+        return isChangeCollaborationSyn;
+    }
+
+    @Override
+    public CollaborationManager setIsChangeCollaborationSyn(boolean isChangeCollaborationSyn) {
+        this.isChangeCollaborationSyn = isChangeCollaborationSyn;
+        return this;
+    }
+
+    @Override
     public List<Datacenter> getOtherDatacenters(Datacenter datacenter) {
         List<Datacenter> datacenters = getDatacenters(datacenter);
         datacenters.remove(datacenter);
         return datacenters;
+    }
+
+    @Override
+    public CollaborationManager changeCollaboration() {
+        Datacenter minCpuDatacenter = null;
+        Datacenter maxCpuDatacenter = null;
+        long smallCpuSum = Long.MAX_VALUE;
+        long maxCpuSum = -1;
+        int smallCpuCollaborationId = -1;
+        int maxCpuCollaborationId = -1;
+//        遍历Map<Integer, Set<Datacenter>> collaborationMap;
+        for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
+            Set<Datacenter> datacenters = entry.getValue();
+            for (Datacenter datacenter : datacenters) {
+                if (datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() < smallCpuSum) {
+                    smallCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum();
+                    smallCpuCollaborationId = entry.getKey();
+                    minCpuDatacenter = datacenter;
+                }
+            }
+        }
+        for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
+            if (entry.getKey() == smallCpuCollaborationId) {
+                continue;
+            }
+            Set<Datacenter> datacenters = entry.getValue();
+            for (Datacenter datacenter : datacenters) {
+                if (datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() > maxCpuSum) {
+                    maxCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum();
+                    maxCpuCollaborationId = entry.getKey();
+                    maxCpuDatacenter = datacenter;
+                }
+            }
+        }
+        //交换
+        LOGGER.info("{}: change collaboration, minCpuDatacenter: Collaboration{}-{} <--> maxCpuDatacenter: Collaboration{}-Datacenter{}",
+                cloudSim.clockStr(), smallCpuCollaborationId, minCpuDatacenter.getName(), maxCpuCollaborationId, maxCpuDatacenter.getName());
+        Set<Datacenter> smallCpuDatacenters = collaborationMap.get(smallCpuCollaborationId);
+        Set<Datacenter> maxCpuDatacenters = collaborationMap.get(maxCpuCollaborationId);
+        smallCpuDatacenters.remove(minCpuDatacenter);
+        maxCpuDatacenters.remove(maxCpuDatacenter);
+        smallCpuDatacenters.add(maxCpuDatacenter);
+        maxCpuDatacenters.add(minCpuDatacenter);
+        return this;
     }
 }

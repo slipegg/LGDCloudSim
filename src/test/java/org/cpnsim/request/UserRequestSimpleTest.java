@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserRequestSimpleTest {
     @Test
     public void testUserRequest() {
-        UserRequest userRequest = new UserRequestSimple();
-        List<InstanceGroup> instanceGroups=new ArrayList<>();
+        UserRequest userRequest = new UserRequestSimple(0);
+        List<InstanceGroup> instanceGroups = new ArrayList<>();
 
         int instanceId = 0;
         int instanceGroupId = 0;

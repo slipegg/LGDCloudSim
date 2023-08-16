@@ -52,16 +52,6 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter addCollaborationId(int collaborationId) {
-        return null;
-    }
-
-    @Override
-    public Datacenter removeCollaborationId(int collaborationId) {
-        return null;
-    }
-
-    @Override
     public Set<Integer> getCollaborationIds() {
         return null;
     }

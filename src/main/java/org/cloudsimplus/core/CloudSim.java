@@ -2,6 +2,7 @@ package org.cloudsimplus.core;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.cloudsimplus.core.events.*;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.CollaborationManager;
@@ -9,6 +10,8 @@ import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
 import org.cpnsim.record.MemoryRecord;
 import org.cpnsim.record.SqlRecord;
+import org.cpnsim.record.SqlRecordNull;
+import org.cpnsim.record.SqlRecordSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +23,7 @@ import java.util.stream.Stream;
 
 public class CloudSim implements Simulation {
     public static final Logger LOGGER = LoggerFactory.getLogger(CloudSim.class.getSimpleName());
-    public static final String VERSION = "ScaleCloudSim 0.0.0";
+    public static final String VERSION = "CPNSim 0.0.0";
     double clock;
     @Getter
     private boolean running;
@@ -28,25 +31,23 @@ public class CloudSim implements Simulation {
      * The queue of events that will be sent in a future simulation time.
      */
     private final FutureQueue future;
-
     /**
      * The deferred event queue.
      */
     private final DeferredQueue deferred;
     private final List<CloudSimEntity> entityList;
-
     @Getter
     private final CloudInformationService cis;
     @Getter
     private NetworkTopology networkTopology;
     @Getter
-    CollaborationManager collaborationManager;
+    private CollaborationManager collaborationManager;
     @Getter
+    @Setter
+    private boolean isSqlRecord;
     SqlRecord sqlRecord;
-
     @Getter
     private int simulationAccuracy;
-
     private double terminationTime = -1;
 
     public CloudSim() {
@@ -56,7 +57,7 @@ public class CloudSim implements Simulation {
         this.deferred = new DeferredQueue();
         this.cis = new CloudInformationService(this);
         this.simulationAccuracy = 2;
-        this.sqlRecord = new SqlRecord();
+        this.isSqlRecord = true;
     }
 
     @Override
@@ -131,22 +132,18 @@ public class CloudSim implements Simulation {
 
     @Override
     public double start() {
-//        aborted = false;
+        if (isSqlRecord) {
+            this.sqlRecord = new SqlRecordSimple();
+        } else {
+            this.sqlRecord = new SqlRecordNull();
+        }
         startSync();
         MemoryRecord.recordMemory();
-//
+
         while (processEvents(Double.MAX_VALUE)) {
             MemoryRecord.recordMemory();
-            //All the processing happens inside the method called above
         }
-//
         finish();
-//        try {
-//            getCsvRecord().getPrinter().close();
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//        }
         MemoryRecord.recordMemory();
         getSqlRecord().close();
         return clock;
@@ -157,26 +154,15 @@ public class CloudSim implements Simulation {
             return false;
         }
         LOGGER.debug(this.deferred.toString());
-//        if (!runClockTickAndProcessFutureEvents(until) && !isToWaitClockToReachTerminationTime()) {
-//            return false;
-//        }
-//
-//        notifyOnSimulationStartListeners(); //it's ensured to run just once.
-//        if (logSimulationAborted()) {
-//            return false;
-//        }
-//
-//        /* If it's time to terminate the simulation, sets a new termination time
-//         * so that events to finish Cloudlets with a negative length are received.
-//         * Cloudlets with a negative length must keep running
-//         * until a CLOUDLET_FINISH event is sent to the broker or the termination time is reached.
-//         */
+        /* If it's time to terminate the simulation, sets a new termination time
+         * so that events to finish Cloudlets with a negative length are received.
+         * Cloudlets with a negative length must keep running
+         * until a CLOUDLET_FINISH event is sent to the broker or the termination time is reached.
+         */
         if (isTimeToTerminateSimulationUnderRequest()) {
             return false;
         }
         return true;
-//
-//        checkIfSimulationPauseRequested();
     }
 
     private void finish() {
@@ -199,6 +185,16 @@ public class CloudSim implements Simulation {
         return isTerminationTimeSet() && clock >= terminationTime;
     }
 
+    @Override
+    public boolean getIsSqlRecord() {
+        return isSqlRecord;
+    }
+
+    @Override
+    public void setIsSqlRecord(boolean isSqlRecord) {
+        this.isSqlRecord = isSqlRecord;
+    }
+
     private boolean runClockTickAndProcessFutureEvents(final double until) {
         executeRunnableEntities(until);
         if (future.isEmpty() || isOnlySyn()) {
@@ -215,11 +211,11 @@ public class CloudSim implements Simulation {
     }
 
     private boolean isOnlySyn() {
-        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size()) {
+        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size() + 1) {
             return false;
         }
         for (SimEvent simEvent : future.stream().toList()) {
-            if (simEvent.getTag() != CloudSimTag.SYN_STATE) {
+            if (simEvent.getTag() != CloudSimTag.SYN_STATE && simEvent.getTag() != CloudSimTag.CHANGE_COLLABORATION_SYN) {
                 return false;
             }
         }
@@ -268,15 +264,8 @@ public class CloudSim implements Simulation {
 
     @Override
     public void startSync() {
-//        if(alreadyRunOnce){
-//            throw new UnsupportedOperationException(
-//                    "You can't run a simulation that has already run previously. " +
-//                            "If you've paused the simulation and want to resume it, call the resume() method.");
-//        }
-
         LOGGER.info("{}================== Starting {} =================={}", System.lineSeparator(), VERSION, System.lineSeparator());
         startEntitiesIfNotRunning();
-//        this.alreadyRunOnce = true;
     }
 
     @Override
@@ -307,6 +296,11 @@ public class CloudSim implements Simulation {
     @Override
     public void setSimulationAccuracy(int simulationAccuracy) {
         this.simulationAccuracy = simulationAccuracy;
+    }
+
+    @Override
+    public SqlRecord getSqlRecord() {
+        return sqlRecord;
     }
 
     @Override

@@ -3,12 +3,28 @@ package org.cpnsim.user;
 import org.cpnsim.request.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class UserRequestManagerSimple implements UserRequestManager {
     @Override
-    public List<UserRequest> getUserRequestMap(double startTime, double endTime, int datacenterId) {
+    public Map<Integer, List<UserRequest>> generateOnceUserRequests() {
+        Map<Integer, List<UserRequest>> userRequestMap = new HashMap<>();
+        int[] datacenterIds = {0, 1};
+        for (int datacenterId : datacenterIds) {
+            List<UserRequest> userRequests = getUserRequestMap(0, 100, datacenterId);
+            userRequestMap.put(datacenterId, userRequests);
+        }
+        return userRequestMap;
+    }
+
+    @Override
+    public double getNextSendTime() {
+        return 100;
+    }
+
+    private List<UserRequest> getUserRequestMap(double startTime, double endTime, int datacenterId) {
         List<UserRequest> userRequests = new ArrayList<>();
         UserRequestGenerator userRequestGenerator = new RandomUserRequestGenerator();
         int num = 3;
@@ -21,15 +37,5 @@ public class UserRequestManagerSimple implements UserRequestManager {
             }
         }
         return userRequests;
-    }
-
-    @Override
-    public Map<Integer, List<UserRequest>> generateOnceUserRequests() {
-        return null;
-    }
-
-    @Override
-    public double getNextSendTime() {
-        return 0;
     }
 }

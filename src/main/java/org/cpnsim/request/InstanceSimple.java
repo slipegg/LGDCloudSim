@@ -14,21 +14,14 @@ public class InstanceSimple implements Instance {
     int ram;
     int storage;
     int bw;
-
     int lifeTime;
     InstanceGroup instanceGroup;
     int destHost;
     int host;
     double startTime;
     double finishTime;
-    @Getter
-    @Setter
     int retryNum;
-    @Getter
-    @Setter
     int retryMaxNum;
-    @Getter
-    @Setter
     int state;
 
     //还缺userRequest和instanceGroup等待后面进行设置

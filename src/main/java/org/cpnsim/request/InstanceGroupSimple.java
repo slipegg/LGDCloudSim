@@ -11,52 +11,25 @@ import java.util.List;
 public class InstanceGroupSimple implements InstanceGroup{
     int id;
     UserRequest userRequest;
-
     List<Instance> instanceList;
-
     int groupType;
-
     int destDatacenterId;
-
     double accessLatency;
-
     @Getter
     long storageSum;
     @Getter
     long bwSum;
-
     @Getter
     long cpuSum;
-
     @Getter
     long ramSum;
-
-    @Getter
-    @Setter
     int retryNum;
-
-    @Getter
-    @Setter
     int retryMaxNum;
-
-    @Getter
-    @Setter
     int state;
-
-    @Getter
-    @Setter
     Datacenter receiveDatacenter;
-
-    @Getter
-    @Setter
     double receivedTime;
-
-    @Getter
-    @Setter
     double finishTime;
-
     int successInstanceNum;
-
 
     public InstanceGroupSimple(int id) {
         this.id = id;
@@ -128,7 +101,7 @@ public class InstanceGroupSimple implements InstanceGroup{
 
     @Override
     public String toString() {
-        return "InstanceGroupSimple [id=" + id + ", instanceList=" + instanceList + "]";
+        return "InstanceGroupSimple [id=" + id
+                + ", instanceList=" + instanceList + "]";
     }
-
 }

@@ -1,14 +1,14 @@
 Parament Name,Parament
 FromDcPercent,"[1]"
-RequestPerNumMin,10000
-RequestPerNumMax,10000
+RequestPerNumMin,100000
+RequestPerNumMax,100000
 RequestTimeIntervalMin,500
 RequestTimeIntervalMax,500
 RequestTimes,1
-RequestGroupNumMin,5
-RequestGroupNumMax,5
-GroupInstanceNumMin,20
-GroupInstanceNumMax,20
+RequestGroupNumMin,4
+RequestGroupNumMax,4
+GroupInstanceNumMin,15
+GroupInstanceNumMax,15
 GroupAccessDelayPercent,0.4
 GroupAccessDelayMin,2
 GroupAccessDelayMax,2

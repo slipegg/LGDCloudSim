@@ -30,7 +30,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
 
     @Getter
     @Setter
-    double scheduleCostTime = 0.2;
+    double scheduleCostTime = 0;
 
     @Getter
     @Setter
@@ -56,7 +56,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
-        instanceQueue = new InstanceQueueFifo(100);
+        instanceQueue = new InstanceQueueFifo(100000);
         this.firstPartitionId = firstPartitionId;
         this.partitionNum = partitionNum;
         setId(id);
@@ -98,7 +98,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
         Map<Integer, List<Instance>> res = scheduleInstances(instances, synState);
         double endTime = System.currentTimeMillis();
         lastScheduleTime = datacenter.getSimulation().clock();
-        this.scheduleCostTime = 0.25 * instances.size();//(endTime-startTime)/10;
+        this.scheduleCostTime = 0.25;//* instances.size();//(endTime-startTime)/10;
         LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size(), scheduleCostTime);
         return res;
     }
@@ -115,7 +115,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
                 synPartitionId = (firstPartitionId + smallSynNum) % partitionNum;
             }
             for (int p = 0; p < partitionNum; p++) {
-                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange(synPartitionId + p);
+                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + p) % partitionNum);
                 for (int i = range[0]; i <= range[1]; i++) {
                     if (synState.isSuitable(i, instance)) {
                         suitId = i;

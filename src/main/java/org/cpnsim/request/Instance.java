@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 public interface Instance extends RequestEntity {
     Logger LOGGER = LoggerFactory.getLogger(Instance.class.getSimpleName());
 
-    //资源
+    //资源属性
     int getCpu();
 
     int getRam();

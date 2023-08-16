@@ -1,14 +1,16 @@
 package org.cpnsim.request;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.*;
 
-//TODO 考虑用数组的方式来存储
-public class InstanceGroupGraphSimple implements InstanceGroupGraph{
-    int id;
-    UserRequest userRequest;
-
-    Set<InstanceGroupEdge> graph;
-
+public class InstanceGroupGraphSimple implements InstanceGroupGraph {
+    private int id;
+    private UserRequest userRequest;
+    private Set<InstanceGroupEdge> graph;
+    @Getter
+    @Setter
     boolean directed;
 
     public InstanceGroupGraphSimple(boolean directed) {
@@ -17,14 +19,8 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     }
 
     @Override
-    public InstanceGroupGraph setDirected(boolean directed) {
-        this.directed=directed;
-        return this;
-    }
-
-    @Override
     public boolean getDirected() {
-        return directed;
+        return false;
     }
 
     @Override
@@ -43,10 +39,14 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
     }
 
     @Override
-    public int removeEdge(InstanceGroup src, InstanceGroup dst) {
-
-        LOGGER.info("There is no edge(src={},dst={}) to remove.",src,dst);
-        return -1;
+    public InstanceGroupGraph removeEdge(InstanceGroup src, InstanceGroup dst) {
+        boolean removed = false;
+        graph.removeIf(instanceGroupEdge -> (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst)
+                || (!directed && instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src));
+        if (!removed) {
+            LOGGER.info("There is no edge(src={},dst={}) to remove.", src, dst);
+        }
+        return this;
     }
 
     @Override
@@ -55,11 +55,6 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
                 return instanceGroupEdge;
             }
-//            if (!directed) {
-//                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
-//                    return instanceGroupEdge;
-//                }
-//            }
         }
         LOGGER.info("There is no edge(src={},dst={}).",src,dst);
         return null;
@@ -77,9 +72,6 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src) {
                 res.add(instanceGroupEdge.getDst());
             }
-//            if (!this.directed && (instanceGroupEdge.getDst() == src)) {
-//                res.add(instanceGroupEdge.getSrc());
-//            }
         }
         return res;
     }
@@ -91,9 +83,6 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getDst() == dst) {
                 res.add(instanceGroupEdge.getSrc());
             }
-//            if (!this.directed && (instanceGroupEdge.getSrc() == dst)) {
-//                res.add(instanceGroupEdge.getDst());
-//            }
         }
         return res;
     }
@@ -104,11 +93,6 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
                 return instanceGroupEdge.getMinDelay();
             }
-//            if (!directed) {
-//                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
-//                    return instanceGroupEdge.getMinDelay();
-//                }
-//            }
         }
         return Double.MAX_VALUE;
     }
@@ -119,15 +103,9 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph{
             if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
                 return instanceGroupEdge.getRequiredBw();
             }
-//            if (!directed) {
-//                if (instanceGroupEdge.getSrc() == dst && instanceGroupEdge.getDst() == src) {
-//                    return instanceGroupEdge.getRequiredBw();
-//                }
-//            }
         }
         return 0;
     }
-
 
     @Override
     public void setId(int id) {

@@ -14,8 +14,8 @@ import java.math.RoundingMode;
 import java.util.*;
 
 public class UserRequestManagerCsv implements UserRequestManager {
-    String fileName = "./src/main/resources/generateRequestParament.csv";
-    double[] FromDcPercent;
+    private String fileName;
+    private double[] FromDcPercent;
     private int RequestPerNumMin = -2;
     private int RequestPerNumMax = -2;
     private int RequestTimeIntervalMin = -2;
@@ -50,8 +50,6 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceLifeTimeMax = -2;
     private int InstanceRetryTimesMin = -2;
     private int InstanceRetryTimesMax = -2;
-
-
     private static int instanceId = 0;
     private static int instanceGroupId = 0;
     private static int userRequestId = 0;
@@ -124,65 +122,6 @@ public class UserRequestManagerCsv implements UserRequestManager {
         checkVars();
     }
 
-    private Instance generateAnInstance() {
-        int cpuNum = random.nextInt(InstanceCpuNumMax - InstanceCpuNumMin + 1) + InstanceCpuNumMin;
-        int ramNum = random.nextInt(InstanceRamNumMax - InstanceRamNumMin + 1) + InstanceRamNumMin;
-        int storageNum = random.nextInt(InstanceStorageNumMax - InstanceStorageNumMin + 1) + InstanceStorageNumMin;
-        int bwNum = random.nextInt(InstanceBwNumMax - InstanceBwNumMin + 1) + InstanceBwNumMin;
-        int lifeTime = random.nextInt(InstanceLifeTimeMax - InstanceLifeTimeMin + 1) + InstanceLifeTimeMin;
-        Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
-        int retryTimes = random.nextInt(InstanceRetryTimesMax - InstanceRetryTimesMin + 1) + InstanceRetryTimesMin;
-        instance.setRetryMaxNum(retryTimes);
-        return instance;
-    }
-
-    private InstanceGroup generateAnInstanceGroup() {
-        int instanceNum = random.nextInt(GroupInstanceNumMax - GroupInstanceNumMin + 1) + GroupInstanceNumMin;
-        List<Instance> instanceList = new ArrayList<>();
-        for (int i = 0; i < instanceNum; i++) {
-            instanceList.add(generateAnInstance());
-        }
-        InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupId++, instanceList);
-        if (random.nextDouble() < GroupAccessDelayPercent) {
-            double accessLatency = random.nextDouble() * (GroupAccessDelayMax - GroupAccessDelayMin) + GroupAccessDelayMin;
-            instanceGroup.setAccessLatency(accessLatency);
-        }
-        int retryTimes = random.nextInt(GroupRetryTimesMax - GroupRetryTimesMin + 1) + GroupRetryTimesMin;
-        instanceGroup.setRetryMaxNum(retryTimes);
-        return instanceGroup;
-    }
-
-    private InstanceGroupGraph generateAnInstanceGroupGraph(List<InstanceGroup> instanceGroups) {
-        InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
-        for (int i = 0; i < instanceGroups.size(); i++) {
-            int j;
-            if (GroupEdgeIsDirected == 1) {
-                j = 0;
-            } else {
-                j = i + 1;
-            }
-            for (; j < instanceGroups.size(); j++) {
-                if (random.nextDouble() < GroupEdgePercent && j != i) {
-                    double bw = random.nextDouble() * (GroupBwMax - GroupBwMin) + GroupBwMin;
-                    bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                    double delay = random.nextDouble() * (GroupDelayMax - GroupDelayMin) + GroupDelayMin;
-                    instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), delay, bw);
-                }
-            }
-        }
-        return instanceGroupGraph;
-    }
-
-    UserRequest generateAUserRequest() {
-        int groupNum = random.nextInt(RequestGroupNumMax - RequestGroupNumMin + 1) + RequestGroupNumMin;
-        List<InstanceGroup> instanceGroups = new ArrayList<>();
-        for (int i = 0; i < groupNum; i++) {
-            instanceGroups.add(generateAnInstanceGroup());
-        }
-        InstanceGroupGraph instanceGroupGraph = generateAnInstanceGroupGraph(instanceGroups);
-        return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph);
-    }
-
     @Override
     public Map<Integer, List<UserRequest>> generateOnceUserRequests() {
         Map<Integer, List<UserRequest>> userRequestsMap = new HashMap<>();
@@ -215,9 +154,59 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return userRequestsMap;
     }
 
-    @Override
-    public List<UserRequest> getUserRequestMap(double startTime, double endTime, int datacenterId) {
-        return null;
+    private Instance generateAnInstance() {
+        int cpuNum = random.nextInt(InstanceCpuNumMax - InstanceCpuNumMin + 1) + InstanceCpuNumMin;
+        int ramNum = random.nextInt(InstanceRamNumMax - InstanceRamNumMin + 1) + InstanceRamNumMin;
+        int storageNum = random.nextInt(InstanceStorageNumMax - InstanceStorageNumMin + 1) + InstanceStorageNumMin;
+        int bwNum = random.nextInt(InstanceBwNumMax - InstanceBwNumMin + 1) + InstanceBwNumMin;
+        int lifeTime = random.nextInt(InstanceLifeTimeMax - InstanceLifeTimeMin + 1) + InstanceLifeTimeMin;
+        Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
+        int retryTimes = random.nextInt(InstanceRetryTimesMax - InstanceRetryTimesMin + 1) + InstanceRetryTimesMin;
+        instance.setRetryMaxNum(retryTimes);
+        return instance;
+    }
+
+    private InstanceGroup generateAnInstanceGroup() {
+        int instanceNum = random.nextInt(GroupInstanceNumMax - GroupInstanceNumMin + 1) + GroupInstanceNumMin;
+        List<Instance> instanceList = new ArrayList<>();
+        for (int i = 0; i < instanceNum; i++) {
+            instanceList.add(generateAnInstance());
+        }
+        InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupId++, instanceList);
+        if (random.nextDouble() < GroupAccessDelayPercent) {
+            double accessLatency = random.nextDouble() * (GroupAccessDelayMax - GroupAccessDelayMin) + GroupAccessDelayMin;
+            instanceGroup.setAccessLatency(accessLatency);
+        }
+        int retryTimes = random.nextInt(GroupRetryTimesMax - GroupRetryTimesMin + 1) + GroupRetryTimesMin;
+        instanceGroup.setRetryMaxNum(retryTimes);
+        return instanceGroup;
+    }
+
+    private InstanceGroupGraph generateAnInstanceGroupGraph(List<InstanceGroup> instanceGroups) {
+        InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
+        instanceGroupGraph.setDirected(GroupEdgeIsDirected == 1);
+        for (int i = 0; i < instanceGroups.size(); i++) {
+            int j = (GroupEdgeIsDirected == 1) ? 0 : i + 1;
+            for (; j < instanceGroups.size(); j++) {
+                if (random.nextDouble() < GroupEdgePercent && j != i) {
+                    double bw = random.nextDouble() * (GroupBwMax - GroupBwMin) + GroupBwMin;
+                    bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                    double delay = random.nextDouble() * (GroupDelayMax - GroupDelayMin) + GroupDelayMin;
+                    instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), delay, bw);
+                }
+            }
+        }
+        return instanceGroupGraph;
+    }
+
+    private UserRequest generateAUserRequest() {
+        int groupNum = random.nextInt(RequestGroupNumMax - RequestGroupNumMin + 1) + RequestGroupNumMin;
+        List<InstanceGroup> instanceGroups = new ArrayList<>();
+        for (int i = 0; i < groupNum; i++) {
+            instanceGroups.add(generateAnInstanceGroup());
+        }
+        InstanceGroupGraph instanceGroupGraph = generateAnInstanceGroupGraph(instanceGroups);
+        return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph);
     }
 
     private double[] stringToArray(String str) {
@@ -237,7 +226,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return doubleArray;
     }
 
-    public void checkVars() {
+    private void checkVars() {
         List<String> uninitializedVars = new ArrayList<>();
 
         if (RequestPerNumMin == -2) {

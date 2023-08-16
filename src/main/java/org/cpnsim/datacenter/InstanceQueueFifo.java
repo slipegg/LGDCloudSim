@@ -12,15 +12,15 @@ public class InstanceQueueFifo implements InstanceQueue {
     private List<Instance> instances;
     private int batchNum;
 
-    public InstanceQueueFifo() {
-        instances = new LinkedList<>();
-        batchNum = 6;
-    }
-
     public InstanceQueueFifo(int batchNum) {
         instances = new LinkedList<>();
         this.batchNum = batchNum;
     }
+
+    public InstanceQueueFifo() {
+        this(100000);
+    }
+
 
     @Override
     public int size() {

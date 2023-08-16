@@ -10,6 +10,7 @@ package org.cloudsimplus.core;
 import lombok.Getter;
 import lombok.NonNull;
 import org.cloudsimplus.core.events.SimEvent;
+import org.cpnsim.datacenter.CollaborationManager;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
@@ -55,18 +56,27 @@ public class CloudInformationService extends CloudSimEntity {
 
     @Override
     protected void startInternal() {
-
+        CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
+        if (collaborationManager.getIsChangeCollaborationSyn()) {
+            send(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
+        }
     }
 
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-//            case CloudSimTag.REGISTER_REGIONAL_CIS -> cisList.add((CloudInformationService) evt.getData());
-//            case CloudSimTag.REQUEST_REGIONAL_CIS -> super.send(evt.getSource(), 0, evt.getTag(), cisList);
             case CloudSimTag.DC_REGISTRATION_REQUEST -> datacenterList.add((Datacenter) evt.getData());
-            // A Broker is requesting a list of all datacenters.
             case CloudSimTag.DC_LIST_REQUEST -> super.send(evt.getSource(), 0, evt.getTag(), datacenterList);
             case CloudSimTag.USER_REQUEST_FAIL -> processUserRequestFail(evt);
+            case CloudSimTag.CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
+        }
+    }
+
+    public void processChangeCollaborationSyn(SimEvent evt) {
+        CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
+        collaborationManager.changeCollaboration();
+        if (collaborationManager.getIsChangeCollaborationSyn()) {
+            send(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
         }
     }
 
@@ -90,6 +100,7 @@ public class CloudInformationService extends CloudSimEntity {
                 }
             }
             //释放主机资源,结束已经在运行的任务,并且记录未运行的instance
+            List<Instance> recordInstances = new ArrayList<>();
             for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
                 if (instanceGroup.getState() == UserRequest.SCHEDULING) {
                     getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
@@ -109,7 +120,7 @@ public class CloudInformationService extends CloudSimEntity {
                     } else {
                         instance.setState(UserRequest.FAILED);
                         instance.setFinishTime(getSimulation().clock());
-                        getSimulation().getSqlRecord().recordInstanceAllInfo(instance);
+                        recordInstances.add(instance);
                     }
                 }
                 for (Map.Entry<Datacenter, List<Instance>> entry : endInstances.entrySet()) {
@@ -118,6 +129,7 @@ public class CloudInformationService extends CloudSimEntity {
                     send(datacenter, 0, CloudSimTag.END_INSTANCE_RUN, instances);
                 }
             }
+            getSimulation().getSqlRecord().recordInstancesAllInfo(recordInstances);
         }
     }
 }

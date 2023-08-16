@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 public class InitDatacenter {
-    private static Simulation scaleCloudSim;
+    private static Simulation cpnSim;
     private static Factory factory;
 
-    public static void initDatacenters(Simulation scaleCloudSim, Factory factory, String filePath) {
-        InitDatacenter.scaleCloudSim = scaleCloudSim;
+    public static void initDatacenters(Simulation cpnSim, Factory factory, String filePath) {
+        InitDatacenter.cpnSim = cpnSim;
         InitDatacenter.factory = factory;
         JsonObject jsonObject = readJsonFile(filePath);
 
-        CollaborationManager collaborationManager = new CollaborationManagerSimple(scaleCloudSim);
+        CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
@@ -46,7 +46,7 @@ public class InitDatacenter {
     }
 
     private static Datacenter getDatacenter(JsonObject datacenterJson) {
-        Datacenter datacenter = new DatacenterSimple(scaleCloudSim, datacenterJson.getInt("id"));
+        Datacenter datacenter = new DatacenterSimple(cpnSim, datacenterJson.getInt("id"));
 
         StatesManager statesManager = getStatesManager(datacenterJson);
         datacenter.setStatesManager(statesManager);
@@ -89,7 +89,7 @@ public class InitDatacenter {
         int hostNum = datacenterJson.getInt("hostNum");
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
         double synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
-//        StateManager stateManager = new StateManagerSimple(hostNum, scaleCloudSim, partitionRangesManager, innerSchedulers);
+//        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, innerSchedulers);
         StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap);
 
         setPrediction(statesManager, datacenterJson);
@@ -115,11 +115,15 @@ public class InitDatacenter {
     }
 
     private static void setPrediction(StatesManager statesManager, JsonObject datacenterJson) {
-        JsonObject predictionJson = datacenterJson.getJsonObject("prediction");
-        PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
-        statesManager.setPredictionManager(predictionManager);
         boolean isPredict = datacenterJson.getBoolean("isPredict");
         statesManager.setPredictable(isPredict);
+        if (isPredict) {
+            JsonObject predictionJson = datacenterJson.getJsonObject("prediction");
+            PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
+            statesManager.setPredictionManager(predictionManager);
+            int predictRecordNum = predictionJson.getInt("predictRecordNum");
+            statesManager.setPredictRecordNum(predictRecordNum);
+        }
     }
 
     private static void initHostState(StatesManager statesManager, JsonObject datacenterJson) {

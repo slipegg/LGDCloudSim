@@ -14,7 +14,7 @@ public class GroupQueueFifo implements GroupQueue {
 
     public GroupQueueFifo() {
         instanceGroups = new LinkedList<>();
-        batchNum = 1000;
+        batchNum = 100000;
     }
 
     @Override
