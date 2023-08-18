@@ -1,15 +1,42 @@
 package org.cpnsim.statemanager;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A class to manage the partition ranges in the datacenter.
+ * Note that the partition here refers to the logical partition,
+ * mainly for the convenience of the {@link org.cpnsim.innerscheduler.InnerScheduler}
+ * to synchronize the state of the hosts in the region on a regional basis
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class PartitionRangesManager {
+    /** The ranges of the partitions in the datacenter
+     *  The key is the partition id, and the value is the range of the partition
+     *  The range is represented by an array of two integers, the first integer is the start of the range,
+     *  and the second integer is the end of the range
+     *  For example, if the partition id is 0, and the range is [0, 2], then the partition 0 includes the hosts with id 0, 1, 2
+     *  */
+    @Getter
     Map<Integer, int[]> ranges;
+    /** An array to store the start and end of the ranges of the partitions in the datacenter.
+     *  for example, if the ranges are [0, 2], [3, 5], [6, 8], then the array is [0, 2, 3, 5, 6, 8]
+     *  The aim of this array is to find the partition id of a host id quickly
+     **/
     int[] rangePart;
+    /** An array to store the partition id of the ranges in the datacenter.
+     *  for example, if the ranges are [0, 2], [3, 5], [6, 8], then the array is [0, 1, 2]
+     *  It corresponds to ranges.
+     *  The aim of this array is to find the partition id of a host id quickly
+     **/
     int[] rangeId;
+    /** The logger of the class */
     public Logger LOGGER = LoggerFactory.getLogger(PartitionRangesManager.class.getSimpleName());
 
     public PartitionRangesManager(Map<Integer, int[]> ranges) {
@@ -26,6 +53,12 @@ public class PartitionRangesManager {
         }
     }
 
+    /**
+     * Get the partition id of the host with the given host id.
+     *
+     * @param hostId the id of the host
+     * @return the partition id of the host
+     */
     public Integer getPartitionId(int hostId) {
         int index = 0;
         while (index < rangePart.length) {
@@ -38,6 +71,14 @@ public class PartitionRangesManager {
         return -1;
     }
 
+    /**
+     * Divide the data center into num regions evenly from startId to endIndex
+     *
+     * @param startIndex the start id of the datacenter
+     * @param endIndex the end id of the datacenter
+     * @param num the number of the partition
+     * @return the range of the partition
+     */
     public PartitionRangesManager setAverageCutting(int startIndex, int endIndex, int num) {
         ranges.clear();
         int nextPartitionId = 0;
@@ -62,22 +103,40 @@ public class PartitionRangesManager {
         return this;
     }
 
-    public Map<Integer, int[]> getRanges() {
-        return ranges;
-    }
-
+    /**
+     * Get the range of the partition with the given partition id.
+     *
+     * @param partitionId the id of the partition
+     * @return the range of the partition
+     */
     public int[] getRange(int partitionId) {
         return ranges.get(partitionId);
     }
 
+    /**
+     * Get the number of the partitions in the datacenter.
+     *
+     * @return the number of the partitions in the datacenter
+     */
     public int getPartitionNum() {
         return rangePart.length / 2;
     }
 
+    /**
+     * Get the partition ids of the partitions in the datacenter.
+     *
+     * @return the partition ids of the partitions in the datacenter
+     */
     public int[] getPartitionIds() {
         return rangeId;
     }
 
+    /**
+     * Get the length of the range of the partition with the given partition id.
+     *
+     * @param partitionId the id of the partition
+     * @return the length of the range of the partition
+     */
     public int getRangeLength(int partitionId) {
         return ranges.get(partitionId)[1] - ranges.get(partitionId)[0] + 1;
     }

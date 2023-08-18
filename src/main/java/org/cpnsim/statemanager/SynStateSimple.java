@@ -9,14 +9,31 @@ import java.util.*;
 import static org.apache.commons.lang3.math.NumberUtils.max;
 import static org.apache.commons.lang3.math.NumberUtils.min;
 
+/**
+ * This class implements the interface {@link SynState}.
+ * For SynState, its state representation has 3 layers.
+ * First, a selfHostState is maintained to represent the state of a certain host from the perspective of the scheduler.
+ * Second, it also maintains a host state that is synchronized by itself
+ * Third, a real host state of all hosts will be retained
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
+
 public class SynStateSimple implements SynState {
+    /** The host status here refers to the host status obtained during synchronization **/
     @Getter
     Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState;
+    /** The latest host status at the current moment  **/
     int[] nowHostStates;
+    /** see{@link  PartitionRangesManager} **/
     PartitionRangesManager partitionRangesManager;
+    /** see{@link  PredictionManager} **/
     PredictionManager predictionManager;
+    /** Record the changes made when using this SynState, the purpose is not to modify other data **/
     @Getter
     Map<Integer, Map<Integer, int[]>> selfHostState;
+
     InnerScheduler scheduler;
     double smallSynGap;
     double synGap;
