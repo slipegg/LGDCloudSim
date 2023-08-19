@@ -10,6 +10,14 @@ import org.cpnsim.statemanager.StatesManager;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A class to implements the {@link Datacenter} interface.
+ * It is a NULL datacenter.
+ * It is used to avoid NullPointerException.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class DatacenterNull implements Datacenter {
     @Override
     public SimEntity setName(String newName) throws IllegalArgumentException {

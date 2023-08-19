@@ -7,9 +7,20 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A class to represent a instanceGroup queue with first in first out.
+ * This class implements the interface {@link GroupQueue}.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class GroupQueueFifo implements GroupQueue {
+    /**
+     * the list of instanceGroups in the queue.
+     **/
     private List<InstanceGroup> instanceGroups;
 
+    /** the number of instanceGroups to be sent in a batch. **/
     private int batchNum;
 
     public GroupQueueFifo() {

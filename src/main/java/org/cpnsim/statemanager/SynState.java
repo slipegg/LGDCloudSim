@@ -7,8 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.TreeMap;
 
-/*
- * This SynState is used by the {@link InnerScheduler} for resource scheduling, and each InnerScheduler has its own SynState
+/**
+ * This SynState is used by the InnerScheduler for resource scheduling,
+ * and each InnerScheduler has its own SynState
  *
  * @author Jiawen Liu
  * @since CPNSim 1.0

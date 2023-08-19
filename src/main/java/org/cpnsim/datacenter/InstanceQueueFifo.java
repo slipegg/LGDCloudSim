@@ -8,8 +8,22 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A class to represent a instance queue with first in first out.
+ * This class implements the interface {@link InstanceQueue}.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class InstanceQueueFifo implements InstanceQueue {
+    /**
+     * the list of instance in the queue.
+     **/
     private List<Instance> instances;
+
+    /**
+     * the number of instances to be sent in a batch.
+     **/
     private int batchNum;
 
     public InstanceQueueFifo(int batchNum) {

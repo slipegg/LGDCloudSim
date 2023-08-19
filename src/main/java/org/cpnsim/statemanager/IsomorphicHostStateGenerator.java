@@ -15,10 +15,13 @@ import lombok.Setter;
 public class IsomorphicHostStateGenerator implements HostStateGenerator {
     /** the amount of cpu that is available on the host */
     int cpu;
+
     /** the amount of ram that is available on the host */
     int ram;
+
     /** the amount of storage that is available on the host */
     int storage;
+
     /** the amount of bw that is available on the host */
     int bw;
 

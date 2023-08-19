@@ -13,24 +13,32 @@ import java.util.Random;
 public class RandomHostStateGenerator implements HostStateGenerator {
     /** A random number generator **/
     private Random random;
+
     /** the minimum amount of cpu that is available on the host */
     private int minCpu = 1;
+
     /** the maximum amount of cpu that is available on the host */
     private int maxCpu = 124;
+
     /** the minimum amount of ram that is available on the host */
     private int minRam = 1;
+
     /** the maximum amount of ram that is available on the host */
     private int maxRam = 1024;
+
     /** the minimum amount of storage that is available on the host */
     private int minStorage = 1;
+
     /** the maximum amount of storage that is available on the host */
     private int maxStorage = 1024;
+
     /** the minimum amount of bw that is available on the host */
     private int minBw = 1;
+
     /** the maximum amount of bw that is available on the host */
     private int maxBw = 1024;
 
-    /*
+    /**
      * Initialize a random host state generator.
      * Note that if seed=-1, it means that each generation is random,
      * and the results of each generation are different.

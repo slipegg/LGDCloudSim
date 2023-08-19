@@ -10,10 +10,25 @@ import org.cpnsim.statemanager.StatesManager;
 
 import java.util.*;
 
+/**
+ * A class to represent a resource allocate selector with simple strategy.
+ * It will check in the order of the results to see if there are still resources available to allocate the instance
+ * This class implements the interface {@link ResourceAllocateSelector}.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector {
+    /**
+     * the datacenter.
+     **/
     @Getter
     @Setter
     Datacenter datacenter;
+
+    /**
+     * the number of conflicts when resource allocating.
+     **/
     @Getter
     Map<Integer, Integer> partitionConflicts = new HashMap<>();
 

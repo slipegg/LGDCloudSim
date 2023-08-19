@@ -25,17 +25,20 @@ public class PartitionRangesManager {
      *  */
     @Getter
     Map<Integer, int[]> ranges;
+
     /** An array to store the start and end of the ranges of the partitions in the datacenter.
      *  for example, if the ranges are [0, 2], [3, 5], [6, 8], then the array is [0, 2, 3, 5, 6, 8]
      *  The aim of this array is to find the partition id of a host id quickly
      **/
     int[] rangePart;
+
     /** An array to store the partition id of the ranges in the datacenter.
      *  for example, if the ranges are [0, 2], [3, 5], [6, 8], then the array is [0, 1, 2]
      *  It corresponds to ranges.
      *  The aim of this array is to find the partition id of a host id quickly
      **/
     int[] rangeId;
+
     /** The logger of the class */
     public Logger LOGGER = LoggerFactory.getLogger(PartitionRangesManager.class.getSimpleName());
 

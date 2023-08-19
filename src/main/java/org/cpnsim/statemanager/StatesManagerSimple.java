@@ -11,7 +11,17 @@ import java.util.*;
 
 import static org.apache.commons.lang3.math.NumberUtils.max;
 
+/**
+ * A class to manage the states of datacenter.
+ * This class implements the interface {@link StatesManager}.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class StatesManagerSimple implements StatesManager {
+    /**
+     * The status of all hosts at the current time
+     **/
     private int[] hostStates;
     @Getter
     private int totalCpuInUse;
@@ -21,31 +31,84 @@ public class StatesManagerSimple implements StatesManager {
     private int totalStorageInUse;
     @Getter
     private int totalBwInUse;
+
+    /**
+     * The time it takes to synchronize all regions in a datacenter
+     **/
     private double synGap;
+
+    /**
+     * Whether to enable prediction
+     **/
     private boolean predictable;
+
+    /**
+     * The host state at the time of synchronization
+     **/
     private Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synStateMap;
+
+    /**
+     * Maintain separate selfHostState for each scheduler
+     **/
     private Map<InnerScheduler, Map<Integer, Map<Integer, int[]>>> selfHostStateMap;
+
+    /**
+     * Number of partition in the datacenter
+     **/
     private int partitionNum;
+
+    /**
+     * Number of hosts in the datacenter
+     **/
     @Getter
     private int hostNum;
+
+    /**
+     * see {@link  DatacenterPowerOnRecord}
+     **/
     @Getter
     private DatacenterPowerOnRecord datacenterPowerOnRecord;
+
+    /**
+     * see {@link  PartitionRangesManager}
+     **/
     @Getter
     private PartitionRangesManager partitionRangesManager;
+
+    /**
+     * The time it takes to synchronize a partition in a datacenter for an InnerScheduler
+     **/
     @Getter
     private double smallSynGap;
+
+    /**
+     * see {@link  PredictionManager}
+     **/
     @Getter
     @Setter
     private PredictionManager predictionManager;
+
+    /**
+     * The record data num for predicting
+     **/
     @Getter
     @Setter
     private int predictRecordNum = 0;
+
+    /**
+     * The datacenter,see {@link Datacenter}
+     **/
     @Getter
     @Setter
     private Datacenter datacenter;
+
+    /**
+     * see {@link  SimpleState}
+     **/
     @Getter
     @Setter
     private SimpleState simpleState;
+
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -110,6 +173,9 @@ public class StatesManagerSimple implements StatesManager {
         return new SynStateSimple(synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler, predictionManager, getDatacenter().getSimulation().clock(), smallSynGap, synGap, predictRecordNum, predictable);
     }
 
+    /**
+     * Synchronize one area for each {@link InnerScheduler}.
+     */
     @Override
     public StatesManager synAllState() {
         if (synGap == 0) {
@@ -220,6 +286,13 @@ public class StatesManagerSimple implements StatesManager {
         return this;
     }
 
+    /**
+     * Before the host state changes,
+     * save the previous host state to ensure that the synchronized host state will not change in real time.
+     *
+     * @param hostId       The host id to be changed
+     * @param synHostState The host state before the change
+     */
     private void updateSynStateMap(int hostId, int[] synHostState) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         TreeMap<Double, Map<Integer, int[]>> partitionSynStateMap = synStateMap.get(partitionId);
@@ -229,6 +302,12 @@ public class StatesManagerSimple implements StatesManager {
         }
     }
 
+    /**
+     * Update the simple state of the host after the host state changes.
+     *
+     * @param hostId       The host id to be changed
+     * @param synHostState The host state before the change
+     */
     private void updateSimpleState(int hostId, int[] synHostState) {
         simpleState.updateCpuRamMap(synHostState[0], synHostState[1],
                 hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
@@ -236,6 +315,9 @@ public class StatesManagerSimple implements StatesManager {
         simpleState.updateBwSum(hostStates[hostId * HostState.STATE_NUM + 3] - synHostState[3]);
     }
 
+    /**
+     * Initialize the synStateMap.
+     */
     private void initSynStateMap() {
         synStateMap = new HashMap<>();
         for (int partitionId : partitionRangesManager.getPartitionIds()) {

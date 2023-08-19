@@ -15,10 +15,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A class to initialize datacenters.
+ * All methods are static.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class InitDatacenter {
+    /**
+     * The {@link Simulation} object.
+     **/
     private static Simulation cpnSim;
+
+    /**
+     * The {@link Factory} object.
+     **/
     private static Factory factory;
 
+    /**
+     * Initialize datacenters.
+     **/
     public static void initDatacenters(Simulation cpnSim, Factory factory, String filePath) {
         InitDatacenter.cpnSim = cpnSim;
         InitDatacenter.factory = factory;
@@ -35,6 +52,12 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Read a json file.
+     *
+     * @param filePath the path of the json file
+     * @return a {@link JsonObject} object
+     */
     private static JsonObject readJsonFile(String filePath) {
         JsonObject jsonObject = null;
         try (FileReader fileReader = new FileReader(filePath); JsonReader reader = Json.createReader(fileReader)) {
@@ -45,6 +68,12 @@ public class InitDatacenter {
         return jsonObject;
     }
 
+    /**
+     * From a {@link JsonObject} object, get a {@link StatesManager} object.
+     *
+     * @param datacenterJson a {@link JsonObject} object
+     * @return a {@link StatesManager} object
+     */
     private static Datacenter getDatacenter(JsonObject datacenterJson) {
         Datacenter datacenter = new DatacenterSimple(cpnSim, datacenterJson.getInt("id"));
 
@@ -75,6 +104,13 @@ public class InitDatacenter {
         return datacenter;
     }
 
+    /**
+     * From a {@link JsonObject} object to get all InnerSchedulers.
+     *
+     * @param datacenterJson a {@link JsonObject} object
+     * @param partitionNum   the number of partitions
+     * @return a list of {@link InnerScheduler} objects
+     */
     private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<InnerScheduler> innerSchedulers = new ArrayList<>();
         int innerSchdeuleId = 0;
@@ -88,6 +124,11 @@ public class InitDatacenter {
         return innerSchedulers;
     }
 
+    /**
+     * From a {@link JsonObject} object to get a {@link StatesManager} object.
+     *
+     * @param datacenterJson a {@link JsonObject} object
+     */
     private static StatesManager getStatesManager(JsonObject datacenterJson) {
         int hostNum = datacenterJson.getInt("hostNum");
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
@@ -102,6 +143,11 @@ public class InitDatacenter {
         return statesManager;
     }
 
+    /**
+     * From a {@link JsonObject} object to get a {@link PartitionRangesManager} object.
+     *
+     * @param datacenterJson a {@link JsonObject} object
+     */
     private static PartitionRangesManager getPartitionRangesManager(JsonObject datacenterJson) {
         int startId = 0;
         int partitionId = 0;
@@ -117,6 +163,12 @@ public class InitDatacenter {
         return partitionRangesManager;
     }
 
+    /**
+     * Set the prediction.
+     *
+     * @param statesManager  a {@link StatesManager} object
+     * @param datacenterJson a {@link JsonObject} object
+     */
     private static void setPrediction(StatesManager statesManager, JsonObject datacenterJson) {
         boolean isPredict = datacenterJson.getBoolean("isPredict");
         statesManager.setPredictable(isPredict);
@@ -129,6 +181,12 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Initialize the host state.
+     *
+     * @param statesManager  a {@link StatesManager} object
+     * @param datacenterJson a {@link JsonObject} object
+     */
     private static void initHostState(StatesManager statesManager, JsonObject datacenterJson) {
         int startId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("hostStates").size(); k++) {

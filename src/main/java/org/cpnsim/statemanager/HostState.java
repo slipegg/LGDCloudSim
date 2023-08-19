@@ -15,13 +15,20 @@ import org.cpnsim.request.Instance;
 @Getter
 @Setter
 public class HostState {
+    /**
+     * The number of state attributes
+     */
     public static int STATE_NUM = 4;
+    /** The amount of cpu that is available on the host */
     int cpu;
+    /** The amount of ram that is available on the host */
     int ram;
+    /** The amount of storage that is available on the host */
     int storage;
+    /** The amount of bw that is available on the host */
     int bw;
 
-    /*
+    /**
     * Create a HostState object with the given 4 resource.
     *
     * @param cpu the amount of cpu that is available on the host
@@ -36,7 +43,7 @@ public class HostState {
         this.bw = bw;
     }
 
-    /*
+    /**
      * Create a HostState object with the given state.
      *
      * @param state the state of the host
@@ -45,7 +52,7 @@ public class HostState {
         this(state[0], state[1], state[2], state[3]);
     }
 
-    /*
+    /**
      * Get the state of the host.
      *
      * @return the state of the host.the state includes 4 integers: cpu, ram, storage and bw.
@@ -59,7 +66,7 @@ public class HostState {
         return state;
     }
 
-    /*
+    /**
      * Set the state of the host.
      *
      * @param hostState the state of the host.the state includes 4 integers: cpu, ram, storage and bw.
@@ -71,7 +78,7 @@ public class HostState {
         this.bw = hostState.getBw();
     }
 
-    /*
+    /**
      * Check whether the host is suitable for the instance.
      * The host is suitable for the instance if the host has enough cpu, ram, storage and bw.
      *
@@ -83,7 +90,7 @@ public class HostState {
     }
 
 
-    /*
+    /**
      * Allocate the instance on the host.
      * The allocation will reduce the amount of cpu, ram, storage and bw on the host.
      *

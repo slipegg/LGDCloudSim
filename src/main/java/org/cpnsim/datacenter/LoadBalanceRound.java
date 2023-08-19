@@ -10,14 +10,32 @@ import java.util.List;
 
 import static org.apache.commons.lang3.math.NumberUtils.max;
 
+/**
+ * A class to represent a load balancer.
+ * This load balancer performs load balancing through cyclic allocation
+ * This class implements the interface {@link LoadBalance}.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class LoadBalanceRound implements LoadBalance {
+    /**
+     * the datacenter to be load balanced.
+     **/
     @Getter
     @Setter
     Datacenter datacenter;
 
+    /**
+     * the load balance cost time.
+     **/
     @Getter
     @Setter
     double loadBalanceCostTime = 0.1;
+
+    /**
+     * the last inner scheduler id.
+     **/
     int lastInnerSchedulerId = 0;
 
     @Override

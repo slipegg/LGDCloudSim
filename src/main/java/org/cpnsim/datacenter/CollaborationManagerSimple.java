@@ -9,14 +9,35 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * Manage the collaboration among datacenters.
+ * This class implements the interface {@link CollaborationManager}.
+ *
+ * @author Jiawen Liu
+ * @author Xinlei Wei
+ * @since CPNSim 1.0
+ */
 public class CollaborationManagerSimple implements CollaborationManager {
-    public Logger LOGGER = LoggerFactory.getLogger(CollaborationManagerSimple.class.getSimpleName());
+    /**
+     * The interval time for periodic adjustment of collaboration areas.
+     */
     @Getter
     @Setter
     private double changeCollaborationSynTime = 0.0;
+
+    /**
+     * whether the collaboration areas is adjusted periodically.
+     */
     private boolean isChangeCollaborationSyn = false;
+
+    /**
+     * The collaboration Map.
+     */
     private Map<Integer, Set<Datacenter>> collaborationMap;
 
+    /**
+     * The Simulation.
+     */
     private Simulation cloudSim;
 
     public CollaborationManagerSimple(Simulation simulation) {
@@ -25,14 +46,8 @@ public class CollaborationManagerSimple implements CollaborationManager {
         simulation.setCollaborationManager(this);
     }
 
-    public CollaborationManagerSimple(Map<Integer, Set<Datacenter>> collaborationMap) {
-        this.collaborationMap = new HashMap<>();
-        addDatacenter(collaborationMap);
-    }
-
     @Override
     public CollaborationManager addDatacenter(Datacenter datacenter, int collaborationId) {
-        // if (datacenter == null)  return this;
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters == null) {
             datacenters = new HashSet<>();
@@ -43,6 +58,12 @@ public class CollaborationManagerSimple implements CollaborationManager {
         return this;
     }
 
+    /**
+     * Adding a record of the CollaborationId to Datacenter.
+     *
+     * @param datacenter      the datacenter.
+     * @param collaborationId the id of the collaboration
+     */
     private void datacenterAddCollaborationId(Datacenter datacenter, int collaborationId) {
         if (datacenter == null) return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
@@ -83,8 +104,14 @@ public class CollaborationManagerSimple implements CollaborationManager {
         return this;
     }
 
+    /**
+     * Removing a record of the CollaborationId in Datacenter.
+     *
+     * @param datacenter      the datacenter.
+     * @param collaborationId the id of the collaboration
+     */
     private void datacenterRemoveCollaborationId(Datacenter datacenter, int collaborationId) {
-        if (datacenter == null)  return;
+        if (datacenter == null) return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
         if (!collaborationIds.contains(collaborationId)) {
             LOGGER.warn("the datacenter(" + datacenter + ") does not belong to the collaboration " + collaborationId + " to be removed");
@@ -101,17 +128,6 @@ public class CollaborationManagerSimple implements CollaborationManager {
             removeDatacenter(datacenter, collaborationId);
         }
         return this;
-    }
-
-    @Override
-    public List<Datacenter> getOtherDatacenters(Datacenter datacenter, int collaborationId) {
-        Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
-        if (datacenters == null) {
-            return new ArrayList<>();
-        }
-        List<Datacenter> datacenterList = new ArrayList<>(datacenters);
-        datacenterList.remove(datacenter);
-        return datacenterList;
     }
 
     @Override

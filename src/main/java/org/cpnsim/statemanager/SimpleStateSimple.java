@@ -16,18 +16,23 @@ import java.util.*;
 public class SimpleStateSimple implements SimpleState {
     /** The sum of the cpu of all hosts in the datacenter */
     private long cpuAvaiableSum;
+
     /** The sum of the ram of all hosts in the datacenter */
     private long ramAvaiableSum;
+
     /** The sum of the storage of all hosts in the datacenter */
     private long storageAvaiableSum;
+
     /** The sum of the bw of all hosts in the datacenter */
     private long bwAvaiableSum;
+
     /** The number of hosts whose remaining resources are between (cpu1, ram1) combination and (cpu2, ram2) combination.
      * the first key is cpu, the second key is ram,
      * the value is the number of hosts whose remaining resources are greater than this combination of (cpu, ram),
      * but smaller than the next combination of (cpu1, ram1)
      * */
     private Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
+
     /** The number of hosts whose remaining resources are greater than this combination of (cpu, ram).
      * the first key is cpu, the second key is ram,
      * the value is the number of hosts whose remaining resources are greater than this combination of (cpu, ram)
@@ -36,10 +41,13 @@ public class SimpleStateSimple implements SimpleState {
 
     /** Incremental cpu list that needs to be recorded */
     private List<Integer> cpuRecordListInc;
+
     /** Decremental cpu list that needs to be recorded */
     private List<Integer> cpuRecordListDec;
+
     /** Incremental ram list that needs to be recorded */
     private List<Integer> ramRecordListInc;
+
     /** Decremental ram list that needs to be recorded */
     private List<Integer> ramRecordListDec;
 
