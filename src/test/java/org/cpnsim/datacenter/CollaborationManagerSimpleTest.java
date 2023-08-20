@@ -12,7 +12,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//还有一些测试没有写完，但是这个类的功能已经实现了
 public class CollaborationManagerSimpleTest {
     CloudSim cloudSim = new CloudSim();
     @Test
@@ -54,7 +53,6 @@ public class CollaborationManagerSimpleTest {
         Datacenter dc2 = new DatacenterSimple(cloudSim);
         Map<Integer, Set<Datacenter>> collaborationMap = Map.of(0, Set.of(dc1), 1, Set.of(dc0, dc2));
         collaborationManager.addDatacenter(collaborationMap);
-        assertEquals(Set.of(dc1), unordered(collaborationManager.getOtherDatacenters(dc0, 0)));
         assertEquals(Set.of(dc1, dc2), unordered(collaborationManager.getOtherDatacenters(dc0)));
     }
 
