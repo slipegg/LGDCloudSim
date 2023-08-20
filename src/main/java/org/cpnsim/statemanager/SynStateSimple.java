@@ -195,6 +195,7 @@ public class SynStateSimple implements SynState {
         }
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         TreeMap<Double, Map<Integer, int[]>> partitionSynState = synState.get(partitionId);
+        //TODO 这里需要再细看一下
         double synTime = partitionLatestSynTime.get(partitionId);
         while (synTime <= nowTime) {
             if (partitionSynState.containsKey(synTime) && partitionSynState.get(synTime).containsKey(hostId)) {

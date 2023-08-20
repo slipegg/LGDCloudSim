@@ -47,4 +47,14 @@ public interface InstanceQueue {
      * @param instances the list of instances to be added to the queue
      */
     InstanceQueue add(List instances);
+
+    /**
+     * Get the number of instances to be sent in a batch.
+     */
+    int getBatchNum();
+
+    /**
+     * Set the number of instances to be sent in a batch.
+     */
+    InstanceQueue setBatchNum(int batchNum);
 }

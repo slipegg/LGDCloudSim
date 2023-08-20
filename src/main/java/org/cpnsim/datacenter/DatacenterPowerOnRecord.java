@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class DatacenterPowerOnRecord {
     /**
-     * Number of hosts powered on.
+     * Record the number of instances running on each powered on host
      **/
     @Getter
     private Map<Integer, Integer> powerOnHostInstanceNum = new HashMap<>();

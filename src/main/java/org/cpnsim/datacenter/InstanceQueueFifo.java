@@ -1,5 +1,7 @@
 package org.cpnsim.datacenter;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
@@ -24,6 +26,8 @@ public class InstanceQueueFifo implements InstanceQueue {
     /**
      * the number of instances to be sent in a batch.
      **/
+    @Getter
+    @Setter
     private int batchNum;
 
     public InstanceQueueFifo(int batchNum) {

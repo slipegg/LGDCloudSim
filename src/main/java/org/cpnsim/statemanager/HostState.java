@@ -112,4 +112,13 @@ public class HostState {
                 ", bw=" + bw +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof HostState) {
+            HostState hostState = (HostState) obj;
+            return cpu == hostState.getCpu() && ram == hostState.getRam() && storage == hostState.getStorage() && bw == hostState.getBw();
+        }
+        return false;
+    }
 }

@@ -47,4 +47,14 @@ public interface GroupQueue {
      * Get the size of the queue.
      */
     int size();
+
+    /**
+     * Get the number of instanceGroups to be sent in a batch.
+     */
+    int getBatchNum();
+
+    /**
+     * Set the number of instanceGroups to be sent in a batch.
+     */
+    GroupQueue setBatchNum(int batchNum);
 }

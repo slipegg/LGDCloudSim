@@ -1,5 +1,7 @@
 package org.cpnsim.datacenter;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
 
@@ -20,7 +22,11 @@ public class GroupQueueFifo implements GroupQueue {
      **/
     private List<InstanceGroup> instanceGroups;
 
-    /** the number of instanceGroups to be sent in a batch. **/
+    /**
+     * the number of instanceGroups to be sent in a batch.
+     **/
+    @Getter
+    @Setter
     private int batchNum;
 
     public GroupQueueFifo() {
