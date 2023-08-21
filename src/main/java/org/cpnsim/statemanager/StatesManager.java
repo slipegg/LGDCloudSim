@@ -54,4 +54,12 @@ public interface StatesManager {
     StatesManager setPredictRecordNum(int predictRecordNum);
 
     int getPredictRecordNum();
+
+    int getTotalCpuInUse();
+
+    int getTotalRamInUse();
+
+    int getTotalStorageInUse();
+
+    int getTotalBwInUse();
 }

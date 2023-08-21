@@ -120,4 +120,9 @@ public class SimulationNull implements Simulation {
     public void setIsSqlRecord(boolean isSqlRecord) {
 
     }
+
+    @Override
+    public double getTCO() {
+        return 0;
+    }
 }

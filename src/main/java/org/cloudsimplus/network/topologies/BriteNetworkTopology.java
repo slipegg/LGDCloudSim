@@ -70,6 +70,12 @@ public class BriteNetworkTopology implements NetworkTopology {
      * @see #getBwMatrix()
      */
     private double[][] bwMatrix;
+    
+    /**
+     * the matrix containing the unit price of bandwidth (in Megabits/s)
+     * between every pair of {@link SimEntity}s in the network.
+     */
+    private double[][] bwUnitPriceMatrix;
 
     /**
      * The Topological Graph of the network.
@@ -84,6 +90,12 @@ public class BriteNetworkTopology implements NetworkTopology {
     private Map<SimEntity, Integer> entitiesMap;
 
     private DelayDynamicModel delayDynamicModel;
+
+    /**
+     * The TCO of bandwidth between datacenters
+     */
+    @Getter
+    private double TCONetwork;
 
     /**
      * Instantiates a Network Topology from a file inside the <b>application's resource directory</b>.
@@ -111,6 +123,7 @@ public class BriteNetworkTopology implements NetworkTopology {
     public BriteNetworkTopology() {
         entitiesMap = new HashMap<>();
         bwMatrix = new double[0][0];
+        bwUnitPriceMatrix = new double[0][0];
         graph = new TopologicalGraph();
         delayMatrix = new DelayMatrix();
     }
@@ -162,6 +175,7 @@ public class BriteNetworkTopology implements NetworkTopology {
         //TODO 后期如果有需要可以改为在文件中自定义是无向图还是有向图,现在是需要在代码中指定
         delayMatrix = new DelayMatrix(graph, directed);
         bwMatrix = createBwMatrix(graph, directed);
+        bwUnitPriceMatrix = createBwUnitPriceMatrix(graph);
         networkEnabled = true;
     }
 
@@ -181,6 +195,28 @@ public class BriteNetworkTopology implements NetworkTopology {
             matrix[edge.getSrcNodeID()][edge.getDestNodeID()] = edge.getLinkBw();
             if (!directed) {
                 matrix[edge.getDestNodeID()][edge.getSrcNodeID()] = edge.getLinkBw();
+            }
+        }
+
+        return matrix;
+    }
+
+    /**
+     * Creates the matrix containing the unit price of bandwidth between
+     * every pair of nodes.
+     * Currently it's all initialized by 1, custom configuration will be 
+     * added later.
+     *
+     * @param graph    topological graph describing the topology
+     * @return the unit price of bandwidth graph
+     */
+    private double[][] createBwUnitPriceMatrix(final TopologicalGraph graph) {
+        final int nodes = graph.getNumberOfNodes();
+        final double[][] matrix = Util.newSquareMatrix(nodes);
+        
+        for (int i = 0; i < matrix.length; i = i + 1) {
+            for (int j = 0; j < matrix[i].length; j = j + 1) {
+                matrix[i][j] = 1;
             }
         }
 
@@ -289,13 +325,27 @@ public class BriteNetworkTopology implements NetworkTopology {
         }
     }
 
+    /**
+     * The actual function to manipulate the bandwidth matrix and update
+     * the TCO of network
+     * 
+     * @param srcId ID of the source entity
+     * @param destId ID of the destination entity
+     * @param deltaBw The amount to increase the remaining bandwidth by
+     */
+    private void updateBw(int srcId, int destId, double deltaBw) {
+        bwMatrix[srcId][destId] += deltaBw;
+        TCONetwork = -deltaBw * bwUnitPriceMatrix[srcId][destId];
+    }
+
     @Override
     public boolean allocateBw(SimEntity src, SimEntity dest, double allocateBw) {
         double availableBw = getBw(src, dest);
         if (availableBw < allocateBw) {
             return false;
         }
-        bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] -= allocateBw;
+        updateBw(entitiesMap.get(src), entitiesMap.get(dest), -allocateBw);
+
 //        打印bwMatrix
 //        System.out.println("allocate bwMatrix:"+src.getId()+" "+dest.getId() + " "+allocateBw);
 //        for (int i = 0; i < bwMatrix.length; i++) {
@@ -311,12 +361,12 @@ public class BriteNetworkTopology implements NetworkTopology {
 
     @Override
     public void releaseBw(SimEntity src, SimEntity dest, double releaseBw) {
-        bwMatrix[entitiesMap.get(src)][entitiesMap.get(dest)] += releaseBw;
+        releaseBw(entitiesMap.get(src), entitiesMap.get(dest), releaseBw);
     }
 
     @Override
     public void releaseBw(int srcId, int destId, double releaseBw) {
-        bwMatrix[srcId][destId] += releaseBw;
+        updateBw(srcId, destId, releaseBw);
 //        打印bwMatrix
 //        System.out.println("release bwMatrix:" + srcId + " " + destId + " " + releaseBw);
 //        for (int i = 0; i < bwMatrix.length; i++) {
@@ -355,5 +405,4 @@ public class BriteNetworkTopology implements NetworkTopology {
         int dstId = entitiesMap.get(dest);
         return graph.getNodeList().get(srcId).getAccessLatency(dstId);
     }
-
 }

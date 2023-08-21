@@ -307,4 +307,14 @@ public class CloudSim implements Simulation {
     public boolean isTerminationTimeSet() {
         return terminationTime > 0.0;
     }
+
+    @Override
+    public double getTCO() {
+        double TCOSum = 0;
+        for (Datacenter datacenter : getCis().getDatacenterList()) {
+            TCOSum += datacenter.getTCOEnergy() + datacenter.getTCORack();
+        }
+        TCOSum += networkTopology.getTCONetwork();
+        return TCOSum;
+    }
 }

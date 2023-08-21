@@ -205,4 +205,14 @@ public class DatacenterNull implements Datacenter {
     public double getAllCost() {
         return 0;
     }
+
+    @Override
+    public double getTCOEnergy() {
+        return 0;
+    }
+
+    @Override
+    public double getTCORack() {
+        return 0;
+    }
 }

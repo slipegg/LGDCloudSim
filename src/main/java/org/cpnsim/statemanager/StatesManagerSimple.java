@@ -13,6 +13,14 @@ import static org.apache.commons.lang3.math.NumberUtils.max;
 
 public class StatesManagerSimple implements StatesManager {
     private int[] hostStates;
+    @Getter
+    private int totalCpuInUse;
+    @Getter
+    private int totalRamInUse;
+    @Getter
+    private int totalStorageInUse;
+    @Getter
+    private int totalBwInUse;
     private double synGap;
     private boolean predictable;
     private Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synStateMap;
@@ -48,6 +56,10 @@ public class StatesManagerSimple implements StatesManager {
         this.partitionNum = partitionRangesManager.getPartitionNum();
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
+        this.totalCpuInUse = 0;
+        this.totalRamInUse = 0;
+        this.totalStorageInUse = 0;
+        this.totalBwInUse = 0;
         initSynStateMap();
     }
 
@@ -55,15 +67,32 @@ public class StatesManagerSimple implements StatesManager {
     public StatesManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length) {
         int endId = startId + length - 1;
         for (int i = startId; i <= endId; i++) {
-            hostStates[i * HostState.STATE_NUM] = cpu;
-            hostStates[i * HostState.STATE_NUM + 1] = ram;
-            hostStates[i * HostState.STATE_NUM + 2] = storage;
-            hostStates[i * HostState.STATE_NUM + 3] = bw;
-            simpleState.addCpuRamRecord(cpu, ram);
-            simpleState.updateStorageSum(storage);
-            simpleState.updateBwSum(bw);
+            initSingleHostState(i, cpu, ram, storage, bw);
         }
         return this;
+    }
+
+    @Override
+    public StatesManager initHostStates(HostStateGenerator hostStateGenerator) {
+        for (int i = 0; i < hostNum; i++) {
+            int[] state = hostStateGenerator.generateHostState();
+            initSingleHostState(i, state);
+        }
+        return this;
+    }
+
+    private void initSingleHostState(int hostId, int[] state) {
+        if (state.length != HostState.STATE_NUM) {
+            throw new IllegalArgumentException("Host state must be array of size " + HostState.STATE_NUM);
+        }
+        System.arraycopy(state, 0, hostStates, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
+        simpleState.addCpuRamRecord(state[0], state[1]);
+        simpleState.updateStorageSum(state[2]);
+        simpleState.updateBwSum(state[3]);
+    }
+
+    private void initSingleHostState(int hostId, int cpu, int ram, int storage, int bw) {
+        initSingleHostState(hostId, new int[] { cpu, ram, storage, bw });
     }
 
     @Override
@@ -117,6 +146,12 @@ public class StatesManagerSimple implements StatesManager {
         hostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
         hostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
 
+        // update total ... in use
+        totalCpuInUse += instance.getCpu();
+        totalRamInUse += instance.getRam();
+        totalStorageInUse += instance.getStorage();
+        totalBwInUse += instance.getBw();
+
         updateSimpleState(hostId, synHostState);
         datacenterPowerOnRecord.hostAllocateInstance(hostId, datacenter.getSimulation().clock());
         return true;
@@ -134,6 +169,12 @@ public class StatesManagerSimple implements StatesManager {
         hostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
         hostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
 
+        // update total ... in use
+        totalCpuInUse -= instance.getCpu();
+        totalRamInUse -= instance.getRam();
+        totalStorageInUse -= instance.getStorage();
+        totalBwInUse -= instance.getBw();
+
         updateSimpleState(hostId, synHostState);
         datacenterPowerOnRecord.hostReleaseInstance(hostId, datacenter.getSimulation().clock());
         return this;
@@ -147,18 +188,6 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public StatesManager setPredictable(boolean predictable) {
         this.predictable = predictable;
-        return this;
-    }
-
-    @Override
-    public StatesManager initHostStates(HostStateGenerator hostStateGenerator) {
-        for (int i = 0; i < hostNum; i++) {
-            int[] state = hostStateGenerator.generateHostState();
-            System.arraycopy(state, 0, hostStates, i * HostState.STATE_NUM, HostState.STATE_NUM);
-            simpleState.addCpuRamRecord(state[0], state[1]);
-            simpleState.updateStorageSum(state[2]);
-            simpleState.updateBwSum(state[3]);
-        }
         return this;
     }
 
