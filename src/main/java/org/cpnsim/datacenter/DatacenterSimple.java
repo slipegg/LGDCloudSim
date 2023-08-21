@@ -69,6 +69,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private boolean isGroupFilterDcBusy = false;
     private Map<InnerScheduler, Boolean> isInnerSchedulerBusy = new HashMap<>();
 
+    @Getter
+    private double TCOEnergy;
+
+    @Getter
+    private double TCORack;
+
     /**
      * Creates a new entity.
      *
@@ -222,6 +228,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
+        updateTCO();
 //        getSimulation().getSqlRecord().recordInstanceFinishInfo(instance);
         calculateCost(instance);
         updateGroupAndUserRequestState(instance);
@@ -310,6 +317,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 instance.setState(UserRequest.RUNNING);
                 instance.setHost(hostId);
                 instance.setStartTime(getSimulation().clock());
+                updateTCO();
                 int lifeTime = instance.getLifeTime();
                 if (lifeTime > 0) {
                     finishInstances.putIfAbsent(lifeTime, new ArrayList<>());
@@ -574,6 +582,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         return true;
+
+        // TODO: TCO
     }
 
 
@@ -752,5 +762,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public int compareTo(SimEntity o) {
         return Comparator.comparing(SimEntity::getId).compare(this, o);
+    }
+
+    private void updateTCO() {
+        TCOEnergy = statesManager.getTotalCpuInUse() * unitCpuPrice
+                + statesManager.getTotalStorageInUse() * unitStoragePrice;
+        TCORack = Math.ceil((double) statesManager.getTotalCpuInUse() / cpuNumPerRack) * unitRackPrice;
     }
 }

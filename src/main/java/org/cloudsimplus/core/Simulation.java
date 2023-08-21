@@ -57,4 +57,6 @@ public interface Simulation {
     boolean getIsSqlRecord();
 
     void setIsSqlRecord(boolean isSqlRecord);
+
+    double getTCO();
 }

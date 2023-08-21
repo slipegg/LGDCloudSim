@@ -37,4 +37,8 @@ public interface DatacenterPrice {
     double getRackCost();
 
     double getAllCost();
+
+    double getTCOEnergy();
+    
+    double getTCORack();
 }
