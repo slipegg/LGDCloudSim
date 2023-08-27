@@ -2,6 +2,8 @@ package org.cpnsim.interscheduler;
 
 import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
+import org.cloudsimplus.network.topologies.BriteNetworkTopology;
+import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterSimple;
 import org.cpnsim.request.InstanceGroup;
@@ -10,6 +12,8 @@ import org.cpnsim.request.UserRequest;
 import org.cpnsim.request.UserRequestSimple;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -139,5 +143,31 @@ public class InterSchedulerSimpleTest {
                         result.get(instanceGroup2)==datacenter4
         );
         assertNull(result.get(instanceGroup3));
+    }
+
+    @Test
+    public void testFilterDatacentersByAccessLatency() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        final String NETWORK_TOPOLOGY_FILE = "src/test/resources/topology.brite";
+        BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE, true);
+        Simulation scaleCloudsim = new CloudSim();
+        Datacenter dc0 = new DatacenterSimple(scaleCloudsim, 0);
+        networkTopology.mapNode(dc0, 0);
+        Datacenter dc1 = new DatacenterSimple(scaleCloudsim, 1);
+        networkTopology.mapNode(dc1, 1);
+        Datacenter dc2 = new DatacenterSimple(scaleCloudsim, 2);
+        networkTopology.mapNode(dc2, 2);
+        Datacenter dc3 = new DatacenterSimple(scaleCloudsim, 3);
+        networkTopology.mapNode(dc3, 3);
+        Datacenter dc4 = new DatacenterSimple(scaleCloudsim, 4);
+        networkTopology.mapNode(dc4, 4);
+        InstanceGroup instanceGroup=new InstanceGroupSimple(0);
+        instanceGroup.setAccessLatency(3);
+        ArrayList<Datacenter> datacenters = new ArrayList<Datacenter>(Arrays.asList(dc1, dc2, dc3, dc4));
+        Method method =InterSchedulerSimple.class.getDeclaredMethod("filterDatacentersByAccessLatency",InstanceGroup.class,List.class, NetworkTopology.class);
+        method.setAccessible(true);
+        InterSchedulerSimple interScheduler=new InterSchedulerSimple();
+        interScheduler.setDatacenter(dc0);
+        method.invoke(interScheduler,instanceGroup,datacenters,networkTopology);
+        assertEquals(3,datacenters.size());
     }
 }
