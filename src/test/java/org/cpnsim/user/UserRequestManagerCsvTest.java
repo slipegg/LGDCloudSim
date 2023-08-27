@@ -8,8 +8,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserRequestManagerCsvTest {
     UserRequestManagerCsv userRequestManager = new UserRequestManagerCsv("src/test/resources/generateRequestParament.csv");
@@ -103,12 +102,23 @@ public class UserRequestManagerCsvTest {
     }
 
     @Test
-    public void testGenerateOnceUserRequests() {
+    public void testGenerateOnceUserRequests() throws IllegalAccessException {
         Map<Integer, List<UserRequest>> userRequests = userRequestManager.generateOnceUserRequests();
         int[] exceptDstDataCenterIds = {0};
         int[] actualDstDataCenterIds = userRequests.keySet().stream().mapToInt(Integer::intValue).toArray();
         assertArrayEquals(exceptDstDataCenterIds, actualDstDataCenterIds);
         //TODO 继续测试对比其他的属性
+        Integer requestPerNumMin = (Integer) getFieldValue("RequestPerNumMin");
+        Integer requestPerNumMax = (Integer) getFieldValue("RequestPerNumMax");
+        assertTrue(userRequests.get(0).size()>=requestPerNumMin);
+        assertTrue(userRequests.get(0).size()<=requestPerNumMax);
+        int dstDatacenterCount = userRequests.values().stream().mapToInt(List::size).sum();
+        assertTrue(dstDatacenterCount>=requestPerNumMin);
+        assertTrue(dstDatacenterCount>=requestPerNumMax);
+        userRequests.values().stream().map(i->i.stream().map(j-> {
+            assertEquals(0D, j.getSubmitTime());
+            return null;
+        }));
     }
 
     private Object getFieldValue(String fieldName) throws IllegalAccessException {
