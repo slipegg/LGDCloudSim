@@ -55,35 +55,31 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     @Override
-    public Map<InstanceGroup, Boolean> decideReciveGroupResult(List<InstanceGroup> instanceGroups) {
+    public Map<InstanceGroup, Double> decideReciveGroupResult(List<InstanceGroup> instanceGroups) {
         //TODO 怎么判断是否接收，如果接收了怎么进行资源预留，目前是全部接收
-        Map<InstanceGroup, Boolean> result = new HashMap<>();
+        Map<InstanceGroup, Double> result = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
                 continue;
             }
-            result.put(instanceGroup, true);
+            Double score = random.nextDouble(100);
+            result.put(instanceGroup, score);
         }
         this.decideReciveGroupResultCostTime = 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return result;
     }
 
     @Override
-    public Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups) {
+    public Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Double>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups) {
         this.decideTargetDatacenterCostTime = 0.0;
         Map<InstanceGroup, Datacenter> result = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> datacenters = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
-                    .filter(entry -> entry.getValue() == 1)
+            //取每个instanceGroup中最高得分的datacenter作为调度目标
+            Datacenter datacenter = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
+                    .max(Comparator.comparingDouble(Map.Entry::getValue))
                     .map(Map.Entry::getKey)
-                    .toList();
-            if (datacenters.size() == 0) {
-                //表示调度失败
-                result.put(instanceGroup, null);
-            } else {
-                //表示调度成功
-                result.put(instanceGroup, datacenters.get(random.nextInt(datacenters.size())));
-            }
+                    .orElse(null);
+            result.put(instanceGroup, datacenter);
         }
         return result;
     }

@@ -86,7 +86,7 @@ public class InterSchedulerSimpleTest {
         instanceGroups.add(instanceGroup);
 
         InterScheduler interScheduler=new InterSchedulerSimple();
-        Map<InstanceGroup, Boolean> result=interScheduler.decideReciveGroupResult(instanceGroups);
+        Map<InstanceGroup, Double> result=interScheduler.decideReciveGroupResult(instanceGroups);
         assertEquals(4,result.size());
         assertFalse(result.containsKey(failedRequest));
     }
@@ -107,21 +107,21 @@ public class InterSchedulerSimpleTest {
                 instanceGroup1,instanceGroup2,instanceGroup3
         );
 
-        Map<Datacenter,Integer> datacenterIntegerMap1=Map.of(
-                datacenter1,1,
-                datacenter2,0
+        Map<Datacenter,Double> datacenterIntegerMap1=Map.of(
+                datacenter1,10.0,
+                datacenter2,0.0
         );
-        Map<Datacenter,Integer> datacenterIntegerMap2=Map.of(
-                datacenter2,1,
-                datacenter3,0,
-                datacenter4,1
+        Map<Datacenter,Double> datacenterIntegerMap2=Map.of(
+                datacenter2,1.0,
+                datacenter3,20.0,
+                datacenter4,30.0
         );
-        Map<Datacenter,Integer> datacenterIntegerMap3=Map.of(
-                datacenter1,0,
-                datacenter4,0
+        Map<Datacenter,Double> datacenterIntegerMap3=Map.of(
+                datacenter1,60.0,
+                datacenter4,50.0
         );
 
-        Map<InstanceGroup,Map<Datacenter,Integer>> instanceGroupMapMap=Map.of(
+        Map<InstanceGroup,Map<Datacenter,Double>> instanceGroupMapMap=Map.of(
                 instanceGroup1,datacenterIntegerMap1,
                 instanceGroup2,datacenterIntegerMap2,
                 instanceGroup3,datacenterIntegerMap3
@@ -133,11 +133,7 @@ public class InterSchedulerSimpleTest {
         assertEquals(3,result.size());
 
         assertSame(datacenter1,result.get(instanceGroup1));
-        assertTrue(
-                result.get(instanceGroup2)==datacenter2
-                        ||
-                        result.get(instanceGroup2)==datacenter4
-        );
-        assertNull(result.get(instanceGroup3));
+        assertSame(datacenter4,result.get(instanceGroup2));
+        assertSame(datacenter1,result.get(instanceGroup3));
     }
 }
