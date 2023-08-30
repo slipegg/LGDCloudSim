@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.function.Function;
 
@@ -82,7 +83,11 @@ public class TopologyReaderBrite implements TopologyReader {
         }
 
         for (int i = 0; tokenizer.hasMoreElements() && i < parsedFields.length; i++) {
-            parsedFields[i] = castFunction.apply(tokenizer.nextToken());
+            try {
+                parsedFields[i] = castFunction.apply(tokenizer.nextToken());
+            } catch (NoSuchElementException e) {
+                ; // do nothing. use existing values in parsedFields as default values
+            }
         }
 
         return true;

@@ -214,10 +214,8 @@ public class BriteNetworkTopology implements NetworkTopology {
         final int nodes = graph.getNumberOfNodes();
         final double[][] matrix = Util.newSquareMatrix(nodes);
         
-        for (int i = 0; i < matrix.length; i = i + 1) {
-            for (int j = 0; j < matrix[i].length; j = j + 1) {
-                matrix[i][j] = 1;
-            }
+        for (final TopologicalLink edge : graph.getLinksList()) {
+            matrix[edge.getSrcNodeID()][edge.getDestNodeID()] = edge.getLinkUnitPrice();
         }
 
         return matrix;
@@ -225,6 +223,11 @@ public class BriteNetworkTopology implements NetworkTopology {
 
     @Override
     public void addLink(final SimEntity src, final SimEntity dest, final double bandwidth, final double latency) {
+        addLink(src, dest, bandwidth, latency, 0);
+    }
+    
+
+    public void addLink(final SimEntity src, final SimEntity dest, final double bandwidth, final double latency, final double unitPrice) {
         if (graph == null) {
             graph = new TopologicalGraph();
         }
@@ -236,7 +239,7 @@ public class BriteNetworkTopology implements NetworkTopology {
         addNodeMapping(src);
         addNodeMapping(dest);
 
-        final var link = new TopologicalLink(entitiesMap.get(src), entitiesMap.get(dest), latency, bandwidth);
+        final var link = new TopologicalLink(entitiesMap.get(src), entitiesMap.get(dest), latency, bandwidth, unitPrice);
         graph.addLink(link);
         generateMatrices(false);
     }

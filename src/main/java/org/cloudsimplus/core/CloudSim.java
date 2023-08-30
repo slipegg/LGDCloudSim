@@ -142,6 +142,7 @@ public class CloudSim implements Simulation {
 
         while (processEvents(Double.MAX_VALUE)) {
             MemoryRecord.recordMemory();
+            // getTCO(); // TODO: find a better way to trace TCO
         }
         finish();
         MemoryRecord.recordMemory();
@@ -311,10 +312,21 @@ public class CloudSim implements Simulation {
     @Override
     public double getTCO() {
         double TCOSum = 0;
+        double TCOEnergySum = 0;
+        double TCORackSum = 0;
+        double TCONetworkSum = 0;
         for (Datacenter datacenter : getCis().getDatacenterList()) {
-            TCOSum += datacenter.getTCOEnergy() + datacenter.getTCORack();
+            LOGGER.debug("TCO Detail: [ {} ] Energy = {} Rack = {}",
+                    datacenter.getName(), datacenter.getTCOEnergy(), datacenter.getTCORack());
+            TCOEnergySum += datacenter.getTCOEnergy();
+            TCORackSum += datacenter.getTCORack();
         }
-        TCOSum += networkTopology.getTCONetwork();
+        TCONetworkSum += networkTopology.getTCONetwork();
+        TCOSum = TCOEnergySum + TCORackSum + TCONetworkSum;
+        LOGGER.debug("TCO Detail: Total Energy = {}", TCOEnergySum);
+        LOGGER.debug("TCO Detail: Total Rack = {}", TCORackSum);
+        LOGGER.debug("TCO Detail: Total Network = {}", TCONetworkSum);
+        LOGGER.info("{}: Calculated TCO: {}", clockStr(), TCOSum);
         return TCOSum;
     }
 }
