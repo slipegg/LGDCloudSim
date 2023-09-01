@@ -3,6 +3,7 @@ package org.cpnsim.request;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -69,4 +70,27 @@ public class UserRequestSimpleTest {
         assertEquals(expectedBelongDatacenterId,userRequest.getBelongDatacenterId());
 
     }
+
+    @Test
+    public void testAddSuccessGroupNum() {
+        // create an UserRequestSimple object for testing
+        UserRequest ur = new UserRequestSimple(0);
+        // create an InstanceGroupSimple with 2 InstanceGroup
+        InstanceGroup ig1 = new InstanceGroupSimple(1);
+        InstanceGroup ig2 = new InstanceGroupSimple(2);
+        List<InstanceGroup> l = Arrays.asList(ig1, ig2);
+        // add the InstanceGroup to the UserRequestSimple object
+        ur.setInstanceGroups(l);
+        // expect: ur.state == UserRequest.WAITING
+        assertEquals(UserRequest.WAITING, ur.getState());
+        // increment ur's successGroupNum, from 0 to 1
+        ur.addSuccessGroupNum();
+        // expect: ur.state == UserRequest.WAITING
+        assertEquals(UserRequest.WAITING, ur.getState());
+        // increment ur's successGroupNum, from 1 to 2
+        ur.addSuccessGroupNum();
+        // expect: ur.state == UserRequest.SUCCESS
+        assertEquals(UserRequest.SUCCESS, ur.getState());
+    }
+    
 }
