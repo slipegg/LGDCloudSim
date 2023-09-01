@@ -6,18 +6,15 @@ import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterSimple;
-import org.cpnsim.request.InstanceGroup;
-import org.cpnsim.request.InstanceGroupSimple;
-import org.cpnsim.request.UserRequest;
-import org.cpnsim.request.UserRequestSimple;
+import org.cpnsim.request.*;
+import org.cpnsim.statemanager.PartitionRangesManager;
+import org.cpnsim.statemanager.StatesManager;
+import org.cpnsim.statemanager.StatesManagerSimple;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -169,5 +166,29 @@ public class InterSchedulerSimpleTest {
         interScheduler.setDatacenter(dc0);
         method.invoke(interScheduler,instanceGroup,datacenters,networkTopology);
         assertEquals(3,datacenters.size());
+    }
+
+    @Test
+    public void testFilterDatacentersByResourceSample() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        CloudSim cloudSim=new CloudSim();
+        Datacenter datacenter=new DatacenterSimple(cloudSim);
+        Map<Integer, int[]> ranges=new HashMap<>();
+        ranges.put(1,new int[]{0,2});
+        PartitionRangesManager partitionRangesManager=new PartitionRangesManager(ranges);
+        StatesManager statesManager=new StatesManagerSimple(1,partitionRangesManager,0);
+        datacenter.setStatesManager(statesManager);
+        ArrayList<Datacenter> allDatacenters=new ArrayList<Datacenter>(List.of(datacenter));
+
+        InstanceGroup instanceGroup=new InstanceGroupSimple(1);
+        Instance instance=new InstanceSimple(1,1,2,1,2);
+        List<Instance> instances=List.of(instance);
+        instanceGroup.setInstanceList(instances);
+
+        Method method =InterSchedulerSimple.class.getDeclaredMethod("filterDatacentersByResourceSample",InstanceGroup.class,List.class);
+        method.setAccessible(true);
+        InterSchedulerSimple interScheduler=new InterSchedulerSimple();
+        method.invoke(interScheduler,instanceGroup,allDatacenters);
+
+        assertArrayEquals(new Datacenter[]{},allDatacenters.toArray());
     }
 }
