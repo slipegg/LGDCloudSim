@@ -61,6 +61,10 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Override
     public InstanceGroup setInstanceList(List<Instance> instanceList) {
         this.instanceList = instanceList;
+        this.storageSum = 0;
+        this.bwSum = 0;
+        this.cpuSum = 0;
+        this.ramSum = 0;
         for (Instance instance : instanceList) {
             storageSum += instance.getStorage();
             bwSum += instance.getBw();
