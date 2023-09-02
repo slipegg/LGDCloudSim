@@ -151,8 +151,8 @@ public class SqlRecordSimple implements SqlRecord {
         try {
             sql = "UPDATE " + this.instanceGroupGraphTableName +
                     " SET finishTime = " + finishTime +
-                    " WHERE (srcInstanceGroupId = " + srcDcId +
-                    " AND dstInstanceGroupId = " + dstDcId + ");";
+                    " WHERE (srcDcId = " + srcDcId +
+                    " AND dstDcId = " + dstDcId + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
