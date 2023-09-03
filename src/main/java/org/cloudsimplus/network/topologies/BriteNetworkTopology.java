@@ -160,6 +160,18 @@ public class BriteNetworkTopology implements NetworkTopology {
         generateMatrices(false);//默认是无向图
     }
 
+    /**
+     * Creates a network topology from a given input stream reader
+     * and of target topology direction type.
+     * The file is written in the BRITE format and contains
+     * topological information on simulation entities.
+     *
+     * @param reader the reader for the topology file
+     * @param directed whether it is a digraph
+     * @see #BriteNetworkTopology()
+     * @see #BriteNetworkTopology(InputStreamReader)
+     * @see #getInstance(String)
+     */
     private BriteNetworkTopology(final InputStreamReader reader, boolean directed) {
         this();
         final var instance = new TopologyReaderBrite();
@@ -223,6 +235,13 @@ public class BriteNetworkTopology implements NetworkTopology {
         return matrix;
     }
 
+    /**
+     * Add new link in the network topology graph whatever it's present.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @param bandwidth   link's bandwidth (in Megabits/s)
+     * @param latency  link's latency (in seconds)
+     */
     @Override
     public void addLink(final SimEntity src, final SimEntity dest, final double bandwidth, final double latency) {
         if (graph == null) {
@@ -241,6 +260,11 @@ public class BriteNetworkTopology implements NetworkTopology {
         generateMatrices(false);
     }
 
+    /**
+     * Remove the link in the network topology graph, haven't been supported.
+     * @param src   {@link SimEntity} that represents the link's source node
+     * @param dest  {@link SimEntity} that represents the link's destination node
+     */
     @Override
     public void removeLink(final SimEntity src, final SimEntity dest) {
         throw new UnsupportedOperationException("Removing links is not yet supported on BriteNetworkTopologies");
@@ -295,6 +319,12 @@ public class BriteNetworkTopology implements NetworkTopology {
         entitiesMap.remove(entity);
     }
 
+    /**
+     * Get the delay of the link between the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @return the delay of the link between the two nodes.
+     */
     @Override
     public double getDelay(final SimEntity src, final SimEntity dest) {
         if (!networkEnabled) {
@@ -310,6 +340,12 @@ public class BriteNetworkTopology implements NetworkTopology {
         }
     }
 
+    /**
+     * Get the bandwidth of the link between the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @return the bandwidth of the link between the two nodes.
+     */
     @Override
     public double getBw(final SimEntity src, final SimEntity dest) {
         if (!networkEnabled) {
@@ -338,6 +374,13 @@ public class BriteNetworkTopology implements NetworkTopology {
         TCONetwork = -deltaBw * bwUnitPriceMatrix[srcId][destId];
     }
 
+    /**
+     * Allocate bandwidth to the link of the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @param allocateBw  the bandwidth to be allocated
+     * @return  true if success to allocate bandwidth else false
+     */
     @Override
     public boolean allocateBw(SimEntity src, SimEntity dest, double allocateBw) {
         double availableBw = getBw(src, dest);
@@ -359,11 +402,23 @@ public class BriteNetworkTopology implements NetworkTopology {
         return true;
     }
 
+    /**
+     * Release bandwidth to the link of the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @param releaseBw  the bandwidth to be released
+     */
     @Override
     public void releaseBw(SimEntity src, SimEntity dest, double releaseBw) {
         releaseBw(entitiesMap.get(src), entitiesMap.get(dest), releaseBw);
     }
 
+    /**
+     * Release bandwidth to the link of the two nodes.
+     * @param srcId ID of the source entity
+     * @param destId ID of the destination entity
+     * @param releaseBw  the bandwidth to be released
+     */
     @Override
     public void releaseBw(int srcId, int destId, double releaseBw) {
         updateBw(srcId, destId, releaseBw);
@@ -378,11 +433,22 @@ public class BriteNetworkTopology implements NetworkTopology {
 //        System.out.println();
     }
 
+    /**
+     * Set delayDynamicModel.
+     * @param delayDynamicModel the delayDynamicModel to be set
+     */
     @Override
     public void setDelayDynamicModel(DelayDynamicModel delayDynamicModel) {
         this.delayDynamicModel = delayDynamicModel;
     }
 
+    /**
+     * Get the dynamic delay of the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @param time  the random seed
+     * @return  the dynamic delay of two nodes.
+     */
     @Override
     public double getDynamicDelay(SimEntity src, SimEntity dest, double time) {
         if (delayDynamicModel == null) {
@@ -399,6 +465,12 @@ public class BriteNetworkTopology implements NetworkTopology {
         return Arrays.copyOf(bwMatrix, bwMatrix.length);
     }
 
+    /**
+     * Get the access latency of the link between the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @return the access latency of the link between the two nodes.
+     */
     @Override
     public double getAcessLatency(SimEntity src, SimEntity dest) {
         int srcId = entitiesMap.get(src);
