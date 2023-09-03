@@ -69,6 +69,9 @@ public class InitDatacenter {
         ResourceAllocateSelector resourceAllocateSelector = factory.getResourceAllocateSelector(resourceAllocateSelectorJson.getString("type"));
         datacenter.setResourceAllocateSelector(resourceAllocateSelector);
 
+        JsonObject unitPriceJson = datacenterJson.getJsonObject("resourceUnitPrice");
+        setDatacenterResourceUnitPrice(datacenter, unitPriceJson);
+        
         return datacenter;
     }
 
@@ -138,5 +141,21 @@ public class InitDatacenter {
             statesManager.initHostStates(cpu, ram, storage, bw, startId, length);
             startId += length;
         }
+    }
+
+    private static void setDatacenterResourceUnitPrice(Datacenter datacenter, JsonObject unitPriceJson) {
+        if (unitPriceJson == null) {
+            return;
+        }
+        double unitCpuPrice = unitPriceJson.getJsonNumber("cpu").doubleValue();
+        double unitRamPrice = unitPriceJson.getJsonNumber("ram").doubleValue();
+        double unitRackPrice = unitPriceJson.getJsonNumber("rack").doubleValue();
+        double unitStoragePrice = unitPriceJson.getJsonNumber("storage").doubleValue();
+        double unitBwPrice = unitPriceJson.getJsonNumber("bw").doubleValue();
+        datacenter.setUnitCpuPrice(unitCpuPrice);
+        datacenter.setUnitRamPrice(unitRamPrice);
+        datacenter.setUnitRackPrice(unitRackPrice);
+        datacenter.setUnitStoragePrice(unitStoragePrice);
+        datacenter.setUnitBwPrice(unitBwPrice);
     }
 }

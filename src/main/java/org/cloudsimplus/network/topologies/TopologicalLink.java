@@ -47,17 +47,26 @@ public class TopologicalLink {
     private final double linkBw;
 
     /**
+     * {@return the unit price of bandwidth} of the link.
+     */
+    @Getter
+    private final double linkUnitPrice;
+
+    /**
      * Creates a new Topological Link.
      *
      * @param srcNode   the BRITE id of the source node of the link.
      * @param destNode  the BRITE id of the destination node of the link.
      * @param delay     the link delay of the connection (in seconds).
      * @param bandwidth the link bandwidth (in Megabits/s)
+     * @param bwUnitPrice the link bandwidth unit price
      */
-    public TopologicalLink(final int srcNode, final int destNode, final double delay, final double bandwidth) {
+    public TopologicalLink(final int srcNode, final int destNode, final double delay, final double bandwidth,
+            final double bwUnitPrice) {
         srcNodeID = srcNode;
         destNodeID = destNode;
         linkDelay = delay;
         linkBw = bandwidth;
+        linkUnitPrice = bwUnitPrice;
     }
 }

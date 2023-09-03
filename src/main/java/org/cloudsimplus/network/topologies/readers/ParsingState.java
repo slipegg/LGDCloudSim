@@ -111,7 +111,7 @@ enum ParsingState {
             }
             // List of fields in the line to parse
             // EdgeID, fromNode, toNode, linkDelay, linkBandwidth
-            final Double[] parsedFields = {0.0, 0.0, 0.0, 0.0, 0.0};
+            final Double[] parsedFields = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
             if (!reader.parseLine(line, parsedFields, Double::valueOf)) {
                 return;
             }
@@ -120,8 +120,9 @@ enum ParsingState {
             final int toNode = parsedFields[2].intValue();
             final double linkDelay = parsedFields[3];
             final double linkBandwidth = parsedFields[4];
+            final double unitPrice = parsedFields[5];
 
-            reader.getGraph().addLink(new TopologicalLink(fromNode, toNode, linkDelay, linkBandwidth));
+            reader.getGraph().addLink(new TopologicalLink(fromNode, toNode, linkDelay, linkBandwidth, unitPrice));
         }
     };
 
