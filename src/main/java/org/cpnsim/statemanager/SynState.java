@@ -7,15 +7,19 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * This SynState is used by the InnerScheduler for resource scheduling,
+ * and each InnerScheduler has its own SynState
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public interface SynState {
     Logger LOGGER = LoggerFactory.getLogger(SynState.class.getSimpleName());
 
+    /** Judging whether this instance is suitable to be placed on the host with hostId according to SynState **/
     boolean isSuitable(int hostId, Instance instance);
 
-    //假装分配了资源，每次分配后都会修改对应的状态
+    /** Pretend that resources have been allocated on this host and modify the corresponding SysState **/
     void allocateTmpResource(int hostId, Instance instance);
-
-    Map<Integer, TreeMap<Double, Map<Integer, int[]>>> getSynState();
-
-    Map<Integer, Map<Integer, int[]>> getSelfHostState();
 }

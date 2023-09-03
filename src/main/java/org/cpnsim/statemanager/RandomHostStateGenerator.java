@@ -2,19 +2,52 @@ package org.cpnsim.statemanager;
 
 import java.util.Random;
 
+/**
+ * A class to generate random host state.
+ * Note that the range of randomly generated numbers here is: [min,max]
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
+
 public class RandomHostStateGenerator implements HostStateGenerator {
+    /** A random number generator **/
     private Random random;
-    //全部是左闭右闭区间
+
+    /** the minimum amount of cpu that is available on the host */
     private int minCpu = 1;
+
+    /** the maximum amount of cpu that is available on the host */
     private int maxCpu = 124;
+
+    /** the minimum amount of ram that is available on the host */
     private int minRam = 1;
+
+    /** the maximum amount of ram that is available on the host */
     private int maxRam = 1024;
+
+    /** the minimum amount of storage that is available on the host */
     private int minStorage = 1;
+
+    /** the maximum amount of storage that is available on the host */
     private int maxStorage = 1024;
+
+    /** the minimum amount of bw that is available on the host */
     private int minBw = 1;
+
+    /** the maximum amount of bw that is available on the host */
     private int maxBw = 1024;
 
-    public RandomHostStateGenerator(int seed) {//-1代表不设置种子，每次都不一样
+    /**
+     * Initialize a random host state generator.
+     * Note that if seed=-1, it means that each generation is random,
+     * and the results of each generation are different.
+     * Otherwise, the same random number seed is used to generate each time,
+     * and the result of each random generation is the same
+     *
+     * @param seed the seed of the random number generator
+     * */
+    public RandomHostStateGenerator(int seed) {
         if (seed == -1) {
             random = new Random();
         } else {
@@ -34,6 +67,11 @@ public class RandomHostStateGenerator implements HostStateGenerator {
         this.maxBw = maxBw;
     }
 
+    /**
+     * Generate the random state of a host.
+     *
+     * @return the state of the host.The state includes 4 integers: cpu, ram, storage and bw.
+     * */
     @Override
     public int[] generateHostState() {
         int[] hostStates = new int[4];

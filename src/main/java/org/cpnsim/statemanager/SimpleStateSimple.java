@@ -5,18 +5,50 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.*;
 
+/**
+ * A class to record the overall state information of hosts in an entire datacenter
+ * This class implements the interface {@link SimpleState}.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 @Getter
 public class SimpleStateSimple implements SimpleState {
+    /** The sum of the cpu of all hosts in the datacenter */
     private long cpuAvaiableSum;
+
+    /** The sum of the ram of all hosts in the datacenter */
     private long ramAvaiableSum;
+
+    /** The sum of the storage of all hosts in the datacenter */
     private long storageAvaiableSum;
+
+    /** The sum of the bw of all hosts in the datacenter */
     private long bwAvaiableSum;
+
+    /** The number of hosts whose remaining resources are between (cpu1, ram1) combination and (cpu2, ram2) combination.
+     * the first key is cpu, the second key is ram,
+     * the value is the number of hosts whose remaining resources are greater than this combination of (cpu, ram),
+     * but smaller than the next combination of (cpu1, ram1)
+     * */
     private Map<Integer, Map<Integer, MutableInt>> cpuRamMap;
+
+    /** The number of hosts whose remaining resources are greater than this combination of (cpu, ram).
+     * the first key is cpu, the second key is ram,
+     * the value is the number of hosts whose remaining resources are greater than this combination of (cpu, ram)
+     * */
     private Map<Integer, Map<Integer, List<MutableInt>>> cpuRamSumMap;
 
+    /** Incremental cpu list that needs to be recorded */
     private List<Integer> cpuRecordListInc;
+
+    /** Decremental cpu list that needs to be recorded */
     private List<Integer> cpuRecordListDec;
+
+    /** Incremental ram list that needs to be recorded */
     private List<Integer> ramRecordListInc;
+
+    /** Decremental ram list that needs to be recorded */
     private List<Integer> ramRecordListDec;
 
     public SimpleStateSimple() {
@@ -58,6 +90,11 @@ public class SimpleStateSimple implements SimpleState {
         }
     }
 
+    /**
+     * Generate the cpu list that needs to be recorded
+     *
+     * @return the cpu list that needs to be recorded
+     */
     private List<Integer> getCpuRecordList() {
         List<Integer> cpuRecordList = new ArrayList<>();
         int cpuMax = 128;
@@ -71,12 +108,14 @@ public class SimpleStateSimple implements SimpleState {
         for (int i = 64; i <= cpuMax; i += 8) {
             cpuRecordList.add(i);
         }
-        /*
-         * 实际返回：长度33，[1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 88, 96, 104, 112, 120, 128]
-         * */
         return cpuRecordList;
     }
 
+    /**
+     * Generate the ram list that needs to be recorded
+     *
+     * @return the ram list that needs to be recorded
+     */
     private List<Integer> getRamRecordList() {
         List<Integer> ramRecordList = new ArrayList<>();
         int ramMax = 256;
@@ -93,9 +132,6 @@ public class SimpleStateSimple implements SimpleState {
         for (int i = 256; i <= ramMax; i += 128) {
             ramRecordList.add(i);
         }
-        /*
-         * 实际返回：长度56，[1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 144, 160, 176, 192, 208, 224, 240, 256, 256]
-         * */
         return ramRecordList;
     }
 
@@ -140,14 +176,6 @@ public class SimpleStateSimple implements SimpleState {
         return this;
     }
 
-    private int getSmallerCpu(int cpu) {
-        return cpuRecordListDec.stream().filter(key -> key <= cpu).findFirst().orElse(-1);
-    }
-
-    private int getSmallerRam(int ram) {
-        return ramRecordListDec.stream().filter(key -> key <= ram).findFirst().orElse(-1);
-    }
-
     @Override
     public int getCpuRamSum(int cpu, int ram) {
         int biggerCpu = getBiggerCpu(cpu);
@@ -159,10 +187,42 @@ public class SimpleStateSimple implements SimpleState {
         return mutableIntList.stream().mapToInt(MutableInt::intValue).sum();
     }
 
+    /**
+     * Get the smaller cpu that is smaller than the given cpu
+     *
+     * @param cpu the given cpu
+     * @return the smaller cpu that is smaller than the given cpu
+     */
+    private int getSmallerCpu(int cpu) {
+        return cpuRecordListDec.stream().filter(key -> key <= cpu).findFirst().orElse(-1);
+    }
+
+    /**
+     * Get the smaller ram that is smaller than the given ram
+     *
+     * @param ram the given ram
+     * @return the smaller ram that is smaller than the given ram
+     */
+    private int getSmallerRam(int ram) {
+        return ramRecordListDec.stream().filter(key -> key <= ram).findFirst().orElse(-1);
+    }
+
+    /**
+     * Get the bigger cpu that is bigger than the given cpu
+     *
+     * @param cpu the given cpu
+     * @return the bigger cpu that is bigger than the given cpu
+     */
     private int getBiggerCpu(int cpu) {
         return cpuRecordListInc.stream().filter(key -> key >= cpu).findFirst().orElse(-1);
     }
 
+    /**
+     * Get the bigger ram that is bigger than the given ram
+     *
+     * @param ram the given ram
+     * @return the bigger ram that is bigger than the given ram
+     */
     private int getBiggerRam(int ram) {
         return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(-1);
     }

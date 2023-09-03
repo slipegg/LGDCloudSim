@@ -25,11 +25,11 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
 
     double getFilterSuitableDatacenterCostTime();
 
-    Map<InstanceGroup, Boolean> decideReciveGroupResult(List<InstanceGroup> instanceGroups);
+    Map<InstanceGroup, Double> decideReciveGroupResult(List<InstanceGroup> instanceGroups);
 
     double getDecideReciveGroupResultCostTime();
 
-    Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups);
+    Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Double>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups);
 
     double getDecideTargetDatacenterCostTime();
 

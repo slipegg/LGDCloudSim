@@ -3,12 +3,26 @@ package org.cpnsim.statemanager;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * A class to generate isomorphic host state.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
+
 @Getter
 @Setter
 public class IsomorphicHostStateGenerator implements HostStateGenerator {
+    /** the amount of cpu that is available on the host */
     int cpu;
+
+    /** the amount of ram that is available on the host */
     int ram;
+
+    /** the amount of storage that is available on the host */
     int storage;
+
+    /** the amount of bw that is available on the host */
     int bw;
 
     public IsomorphicHostStateGenerator(int cpu, int ram, int storage, int bw) {
@@ -25,7 +39,11 @@ public class IsomorphicHostStateGenerator implements HostStateGenerator {
         this.bw = 1024;
     }
 
-
+    /**
+     * Generate the isomorphic state of a host.
+     *
+     * @return the state of the host.The state includes 4 integers: cpu, ram, storage and bw.
+     * */
     @Override
     public int[] generateHostState() {
         int[] hostStates = new int[4];

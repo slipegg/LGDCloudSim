@@ -20,8 +20,7 @@ public class CloudSimTag {
     public static final int GROUP_FILTER_DC_BEGIN = BASE + 5;//USER发送用户请求,需要比USER_REQUEST_SEND小
     public static final int GROUP_FILTER_DC_END = BASE + 6;//USER发送用户请求,需要比USER_REQUEST_SEND小
     public static final int ASK_DC_REVIVE_GROUP = BASE + 7;
-    public static final int RESPOND_DC_REVIVE_GROUP_ACCEPT = BASE + 8;
-    public static final int RESPOND_DC_REVIVE_GROUP_REJECT = BASE + 9;
+    public static final int RESPOND_DC_REVIVE_GROUP = BASE + 8;
     public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = BASE + 10;
     public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 11;
     public static final int LOAD_BALANCE_SEND = BASE + 12;
@@ -44,8 +43,7 @@ public class CloudSimTag {
             case GROUP_FILTER_DC_BEGIN -> "GROUP_FILTER_DC_BEGIN";
             case GROUP_FILTER_DC_END -> "GROUP_FILTER_DC_END";
             case ASK_DC_REVIVE_GROUP -> "ASK_DC_REVIVE_GROUP";
-            case RESPOND_DC_REVIVE_GROUP_ACCEPT -> "RESPOND_DC_REVIVE_GROUP_ACCEPT";
-            case RESPOND_DC_REVIVE_GROUP_REJECT -> "RESPOND_DC_REVIVE_GROUP_REJECT";
+            case RESPOND_DC_REVIVE_GROUP -> "RESPOND_DC_REVIVE_GROUP_ACCEPT";
             case RESPOND_DC_REVIVE_GROUP_GIVE_UP -> "RESPOND_DC_REVIVE_GROUP_GIVE_UP";
             case RESPOND_DC_REVIVE_GROUP_EMPLOY -> "RESPOND_DC_REVIVE_GROUP_EMPLOY";
             case LOAD_BALANCE_SEND -> "LOAD_BALANCE_SEND";

@@ -21,53 +21,136 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * An interface to be implemented by each class that represents a datacenter.
+ * See {@link DatacenterSimple} for an example of how to implement this interface.
+ *
+ * @author Jiawen Liu
+ * @since CPNSim 1.0
+ */
 public class DatacenterSimple extends CloudSimEntity implements Datacenter {
+    /**
+     * the Logger.
+     **/
     public Logger LOGGER = LoggerFactory.getLogger(DatacenterSimple.class.getSimpleName());
+
+    /**
+     * See {@link GroupQueue}.
+     */
     private GroupQueue groupQueue;
+
+    /**
+     * See {@link InstanceQueue}.
+     */
     private InstanceQueue instanceQueue;
+
+    /**
+     * See {@link StatesManager}.
+     */
     @Getter
     private StatesManager statesManager;
+
+    /**
+     * Get the collaborationIds to which the datacenter belongs.
+     */
     @Getter
     private Set<Integer> collaborationIds;
+
+    /**
+     * See {@link InterScheduler}.
+     */
     @Getter
     private InterScheduler interScheduler;
+
+    /**
+     * See {@link InnerScheduler}.
+     */
     @Getter
     private List<InnerScheduler> innerSchedulers;
+
+    /**
+     * See {@link LoadBalance}.
+     */
     @Getter
     private LoadBalance loadBalance;
+
+    /**
+     * See {@link ResourceAllocateSelector}.
+     */
     @Getter
     private ResourceAllocateSelector resourceAllocateSelector;
+
+    /**
+     * The unit price of cpu resources,See {@link DatacenterPrice}.
+     */
     @Getter
     @Setter
     double unitCpuPrice;
+
+    /**
+     * All cpu expenses, See {@link DatacenterPrice}.
+     */
     @Getter
     private double cpuCost;
+
+    /**
+     * The unit price of ram resources,See {@link DatacenterPrice}.
+     */
     @Getter
     @Setter
     private double unitRamPrice;
+
+    /**
+     * All ram expenses, See {@link DatacenterPrice}.
+     */
     @Getter
     private double ramCost;
+
+    /**
+     * The unit price of storage resources,See {@link DatacenterPrice}.
+     */
     @Getter
     @Setter
     private double unitStoragePrice;
+
+    /**
+     * All storage expenses, See {@link DatacenterPrice}.
+     */
     @Getter
     private double storageCost;
+
+    /**
+     * The unit price of bw resources,See {@link DatacenterPrice}.
+     */
     @Getter
     @Setter
     private double unitBwPrice;
+
+    /**
+     * All bw expenses, See {@link DatacenterPrice}.
+     **/
+    @Getter
+    private double bwCost;
+
+    /**
+     * The number of CPUs used.
+     * It is used to calculate the number of racks that need to be rented.
+     */
     private int usedCpuNum;
+
+    /**
+     * Number of CPUs in a rack.
+     **/
     @Getter
     @Setter
     private int cpuNumPerRack;
+
+    /**
+     * Rental price per rack.
+     **/
     @Getter
     @Setter
     private double unitRackPrice;
-    @Getter
-    private double bwCost;
-    private List<InnerScheduleResult> innerSchedulerResults;
-    private Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap;
-    private boolean isGroupFilterDcBusy = false;
-    private Map<InnerScheduler, Boolean> isInnerSchedulerBusy = new HashMap<>();
 
     @Getter
     private double TCOEnergy;
@@ -76,11 +159,25 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double TCORack;
 
     /**
-     * Creates a new entity.
-     *
-     * @param simulation The CloudSimPlus instance that represents the simulation the Entity belongs to
-     * @throws IllegalArgumentException when the entity name is invalid
-     */
+     * The InnerScheduleResult List.
+     **/
+    private List<InnerScheduleResult> innerSchedulerResults;
+
+    /**
+     * The instanceGroup SendResult Map.It is used for inter scheduler.
+     **/
+    private Map<InstanceGroup, Map<Datacenter, Double>> instanceGroupSendResultMap;
+
+    /**
+     * Whether the interScheduler is busy.
+     **/
+    private boolean isGroupFilterDcBusy = false;
+
+    /**
+     * Whether the innerScheduler is busy.
+     **/
+    private Map<InnerScheduler, Boolean> isInnerSchedulerBusy = new HashMap<>();
+
     public DatacenterSimple(@NonNull Simulation simulation) {
         super(simulation);
         this.collaborationIds = new HashSet<>();
@@ -105,7 +202,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this(simulation);
         this.setId(id);
     }
-
 
     @Override
     public Datacenter setInterScheduler(InterScheduler interScheduler) {
@@ -154,6 +250,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return cpuCost + ramCost + storageCost + bwCost + getRackCost();
     }
 
+    /**
+     * When a datacenter is created, it will send a registration request to the CIS.
+     */
     @Override
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
@@ -163,6 +262,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * The events that the datacenter needs to process.
+     */
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
@@ -171,8 +273,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
             case CloudSimTag.GROUP_FILTER_DC_END -> processGroupFilterDcEnd(evt);
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
-            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT ->
-                    processRespondDcReviveGroup(evt);
+            case CloudSimTag.RESPOND_DC_REVIVE_GROUP -> processRespondDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP -> processRespondDcReviveGroupGiveUp(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY -> processRespondDcReviveGroupEmploy(evt);
             case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);//负载均衡花费时间，不形成瓶颈
@@ -185,6 +286,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Calling {@link StatesManager#synAllState()} to synchronize the state of the datacenter.
+     * And send a {@link CloudSimTag#SYN_STATE} event to itself after {@link StatesManager#getSmallSynGap()}.
+     */
     private void processSynState() {
         statesManager.synAllState();
         if (statesManager.getSmallSynGap() > 0) {
@@ -203,6 +308,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         usedCpuNum += instance.getCpu();
     }
 
+    /**
+     * Handling events after instance run ends.
+     *
+     * @param evt The data of the event is a list of instances.
+     */
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof List<?> list) {
             if (list.size() > 0 && list.get(0) instanceof Instance) {
@@ -282,6 +392,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Place instances on the host based on the results of the {@link InnerScheduler} and the strategy of the {@link ResourceAllocateSelector}.
+     *
+     * @param evt
+     */
     private void processPreAllocateResource(SimEvent evt) {
         LOGGER.info("{}: {}'s all innerScheduler result has been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
         Map<Integer, List<Instance>> allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResults);
@@ -341,6 +456,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Publish the results of the {@link InnerScheduler}
+     *
+     * @param evt the data of the event is {@link InnerScheduleResult}
+     */
     private void processInnerScheduleEnd(SimEvent evt) {
         if (evt.getData() instanceof InnerScheduleResult innerSchedulerResult) {
             Map<Integer, List<Instance>> scheduleResult = innerSchedulerResult.getScheduleResult();
@@ -369,6 +489,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return (int) (lastTime / statesManager.getSmallSynGap()) == (int) (nowTime / statesManager.getSmallSynGap());
     }
 
+    /**
+     * Call the {@link InnerScheduler} to allocate {@link Instance} to various hosts.
+     * It will send INNER_SCHEDULE_END after {@link InnerScheduler#getScheduleCostTime()}
+     *
+     * @param evt
+     */
     private void processInnerScheduleBegin(SimEvent evt) {
         if (evt.getData() instanceof InnerScheduler innerScheduler) {
             InnerScheduleResult innerScheduleResult = new InnerScheduleResult(innerScheduler);
@@ -395,6 +521,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         send(this, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, retryInstances);
     }
 
+    /**
+     * Retrieve instances from the {@link InstanceQueue} and publish them to various {@link InnerScheduler}s.
+     *
+     * @param evt
+     */
     private void processLoadBalanceSend(SimEvent evt) {
         List<Instance> instances = instanceQueue.getAllItem();
         if (instances.size() != 0) {
@@ -411,6 +542,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Tell the datacenter not to place InstanceGroups in that datacenter
+     *
+     * @param evt the data of the event is a List of InstanceGroups.
+     */
     private void processRespondDcReviveGroupGiveUp(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroupsTmp) {
             List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
@@ -419,6 +555,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Tell the datacenter to place InstanceGroups in that datacenter
+     *
+     * @param evt the data of the event is a List of InstanceGroups or a List of Instances.
+     */
     private void processRespondDcReviveGroupEmploy(SimEvent evt) {
         if (evt.getData() instanceof List<?> instancesTmp) {
             if (instancesTmp.size() == 0) {
@@ -471,26 +612,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
     }
 
+    /**
+     * the datacenter reply whether they can receive this instanceGroups.
+     *
+     * @param evt the data of this evt is a list of instanceGroups.
+     */
     private void processRespondDcReviveGroup(SimEvent evt) {
-        if (evt.getData() instanceof List<?> instanceGroups) {
+        if (evt.getData() instanceof Map<?,?> responseResultTmp) {
+            Datacenter srcDatacenter = (Datacenter) evt.getSource();
+            Map<InstanceGroup,Double> responseResult = (Map<InstanceGroup,Double>) responseResultTmp;
             List<InstanceGroup> waitDecideInstanceGroups = null;
-            for (Object instanceGroupTmp : instanceGroups) {
-                if (instanceGroupTmp instanceof InstanceGroup instanceGroup) {
-                    if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
-                        instanceGroupSendResultMap.remove(instanceGroup);
-                        continue;
+            for (InstanceGroup instanceGroup : responseResult.keySet()) {
+                if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
+                    continue;
+                }
+                instanceGroupSendResultMap.get(instanceGroup).put(srcDatacenter, responseResult.get(instanceGroup));
+                if (isAllSendResultReceived(instanceGroup)) {
+                    if (waitDecideInstanceGroups == null) {
+                        waitDecideInstanceGroups = new ArrayList<>();
                     }
-                    if (evt.getTag() == CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT) {
-                        instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 1);
-                    } else if (evt.getTag() == CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT) {
-                        instanceGroupSendResultMap.get(instanceGroup).put((Datacenter) evt.getSource(), 0);
-                    }
-                    if (isAllSendResultReceived(instanceGroup)) {
-                        if (waitDecideInstanceGroups == null) {
-                            waitDecideInstanceGroups = new ArrayList<>();
-                        }
-                        waitDecideInstanceGroups.add(instanceGroup);
-                    }
+                    waitDecideInstanceGroups.add(instanceGroup);
                 }
             }
             if (waitDecideInstanceGroups != null) {
@@ -577,7 +718,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 if (!getSimulation().getNetworkTopology().allocateBw(src.getReceiveDatacenter(), receiveDatacenter, edge.getRequiredBw())) {
                     return false;
                 }//记录bw分配结果到数据库中
-                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(src.getReceiveDatacenter().getId(),src.getId(),receiveDatacenter.getId(),instanceGroup.getId(),edge.getRequiredBw(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(src.getReceiveDatacenter().getId(), src.getId(), receiveDatacenter.getId(), instanceGroup.getId(), edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
             }
         }
@@ -589,7 +730,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     //TODO 可以优化一下速度
     private boolean isAllSendResultReceived(InstanceGroup instanceGroup) {
-        for (Map.Entry<Datacenter, Integer> entry : instanceGroupSendResultMap.get(instanceGroup).entrySet()) {
+        for (Map.Entry<Datacenter, Double> entry : instanceGroupSendResultMap.get(instanceGroup).entrySet()) {
             if (entry.getValue() == -1) {
                 return false;
             }
@@ -597,33 +738,24 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return true;
     }
 
+    /**
+     * Ask if the datacenter can receive the instanceGroups.
+     *
+     * @param evt The data of evt is a List of InstanceGroups.
+     */
     private void processAskDcReviveGroup(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroups) {
-            Map<InstanceGroup, Boolean> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
+            Map<InstanceGroup, Double> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
             double costTime = interScheduler.getDecideReciveGroupResultCostTime();
-            respondAskDcReviveGroup(evt.getSource(), reviveGroupResult, costTime);
+            sendBetweenDc(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
         }
     }
 
-    private void respondAskDcReviveGroup(SimEntity dst, Map<InstanceGroup, Boolean> reviveGroupResult, double costTime) {
-        List<InstanceGroup> acceptedGroups = new ArrayList<>();
-        List<InstanceGroup> rejectedGroups = new ArrayList<>();
-        for (Map.Entry<InstanceGroup, Boolean> entry : reviveGroupResult.entrySet()) {
-            if (entry.getValue()) {
-                acceptedGroups.add(entry.getKey());
-            } else {
-                rejectedGroups.add(entry.getKey());
-            }
-        }
-        LOGGER.info("{}: {} is responding {} accepted groups and {} rejected groups to {}.", getSimulation().clockStr(), getName(), acceptedGroups.size(), rejectedGroups.size(), dst.getName());
-        if (acceptedGroups.size() > 0) {
-            sendBetweenDc(dst, costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_ACCEPT, acceptedGroups);
-        }
-        if (rejectedGroups.size() > 0) {
-            sendBetweenDc(dst, costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP_REJECT, rejectedGroups);
-        }
-    }
-
+    /**
+     * Process the user requests send for this datacenter.
+     *
+     * @param evt The data can be a List of UserRequest or a List of InstanceGroup, a UserRequest, a InstanceGroup.
+     */
     private void processUserRequestsSend(final SimEvent evt) {
         if (evt.getData() instanceof List<?> userRequestsTmp) {
             if (userRequestsTmp.size() == 0) {
@@ -645,12 +777,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
                 LOGGER.info("{}: {} received {} instanceGroups.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), groupQueue.size());
             }
-        } else if(evt.getData() instanceof UserRequest userRequest){
+        } else if (evt.getData() instanceof UserRequest userRequest) {
             if (userRequest.getState() != UserRequest.FAILED) {
                 groupQueue.add(userRequest);
             }
-        }
-        else if (evt.getData() instanceof InstanceGroup instanceGroup) {
+        } else if (evt.getData() instanceof InstanceGroup instanceGroup) {
             groupQueue.add(instanceGroup);
             LOGGER.info("{}: {} received an InstanceGroup.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), groupQueue.size());
         }
@@ -660,18 +791,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Assign a datacenter to InstanceGroup, but at this point, the results were not sent out.
+     * It will send an GROUP_FILTER_DC_END evt to call {!link #processGroupAssignDcEnd(SimEvent)} after the {@link InterScheduler#getFilterSuitableDatacenterCostTime}
+     */
     private void processGroupFilterDcBegin() {
-        //得到本轮需要进行域间调度的亲和组
         List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
         LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
         if (instanceGroups.size() == 0) {
             return;
         }
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
         double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
-        send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvaiableDatacenters);
+        send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
     }
 
+    /**
+     * Send instanceGroups to various datacenters based on the results.
+     *
+     * @param evt The data can be a Map of InstanceGroup and List of Datacenter.It is the result of {!link #processGroupFilterDcBegin()}.
+     */
     private void processGroupFilterDcEnd(final SimEvent evt) {
         if (evt.getData() instanceof Map<?, ?> instanceGroupAvaiableDatacentersTmp) {
             Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = (Map<InstanceGroup, List<Datacenter>>) instanceGroupAvaiableDatacentersTmp;
@@ -709,10 +848,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     //维护instanceGroupSendResultMap，以统计后续的返回结果
                     if (!isDirectedSend) {
                         if (instanceGroupSendResultMap.containsKey(instanceGroup)) {
-                            instanceGroupSendResultMap.get(instanceGroup).put(datacenter, -1);
-                        } else {
-                            Map<Datacenter, Integer> datacenterIntegerMap = new HashMap<>();
-                            datacenterIntegerMap.put(datacenter, -1);
+                            instanceGroupSendResultMap.get(instanceGroup).put(datacenter, -1.0);
+                        }
+                        else {
+                            Map<Datacenter, Double> datacenterIntegerMap = new HashMap<>();
+                            datacenterIntegerMap.put(datacenter, -1.0);
                             instanceGroupSendResultMap.put(instanceGroup, datacenterIntegerMap);
                         }
                     }
