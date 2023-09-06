@@ -3,7 +3,6 @@ package org.cloudsimplus.core.events;
 import lombok.Getter;
 import org.cloudsimplus.core.SimEntity;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -97,7 +96,7 @@ public class DeferredQueue implements EventQueue {
             }
         }
 
-        eventList.add(newEvent);
+        reverseEvtIterator.add(newEvent);
     }
 
     /**
