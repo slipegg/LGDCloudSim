@@ -39,6 +39,11 @@ public interface NetworkTopology {
      */
     void addLink(SimEntity src, SimEntity dest, double bw, double lat);
 
+    /**
+     * Remove the link in the network topology graph, haven't been supported.
+     * @param src   {@link SimEntity} that represents the link's source node
+     * @param dest  {@link SimEntity} that represents the link's destination node
+     */
     void removeLink(SimEntity src, SimEntity dest);
 
     /**
@@ -50,19 +55,63 @@ public interface NetworkTopology {
      */
     double getDelay(SimEntity src, SimEntity dest);
 
+    /**
+     * Get the bandwidth of the link between the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @return the bandwidth of the link between the two nodes.
+     */
     double getBw(SimEntity src, SimEntity dest);
 
+    /**
+     * Get the bandwidth of the link between the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @return the bandwidth of the link between the two nodes.
+     */
     boolean allocateBw(SimEntity src, SimEntity dest, double allocateBw);
 
+    /**
+     * Release bandwidth to the link of the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @param releaseBw  the bandwidth to be released
+     */
     void releaseBw(SimEntity src, SimEntity dest, double releaseBw);
 
+    /**
+     * Release bandwidth to the link of the two nodes.
+     * @param srcId ID of the source entity
+     * @param destId ID of the destination entity
+     * @param releaseBw  the bandwidth to be released
+     */
     void releaseBw(int srcId, int destId, double releaseBw);
 
+    /**
+     * Set delayDynamicModel.
+     * @param delayDynamicModel the delayDynamicModel to be set
+     */
     void setDelayDynamicModel(DelayDynamicModel delayDynamicModel);
 
+    /**
+     * Get the dynamic delay of the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @param time  the random seed
+     * @return  the dynamic delay of two nodes.
+     */
     double getDynamicDelay(SimEntity src, SimEntity dest, double time);
 
+    /**
+     * Get the access latency of the link between the two nodes.
+     * @param src  {@link SimEntity} that represents the link's source node
+     * @param dest {@link SimEntity} that represents the link's destination node
+     * @return the access latency of the link between the two nodes.
+     */
     double getAcessLatency(SimEntity src, SimEntity dest);
 
+    /**
+     * Get the TCO of bandwidth between datacenters.
+     */
     double getTCONetwork();
 }

@@ -41,15 +41,29 @@ public class TopologyReaderBrite implements TopologyReader {
     @Getter
     private TopologicalGraph graph;
 
+    /**
+     * Set the parsing state.
+     * @param state the parsing state to be set
+     */
     void setState(final ParsingState state) {
         this.state = state;
     }
 
+    /**
+     * Reads a file and creates a {@link TopologicalGraph} object.
+     * @param filename Name of the file to read
+     * @return The created TopologicalGraph
+     */
     @Override
     public TopologicalGraph readGraphFile(final String filename) {
         return readGraphFile(ResourceLoader.newInputStreamReader(filename));
     }
 
+    /**
+     * Reads a file and creates an {@link TopologicalGraph} object.
+     * @param reader the {@link InputStreamReader} to read the file
+     * @return  The created TopologicalGraph
+     */
     @Override
     public TopologicalGraph readGraphFile(final InputStreamReader reader) {
         graph = new TopologicalGraph();

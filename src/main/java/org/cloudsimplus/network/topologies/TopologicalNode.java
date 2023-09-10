@@ -89,10 +89,20 @@ public final class TopologicalNode {
         this.accessLatency = new HashMap<>();
     }
 
+    /**
+     * Set access latency from this to dst.
+     * @param dstId   the id of destination datacenter
+     * @param latency the latency from this to dst
+     */
     public void setAccessLatency(int dstId, double latency) {
         accessLatency.put(dstId, latency);
     }
 
+    /**
+     * Get access latency from this to dst.
+     * @param dstId the id of destination datacenter
+     * @return  the latency from this to dst
+     */
     public double getAccessLatency(int dstId) {
         return accessLatency.get(dstId);
     }

@@ -76,6 +76,9 @@ enum ParsingState {
     },
 
 
+    /**
+     * Represents the state indicating to retrieve all access-delay-information.
+     */
     ACCESSDELAY {
         @Override
         void parse(final TopologyReaderBrite reader, final String line) {
