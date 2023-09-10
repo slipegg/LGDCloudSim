@@ -3,6 +3,8 @@ package org.cpnsim.record;
 import org.cloudsimplus.core.CloudSim;
 import org.cpnsim.datacenter.DatacenterSimple;
 import org.cpnsim.request.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -19,6 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SqlRecordSimpleTest {
 
     SqlRecordSimple sqlRecordSimple=new SqlRecordSimple();
+
+    @AfterEach
+    public void closeConnection(){
+        sqlRecordSimple.close();
+    }
 
     @Test
     public void testQueryUserRequestSubmitinfo(){
