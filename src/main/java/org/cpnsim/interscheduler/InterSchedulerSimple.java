@@ -40,6 +40,11 @@ public class InterSchedulerSimple implements InterScheduler {
         this.datacenter = datacenter;
     }
 
+    /**
+     * Filter the suitable datacenters for each instance group, considering the network topology.
+     * @param instanceGroups the instance group list to be allocated
+     * @return the map, which value is the suitable datacenter list for the corresponding key
+     */
     @Override
     public Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = datacenter.getSimulation().getCollaborationManager().getDatacenters(datacenter);
@@ -54,6 +59,11 @@ public class InterSchedulerSimple implements InterScheduler {
         return instanceGroupAvaiableDatacenters;
     }
 
+    /**
+     * Simply receive all the instance group.
+     * @param instanceGroups    the instance group list to be allocated
+     * @return the map which keys are the instance group to be received
+     */
     @Override
     public Map<InstanceGroup, Boolean> decideReciveGroupResult(List<InstanceGroup> instanceGroups) {
         //TODO 怎么判断是否接收，如果接收了怎么进行资源预留，目前是全部接收
@@ -68,6 +78,12 @@ public class InterSchedulerSimple implements InterScheduler {
         return result;
     }
 
+    /**
+     * Decide the target datacenter for each instance group.
+     * @param instanceGroupSendResultMap the map, the value is the able datacenter map for the corresponding key
+     * @param instanceGroups             the instance group list to be allocated
+     * @return the map, which value is the target datacenter for the corresponding key
+     */
     @Override
     public Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Integer>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups) {
         this.decideTargetDatacenterCostTime = 0.0;
@@ -88,21 +104,40 @@ public class InterSchedulerSimple implements InterScheduler {
         return result;
     }
 
+    /**
+     * Receive the instance group which isn’t employed.
+     * @param instanceGroups the instance group list which isn‘t employed
+     */
     @Override
     public void receiveNotEmployGroup(List<InstanceGroup> instanceGroups) {
         // 目前不需要做任何处理
     }
 
+    /**
+     * Receive the instance group which is employed.
+     * @param instanceGroups the instance group list which is employed
+     */
     @Override
     public void receiveEmployGroup(List<InstanceGroup> instanceGroups) {
         // 目前不需要做任何处理
     }
 
+    /**
+     * Get whether the inter scheduler is directed send.
+     * @return  whether the inter scheduler is directed send
+     */
     @Override
     public boolean isDirectedSend() {
         return directedSend;
     }
 
+    /**
+     * Get available datacenters for the instance group.
+     * @param instanceGroup   the instance group to be scheduled
+     * @param allDatacenters  the all datacenters to be filtered
+     * @param networkTopology the network topology
+     * @return  the available datacenters for the instance group
+     */
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
     private List<Datacenter> getAvailableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
@@ -113,10 +148,21 @@ public class InterSchedulerSimple implements InterScheduler {
         return availableDatacenters;
     }
 
+    /**
+     * Remove the datacenter which don't meet the condition of access latency.
+     * @param instanceGroup   the instance group to be scheduled
+     * @param allDatacenters  the all data centers to be filtered
+     * @param networkTopology the network topology
+     */
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(this.datacenter, datacenter));
     }
 
+    /**
+     * Remove the datacenter which don't meet the condition of Resource.
+     * @param instanceGroup   the instance group to be scheduled
+     * @param allDatacenters  the all data centers to be filtered
+     */
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
         //首先是粗粒度地筛选总量是否满足
         allDatacenters.removeIf(
@@ -153,17 +199,30 @@ public class InterSchedulerSimple implements InterScheduler {
         }
     }
 
+    /**
+     * Filter the datacenter by network topology.
+     * @param instanceGroupAvaiableDatacenters the map, which value is the available datacenters for the corresponding key
+     * @param networkTopology                  the network topology
+     */
     private void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
         //TODO 根据网络拓扑中的时延和宽带进行筛选得到最优的调度方案
         //TODO 后续可以添加一个回溯算法来简单筛选
     }
 
+    /**
+     * Set the datacenter of the inter scheduler.
+     * @param datacenter the datacenter to be set
+     */
     @Override
     public void setDatacenter(Datacenter datacenter) {
         this.datacenter = datacenter;
         this.name = "InterScheduler" + datacenter.getId();
     }
 
+    /**
+     * Set the id of the inter scheduler.
+     * @param id the id to set
+     */
     @Override
     public void setId(int id) {
         this.id = id;

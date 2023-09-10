@@ -10,6 +10,11 @@ import java.util.*;
 public class InterSchedulerDirect extends InterSchedulerSimple {
     Random random = new Random(1);
 
+    /**
+     * Filter the suitable datacenters for each instance group, considering the network topology.
+     * @param instanceGroups the instance group list to be scheduled
+     * @return the map, which value is the suitable datacenter list for the corresponding key
+     */
     @Override
     public Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = datacenter.getSimulation().getCollaborationManager().getDatacenters(datacenter);
@@ -30,6 +35,13 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
         return instanceGroupAvaiableDatacenters;
     }
 
+    /**
+     * Get available datacenters for the instance group.
+     * @param instanceGroup   the instance group to be scheduled
+     * @param allDatacenters  the all datacenters to be filtered
+     * @param networkTopology the network topology
+     * @return  the available datacenters for the instance group
+     */
     private List<Datacenter> getAvailableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
         //根据接入时延要求得到可调度的数据中心
@@ -39,10 +51,21 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
         return availableDatacenters;
     }
 
+    /**
+     * Remove the datacenter which don't meet the condition of access latency.
+     * @param instanceGroup   the instance group to be scheduled
+     * @param allDatacenters  the all data centers to be filtered
+     * @param networkTopology the network topology
+     */
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(this.datacenter, datacenter));
     }
 
+    /**
+     * Remove the datacenter which don't meet the condition of Resource.
+     * @param instanceGroup   the instance group to be scheduled
+     * @param allDatacenters  the all data centers to be filtered
+     */
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
         //首先是粗粒度地筛选总量是否满足
         allDatacenters.removeIf(
@@ -79,6 +102,11 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
         }
     }
 
+    /**
+     * Filter the datacenter by network topology.
+     * @param instanceGroupAvaiableDatacenters the map, which value is the available datacenters for the corresponding key
+     * @param networkTopology                  the network topology
+     */
     private void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
         //TODO 根据网络拓扑中的时延和宽带进行筛选得到最优的调度方案
         //TODO 后续可以添加一个回溯算法来简单筛选
