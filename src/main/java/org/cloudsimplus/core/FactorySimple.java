@@ -33,10 +33,10 @@ public class FactorySimple implements Factory {
     }
 
     @Override
-    public InterScheduler getInterScheduler(String type) {
+    public InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId) {
         return switch (type) {
-            case "simple", "Simple" -> new InterSchedulerSimple();
-            case "direct", "Direct" -> new InterSchedulerDirect();
+            case "simple", "Simple" -> new InterSchedulerSimple(id, simulation, collaborationId);
+            case "direct", "Direct" -> new InterSchedulerDirect(id, simulation, collaborationId);
             default -> null;
         };
     }

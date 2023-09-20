@@ -1,5 +1,6 @@
 package org.cpnsim.interscheduler;
 
+import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
@@ -10,10 +11,18 @@ import java.util.*;
 public class InterSchedulerDirect extends InterSchedulerSimple {
     Random random = new Random(1);
 
+    public InterSchedulerDirect(Simulation simulation, int collaborationId) {
+        super(simulation, collaborationId);
+    }
+
+    public InterSchedulerDirect(int id, Simulation simulation, int collaborationId) {
+        super(id, simulation, collaborationId);
+    }
+
     @Override
     public Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups) {
-        List<Datacenter> allDatacenters = datacenter.getSimulation().getCollaborationManager().getDatacenters(datacenter);
-        NetworkTopology networkTopology = datacenter.getSimulation().getNetworkTopology();
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> availableDatacenters = getAvailableDatacenters(instanceGroup, allDatacenters, networkTopology);
@@ -40,7 +49,8 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
     }
 
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(this.datacenter, datacenter));
+        Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+        allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(belongDatacenter, datacenter));
     }
 
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {

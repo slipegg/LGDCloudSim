@@ -5,6 +5,7 @@ import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.statemanager.StatesManager;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Set;
 
@@ -42,13 +43,23 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Set the {@link ResourceAllocateSelector}. **/
     Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector);
 
-    /** Get the {@link ResourceAllocateSelector}. **/
+    /**
+     * Get the {@link ResourceAllocateSelector}.
+     **/
     ResourceAllocateSelector getResourceAllocateSelector();
 
-    /** Set the {@link StatesManager}. **/
+    /**
+     * Set the {@link StatesManager}.
+     **/
     Datacenter setStatesManager(StatesManager statesManager);
 
-    /** Get the {@link StatesManager}. **/
+    /**
+     * Get the {@link StatesManager}.
+     **/
     StatesManager getStatesManager();
+
+    Datacenter setCentralizedInterSchedule(boolean centralizedInterSchedule);
+
+    boolean isCentralizedInterSchedule();
 
 }

@@ -1,5 +1,7 @@
 package org.cpnsim.user;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -15,7 +17,7 @@ import java.util.*;
 
 public class UserRequestManagerCsv implements UserRequestManager {
     private String fileName;
-    private double[] FromDcPercent;
+    private TreeMap<Integer, Double> FromDcPercent;
     private int RequestPerNumMin = -2;
     private int RequestPerNumMax = -2;
     private int RequestTimeIntervalMin = -2;
@@ -75,7 +77,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
                 // 从CSV记录中读取特定列的值
                 String title = csvRecord.get(0);
                 switch (title) {
-                    case "FromDcPercent" -> this.FromDcPercent = stringToArray(csvRecord.get(1));
+                    case "FromDcPercent" -> this.FromDcPercent = stringToMap(csvRecord.get(1));
                     case "RequestPerNumMin" -> this.RequestPerNumMin = Integer.parseInt(csvRecord.get(1));
                     case "RequestPerNumMax" -> this.RequestPerNumMax = Integer.parseInt(csvRecord.get(1));
                     case "RequestTimeIntervalMin" -> this.RequestTimeIntervalMin = Integer.parseInt(csvRecord.get(1));
@@ -133,10 +135,10 @@ public class UserRequestManagerCsv implements UserRequestManager {
         for (int i = 0; i < requestNum; i++) {
             UserRequest userRequest = generateAUserRequest();
             int belongDatacenterId = -1;
-            double randomDouble = random.nextDouble(FromDcPercent[FromDcPercent.length - 1]);
-            for (int j = 0; j < FromDcPercent.length; j++) {
-                if (randomDouble < FromDcPercent[j]) {
-                    belongDatacenterId = j;
+            double randomDouble = random.nextDouble(FromDcPercent.get(FromDcPercent.lastKey()));
+            for (Map.Entry<Integer, Double> entry : FromDcPercent.entrySet()) {
+                if (randomDouble < entry.getValue()) {
+                    belongDatacenterId = entry.getKey();
                     break;
                 }
             }
@@ -209,21 +211,22 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph);
     }
 
-    private double[] stringToArray(String str) {
-        // 去掉开头和结尾的中括号
-        str = str.substring(1, str.length() - 1);
-        // 以逗号分隔字符串
-        String[] strArray = str.split(",");
-        double[] doubleArray = new double[strArray.length];
-        if (strArray.length == 0) {
-            LOGGER.error("The FromDcPercent parameter is not correct, please check the FromDcPercent parameter in {}", this.fileName);
-            return doubleArray;
+    private TreeMap<Integer, Double> stringToMap(String str) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            TreeMap<Integer, Double> map = objectMapper.readValue(str, new TypeReference<TreeMap<Integer, Double>>() {
+            });
+
+            double sum = 0;
+            for (Map.Entry<Integer, Double> entry : map.entrySet()) {
+                sum += entry.getValue();
+                entry.setValue(sum);
+            }
+            return map;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        doubleArray[0] = Double.parseDouble(strArray[0]);
-        for (int i = 1; i < strArray.length; i++) {
-            doubleArray[i] = doubleArray[i - 1] + Double.parseDouble(strArray[i]);
-        }
-        return doubleArray;
+        return null;
     }
 
     private void checkVars() {

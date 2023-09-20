@@ -33,6 +33,10 @@ public class InitDatacenter {
      **/
     private static Factory factory;
 
+    private static int interSchedulerId = 0;
+
+    private static int innerSchedulerId = 0;
+
     /**
      * Initialize datacenters.
      **/
@@ -44,10 +48,17 @@ public class InitDatacenter {
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
+            int collaborationId = collaborationJson.getInt("id");
+            boolean isCenterSchedule = collaborationJson.containsKey("centerScheduler");
+            if (isCenterSchedule) {
+                JsonObject centerScheduler = collaborationJson.getJsonObject("centerScheduler");
+                InterScheduler interScheduler = factory.getInterScheduler(centerScheduler.getString("type"), interSchedulerId++, cpnSim, collaborationId);
+                collaborationManager.addCenterScheduler(interScheduler);
+            }
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
                 JsonObject datacenterJson = collaborationJson.getJsonArray("datacenters").getJsonObject(j);
-                Datacenter datacenter = getDatacenter(datacenterJson);
-                collaborationManager.addDatacenter(datacenter, collaborationJson.getInt("id"));
+                Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule);
+                collaborationManager.addDatacenter(datacenter, collaborationId);
             }
         }
     }
@@ -74,7 +85,7 @@ public class InitDatacenter {
      * @param datacenterJson a {@link JsonObject} object
      * @return a {@link StatesManager} object
      */
-    private static Datacenter getDatacenter(JsonObject datacenterJson) {
+    private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule) {
         Datacenter datacenter = new DatacenterSimple(cpnSim, datacenterJson.getInt("id"));
 
         StatesManager statesManager = getStatesManager(datacenterJson);
@@ -84,11 +95,16 @@ public class InitDatacenter {
         datacenter.setInnerSchedulers(innerSchedulers);
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
-        InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"));
-        if (interSchedulerJson.containsKey("isDirectSend")) {
-            interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
+        if (isCenterSchedule) {
+            datacenter.setCentralizedInterSchedule(true);
+        } else {
+            InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId);
+            interScheduler.setDatacenter(datacenter);
+            if (interSchedulerJson.containsKey("isDirectSend")) {
+                interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
+            }
+            datacenter.setInterScheduler(interScheduler);
         }
-        datacenter.setInterScheduler(interScheduler);
 
         JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
         LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
@@ -113,13 +129,11 @@ public class InitDatacenter {
      */
     private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<InnerScheduler> innerSchedulers = new ArrayList<>();
-        int innerSchdeuleId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
             int firstPartitionId = schedulerJson.getInt("firstPartitionIndex");
-            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchdeuleId, firstPartitionId, partitionNum);
+            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchedulerId++, firstPartitionId, partitionNum);
             innerSchedulers.add(scheduler);
-            innerSchdeuleId++;
         }
         return innerSchedulers;
     }

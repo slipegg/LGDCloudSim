@@ -110,6 +110,16 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
+    public Datacenter setCentralizedInterSchedule(boolean centralizedInterSchedule) {
+        return null;
+    }
+
+    @Override
+    public boolean isCentralizedInterSchedule() {
+        return false;
+    }
+
+    @Override
     public int compareTo(SimEntity o) {
         return 0;
     }

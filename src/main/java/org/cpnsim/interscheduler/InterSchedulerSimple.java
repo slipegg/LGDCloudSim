@@ -2,6 +2,7 @@ package org.cpnsim.interscheduler;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
@@ -11,6 +12,12 @@ import org.cpnsim.request.UserRequest;
 import java.util.*;
 
 public class InterSchedulerSimple implements InterScheduler {
+    @Getter
+    @Setter
+    Simulation simulation;
+    @Getter
+    @Setter
+    int collaborationId;
     @Getter
     Datacenter datacenter;
     @Getter
@@ -30,27 +37,31 @@ public class InterSchedulerSimple implements InterScheduler {
 
     Random random = new Random(1);
 
-    public InterSchedulerSimple() {
+    public InterSchedulerSimple(Simulation simulation, int collaborationId) {
         this.id = 0;
+        this.simulation = simulation;
+        this.collaborationId = collaborationId;
+        this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
     }
 
-    public InterSchedulerSimple(int id, Datacenter datacenter) {
+    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId) {
         this.id = id;
-        this.name = "InterScheduler" + id;
-        this.datacenter = datacenter;
+        this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
+        this.simulation = simulation;
+        this.collaborationId = collaborationId;
     }
 
     @Override
     public Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups) {
-        List<Datacenter> allDatacenters = datacenter.getSimulation().getCollaborationManager().getDatacenters(datacenter);
-        NetworkTopology networkTopology = datacenter.getSimulation().getNetworkTopology();
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> availableDatacenters = getAvailableDatacenters(instanceGroup, allDatacenters, networkTopology);
             instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
         }
         interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        this.filterSuitableDatacenterCostTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.filterSuitableDatacenterCostTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
         return instanceGroupAvaiableDatacenters;
     }
 
@@ -110,7 +121,8 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(this.datacenter, datacenter));
+        Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+        allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(belongDatacenter, datacenter));
     }
 
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
@@ -157,7 +169,7 @@ public class InterSchedulerSimple implements InterScheduler {
     @Override
     public void setDatacenter(Datacenter datacenter) {
         this.datacenter = datacenter;
-        this.name = "InterScheduler" + datacenter.getId();
+        this.name = name + "-dc" + datacenter.getId();
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.cpnsim.datacenter.Datacenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import java.util.Map;
 public class UserSimple extends CloudSimEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSimple.class.getSimpleName());
 
-    private List<Datacenter> datacenterList;
+    private Map<Integer, Datacenter> datacenterMap = new HashMap<>();
 
     private UserRequestManager userRequestManager;
 
@@ -46,8 +47,10 @@ public class UserSimple extends CloudSimEntity {
 
     private void processDatacenterListRequest(final SimEvent evt) {
         if(evt.getData() instanceof List dcList) {
-            setDatacenterList(dcList);
-            LOGGER.info("{}: {}: List of {} datacenters(s) received.", getSimulation().clockStr(), getName(), this.datacenterList.size());
+            for (Datacenter datacenter : (List<Datacenter>) dcList) {
+                datacenterMap.put(datacenter.getId(), datacenter);
+            }
+            LOGGER.info("{}: {}: List of {} datacenters received.", getSimulation().clockStr(), getName(), dcList.size());
             sendUserRequest();
             return;
         }
@@ -67,8 +70,12 @@ public class UserSimple extends CloudSimEntity {
             List<UserRequest> userRequests = entry.getValue();
             if (userRequests.size() == 0)
                 continue;
-            Datacenter datacenter = datacenterList.get(datacenterId);
-            send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+            Datacenter datacenter = datacenterMap.get(datacenterId);
+            if (datacenter.isCentralizedInterSchedule()) {
+                send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+            } else {
+                send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+            }
             getSimulation().getSqlRecord().recordUserRequestsSubmitinfo(userRequests);
             LOGGER.error("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
         }

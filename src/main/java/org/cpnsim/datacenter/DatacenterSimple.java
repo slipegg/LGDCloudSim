@@ -158,6 +158,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Getter
     private double TCORack;
 
+    @Setter
+    private boolean centralizedInterSchedule;
+
     /**
      * The InnerScheduleResult List.
      **/
@@ -577,7 +580,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         instanceGroup.setReceivedTime(getSimulation().clock());
                     }
                 }
-                interScheduler.receiveEmployGroup(instanceGroups);
+                if (!isCentralizedInterSchedule()) {
+                    interScheduler.receiveEmployGroup(instanceGroups);
+                }
                 instanceQueue.add(instanceGroups);
                 LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
                         getSimulation().clockStr(),
@@ -638,7 +643,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 Map<InstanceGroup, Datacenter> decideResult = interScheduler.decideTargetDatacenter(instanceGroupSendResultMap, waitDecideInstanceGroups);
                 double delay = interScheduler.getDecideTargetDatacenterCostTime();
                 sendDecideResult(decideResult, delay);
-                LOGGER.info("{}: {} decides to schedule {} InstanceGroup after receiving all respond.", getSimulation().clockStr(), getName(), decideResult.size());
+                LOGGER.info("{}: {} decides to schedule {} InstanceGroup.", getSimulation().clockStr(), getName(), decideResult.size());
             }
         }
     }
@@ -723,8 +728,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         return true;
-
-        // TODO: TCO
     }
 
 
@@ -897,6 +900,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             send(this, 0, CloudSimTag.USER_REQUEST_SEND, retryInstanceGroups);
             LOGGER.warn("{}: {}'s {} instance groups retry.", getSimulation().clockStr(), getName(), retryInstanceGroups.size());
         }
+    }
+
+    @Override
+    public boolean isCentralizedInterSchedule() {
+        return centralizedInterSchedule;
     }
 
     @Override
