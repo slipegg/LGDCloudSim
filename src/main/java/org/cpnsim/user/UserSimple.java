@@ -32,7 +32,7 @@ public class UserSimple extends CloudSimEntity {
 
     @Override
     protected void startInternal() {
-        LOGGER.info("{} is starting...", getName());
+        LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         schedule(getSimulation().getCis(), 0, CloudSimTag.DC_LIST_REQUEST);
     }
 
@@ -51,7 +51,9 @@ public class UserSimple extends CloudSimEntity {
                 datacenterMap.put(datacenter.getId(), datacenter);
             }
             LOGGER.info("{}: {}: List of {} datacenters received.", getSimulation().clockStr(), getName(), dcList.size());
-            sendUserRequest();
+            if (userRequestManager.getNextSendTime() != Double.MAX_VALUE) {
+                send(this, userRequestManager.getNextSendTime() - getSimulation().clock(), CloudSimTag.NEED_SEND_USER_REQUEST, null);
+            }
             return;
         }
 
@@ -61,7 +63,7 @@ public class UserSimple extends CloudSimEntity {
     private void sendUserRequest() {
         double nowTime = getSimulation().clock();
         Map<Integer, List<UserRequest>> userRequestMap = userRequestManager.generateOnceUserRequests();
-        if (userRequestMap == null) {
+        if (userRequestMap == null || userRequestMap.size() == 0) {
             LOGGER.info("{}: {}: No user request to send.", getSimulation().clockStr(), getName());
             return;
         }
@@ -77,8 +79,10 @@ public class UserSimple extends CloudSimEntity {
                 send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
             }
             getSimulation().getSqlRecord().recordUserRequestsSubmitinfo(userRequests);
-            LOGGER.error("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
+            LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
         }
-        send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);
+        if (userRequestManager.getNextSendTime() != Double.MAX_VALUE) {
+            send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);
+        }
     }
 }
