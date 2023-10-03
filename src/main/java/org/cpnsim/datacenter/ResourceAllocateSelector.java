@@ -1,5 +1,6 @@
 package org.cpnsim.datacenter;
 
+import org.cloudsimplus.core.DatacenterEntity;
 import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.request.Instance;
 
@@ -15,21 +16,7 @@ import java.util.Map;
  * @author Jiawen Liu
  * @since CPNSim 1.0
  */
-public interface ResourceAllocateSelector {
-    /**
-     * Set the datacenter.
-     *
-     * @param datacenter the datacenter to be set
-     */
-    ResourceAllocateSelector setDatacenter(Datacenter datacenter);
-
-    /**
-     * Get the datacenter.
-     *
-     * @return the datacenter
-     */
-    Datacenter getDatacenter();
-
+public interface ResourceAllocateSelector extends DatacenterEntity {
     /**
      * Select the {@link Instance}s to be placed on the host.
      *

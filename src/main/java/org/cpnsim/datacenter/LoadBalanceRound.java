@@ -8,8 +8,6 @@ import org.cpnsim.innerscheduler.InnerScheduler;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.lang3.math.NumberUtils.max;
-
 /**
  * A class to represent a load balancer.
  * This load balancer performs load balancing through cyclic allocation
@@ -23,7 +21,6 @@ public class LoadBalanceRound implements LoadBalance {
      * the datacenter to be load balanced.
      **/
     @Getter
-    @Setter
     Datacenter datacenter;
 
     /**
@@ -62,5 +59,10 @@ public class LoadBalanceRound implements LoadBalance {
         lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getInnerSchedulers().size();
         LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {} innerSchedulers,On average, each scheduler receives around {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(), sentInnerSchedulers.size(), onceSendSize);
         return sentInnerSchedulers;
+    }
+
+    @Override
+    public void setDatacenter(Datacenter datacenter) {
+        this.datacenter = datacenter;
     }
 }

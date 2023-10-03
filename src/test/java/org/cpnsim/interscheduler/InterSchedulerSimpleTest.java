@@ -41,14 +41,6 @@ public class InterSchedulerSimpleTest {
     }
 
     @Test
-    public void testSetId(){
-        int id = 1;
-        InterScheduler interScheduler = new InterSchedulerSimple(simulation, 0);
-        interScheduler.setId(id);
-        assertEquals(id,interScheduler.getId());
-    }
-
-    @Test
     public void testSetDatacenter(){
         InterScheduler interScheduler = new InterSchedulerSimple(simulation, 0);
         Simulation simulation = new CloudSim();

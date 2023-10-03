@@ -23,7 +23,6 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
      * the datacenter.
      **/
     @Getter
-    @Setter
     Datacenter datacenter;
 
     /**
@@ -64,5 +63,10 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
             }
         }
         return res;
+    }
+
+    @Override
+    public void setDatacenter(Datacenter datacenter) {
+        this.datacenter = datacenter;
     }
 }
