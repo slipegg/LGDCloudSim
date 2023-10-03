@@ -134,13 +134,16 @@ public class InterSchedulerSimple implements InterScheduler {
                         datacenter.getStatesManager().getSimpleState().getBwAvaiableSum() < instanceGroup.getBwSum()
         );
         //然后细粒度地查看CPU-RAM的组合是否满足
-        for (Datacenter datacenter : allDatacenters) {
+        Iterator<Datacenter> iterator = allDatacenters.iterator();
+        while (iterator.hasNext()) {
+            Datacenter datacenter = iterator.next();
             Map<Integer, Map<Integer, Integer>> instanceCpuRamNum = new HashMap<>();//记录一下所有Instance的cpu—ram的种类情况
             for (Instance instance : instanceGroup.getInstanceList()) {
                 int allocateNum = instanceCpuRamNum.getOrDefault(instance.getCpu(), new HashMap<>()).getOrDefault(instance.getRam(), 0);
-                if (datacenter.getStatesManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam()) - allocateNum <= 0) {
+                int originSum = datacenter.getStatesManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam());
+                if (originSum - allocateNum <= 0) {
                     //如果该数据中心的资源不足以满足亲和组的资源需求，那么就将其从可调度的数据中心中移除
-                    allDatacenters.remove(datacenter);
+                    iterator.remove();
                     break;
                 } else {
                     //如果该数据中心的资源可以满足亲和组的资源需求，那么就记录更新已分配的所有Instance的cpu—ram的种类情况
@@ -170,10 +173,5 @@ public class InterSchedulerSimple implements InterScheduler {
     public void setDatacenter(Datacenter datacenter) {
         this.datacenter = datacenter;
         this.name = name + "-dc" + datacenter.getId();
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
     }
 }
