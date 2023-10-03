@@ -128,7 +128,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
     public Map<Integer, List<UserRequest>> generateOnceUserRequests() {
         Map<Integer, List<UserRequest>> userRequestsMap = new HashMap<>();
         if (sendTimes >= RequestTimes) {
-            return null;
+            return userRequestsMap;
         }
         List<UserRequest> userRequests = new ArrayList<>();
         int requestNum = random.nextInt(RequestPerNumMax - RequestPerNumMin + 1) + RequestPerNumMin;
@@ -151,7 +151,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
             userRequestsMap.get(belongDatacenterId).add(userRequest);
         }
         double nextSendInterval = random.nextDouble() * (RequestTimeIntervalMax - RequestTimeIntervalMin) + RequestTimeIntervalMin;
-        nextSendTime += BigDecimal.valueOf(nextSendInterval).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        nextSendTime += BigDecimal.valueOf(nextSendInterval).setScale(3, RoundingMode.HALF_UP).doubleValue();
         sendTimes += 1;
         return userRequestsMap;
     }
