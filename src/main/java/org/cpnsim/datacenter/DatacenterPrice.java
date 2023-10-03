@@ -120,20 +120,29 @@ public interface DatacenterPrice {
     double getUnitRackPrice();
 
     /**
-     * Get the cost of renting racks
+     * A host needs to pay the basic rental cost to power on,
+     * and here we calculate the cost caused by the maximum number of hosts that need to be powered on
+     * throughout the entire process
      *
      * @return the cost of renting racks
      */
     double getRackCost();
 
     /**
-     * Get the total cost of the datacenter
+     * Calculate the price of cpu,ram,storage,bandwidth resources spent on running all instances
+     *
+     * @return the cost of renting racks
+     */
+    double getResourceCost();
+
+    /**
+     * Calculate the RackCost+ResourceCost
      *
      * @return the total cost of the datacenter
      */
     double getAllCost();
 
     double getTCOEnergy();
-    
+
     double getTCORack();
 }

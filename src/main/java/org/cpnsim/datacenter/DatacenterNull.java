@@ -220,6 +220,11 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
+    public double getResourceCost() {
+        return 0;
+    }
+
+    @Override
     public double getAllCost() {
         return 0;
     }

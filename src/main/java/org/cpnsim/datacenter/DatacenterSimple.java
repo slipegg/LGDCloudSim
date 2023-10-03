@@ -133,14 +133,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double bwCost;
 
     /**
-     * The number of CPUs used.
-     * It is used to calculate the number of racks that need to be rented.
-     */
-    private int usedCpuNum;
-
-    /**
      * Number of CPUs in a rack.
      **/
+    //TODO 需要删除这个概念
     @Getter
     @Setter
     private int cpuNumPerRack;
@@ -194,7 +189,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.unitBwPrice = 1.0;
         this.unitRackPrice = 100.0;
         this.cpuNumPerRack = 10;
-        this.usedCpuNum = 0;
         this.cpuCost = 0.0;
         this.ramCost = 0.0;
         this.storageCost = 0.0;
@@ -245,12 +239,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     @Override
     public double getRackCost() {
-        return Math.ceil((double) usedCpuNum / cpuNumPerRack) * unitRackPrice;
+        int maxPowerOnHostNum = statesManager.getDatacenterPowerOnRecord().getMaxHostNum();
+        return maxPowerOnHostNum * unitRackPrice;
+    }
+
+    @Override
+    public double getResourceCost() {
+        return cpuCost + ramCost + storageCost + bwCost;
     }
 
     @Override
     public double getAllCost() {
-        return cpuCost + ramCost + storageCost + bwCost + getRackCost();
+        return getResourceCost() + getRackCost();
     }
 
     /**
@@ -304,11 +304,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (instance.getStartTime() == -1 || instance.getFinishTime() == -1) {
             return;
         }
-        cpuCost += instance.getCpu() * unitCpuPrice * (instance.getFinishTime() - instance.getStartTime());
-        ramCost += instance.getRam() * unitRamPrice * (instance.getFinishTime() - instance.getStartTime());
-        storageCost += instance.getStorage() * unitStoragePrice * (instance.getFinishTime() - instance.getStartTime());
-        bwCost += instance.getBw() * unitBwPrice * (instance.getFinishTime() - instance.getStartTime());
-        usedCpuNum += instance.getCpu();
+        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
+        cpuCost += instance.getCpu() * unitCpuPrice * lifeTimeSec;
+        ramCost += instance.getRam() * unitRamPrice * lifeTimeSec;
+        storageCost += instance.getStorage() * unitStoragePrice * lifeTimeSec;
+        bwCost += instance.getBw() * unitBwPrice * lifeTimeSec;
     }
 
     /**
