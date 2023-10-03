@@ -109,13 +109,13 @@ public class StatesManagerSimple implements StatesManager {
     @Setter
     private SimpleState simpleState;
 
-    public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
+    public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
         this.partitionRangesManager = partitionRangesManager;
         this.synGap = synGap;
         this.smallSynGap = synGap / partitionRangesManager.getPartitionNum();
-        this.simpleState = new SimpleStateSimple();
+        this.simpleState = new SimpleStateSimple(maxCpuCapacity, maxRamCapacity);
         this.partitionNum = partitionRangesManager.getPartitionNum();
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
@@ -124,6 +124,10 @@ public class StatesManagerSimple implements StatesManager {
         this.totalStorageInUse = 0;
         this.totalBwInUse = 0;
         initSynStateMap();
+    }
+
+    public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
+        this(hostNum, partitionRangesManager, synGap, 128, 256);
     }
 
     @Override

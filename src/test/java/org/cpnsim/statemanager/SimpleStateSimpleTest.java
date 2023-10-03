@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 public class SimpleStateSimpleTest {
     @Test
     void testSimpleState() {
-        SimpleState simpleState = new SimpleStateSimple();
+        SimpleState simpleState = new SimpleStateSimple(128, 256);
         simpleState.updateStorageSum(20);
         simpleState.updateBwSum(30);
         simpleState.addCpuRamRecord(8, 24);

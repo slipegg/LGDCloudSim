@@ -51,7 +51,7 @@ public class SimpleStateSimple implements SimpleState {
     /** Decremental ram list that needs to be recorded */
     private List<Integer> ramRecordListDec;
 
-    public SimpleStateSimple() {
+    public SimpleStateSimple(int maxCpuCapacity, int maxRamCapacity) {
         this.cpuAvaiableSum = 0;
         this.ramAvaiableSum = 0;
         this.storageAvaiableSum = 0;
@@ -59,12 +59,16 @@ public class SimpleStateSimple implements SimpleState {
         this.cpuRamMap = new TreeMap<>(Comparator.reverseOrder());
         this.cpuRamSumMap = new TreeMap<>(Comparator.reverseOrder());
 
-        this.cpuRecordListInc = getCpuRecordList();
+        this.cpuRecordListInc = getCpuRecordList(maxCpuCapacity);
         this.cpuRecordListDec = new ArrayList<>(cpuRecordListInc);
         Collections.reverse(cpuRecordListDec);
-        this.ramRecordListInc = getRamRecordList();
+        this.ramRecordListInc = getRamRecordList(maxRamCapacity);
         this.ramRecordListDec = new ArrayList<>(ramRecordListInc);
         Collections.reverse(ramRecordListDec);
+        generateMap();
+    }
+
+    private void generateMap() {
         for (int cpu : cpuRecordListInc) {
             Map<Integer, MutableInt> ramMap = new TreeMap<>(Comparator.reverseOrder());
             Map<Integer, List<MutableInt>> ramSumMap = new TreeMap<>(Comparator.reverseOrder());
@@ -95,18 +99,24 @@ public class SimpleStateSimple implements SimpleState {
      *
      * @return the cpu list that needs to be recorded
      */
-    private List<Integer> getCpuRecordList() {
+    private List<Integer> getCpuRecordList(int cpuMax) {
         List<Integer> cpuRecordList = new ArrayList<>();
-        int cpuMax = 128;
         cpuRecordList.add(1);
-        for (int i = 2; i < 32; i += 2) {
+        for (int i = 2; i < 32 && i < cpuMax; i += 2) {
             cpuRecordList.add(i);
         }
-        for (int i = 32; i < 64; i += 4) {
+        for (int i = 32; i < 64 && i < cpuMax; i += 4) {
             cpuRecordList.add(i);
         }
-        for (int i = 64; i <= cpuMax; i += 8) {
-            cpuRecordList.add(i);
+        for (int i = 64; i <= cpuMax; i += (cpuMax - 64) / 8) {
+            if (!cpuRecordList.contains(i)) {
+                cpuRecordList.add(i);
+            } else {
+                break;
+            }
+        }
+        if (cpuRecordList.get(cpuRecordList.size() - 1) != cpuMax) {
+            cpuRecordList.add(cpuMax);
         }
         return cpuRecordList;
     }
@@ -116,21 +126,27 @@ public class SimpleStateSimple implements SimpleState {
      *
      * @return the ram list that needs to be recorded
      */
-    private List<Integer> getRamRecordList() {
+    private List<Integer> getRamRecordList(int ramMax) {
         List<Integer> ramRecordList = new ArrayList<>();
-        int ramMax = 256;
         ramRecordList.add(1);
-        for (int i = 2; i < 32; i += 2) {
+        for (int i = 2; i < 32 && i < ramMax; i += 2) {
             ramRecordList.add(i);
         }
-        for (int i = 32; i < 128; i += 4) {
+        for (int i = 32; i < 128 && i < ramMax; i += 4) {
             ramRecordList.add(i);
         }
-        for (int i = 128; i < 256; i += 16) {
+        for (int i = 128; i < 256 && i < ramMax; i += 16) {
             ramRecordList.add(i);
         }
-        for (int i = 256; i <= ramMax; i += 128) {
-            ramRecordList.add(i);
+        for (int i = 256; i <= ramMax; i += (ramMax - 256) / 8) {
+            if (!ramRecordList.contains(i)) {
+                ramRecordList.add(i);
+            } else {
+                break;
+            }
+        }
+        if (ramRecordList.get(ramRecordList.size() - 1) != ramMax) {
+            ramRecordList.add(ramMax);
         }
         return ramRecordList;
     }

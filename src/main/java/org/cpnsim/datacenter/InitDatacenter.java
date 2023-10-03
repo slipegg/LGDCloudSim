@@ -148,13 +148,31 @@ public class InitDatacenter {
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
         double synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
 //        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, innerSchedulers);
-        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap);
+        int[] maxCpuRam = getMaxCpuRam(datacenterJson);
+        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
 
         setPrediction(statesManager, datacenterJson);
 
         initHostState(statesManager, datacenterJson);
 
         return statesManager;
+    }
+
+    private static int[] getMaxCpuRam(JsonObject datacenterJson) {
+        int maxCpu = 0;
+        int maxRam = 0;
+        for (int k = 0; k < datacenterJson.getJsonArray("hostStates").size(); k++) {
+            JsonObject hostStateJson = datacenterJson.getJsonArray("hostStates").getJsonObject(k);
+            int cpu = hostStateJson.getInt("cpu");
+            int ram = hostStateJson.getInt("ram");
+            if (cpu > maxCpu) {
+                maxCpu = cpu;
+            }
+            if (ram > maxRam) {
+                maxRam = ram;
+            }
+        }
+        return new int[]{maxCpu, maxRam};
     }
 
     /**
