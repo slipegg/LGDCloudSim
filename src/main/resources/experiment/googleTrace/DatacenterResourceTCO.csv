@@ -1,0 +1,60 @@
+Lowa,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.031611,cpu(dollar/vCPU sec),8.7808E-06
+ram(dollar/GB hour),0.004237,ram(dollar/GB sec),1.1769E-06
+storage(dollar/GB Month),0.04,storage(dollar/GB sec),1.5432E-08
+bw(dollar/GB),0.01,bw(dollar/GB),0.01
+,,,
+Los Angeles,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.03797,cpu(dollar/vCPU sec),1.0547E-05
+ram(dollar/GB hour),0.005089,ram(dollar/GB sec),1.4136E-06
+storage(dollar/GB Month),0.04,storage(dollar/GB sec),1.5432E-08
+bw(dollar/GB),0.01,bw(dollar/GB),0.01
+,,,
+Hong Kong,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.044231,cpu(dollar/vCPU sec),1.2286E-05
+ram(dollar/GB hour),0.005928,ram(dollar/GB sec),1.6467E-06
+storage(dollar/GB Month),0.0498,storage(dollar/GB sec),1.9213E-08
+bw(dollar/GB),0.05,bw(dollar/GB),0.05
+,,,
+Tokyo,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.040618,cpu(dollar/vCPU sec),1.1283E-05
+ram(dollar/GB hour),0.005419,ram(dollar/GB sec),1.5053E-06
+storage(dollar/GB Month),0.052,storage(dollar/GB sec),2.0062E-08
+bw(dollar/GB),0.05,bw(dollar/GB),0.05
+,,,
+London,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.04073,cpu(dollar/vCPU sec),1.1314E-05
+ram(dollar/GB hour),0.005458,ram(dollar/GB sec),1.5161E-06
+storage(dollar/GB Month),0.048,storage(dollar/GB sec),1.8519E-08
+bw(dollar/GB),0.02,bw(dollar/GB),0.02
+,,,
+Finland,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.034806,cpu(dollar/vCPU sec),9.6683E-06
+ram(dollar/GB hour),0.004664,ram(dollar/GB sec),1.2956E-06
+storage(dollar/GB Month),0.044,storage(dollar/GB sec),1.6975E-08
+bw(dollar/GB),0.02,bw(dollar/GB),0.02
+,,,
+Sao Paulo,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.05018,cpu(dollar/vCPU sec),1.3939E-05
+ram(dollar/GB hour),0.006725,ram(dollar/GB sec),1.8681E-06
+storage(dollar/GB Month),0.06,storage(dollar/GB sec),2.3148E-08
+bw(dollar/GB),0.08,bw(dollar/GB),0.08
+,,,
+Sydney,,,
+resource type,price,standard units,standard price
+cpu(dollar/vCPU hour),0.044856,cpu(dollar/vCPU sec),1.2460E-05
+ram(dollar/GB hour),0.006011,ram(dollar/GB sec),1.6697E-06
+storage(dollar/GB Month),0.054,storage(dollar/GB sec),2.0833E-08
+bw(dollar/GB),0.15,bw(dollar/GB),0.15
+,,,
+tips,"All resource prices come from Google Cloud (https://cloud.google.com/compute/all-pricing)
+The CPU and memory resources adopt the resource pricing of N1 type machines.
+The storage is of Standard provisioned space type.
+Broadband is billed based on usage, which is related to the location of the data center.",,

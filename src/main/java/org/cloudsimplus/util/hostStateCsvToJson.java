@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class hostStateCsvToJson {
     public static void main(String[] args) {
-        String csvFile = "./src/main/resources/experiment/googleTrace/hostResource/2019_a_host_resource.csv"; // CSV文件路径
+        String csvFile = "./src/main/resources/experiment/googleTrace/hostResource/2019_h_host_resource.csv"; // CSV文件路径
 
         int maxCpuCapacity = 10000;
         int maxRamCapacity = 10000;
