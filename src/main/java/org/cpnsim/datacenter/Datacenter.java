@@ -3,6 +3,7 @@ package org.cpnsim.datacenter;
 import org.cloudsimplus.core.SimEntity;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
 
 import javax.xml.crypto.Data;
@@ -62,4 +63,5 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
 
     boolean isCentralizedInterSchedule();
 
+    double getEstimatedTCO(InstanceGroup instanceGroup);
 }

@@ -5,6 +5,7 @@ import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
 
 import java.util.List;
@@ -117,6 +118,11 @@ public class DatacenterNull implements Datacenter {
     @Override
     public boolean isCentralizedInterSchedule() {
         return false;
+    }
+
+    @Override
+    public double getEstimatedTCO(InstanceGroup instanceGroup) {
+        return 0;
     }
 
     @Override

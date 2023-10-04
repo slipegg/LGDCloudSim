@@ -308,7 +308,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         cpuCost += instance.getCpu() * unitCpuPrice * lifeTimeSec;
         ramCost += instance.getRam() * unitRamPrice * lifeTimeSec;
         storageCost += instance.getStorage() * unitStoragePrice * lifeTimeSec;
-        bwCost += instance.getBw() * unitBwPrice * lifeTimeSec;
+        bwCost += (instance.getBw() * lifeTimeSec) / 8 / 1024 * 0.05 * unitBwPrice;
     }
 
     /**
@@ -905,6 +905,19 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public boolean isCentralizedInterSchedule() {
         return centralizedInterSchedule;
+    }
+
+    @Override
+    public double getEstimatedTCO(InstanceGroup instanceGroup) {
+        double tco = 0;
+        for (Instance instance : instanceGroup.getInstanceList()) {
+            tco += instance.getCpu() * unitCpuPrice * instance.getLifeTime() / 1000.0
+                    + instance.getRam() * unitRamPrice * instance.getLifeTime() / 1000.0
+                    + instance.getStorage() * unitStoragePrice * instance.getLifeTime() / 1000.0
+                    + instance.getBw() * unitBwPrice * instance.getLifeTime() / 1000.0
+                    + (double) instance.getCpu() / statesManager.getMaxCpuCapacity() * unitRackPrice;
+        }
+        return tco;
     }
 
     @Override

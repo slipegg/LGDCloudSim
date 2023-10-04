@@ -111,7 +111,7 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
-    private List<Datacenter> getAvailableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
+    List<Datacenter> getAvailableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
         //根据接入时延要求得到可调度的数据中心
         filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
@@ -164,7 +164,7 @@ public class InterSchedulerSimple implements InterScheduler {
         }
     }
 
-    private void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
+    void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
         //TODO 根据网络拓扑中的时延和宽带进行筛选得到最优的调度方案
         //TODO 后续可以添加一个回溯算法来简单筛选
     }

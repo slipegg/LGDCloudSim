@@ -107,4 +107,8 @@ public interface StatesManager {
     int getTotalStorageInUse();
 
     int getTotalBwInUse();
+
+    int getMaxCpuCapacity();
+
+    int getMaxRamCapacity();
 }
