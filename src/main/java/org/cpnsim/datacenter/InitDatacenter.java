@@ -5,15 +5,16 @@ import org.cloudsimplus.core.Simulation;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.statemanager.*;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class to initialize datacenters.
@@ -23,6 +24,7 @@ import java.util.Map;
  * @since CPNSim 1.0
  */
 public class InitDatacenter {
+    private static Logger LOGGER = LoggerFactory.getLogger(InitDatacenter.class.getSimpleName());
     /**
      * The {@link Simulation} object.
      **/
@@ -242,6 +244,25 @@ public class InitDatacenter {
         double unitRackPrice = unitPriceJson.getJsonNumber("rack").doubleValue();
         double unitStoragePrice = unitPriceJson.getJsonNumber("storage").doubleValue();
         double unitBwPrice = unitPriceJson.getJsonNumber("bw").doubleValue();
+        if (unitPriceJson.containsKey("bwBillingType")) {
+            String bwBillingType = unitPriceJson.getString("bwBillingType");
+            if (!Objects.equals(bwBillingType, "used") && !Objects.equals(bwBillingType, "fixed")) {
+                LOGGER.error("bwBillingType should be either used or fixed");
+                System.exit(1);
+            } else {
+                datacenter.setBwBillingType(bwBillingType);
+                if (bwBillingType.equals("used")) {
+                    if (unitPriceJson.containsKey("bwUtilization")) {
+                        double bwUtilization = unitPriceJson.getJsonNumber("bwUtilization").doubleValue();
+                        datacenter.setBwUtilization(bwUtilization);
+                    } else {
+                        LOGGER.error("A double type bwUtilization should be set when bwBillingType is used");
+                        System.exit(1);
+                    }
+                }
+
+            }
+        }
         datacenter.setUnitCpuPrice(unitCpuPrice);
         datacenter.setUnitRamPrice(unitRamPrice);
         datacenter.setUnitRackPrice(unitRackPrice);

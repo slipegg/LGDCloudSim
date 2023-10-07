@@ -14,7 +14,9 @@
             "ram": 1.1769E-06,
             "rack": 1,
             "storage": 1.5432E-08,
-            "bw": 0.01
+            "bw": 0.01,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 10002,
           "partitions": [
@@ -148,7 +150,9 @@
             "ram": 1.4136E-06,
             "rack": 1,
             "storage": 1.5432E-08,
-            "bw": 0.01
+            "bw": 0.01,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 10047,
           "partitions": [
@@ -273,7 +277,9 @@
             "ram": 1.6467E-06,
             "rack": 1,
             "storage": 1.9213E-08,
-            "bw": 0.05
+            "bw": 0.05,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 13245,
           "partitions": [
@@ -407,7 +413,9 @@
             "ram": 1.5053E-06,
             "rack": 1,
             "storage": 2.0062E-08,
-            "bw": 0.05
+            "bw": 0.05,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 12578,
           "partitions": [
@@ -532,7 +540,9 @@
             "ram": 1.5161E-06,
             "rack": 1,
             "storage": 1.8519E-08,
-            "bw": 0.02
+            "bw": 0.02,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 14123,
           "partitions": [
@@ -666,7 +676,9 @@
             "ram": 1.2956E-06,
             "rack": 1,
             "storage": 1.6975E-08,
-            "bw": 0.02
+            "bw": 0.02,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 12204,
           "partitions": [
@@ -791,7 +803,9 @@
             "ram": 1.8681E-06,
             "rack": 1,
             "storage": 2.3148E-08,
-            "bw": 0.08
+            "bw": 0.08,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 12800,
           "partitions": [
@@ -946,7 +960,9 @@
             "ram": 1.8681E-06,
             "rack": 1,
             "storage": 2.3148E-08,
-            "bw": 0.08
+            "bw": 0.08,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
           },
           "hostNum": 11592,
           "partitions": [

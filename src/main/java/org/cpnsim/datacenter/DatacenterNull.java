@@ -236,6 +236,26 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
+    public DatacenterPrice setBwBillingType(String bwBillingType) {
+        return null;
+    }
+
+    @Override
+    public String getBwBillingType() {
+        return null;
+    }
+
+    @Override
+    public DatacenterPrice setBwUtilization(double bwUtilization) {
+        return null;
+    }
+
+    @Override
+    public double getBwUtilization() {
+        return 0;
+    }
+
+    @Override
     public double getTCOEnergy() {
         return 0;
     }

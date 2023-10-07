@@ -142,6 +142,14 @@ public interface DatacenterPrice {
      */
     double getAllCost();
 
+    DatacenterPrice setBwBillingType(String bwBillingType);
+
+    String getBwBillingType();
+
+    DatacenterPrice setBwUtilization(double bwUtilization);
+
+    double getBwUtilization();
+
     double getTCOEnergy();
 
     double getTCORack();

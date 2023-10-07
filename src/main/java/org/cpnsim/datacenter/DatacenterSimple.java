@@ -148,6 +148,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double unitRackPrice;
 
     @Getter
+    @Setter
+    private String bwBillingType = "fixed";
+
+    @Getter
+    @Setter
+    private double bwUtilization;
+
+    @Getter
     private double TCOEnergy;
 
     @Getter
@@ -308,7 +316,16 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         cpuCost += instance.getCpu() * unitCpuPrice * lifeTimeSec;
         ramCost += instance.getRam() * unitRamPrice * lifeTimeSec;
         storageCost += instance.getStorage() * unitStoragePrice * lifeTimeSec;
-        bwCost += (instance.getBw() * lifeTimeSec) / 8 / 1024 * 0.05 * unitBwPrice;
+        bwCost += calculateInstanceBwCost(instance);
+    }
+
+    private double calculateInstanceBwCost(Instance instance) {
+        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
+        if (bwBillingType.equals("used")) {
+            return (instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * unitBwPrice;
+        } else {
+            return instance.getBw() * unitBwPrice * lifeTimeSec;
+        }
     }
 
     /**
