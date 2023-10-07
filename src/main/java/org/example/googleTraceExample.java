@@ -23,7 +23,7 @@ public class googleTraceExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/topology.brite";
+    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/googleTrace/topology.brite";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/googleTrace/datacenter/1_collaborations.json";
     Map<String, Integer> GOOGLE_TRACE_REQUEST_FILE_DC_MAP = new HashMap<>() {{
         put("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", 0);
