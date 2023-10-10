@@ -18,6 +18,7 @@ import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
 import org.cpnsim.request.UserRequest;
+import org.cpnsim.statemanager.SimpleState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +74,7 @@ public class CloudInformationService extends CloudSimEntity {
             case CloudSimTag.CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestSend(evt);
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin(evt);
+            case CloudSimTag.RESPOND_SIMPLE_STATE -> processRespondSimpleState(evt);
             case CloudSimTag.GROUP_FILTER_DC_END -> processGroupFilterDcEnd(evt);
         }
     }
@@ -119,8 +121,26 @@ public class CloudInformationService extends CloudSimEntity {
     private void processGroupFilterDcBegin(SimEvent evt) {
         if (evt.getData() instanceof Integer collaborationId) {
             CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
-            List<InstanceGroup> instanceGroups = collaborationManager.getCollaborationGroupQueueMap().get(collaborationId).getBatchItem();
+            List<Datacenter> allDatacenters = collaborationManager.getDatacenters(collaborationId);
             InterScheduler interScheduler = collaborationManager.getCollaborationCenterSchedulerMap().get(collaborationId);
+            for (Datacenter datacenter : allDatacenters) {
+                sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
+                interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
+            }
+            LOGGER.info("{}: collaboration{}'s centerScheduler starts asking simple state for {} datacenters.", getSimulation().clockStr(), collaborationId, allDatacenters.size());
+        }
+    }
+
+    private void processRespondSimpleState(final SimEvent evt) {
+        if (evt.getData() instanceof SimpleState simpleState) {
+            int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(evt.getSource().getId());
+            InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
+            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), simpleState);
+            if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
+                return;
+            }
+
+            List<InstanceGroup> instanceGroups = getSimulation().getCollaborationManager().getCollaborationGroupQueueMap().get(collaborationId).getBatchItem();
             LOGGER.info("{}: collaboration{}'s centerScheduler starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), collaborationId, instanceGroups.size());
             if (instanceGroups.size() == 0) {
                 return;
@@ -185,7 +205,7 @@ public class CloudInformationService extends CloudSimEntity {
                 }
                 instanceGroup.setState(UserRequest.SCHEDULING);
             }
-            sendBetweenDc(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
+            sendOverNetwork(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
         }
         //处理调度失败的instanceGroup
         interScheduleFail(retryInstanceGroups);

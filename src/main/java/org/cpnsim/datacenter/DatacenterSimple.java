@@ -15,6 +15,7 @@ import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
 import org.cpnsim.request.UserRequest;
 import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.statemanager.SimpleState;
 import org.cpnsim.statemanager.StatesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -282,6 +283,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.SYN_STATE -> processSynState();
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
+            case CloudSimTag.ASK_SIMPLE_STATE -> processAskSimpleState(evt);
+            case CloudSimTag.RESPOND_SIMPLE_STATE -> processRespondSimpleState(evt);
             case CloudSimTag.GROUP_FILTER_DC_END -> processGroupFilterDcEnd(evt);
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP -> processRespondDcReviveGroup(evt);
@@ -767,7 +770,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> instanceGroups) {
             Map<InstanceGroup, Double> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
             double costTime = interScheduler.getDecideReciveGroupResultCostTime();
-            sendBetweenDc(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
+            sendOverNetwork(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
         }
     }
 
@@ -816,14 +819,37 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * It will send an GROUP_FILTER_DC_END evt to call {!link #processGroupAssignDcEnd(SimEvent)} after the {@link InterScheduler#getFilterSuitableDatacenterCostTime}
      */
     private void processGroupFilterDcBegin() {
-        List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
-        LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
-        if (instanceGroups.size() == 0) {
-            return;
+        List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
+        interScheduler.getInterScheduleSimpleStateMap().clear();
+        for (Datacenter datacenter : datacenters) {
+            sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
+            interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
         }
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
-        double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
-        send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
+        LOGGER.info("{}: {} starts asking for the simple state of {} datacenters.", getSimulation().clockStr(), getName(), datacenters.size());
+    }
+
+    private void processAskSimpleState(final SimEvent evt) {
+        SimpleState simpleState = (SimpleState) statesManager.getSimpleState().clone();
+        sendOverNetwork(evt.getSource(), 0, CloudSimTag.RESPOND_SIMPLE_STATE, simpleState);
+        LOGGER.info("{}: {} sends the simple state of itself to {}.", getSimulation().clockStr(), getName(), evt.getSource().getName());
+    }
+
+    private void processRespondSimpleState(final SimEvent evt) {
+        if (evt.getData() instanceof SimpleState simpleState) {
+            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), simpleState);
+            if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
+                return;
+            }
+
+            List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
+            LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
+            if (instanceGroups.size() == 0) {
+                return;
+            }
+            Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
+            double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
+            send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
+        }
     }
 
     /**
@@ -892,9 +918,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     }
                     instanceGroup.setState(UserRequest.SCHEDULING);
                 }
-                sendBetweenDc(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
+                sendOverNetwork(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
             } else {
-                sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
+                sendOverNetwork(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
             }
         }
         //处理调度失败的instanceGroup

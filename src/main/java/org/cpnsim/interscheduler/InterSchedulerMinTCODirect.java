@@ -5,6 +5,7 @@ import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.statemanager.SimpleState;
 
 import java.util.ArrayList;
 import java.util.HashMap;

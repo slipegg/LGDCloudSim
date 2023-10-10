@@ -8,6 +8,7 @@ import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
+import org.cpnsim.statemanager.SimpleState;
 
 import java.util.*;
 
@@ -34,6 +35,9 @@ public class InterSchedulerSimple implements InterScheduler {
     @Getter
     @Setter
     boolean directedSend = false;
+
+    @Getter
+    Map<Datacenter, SimpleState> interScheduleSimpleStateMap = new HashMap<>();
 
     Random random = new Random(1);
 
@@ -128,40 +132,40 @@ public class InterSchedulerSimple implements InterScheduler {
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
         //首先是粗粒度地筛选总量是否满足
         allDatacenters.removeIf(
-                datacenter -> datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() < instanceGroup.getCpuSum() ||
-                        datacenter.getStatesManager().getSimpleState().getRamAvaiableSum() < instanceGroup.getRamSum() ||
-                        datacenter.getStatesManager().getSimpleState().getStorageAvaiableSum() < instanceGroup.getStorageSum() ||
-                        datacenter.getStatesManager().getSimpleState().getBwAvaiableSum() < instanceGroup.getBwSum()
+                datacenter -> interScheduleSimpleStateMap.get(datacenter).getCpuAvailableSum() < instanceGroup.getCpuSum()
+                        || interScheduleSimpleStateMap.get(datacenter).getRamAvailableSum() < instanceGroup.getRamSum()
+                        || interScheduleSimpleStateMap.get(datacenter).getStorageAvailableSum() < instanceGroup.getStorageSum()
+                        || interScheduleSimpleStateMap.get(datacenter).getBwAvailableSum() < instanceGroup.getBwSum()
         );
         //然后细粒度地查看CPU-RAM的组合是否满足
-        Iterator<Datacenter> iterator = allDatacenters.iterator();
-        while (iterator.hasNext()) {
-            Datacenter datacenter = iterator.next();
-            Map<Integer, Map<Integer, Integer>> instanceCpuRamNum = new HashMap<>();//记录一下所有Instance的cpu—ram的种类情况
-            for (Instance instance : instanceGroup.getInstanceList()) {
-                int allocateNum = instanceCpuRamNum.getOrDefault(instance.getCpu(), new HashMap<>()).getOrDefault(instance.getRam(), 0);
-                int originSum = datacenter.getStatesManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam());
-                if (originSum - allocateNum <= 0) {
-                    //如果该数据中心的资源不足以满足亲和组的资源需求，那么就将其从可调度的数据中心中移除
-                    iterator.remove();
-                    break;
-                } else {
-                    //如果该数据中心的资源可以满足亲和组的资源需求，那么就记录更新已分配的所有Instance的cpu—ram的种类情况
-                    if (instanceCpuRamNum.containsKey(instance.getCpu())) {
-                        Map<Integer, Integer> ramNumMap = instanceCpuRamNum.get(instance.getCpu());
-                        if (ramNumMap.containsKey(instance.getRam())) {
-                            ramNumMap.put(instance.getRam(), ramNumMap.get(instance.getRam()) + 1);
-                        } else {
-                            ramNumMap.put(instance.getRam(), 1);
-                        }
-                    } else {
-                        Map<Integer, Integer> ramNumMap = new HashMap<>();
-                        ramNumMap.put(instance.getRam(), 1);
-                        instanceCpuRamNum.put(instance.getCpu(), ramNumMap);
-                    }
-                }
-            }
-        }
+//        Iterator<Datacenter> iterator = allDatacenters.iterator();
+//        while (iterator.hasNext()) {
+//            Datacenter datacenter = iterator.next();
+//            Map<Integer, Map<Integer, Integer>> instanceCpuRamNum = new HashMap<>();//记录一下所有Instance的cpu—ram的种类情况
+//            for (Instance instance : instanceGroup.getInstanceList()) {
+//                int allocateNum = instanceCpuRamNum.getOrDefault(instance.getCpu(), new HashMap<>()).getOrDefault(instance.getRam(), 0);
+//                int originSum = datacenter.getStatesManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam());
+//                if (originSum - allocateNum <= 0) {
+//                    //如果该数据中心的资源不足以满足亲和组的资源需求，那么就将其从可调度的数据中心中移除
+//                    iterator.remove();
+//                    break;
+//                } else {
+//                    //如果该数据中心的资源可以满足亲和组的资源需求，那么就记录更新已分配的所有Instance的cpu—ram的种类情况
+//                    if (instanceCpuRamNum.containsKey(instance.getCpu())) {
+//                        Map<Integer, Integer> ramNumMap = instanceCpuRamNum.get(instance.getCpu());
+//                        if (ramNumMap.containsKey(instance.getRam())) {
+//                            ramNumMap.put(instance.getRam(), ramNumMap.get(instance.getRam()) + 1);
+//                        } else {
+//                            ramNumMap.put(instance.getRam(), 1);
+//                        }
+//                    } else {
+//                        Map<Integer, Integer> ramNumMap = new HashMap<>();
+//                        ramNumMap.put(instance.getRam(), 1);
+//                        instanceCpuRamNum.put(instance.getCpu(), ramNumMap);
+//                    }
+//                }
+//            }
+//        }
     }
 
     void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {

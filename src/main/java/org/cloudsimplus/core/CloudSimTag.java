@@ -18,12 +18,14 @@ public class CloudSimTag {
     public static final int USER_REQUEST_SEND = BASE + 3;//需要dc处理接收到的用户请求
     public static final int NEED_SEND_USER_REQUEST = BASE + 4;//USER发送用户请求给dc
     public static final int GROUP_FILTER_DC_BEGIN = BASE + 5;//USER发送用户请求,需要比USER_REQUEST_SEND小
-    public static final int GROUP_FILTER_DC_END = BASE + 6;//USER发送用户请求,需要比USER_REQUEST_SEND小
-    public static final int ASK_DC_REVIVE_GROUP = BASE + 7;
-    public static final int RESPOND_DC_REVIVE_GROUP = BASE + 8;
-    public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = BASE + 10;
-    public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 11;
-    public static final int LOAD_BALANCE_SEND = BASE + 12;
+    public static final int ASK_SIMPLE_STATE = GROUP_FILTER_DC_BEGIN + 1;
+    public static final int RESPOND_SIMPLE_STATE = ASK_SIMPLE_STATE + 1;
+    public static final int GROUP_FILTER_DC_END = BASE + 8;//USER发送用户请求,需要比USER_REQUEST_SEND小
+    public static final int ASK_DC_REVIVE_GROUP = BASE + 9;
+    public static final int RESPOND_DC_REVIVE_GROUP = BASE + 10;
+    public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = BASE + 11;
+    public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 12;
+    public static final int LOAD_BALANCE_SEND = BASE + 13;
     public static final int INNER_SCHEDULE_END = BASE + 14;
     public static final int ALLOCATE_RESOURCE = BASE + 16;
     public static final int PRE_ALLOCATE_RESOURCE = BASE + 17;//需要在ALLOCATE_RESOURCE之后
@@ -41,6 +43,8 @@ public class CloudSimTag {
             case USER_REQUEST_SEND -> "USER_REQUEST_SEND";
             case NEED_SEND_USER_REQUEST -> "NEED_SEND_USER_REQUEST";
             case GROUP_FILTER_DC_BEGIN -> "GROUP_FILTER_DC_BEGIN";
+            case ASK_SIMPLE_STATE -> "ASK_SIMPLE_STATE";
+            case RESPOND_SIMPLE_STATE -> "RESPOND_SIMPLE_STATE";
             case GROUP_FILTER_DC_END -> "GROUP_FILTER_DC_END";
             case ASK_DC_REVIVE_GROUP -> "ASK_DC_REVIVE_GROUP";
             case RESPOND_DC_REVIVE_GROUP -> "RESPOND_DC_REVIVE_GROUP_ACCEPT";

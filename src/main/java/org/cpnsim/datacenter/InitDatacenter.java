@@ -88,7 +88,12 @@ public class InitDatacenter {
      * @return a {@link StatesManager} object
      */
     private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule) {
-        Datacenter datacenter = new DatacenterSimple(cpnSim, datacenterJson.getInt("id"));
+        int id = datacenterJson.getInt("id");
+        if (id == 0) {
+            LOGGER.error("0 is the id of CIS,Datacenter id should not be 0");
+            System.exit(1);
+        }
+        Datacenter datacenter = new DatacenterSimple(cpnSim, id);
 
         StatesManager statesManager = getStatesManager(datacenterJson);
         datacenter.setStatesManager(statesManager);

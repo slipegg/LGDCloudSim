@@ -5,33 +5,184 @@ import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.InstanceGroupEdge;
+import org.cpnsim.statemanager.SimpleState;
+import org.cpnsim.statemanager.SimpleStateEasy;
+import org.cpnsim.statemanager.SimpleStateSimple;
 
 import java.util.*;
 
 public class InterSchedulerDirect extends InterSchedulerSimple {
-    Random random = new Random(1);
+    Random random = new Random();
 
     public InterSchedulerDirect(int id, Simulation simulation, int collaborationId) {
         super(id, simulation, collaborationId);
+    }
+
+    class DcRecorder {
+        long allocatedCpuSum = 0;
+        long allocatedRamSum = 0;
+        long allocatedStorageSum = 0;
+        long allocatedBwSum = 0;
+
+        public void updateResourceAllocated(InstanceGroup instanceGroup) {
+            allocatedCpuSum += instanceGroup.getCpuSum();
+            allocatedRamSum += instanceGroup.getRamSum();
+            allocatedStorageSum += instanceGroup.getStorageSum();
+            allocatedBwSum += instanceGroup.getBwSum();
+        }
+    }
+
+    class AllocatedRecorder {
+        Map<Datacenter, DcRecorder> dcRecorderMap = new HashMap<>();
+
+        Map<Datacenter, Map<Datacenter, Double>> allocatedBwMap = new HashMap<>();
+
+        public void updateAllocatedBw(Datacenter srcDc, Datacenter dstDc, double bw) {
+            allocatedBwMap.putIfAbsent(srcDc, new HashMap<>());
+            allocatedBwMap.get(srcDc).putIfAbsent(dstDc, 0.0);
+            allocatedBwMap.get(srcDc).put(dstDc, allocatedBwMap.get(srcDc).get(dstDc) + bw);
+        }
+
+        public double getAllocatedBw(Datacenter srcDc, Datacenter dstDc) {
+            if (allocatedBwMap.containsKey(srcDc)) {
+                if (allocatedBwMap.get(srcDc).containsKey(dstDc)) {
+                    return allocatedBwMap.get(srcDc).get(dstDc);
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        public void updateResourceAllocated(InstanceGroup instanceGroup, Datacenter datacenter) {
+            dcRecorderMap.putIfAbsent(datacenter, new DcRecorder());
+            dcRecorderMap.get(datacenter).updateResourceAllocated(instanceGroup);
+        }
+
+        public long getAllocatedCpuSum(Datacenter datacenter) {
+            if (dcRecorderMap.containsKey(datacenter)) {
+                return dcRecorderMap.get(datacenter).allocatedCpuSum;
+            } else {
+                return 0;
+            }
+        }
+
+        public long getAllocatedRamSum(Datacenter datacenter) {
+            if (dcRecorderMap.containsKey(datacenter)) {
+                return dcRecorderMap.get(datacenter).allocatedRamSum;
+            } else {
+                return 0;
+            }
+        }
+
+        public long getAllocatedStorageSum(Datacenter datacenter) {
+            if (dcRecorderMap.containsKey(datacenter)) {
+                return dcRecorderMap.get(datacenter).allocatedStorageSum;
+            } else {
+                return 0;
+            }
+        }
+
+        public long getAllocatedBwSum(Datacenter datacenter) {
+            if (dcRecorderMap.containsKey(datacenter)) {
+                return dcRecorderMap.get(datacenter).allocatedBwSum;
+            } else {
+                return 0;
+            }
+        }
     }
 
     @Override
     public Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         NetworkTopology networkTopology = simulation.getNetworkTopology();
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
+        AllocatedRecorder allocatedRecorder = new AllocatedRecorder();
+
         for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> availableDatacenters = getAvailableDatacenters(instanceGroup, allDatacenters, networkTopology);
-            instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
+            List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
+
+            // Filter based on access latency
+            Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+            availableDatacenters.removeIf(
+                    datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(belongDatacenter, datacenter));
+
+            // Filter based on the total remaining resources
+            availableDatacenters.removeIf(
+                    datacenter -> instanceGroup.getCpuSum() > datacenter.getStatesManager().getSimpleState().getCpuAvailableSum()
+                            || instanceGroup.getRamSum() > datacenter.getStatesManager().getSimpleState().getRamAvailableSum()
+                            || instanceGroup.getStorageSum() > datacenter.getStatesManager().getSimpleState().getStorageAvailableSum()
+                            || instanceGroup.getBwSum() > datacenter.getStatesManager().getSimpleState().getBwAvailableSum());
+
+            // Filter based on the instanceGroupGraph and network topology
+            List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
+            for (InstanceGroup dstInstanceGroup : dstInstanceGroups) {
+                Datacenter dstReceiveDc = dstInstanceGroup.getReceiveDatacenter();
+                if (dstReceiveDc != Datacenter.NULL) {
+                    Iterator<Datacenter> iterator2 = availableDatacenters.iterator();
+                    while (iterator2.hasNext()) {
+                        Datacenter datacenter = iterator2.next();
+                        InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dstInstanceGroup);
+                        if (networkTopology.getDelay(datacenter, dstReceiveDc) > edge.getMinDelay()) {
+                            iterator2.remove();
+                            continue;
+                        }
+                        if (networkTopology.getBw(datacenter, dstReceiveDc) - allocatedRecorder.getAllocatedBw(datacenter, dstReceiveDc) < edge.getRequiredBw()) {
+                            iterator2.remove();
+                        }
+                    }
+                }
+            }
+            List<InstanceGroup> srcInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
+            for (InstanceGroup srcInstanceGroup : srcInstanceGroups) {
+                Datacenter srcReceiveDc = srcInstanceGroup.getReceiveDatacenter();
+                if (srcReceiveDc != Datacenter.NULL) {
+                    Iterator<Datacenter> iterator2 = availableDatacenters.iterator();
+                    while (iterator2.hasNext()) {
+                        Datacenter datacenter = iterator2.next();
+                        if (networkTopology.getDelay(datacenter, srcReceiveDc) > srcInstanceGroup.getAccessLatency()) {
+                            iterator2.remove();
+                            continue;
+                        }
+                        if (networkTopology.getBw(datacenter, srcReceiveDc) - allocatedRecorder.getAllocatedBw(datacenter, srcReceiveDc) < srcInstanceGroup.getBwSum()) {
+                            iterator2.remove();
+                        }
+                    }
+                }
+            }
+
+            // select one datacenter which cpu+0.5*ram is the max one from the available datacenters
+            availableDatacenters.sort(Comparator.comparingLong(datacenter ->
+                    (datacenter.getStatesManager().getSimpleState().getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)) / datacenter.getStatesManager().getMaxCpuCapacity()
+                            + (datacenter.getStatesManager().getSimpleState().getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)) / datacenter.getStatesManager().getMaxRamCapacity()
+                            + (datacenter.getStatesManager().getHostNum() - datacenter.getStatesManager().getDatacenterPowerOnRecord().getNowPowerOnHostNum())
+            ));
+            Datacenter targetDatacenter = availableDatacenters.get(availableDatacenters.size() - 1);
+            instanceGroup.setReceiveDatacenter(targetDatacenter);
+
+            // update result
+            instanceGroupAvailableDatacenters.put(instanceGroup, List.of(targetDatacenter));
+
+            // update recorder
+            allocatedRecorder.updateResourceAllocated(instanceGroup, targetDatacenter);
+            List<InstanceGroup> dstInstanceGroups2 = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
+            for (InstanceGroup dstInstanceGroup : dstInstanceGroups2) {
+                Datacenter dstReceiveDc = dstInstanceGroup.getReceiveDatacenter();
+                if (dstReceiveDc != Datacenter.NULL) {
+                    allocatedRecorder.updateAllocatedBw(targetDatacenter, dstReceiveDc, instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dstInstanceGroup).getRequiredBw());
+                }
+            }
+            List<InstanceGroup> srcInstanceGroups2 = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
+            for (InstanceGroup srcInstanceGroup : srcInstanceGroups2) {
+                Datacenter srcReceiveDc = srcInstanceGroup.getReceiveDatacenter();
+                if (srcReceiveDc != Datacenter.NULL) {
+                    allocatedRecorder.updateAllocatedBw(srcReceiveDc, targetDatacenter, instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(srcInstanceGroup, instanceGroup).getRequiredBw());
+                }
+            }
         }
-        interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        this.filterSuitableDatacenterCostTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> datacenters = instanceGroupAvaiableDatacenters.get(instanceGroup);
-            Datacenter targetDatacenter = datacenters.get(random.nextInt(datacenters.size()));
-            datacenters.clear();
-            datacenters.add(targetDatacenter);
-        }
-        return instanceGroupAvaiableDatacenters;
+        this.filterSuitableDatacenterCostTime = 0.1 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        return instanceGroupAvailableDatacenters;
     }
 }
