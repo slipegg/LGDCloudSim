@@ -123,7 +123,7 @@ public class StatesManagerSimple implements StatesManager {
         this.smallSynGap = synGap / partitionRangesManager.getPartitionNum();
         this.maxCpuCapacity = maxCpuCapacity;
         this.maxRamCapacity = maxRamCapacity;
-        this.simpleState = new SimpleStateSimple(maxCpuCapacity, maxRamCapacity);
+        this.simpleState = new SimpleStateEasy();
         this.partitionNum = partitionRangesManager.getPartitionNum();
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
@@ -161,9 +161,7 @@ public class StatesManagerSimple implements StatesManager {
             throw new IllegalArgumentException("Host state must be array of size " + HostState.STATE_NUM);
         }
         System.arraycopy(state, 0, hostStates, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
-        simpleState.addCpuRamRecord(state[0], state[1]);
-        simpleState.updateStorageSum(state[2]);
-        simpleState.updateBwSum(state[3]);
+        simpleState.initHostSimpleState(hostId, state);
     }
 
     private void initSingleHostState(int hostId, int cpu, int ram, int storage, int bw) {
@@ -211,13 +209,13 @@ public class StatesManagerSimple implements StatesManager {
 
     @Override
     public boolean allocate(int hostId, Instance instance) {
-        int[] synHostState = new int[HostState.STATE_NUM];
-        System.arraycopy(hostStates, hostId * HostState.STATE_NUM, synHostState, 0, HostState.STATE_NUM);
-        if (synHostState[0] < instance.getCpu() || synHostState[1] < instance.getRam() || synHostState[2] < instance.getStorage() || synHostState[3] < instance.getBw()) {
+        int[] beforeHostState = new int[HostState.STATE_NUM];
+        System.arraycopy(hostStates, hostId * HostState.STATE_NUM, beforeHostState, 0, HostState.STATE_NUM);
+        if (beforeHostState[0] < instance.getCpu() || beforeHostState[1] < instance.getRam() || beforeHostState[2] < instance.getStorage() || beforeHostState[3] < instance.getBw()) {
             return false;//一般不会发生
         }
 
-        updateSynStateMap(hostId, synHostState);
+        updateSynStateMap(hostId, beforeHostState);
 
         hostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
         hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
@@ -230,17 +228,17 @@ public class StatesManagerSimple implements StatesManager {
         totalStorageInUse += instance.getStorage();
         totalBwInUse += instance.getBw();
 
-        updateSimpleState(hostId, synHostState);
+        simpleState.updateSimpleStateAllocated(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostAllocateInstance(hostId, datacenter.getSimulation().clock());
         return true;
     }
 
     @Override
     public StatesManager release(int hostId, Instance instance) {
-        int[] synHostState = new int[HostState.STATE_NUM];
-        System.arraycopy(hostStates, hostId * HostState.STATE_NUM, synHostState, 0, HostState.STATE_NUM);
+        int[] beforeHostState = new int[HostState.STATE_NUM];
+        System.arraycopy(hostStates, hostId * HostState.STATE_NUM, beforeHostState, 0, HostState.STATE_NUM);
 
-        updateSynStateMap(hostId, synHostState);
+        updateSynStateMap(hostId, beforeHostState);
 
         hostStates[hostId * HostState.STATE_NUM] += instance.getCpu();
         hostStates[hostId * HostState.STATE_NUM + 1] += instance.getRam();
@@ -253,7 +251,7 @@ public class StatesManagerSimple implements StatesManager {
         totalStorageInUse -= instance.getStorage();
         totalBwInUse -= instance.getBw();
 
-        updateSimpleState(hostId, synHostState);
+        simpleState.updateSimpleStateReleased(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostReleaseInstance(hostId, datacenter.getSimulation().clock());
         return this;
     }
@@ -320,12 +318,12 @@ public class StatesManagerSimple implements StatesManager {
      * @param hostId       The host id to be changed
      * @param synHostState The host state before the change
      */
-    private void updateSimpleState(int hostId, int[] synHostState) {
-        simpleState.updateCpuRamMap(synHostState[0], synHostState[1],
-                hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
-        simpleState.updateStorageSum(hostStates[hostId * HostState.STATE_NUM + 2] - synHostState[2]);
-        simpleState.updateBwSum(hostStates[hostId * HostState.STATE_NUM + 3] - synHostState[3]);
-    }
+//    private void updateSimpleState(int hostId, int[] synHostState) {
+//        simpleState.updateCpuRamMap(synHostState[0], synHostState[1],
+//                hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
+//        simpleState.updateStorageSum(hostStates[hostId * HostState.STATE_NUM + 2] - synHostState[2]);
+//        simpleState.updateBwSum(hostStates[hostId * HostState.STATE_NUM + 3] - synHostState[3]);
+//    }
 
     /**
      * Initialize the synStateMap.

@@ -1,7 +1,9 @@
 package org.cpnsim.statemanager;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.cpnsim.request.Instance;
 
 import java.util.*;
 
@@ -13,18 +15,25 @@ import java.util.*;
  * @since CPNSim 1.0
  */
 @Getter
+@Setter
 public class SimpleStateSimple implements SimpleState {
-    /** The sum of the cpu of all hosts in the datacenter */
-    private long cpuAvaiableSum;
+    /**
+     * The sum of the cpu of all hosts in the datacenter
+     */
+    private long cpuAvailableSum;
 
-    /** The sum of the ram of all hosts in the datacenter */
-    private long ramAvaiableSum;
+    /**
+     * The sum of the ram of all hosts in the datacenter
+     */
+    private long ramAvailableSum;
 
-    /** The sum of the storage of all hosts in the datacenter */
-    private long storageAvaiableSum;
+    /**
+     * The sum of the storage of all hosts in the datacenter
+     */
+    private long storageAvailableSum;
 
     /** The sum of the bw of all hosts in the datacenter */
-    private long bwAvaiableSum;
+    private long bwAvailableSum;
 
     /** The number of hosts whose remaining resources are between (cpu1, ram1) combination and (cpu2, ram2) combination.
      * the first key is cpu, the second key is ram,
@@ -42,22 +51,34 @@ public class SimpleStateSimple implements SimpleState {
     /** Incremental cpu list that needs to be recorded */
     private List<Integer> cpuRecordListInc;
 
-    /** Decremental cpu list that needs to be recorded */
+    /**
+     * Decremental cpu list that needs to be recorded
+     */
     private List<Integer> cpuRecordListDec;
 
-    /** Incremental ram list that needs to be recorded */
+    /**
+     * Incremental ram list that needs to be recorded
+     */
     private List<Integer> ramRecordListInc;
 
-    /** Decremental ram list that needs to be recorded */
+    /**
+     * Decremental ram list that needs to be recorded
+     */
     private List<Integer> ramRecordListDec;
 
+    private int maxCpuCapacity;
+
+    private int maxRamCapacity;
+
     public SimpleStateSimple(int maxCpuCapacity, int maxRamCapacity) {
-        this.cpuAvaiableSum = 0;
-        this.ramAvaiableSum = 0;
-        this.storageAvaiableSum = 0;
-        this.bwAvaiableSum = 0;
+        this.cpuAvailableSum = 0;
+        this.ramAvailableSum = 0;
+        this.storageAvailableSum = 0;
+        this.bwAvailableSum = 0;
         this.cpuRamMap = new TreeMap<>(Comparator.reverseOrder());
         this.cpuRamSumMap = new TreeMap<>(Comparator.reverseOrder());
+        this.maxCpuCapacity = maxCpuCapacity;
+        this.maxRamCapacity = maxRamCapacity;
 
         this.cpuRecordListInc = getCpuRecordList(maxCpuCapacity);
         this.cpuRecordListDec = new ArrayList<>(cpuRecordListInc);
@@ -66,6 +87,77 @@ public class SimpleStateSimple implements SimpleState {
         this.ramRecordListDec = new ArrayList<>(ramRecordListInc);
         Collections.reverse(ramRecordListDec);
         generateMap();
+    }
+
+    @Override
+    public SimpleState initHostSimpleState(int hostId, int[] hostState) {
+        addCpuRamRecord(hostState[0], hostState[1]);
+        storageAvailableSum += hostState[2];
+        bwAvailableSum += hostState[3];
+        return this;
+    }
+
+    @Override
+    public SimpleState updateSimpleStateAllocated(int hostId, int[] hostState, Instance instance) {
+        updateCpuRamMap(hostState[0], hostState[1], hostState[0] - instance.getCpu(), hostState[1] - instance.getRam());
+        storageAvailableSum -= instance.getStorage();
+        bwAvailableSum -= instance.getBw();
+        return this;
+    }
+
+    @Override
+    public SimpleState updateSimpleStateReleased(int hostId, int[] hostState, Instance instance) {
+        updateCpuRamMap(hostState[0], hostState[1], hostState[0] + instance.getCpu(), hostState[1] + instance.getRam());
+        storageAvailableSum += instance.getStorage();
+        bwAvailableSum += instance.getBw();
+        return this;
+    }
+
+    @Override
+    public Object clone() {
+        SimpleStateSimple simpleStateSimple = new SimpleStateSimple(this.maxCpuCapacity, this.maxRamCapacity);
+        simpleStateSimple.setCpuAvailableSum(this.cpuAvailableSum);
+        simpleStateSimple.setRamAvailableSum(this.ramAvailableSum);
+        simpleStateSimple.setStorageAvailableSum(this.storageAvailableSum);
+        simpleStateSimple.setBwAvailableSum(this.bwAvailableSum);
+
+        for (int cpu : cpuRecordListInc) {
+            for (int ram : ramRecordListInc) {
+                simpleStateSimple.cpuRamMap.get(cpu).get(ram).setValue(this.cpuRamMap.get(cpu).get(ram).intValue());
+            }
+        }
+
+        return simpleStateSimple;
+    }
+
+    /**
+     * Get the bigger cpu that is bigger than the given cpu
+     *
+     * @param cpu the given cpu
+     * @return the bigger cpu that is bigger than the given cpu
+     */
+    public int getBiggerCpu(int cpu) {
+        return cpuRecordListInc.stream().filter(key -> key >= cpu).findFirst().orElse(-1);
+    }
+
+    /**
+     * Get the bigger ram that is bigger than the given ram
+     *
+     * @param ram the given ram
+     * @return the bigger ram that is bigger than the given ram
+     */
+    public int getBiggerRam(int ram) {
+        return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(-1);
+    }
+
+    public int getCpuRamSum(int cpu, int ram) {
+        int biggerCpu = getBiggerCpu(cpu);
+        int biggerRam = getBiggerRam(ram);
+        if (biggerCpu == -1 || biggerRam == -1) {
+            return 0;
+        }
+        List<MutableInt> mutableIntList = cpuRamSumMap.get(biggerCpu).get(biggerRam);
+        return mutableIntList.stream().mapToInt(MutableInt::intValue).sum();
     }
 
     private void generateMap() {
@@ -151,32 +243,18 @@ public class SimpleStateSimple implements SimpleState {
         return ramRecordList;
     }
 
-    @Override
-    public SimpleState updateStorageSum(int changeStorage) {
-        storageAvaiableSum += changeStorage;
-        return this;
-    }
-
-    @Override
-    public SimpleState updateBwSum(int changeBw) {
-        bwAvaiableSum += changeBw;
-        return this;
-    }
-
-    @Override
-    public SimpleState addCpuRamRecord(int cpu, int ram) {
+    private SimpleState addCpuRamRecord(int cpu, int ram) {
         int smallerCpu = getSmallerCpu(cpu);
         int smallerRam = getSmallerRam(ram);
         if (smallerCpu != -1 && smallerRam != -1) {
             cpuRamMap.get(smallerCpu).get(smallerRam).increment();
         }
-        cpuAvaiableSum += cpu;
-        ramAvaiableSum += ram;
+        cpuAvailableSum += cpu;
+        ramAvailableSum += ram;
         return this;
     }
 
-    @Override
-    public SimpleState updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam) {
+    private SimpleState updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam) {
         int smallerOriginCpu = getSmallerCpu(originCpu);
         int smallerOriginRam = getSmallerRam(originRam);
         int smallerNowCpu = getSmallerCpu(nowCpu);
@@ -187,20 +265,9 @@ public class SimpleStateSimple implements SimpleState {
         if (smallerNowCpu != -1 && smallerNowRam != -1) {
             cpuRamMap.get(smallerNowCpu).get(smallerNowRam).increment();
         }
-        cpuAvaiableSum += nowCpu - originCpu;
-        ramAvaiableSum += nowRam - originRam;
+        cpuAvailableSum += nowCpu - originCpu;
+        ramAvailableSum += nowRam - originRam;
         return this;
-    }
-
-    @Override
-    public int getCpuRamSum(int cpu, int ram) {
-        int biggerCpu = getBiggerCpu(cpu);
-        int biggerRam = getBiggerRam(ram);
-        if (biggerCpu == -1 || biggerRam == -1) {
-            return 0;
-        }
-        List<MutableInt> mutableIntList = cpuRamSumMap.get(biggerCpu).get(biggerRam);
-        return mutableIntList.stream().mapToInt(MutableInt::intValue).sum();
     }
 
     /**
@@ -221,25 +288,5 @@ public class SimpleStateSimple implements SimpleState {
      */
     private int getSmallerRam(int ram) {
         return ramRecordListDec.stream().filter(key -> key <= ram).findFirst().orElse(-1);
-    }
-
-    /**
-     * Get the bigger cpu that is bigger than the given cpu
-     *
-     * @param cpu the given cpu
-     * @return the bigger cpu that is bigger than the given cpu
-     */
-    private int getBiggerCpu(int cpu) {
-        return cpuRecordListInc.stream().filter(key -> key >= cpu).findFirst().orElse(-1);
-    }
-
-    /**
-     * Get the bigger ram that is bigger than the given ram
-     *
-     * @param ram the given ram
-     * @return the bigger ram that is bigger than the given ram
-     */
-    private int getBiggerRam(int ram) {
-        return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(-1);
     }
 }

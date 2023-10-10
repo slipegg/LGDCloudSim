@@ -1,6 +1,7 @@
 package org.cpnsim.statemanager;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.cpnsim.request.Instance;
 
 import java.util.List;
 import java.util.Map;
@@ -22,75 +23,19 @@ import java.util.Map;
  * @since CPNSim 1.0
  */
 public interface SimpleState {
-    /**
-     * Update the storage state of the datacenter simple state.
-     *
-     * @param changeStorage The storage change of the host.
-     * @return the updated state of the host.The state includes 4 integers: cpu, ram, storage and bw.
-     */
-    SimpleState updateStorageSum(int changeStorage);
+    SimpleState initHostSimpleState(int hostId, int[] hostState);
 
-    /**
-     * Update the bw state of the datacenter simple state.
-     *
-     * @param changeBw The bw change of the host.
-     * @return the updated state of the host.The state includes 4 integers: cpu, ram, storage and bw.
-     */
-    SimpleState updateBwSum(int changeBw);
+    SimpleState updateSimpleStateAllocated(int hostId, int[] hostState, Instance instance);
 
-    /**
-     * Add a cpu ram record to the datacenter simple state.
-     *
-     * @param cpu The cpu change of the host.
-     * @return the updated state of the host.The state includes 4 integers: cpu, ram, storage and bw.
-     */
-    SimpleState addCpuRamRecord(int cpu, int ram);
+    SimpleState updateSimpleStateReleased(int hostId, int[] hostState, Instance instance);
 
-    /**
-     * update the cpu ram record to the datacenter simple state.
-     *
-     * @param originRam The origin ram of the host.
-     * @param originCpu The origin cpu of the host.
-     * @param nowRam    The now ram of the host.
-     * @param nowCpu    The now cpu of the host.
-     * @return the updated state of the host.The state includes 4 integers: cpu, ram, storage and bw.
-     */
-    SimpleState updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam);
+    long getCpuAvailableSum();
 
-    /**
-     * Get the available cpu sum of the datacenter simple state.
-     *
-     * @return the available cpu sum of the datacenter simple state.
-     */
-    long getCpuAvaiableSum();
+    long getRamAvailableSum();
 
-    /**
-     * Get the available ram sum of the datacenter simple state.
-     *
-     * @return the available ram sum of the datacenter simple state.
-     */
-    long getRamAvaiableSum();
+    long getStorageAvailableSum();
 
-    /**
-     * Get the available storage sum of the datacenter simple state.
-     *
-     * @return the available storage sum of the datacenter simple state.
-     */
-    long getStorageAvaiableSum();
+    long getBwAvailableSum();
 
-    /**
-     * Get the available bw sum of the datacenter simple state.
-     *
-     * @return the available bw sum of the datacenter simple state.
-     */
-    long getBwAvaiableSum();
-
-    /**
-     * Get the number of hosts whose remaining resources are greater than this combination of (cpu, ram).
-     *
-     * @param cpu The cpu of the host.
-     * @param ram The ram of the host.
-     * @return the number of hosts whose remaining resources are greater than this combination of (cpu, ram).
-     */
-    int getCpuRamSum(int cpu, int ram);
+    Object clone();
 }
