@@ -2,7 +2,12 @@ package org.cpnsim.statemanager;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.datacenter.InstanceQueue;
+import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.request.Instance;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -47,12 +52,28 @@ public class SimpleStateEasy implements SimpleState {
     }
 
     @Override
-    public Object clone() {
-        SimpleStateEasy simpleStateEasy = new SimpleStateEasy();
-        simpleStateEasy.setCpuAvailableSum(this.cpuAvailableSum);
-        simpleStateEasy.setRamAvailableSum(this.ramAvailableSum);
-        simpleStateEasy.setStorageAvailableSum(this.storageAvailableSum);
-        simpleStateEasy.setBwAvailableSum(this.bwAvailableSum);
-        return simpleStateEasy;
+    public Object generate(Datacenter datacenter) {
+        long cpuAvailableSum = this.cpuAvailableSum;
+        long ramAvailableSum = this.ramAvailableSum;
+        long storageAvailableSum = this.storageAvailableSum;
+        long bwAvailableSum = this.bwAvailableSum;
+        InstanceQueue instanceQueue = datacenter.getInstanceQueue();
+        for (Instance instance : instanceQueue.getAllItem(false)) {
+            cpuAvailableSum -= instance.getCpu();
+            ramAvailableSum -= instance.getRam();
+            storageAvailableSum -= instance.getStorage();
+            bwAvailableSum -= instance.getBw();
+        }
+        List<InnerScheduler> innerSchedulers = datacenter.getInnerSchedulers();
+        for (InnerScheduler innerScheduler : innerSchedulers) {
+            InstanceQueue innerInstanceQueue = innerScheduler.getInstanceQueue();
+            for (Instance instance : innerInstanceQueue.getAllItem(false)) {
+                cpuAvailableSum -= instance.getCpu();
+                ramAvailableSum -= instance.getRam();
+                storageAvailableSum -= instance.getStorage();
+                bwAvailableSum -= instance.getBw();
+            }
+        }
+        return new SimpleStateEasyObject(cpuAvailableSum, ramAvailableSum, storageAvailableSum, bwAvailableSum);
     }
 }

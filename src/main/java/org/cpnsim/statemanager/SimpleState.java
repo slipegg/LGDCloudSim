@@ -1,10 +1,7 @@
 package org.cpnsim.statemanager;
 
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * A class to record the overall state information of hosts in an entire datacenter
@@ -37,5 +34,5 @@ public interface SimpleState {
 
     long getBwAvailableSum();
 
-    Object clone();
+    Object generate(Datacenter datacenter);
 }

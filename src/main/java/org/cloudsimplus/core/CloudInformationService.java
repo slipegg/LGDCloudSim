@@ -132,10 +132,10 @@ public class CloudInformationService extends CloudSimEntity {
     }
 
     private void processRespondSimpleState(final SimEvent evt) {
-        if (evt.getData() instanceof SimpleState simpleState) {
+        if (evt.getData() != null) {
             int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(evt.getSource().getId());
             InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
-            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), simpleState);
+            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), evt.getData());
             if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
                 return;
             }

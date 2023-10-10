@@ -49,5 +49,5 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
 
     InterScheduler setCollaborationId(int collaborationId);
 
-    Map<Datacenter, SimpleState> getInterScheduleSimpleStateMap();
+    Map<Datacenter, Object> getInterScheduleSimpleStateMap();
 }

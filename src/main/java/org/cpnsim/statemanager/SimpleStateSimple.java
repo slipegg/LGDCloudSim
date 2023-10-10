@@ -3,6 +3,7 @@ package org.cpnsim.statemanager;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 
 import java.util.*;
@@ -114,7 +115,7 @@ public class SimpleStateSimple implements SimpleState {
     }
 
     @Override
-    public Object clone() {
+    public Object generate(Datacenter datacenter) {
         SimpleStateSimple simpleStateSimple = new SimpleStateSimple(this.maxCpuCapacity, this.maxRamCapacity);
         simpleStateSimple.setCpuAvailableSum(this.cpuAvailableSum);
         simpleStateSimple.setRamAvailableSum(this.ramAvailableSum);

@@ -2,6 +2,7 @@ package org.cpnsim.innerscheduler;
 
 import org.cloudsimplus.core.DatacenterEntity;
 import org.cloudsimplus.core.Nameable;
+import org.cpnsim.datacenter.InstanceQueue;
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.SynState;
 import org.slf4j.Logger;
@@ -40,4 +41,6 @@ public interface InnerScheduler extends Nameable, DatacenterEntity {
     double getLastScheduleTime();
 
     Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState);
+
+    InstanceQueue getInstanceQueue();
 }

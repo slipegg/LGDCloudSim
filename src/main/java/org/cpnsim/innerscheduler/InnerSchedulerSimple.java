@@ -8,6 +8,8 @@ import org.cpnsim.datacenter.InstanceQueue;
 import org.cpnsim.datacenter.InstanceQueueFifo;
 import org.cpnsim.statemanager.SynState;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
     @Getter
     @Setter
     String name;
+    @Getter
     InstanceQueue instanceQueue;
 
     @Getter
@@ -56,7 +59,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
-        instanceQueue = new InstanceQueueFifo(100000);
+        instanceQueue = new InstanceQueueFifo(5000);
         this.firstPartitionId = firstPartitionId;
         this.partitionNum = partitionNum;
         setId(id);
@@ -92,13 +95,13 @@ public class InnerSchedulerSimple implements InnerScheduler {
     @Override
     public Map<Integer, List<Instance>> schedule() {
         //TODO 域内调度
-        List<Instance> instances = instanceQueue.getBatchItem();
+        List<Instance> instances = instanceQueue.getBatchItem(true);
         SynState synState = datacenter.getStatesManager().getSynState(this);
         double startTime = System.currentTimeMillis();
         Map<Integer, List<Instance>> res = scheduleInstances(instances, synState);
         double endTime = System.currentTimeMillis();
         lastScheduleTime = datacenter.getSimulation().clock();
-        this.scheduleCostTime = 0.25;//* instances.size();//(endTime-startTime)/10;
+        this.scheduleCostTime = BigDecimal.valueOf((instances.size() * 0.01)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
         LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size(), scheduleCostTime);
         return res;
     }

@@ -9,6 +9,7 @@ import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
 import org.cpnsim.statemanager.SimpleState;
+import org.cpnsim.statemanager.SimpleStateEasyObject;
 
 import java.util.*;
 
@@ -37,7 +38,7 @@ public class InterSchedulerSimple implements InterScheduler {
     boolean directedSend = false;
 
     @Getter
-    Map<Datacenter, SimpleState> interScheduleSimpleStateMap = new HashMap<>();
+    Map<Datacenter, Object> interScheduleSimpleStateMap = new HashMap<>();
 
     Random random = new Random(1);
 
@@ -132,10 +133,13 @@ public class InterSchedulerSimple implements InterScheduler {
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
         //首先是粗粒度地筛选总量是否满足
         allDatacenters.removeIf(
-                datacenter -> interScheduleSimpleStateMap.get(datacenter).getCpuAvailableSum() < instanceGroup.getCpuSum()
-                        || interScheduleSimpleStateMap.get(datacenter).getRamAvailableSum() < instanceGroup.getRamSum()
-                        || interScheduleSimpleStateMap.get(datacenter).getStorageAvailableSum() < instanceGroup.getStorageSum()
-                        || interScheduleSimpleStateMap.get(datacenter).getBwAvailableSum() < instanceGroup.getBwSum()
+                datacenter -> {
+                    SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
+                    return simpleStateEasyObject.getCpuAvailableSum() < instanceGroup.getCpuSum()
+                            || simpleStateEasyObject.getRamAvailableSum() < instanceGroup.getRamSum()
+                            || simpleStateEasyObject.getStorageAvailableSum() < instanceGroup.getStorageSum()
+                            || simpleStateEasyObject.getBwAvailableSum() < instanceGroup.getBwSum();
+                }
         );
         //然后细粒度地查看CPU-RAM的组合是否满足
 //        Iterator<Datacenter> iterator = allDatacenters.iterator();

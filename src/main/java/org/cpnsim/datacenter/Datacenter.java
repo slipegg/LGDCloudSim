@@ -64,4 +64,6 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     boolean isCentralizedInterSchedule();
 
     double getEstimatedTCO(InstanceGroup instanceGroup);
+
+    InstanceQueue getInstanceQueue();
 }

@@ -126,6 +126,11 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
+    public InstanceQueue getInstanceQueue() {
+        return null;
+    }
+
+    @Override
     public int compareTo(SimEntity o) {
         return 0;
     }

@@ -43,6 +43,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * See {@link InstanceQueue}.
      */
+    @Getter
     private InstanceQueue instanceQueue;
 
     /**
@@ -550,7 +551,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param evt
      */
     private void processLoadBalanceSend(SimEvent evt) {
-        List<Instance> instances = instanceQueue.getAllItem();
+        List<Instance> instances = instanceQueue.getAllItem(true);
         if (instances.size() != 0) {
             List<InnerScheduler> sentInnerScheduler = loadBalance.sendInstances(instances);
             if (instanceQueue.size() > 0) {
@@ -822,29 +823,28 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
         interScheduler.getInterScheduleSimpleStateMap().clear();
         for (Datacenter datacenter : datacenters) {
-            if (datacenter == this) {
-                interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState());
-            } else {
+            if (datacenter != this) {
                 sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
                 interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
             }
         }
-        LOGGER.info("{}: {} starts asking for the simple state of {} datacenters.", getSimulation().clockStr(), getName(), datacenters.size());
+        LOGGER.info("{}: {} starts asking for the simple state of {} other datacenters.", getSimulation().clockStr(), getName(), datacenters.size() - 1);
     }
 
     private void processAskSimpleState(final SimEvent evt) {
-        SimpleState simpleState = (SimpleState) statesManager.getSimpleState().clone();
+        Object simpleState = statesManager.getSimpleState().generate(this);
         sendOverNetwork(evt.getSource(), 0, CloudSimTag.RESPOND_SIMPLE_STATE, simpleState);
         LOGGER.info("{}: {} sends the simple state of itself to {}.", getSimulation().clockStr(), getName(), evt.getSource().getName());
     }
 
     private void processRespondSimpleState(final SimEvent evt) {
-        if (evt.getData() instanceof SimpleState simpleState) {
-            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), simpleState);
+        if (evt.getData() != null) {
+            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), evt.getData());
             if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
                 return;
             }
 
+            interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState().generate(this));
             List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
             LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
             if (instanceGroups.size() == 0) {

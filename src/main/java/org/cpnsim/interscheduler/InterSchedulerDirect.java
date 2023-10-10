@@ -8,6 +8,7 @@ import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
 import org.cpnsim.statemanager.SimpleState;
 import org.cpnsim.statemanager.SimpleStateEasy;
+import org.cpnsim.statemanager.SimpleStateEasyObject;
 import org.cpnsim.statemanager.SimpleStateSimple;
 
 import java.util.*;
@@ -111,10 +112,13 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
 
             // Filter based on the total remaining resources
             availableDatacenters.removeIf(
-                    datacenter -> instanceGroup.getCpuSum() > datacenter.getStatesManager().getSimpleState().getCpuAvailableSum()
-                            || instanceGroup.getRamSum() > datacenter.getStatesManager().getSimpleState().getRamAvailableSum()
-                            || instanceGroup.getStorageSum() > datacenter.getStatesManager().getSimpleState().getStorageAvailableSum()
-                            || instanceGroup.getBwSum() > datacenter.getStatesManager().getSimpleState().getBwAvailableSum());
+                    datacenter -> {
+                        SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
+                        return instanceGroup.getCpuSum() > simpleStateEasyObject.getCpuAvailableSum()
+                                || instanceGroup.getRamSum() > simpleStateEasyObject.getRamAvailableSum()
+                                || instanceGroup.getStorageSum() > simpleStateEasyObject.getStorageAvailableSum()
+                                || instanceGroup.getBwSum() > simpleStateEasyObject.getBwAvailableSum();
+                    });
 
             // Filter based on the instanceGroupGraph and network topology
             List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
@@ -154,11 +158,12 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
             }
 
             // select one datacenter which cpu+0.5*ram is the max one from the available datacenters
-            availableDatacenters.sort(Comparator.comparingLong(datacenter ->
-                    (datacenter.getStatesManager().getSimpleState().getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)) / datacenter.getStatesManager().getMaxCpuCapacity()
-                            + (datacenter.getStatesManager().getSimpleState().getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)) / datacenter.getStatesManager().getMaxRamCapacity()
-                            + (datacenter.getStatesManager().getHostNum() - datacenter.getStatesManager().getDatacenterPowerOnRecord().getNowPowerOnHostNum())
-            ));
+            availableDatacenters.sort(Comparator.comparingLong(datacenter -> {
+                SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
+                return (simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)) / datacenter.getStatesManager().getMaxCpuCapacity()
+                        + (simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)) / datacenter.getStatesManager().getMaxRamCapacity()
+                        + (datacenter.getStatesManager().getHostNum() - datacenter.getStatesManager().getDatacenterPowerOnRecord().getNowPowerOnHostNum());
+            }));
             Datacenter targetDatacenter = availableDatacenters.get(availableDatacenters.size() - 1);
             instanceGroup.setReceiveDatacenter(targetDatacenter);
 
