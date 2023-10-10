@@ -458,10 +458,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 instance.setStartTime(getSimulation().clock());
                 updateTCO();
                 int lifeTime = instance.getLifeTime();
-                if (lifeTime > 0) {
+//                if (lifeTime > 0) {
                     finishInstances.putIfAbsent(lifeTime, new ArrayList<>());
                     finishInstances.get(lifeTime).add(instance);
-                }
+//                }
 //                getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
             }
         }
@@ -476,7 +476,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         for (Map.Entry<Integer, List<Instance>> entry : finishInstances.entrySet()) {
             int lifeTime = entry.getKey();
             List<Instance> instances = entry.getValue();
-            send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
+            if (lifeTime > 0) {
+                send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
+            }
         }
     }
 
