@@ -18,18 +18,21 @@ public class CloudSimTag {
     public static final int USER_REQUEST_SEND = BASE + 3;//需要dc处理接收到的用户请求
     public static final int NEED_SEND_USER_REQUEST = BASE + 4;//USER发送用户请求给dc
     public static final int GROUP_FILTER_DC_BEGIN = BASE + 5;//USER发送用户请求,需要比USER_REQUEST_SEND小
-    public static final int ASK_SIMPLE_STATE = GROUP_FILTER_DC_BEGIN + 1;
+    public static final int GROUP_FILTER_DC_END = GROUP_FILTER_DC_BEGIN + 1;//USER发送用户请求,需要比USER_REQUEST_SEND小
+    public static final int ASK_DC_REVIVE_GROUP = GROUP_FILTER_DC_END + 1;
+    public static final int RESPOND_DC_REVIVE_GROUP = ASK_DC_REVIVE_GROUP + 1;
+    public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = RESPOND_DC_REVIVE_GROUP + 1;
+    public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = RESPOND_DC_REVIVE_GROUP_GIVE_UP + 1;
+    public static final int ASK_SIMPLE_STATE = RESPOND_DC_REVIVE_GROUP_EMPLOY + 1;//需要在RESPOND_DC_REVIVE_GROUP_EMPLOY之后，
+    // 因为数据中心间调度器在调度了一批亲和组后如果接着调度就又可能会询问该数据中心的粗粒度状态，
+    // 而这返回的粗粒度状态应该是在这一批调度的亲和组到达数据中心后，
+    // 实现的方法是设置动态网络在同一时刻的两地是相同的延迟，然后通过设置tag的优先级再来实现RESPOND_DC_REVIVE_GROUP_EMPLOY抢先处理
     public static final int RESPOND_SIMPLE_STATE = ASK_SIMPLE_STATE + 1;
-    public static final int GROUP_FILTER_DC_END = BASE + 8;//USER发送用户请求,需要比USER_REQUEST_SEND小
-    public static final int ASK_DC_REVIVE_GROUP = BASE + 9;
-    public static final int RESPOND_DC_REVIVE_GROUP = BASE + 10;
-    public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = BASE + 11;
-    public static final int RESPOND_DC_REVIVE_GROUP_EMPLOY = BASE + 12;
-    public static final int LOAD_BALANCE_SEND = BASE + 13;
-    public static final int INNER_SCHEDULE_END = BASE + 14;
-    public static final int ALLOCATE_RESOURCE = BASE + 16;
-    public static final int PRE_ALLOCATE_RESOURCE = BASE + 17;//需要在ALLOCATE_RESOURCE之后
-    public static final int INNER_SCHEDULE_BEGIN = BASE + 18;//需要在ALLOCATE_RESOURCE之后,因为单调器在决策开始和结束期间不应该有资源在变化
+    public static final int LOAD_BALANCE_SEND = RESPOND_SIMPLE_STATE + 1;
+    public static final int INNER_SCHEDULE_END = LOAD_BALANCE_SEND + 1;
+    public static final int ALLOCATE_RESOURCE = INNER_SCHEDULE_END + 1;
+    public static final int PRE_ALLOCATE_RESOURCE = ALLOCATE_RESOURCE + 1;//需要在ALLOCATE_RESOURCE之后
+    public static final int INNER_SCHEDULE_BEGIN = PRE_ALLOCATE_RESOURCE + 1;//需要在ALLOCATE_RESOURCE之后,因为单调器在决策开始和结束期间不应该有资源在变化
 
     public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, PRE_ALLOCATE_RESOURCE);
 
