@@ -215,8 +215,8 @@ public class CollaborationManagerSimple implements CollaborationManager {
         for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
             Set<Datacenter> datacenters = entry.getValue();
             for (Datacenter datacenter : datacenters) {
-                if (datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() < smallCpuSum) {
-                    smallCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum();
+                if (datacenter.getStatesManager().getSimpleState().getCpuAvailableSum() < smallCpuSum) {
+                    smallCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvailableSum();
                     smallCpuCollaborationId = entry.getKey();
                     minCpuDatacenter = datacenter;
                 }
@@ -228,8 +228,8 @@ public class CollaborationManagerSimple implements CollaborationManager {
             }
             Set<Datacenter> datacenters = entry.getValue();
             for (Datacenter datacenter : datacenters) {
-                if (datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() > maxCpuSum) {
-                    maxCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum();
+                if (datacenter.getStatesManager().getSimpleState().getCpuAvailableSum() > maxCpuSum) {
+                    maxCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvailableSum();
                     maxCpuCollaborationId = entry.getKey();
                     maxCpuDatacenter = datacenter;
                 }

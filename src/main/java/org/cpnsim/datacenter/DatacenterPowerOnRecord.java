@@ -32,7 +32,8 @@ public class DatacenterPowerOnRecord {
     /**
      * The number of hosts powered on now.
      **/
-    private int nowHostNum = 0;
+    @Getter
+    private int nowPowerOnHostNum = 0;
 
     /**
      * The total power on time of the all hosts.
@@ -48,9 +49,9 @@ public class DatacenterPowerOnRecord {
         if (!powerOnHostInstanceNum.containsKey(hostId)) {
             powerOnHostInstanceNum.put(hostId, 1);
             powerOnHostStartTime.put(hostId, clock);
-            nowHostNum += 1;
-            if (nowHostNum > maxHostNum) {
-                maxHostNum = nowHostNum;
+            nowPowerOnHostNum += 1;
+            if (nowPowerOnHostNum > maxHostNum) {
+                maxHostNum = nowPowerOnHostNum;
             }
         } else {
             powerOnHostInstanceNum.put(hostId, powerOnHostInstanceNum.get(hostId) + 1);
@@ -66,7 +67,7 @@ public class DatacenterPowerOnRecord {
             powerOnHostInstanceNum.remove(hostId);
             allPowerOnTime += clock - powerOnHostStartTime.get(hostId);
             powerOnHostStartTime.remove(hostId);
-            nowHostNum -= 1;
+            nowPowerOnHostNum -= 1;
         } else {
             powerOnHostInstanceNum.put(hostId, powerOnHostInstanceNum.get(hostId) - 1);
         }
