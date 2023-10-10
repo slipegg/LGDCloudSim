@@ -7,7 +7,7 @@ import org.cpnsim.datacenter.InstanceQueue;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.request.Instance;
 
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
@@ -74,6 +74,19 @@ public class SimpleStateEasy implements SimpleState {
                 bwAvailableSum -= instance.getBw();
             }
         }
-        return new SimpleStateEasyObject(cpuAvailableSum, ramAvailableSum, storageAvailableSum, bwAvailableSum);
+        List<HostState> simpleHostStates = new ArrayList<>();
+        Set<Integer> simpleHostIds = new HashSet<>();
+        Random random = new Random();
+        int hostNum = datacenter.getStatesManager().getHostNum();
+        int hostId = -1;
+        for (int i = 0; i < 100 && i < hostNum; i++) {
+            hostId = random.nextInt(hostNum);
+            while (simpleHostIds.contains(hostId)) {
+                hostId += 1;
+            }
+            simpleHostIds.add(hostId);
+            simpleHostStates.add(datacenter.getStatesManager().getNowHostState(hostId));
+        }
+        return new SimpleStateEasyObject(cpuAvailableSum, ramAvailableSum, storageAvailableSum, bwAvailableSum, simpleHostStates);
     }
 }
