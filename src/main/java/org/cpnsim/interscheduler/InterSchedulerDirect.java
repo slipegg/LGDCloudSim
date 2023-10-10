@@ -12,6 +12,8 @@ import org.cpnsim.statemanager.SimpleStateEasyObject;
 import org.cpnsim.statemanager.SimpleStateSimple;
 
 import java.util.*;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 public class InterSchedulerDirect extends InterSchedulerSimple {
     Random random = new Random();
@@ -158,32 +160,65 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
             }
 
             // select one datacenter which cpu+0.5*ram is the max one from the available datacenters
-            availableDatacenters.sort(Comparator.comparingLong(datacenter -> {
+//            availableDatacenters.sort(Comparator.comparingLong(datacenter -> {
+//                SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
+//                return (simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)) / datacenter.getStatesManager().getMaxCpuCapacity()
+//                        + (simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)) / datacenter.getStatesManager().getMaxRamCapacity()
+//                        + 10 * simpleStateEasyObject.getAvgSimpleHostStateCpu()
+////                        + 10L * (datacenter.getStatesManager().getHostNum() - datacenter.getStatesManager().getDatacenterPowerOnRecord().getNowPowerOnHostNum());
+//            }));
+            List<Double> availableSumSoftmax = new ArrayList<>();
+            long cpuRamSum = 0L;
+            for (Datacenter datacenter : availableDatacenters) {
                 SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
-                return (simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)) / datacenter.getStatesManager().getMaxCpuCapacity()
-                        + (simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)) / datacenter.getStatesManager().getMaxRamCapacity()
-                        + (datacenter.getStatesManager().getHostNum() - datacenter.getStatesManager().getDatacenterPowerOnRecord().getNowPowerOnHostNum());
-            }));
-            Datacenter targetDatacenter = availableDatacenters.get(availableDatacenters.size() - 1);
-            instanceGroup.setReceiveDatacenter(targetDatacenter);
-
-            // update result
-            instanceGroupAvailableDatacenters.put(instanceGroup, List.of(targetDatacenter));
-
-            // update recorder
-            allocatedRecorder.updateResourceAllocated(instanceGroup, targetDatacenter);
-            List<InstanceGroup> dstInstanceGroups2 = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
-            for (InstanceGroup dstInstanceGroup : dstInstanceGroups2) {
-                Datacenter dstReceiveDc = dstInstanceGroup.getReceiveDatacenter();
-                if (dstReceiveDc != Datacenter.NULL) {
-                    allocatedRecorder.updateAllocatedBw(targetDatacenter, dstReceiveDc, instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dstInstanceGroup).getRequiredBw());
-                }
+                cpuRamSum += simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter) + simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter);
             }
-            List<InstanceGroup> srcInstanceGroups2 = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
-            for (InstanceGroup srcInstanceGroup : srcInstanceGroups2) {
-                Datacenter srcReceiveDc = srcInstanceGroup.getReceiveDatacenter();
-                if (srcReceiveDc != Datacenter.NULL) {
-                    allocatedRecorder.updateAllocatedBw(srcReceiveDc, targetDatacenter, instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(srcInstanceGroup, instanceGroup).getRequiredBw());
+            for (Datacenter datacenter : availableDatacenters) {
+                SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
+                availableSumSoftmax.add(((simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter))
+                        + (simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter))) / (double) cpuRamSum);
+            }
+            List<Double> simpleHostStateAvgCpuRamSoftmax = new ArrayList<>();
+            long simpleHostStateCpuRamSum = 0L;
+            for (Datacenter datacenter : availableDatacenters) {
+                SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
+                simpleHostStateCpuRamSum += simpleStateEasyObject.getAvgSimpleHostStateCpu() + simpleStateEasyObject.getAvgSimpleHostStateRam();
+            }
+            for (Datacenter datacenter : availableDatacenters) {
+                SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
+                simpleHostStateAvgCpuRamSoftmax.add((simpleStateEasyObject.getAvgSimpleHostStateCpu() + simpleStateEasyObject.getAvgSimpleHostStateRam()) / (double) simpleHostStateCpuRamSum);
+            }
+            List<Double> availableSoftmax = new ArrayList<>();
+            for (int i = 0; i < availableDatacenters.size(); i++) {
+                availableSoftmax.add(availableSumSoftmax.get(i) + 5 * simpleHostStateAvgCpuRamSoftmax.get(i));
+            }
+            int selectDcId = IntStream.range(0, availableSoftmax.size())
+                    .reduce((a, b) -> availableSoftmax.get(a) > availableSoftmax.get(b) ? a : b)
+                    .orElse(-1);
+            if (selectDcId == -1) {
+                instanceGroupAvailableDatacenters.put(instanceGroup, new ArrayList<>());
+            } else {
+                Datacenter targetDatacenter = availableDatacenters.get(selectDcId);
+                instanceGroup.setReceiveDatacenter(targetDatacenter);
+
+                // update result
+                instanceGroupAvailableDatacenters.put(instanceGroup, List.of(targetDatacenter));
+
+                // update recorder
+                allocatedRecorder.updateResourceAllocated(instanceGroup, targetDatacenter);
+                List<InstanceGroup> dstInstanceGroups2 = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
+                for (InstanceGroup dstInstanceGroup : dstInstanceGroups2) {
+                    Datacenter dstReceiveDc = dstInstanceGroup.getReceiveDatacenter();
+                    if (dstReceiveDc != Datacenter.NULL) {
+                        allocatedRecorder.updateAllocatedBw(targetDatacenter, dstReceiveDc, instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dstInstanceGroup).getRequiredBw());
+                    }
+                }
+                List<InstanceGroup> srcInstanceGroups2 = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
+                for (InstanceGroup srcInstanceGroup : srcInstanceGroups2) {
+                    Datacenter srcReceiveDc = srcInstanceGroup.getReceiveDatacenter();
+                    if (srcReceiveDc != Datacenter.NULL) {
+                        allocatedRecorder.updateAllocatedBw(srcReceiveDc, targetDatacenter, instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(srcInstanceGroup, instanceGroup).getRequiredBw());
+                    }
                 }
             }
         }
