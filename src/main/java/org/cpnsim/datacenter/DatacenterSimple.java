@@ -822,8 +822,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
         interScheduler.getInterScheduleSimpleStateMap().clear();
         for (Datacenter datacenter : datacenters) {
-            sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
-            interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
+            if (datacenter == this) {
+                interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState());
+            } else {
+                sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
+                interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
+            }
         }
         LOGGER.info("{}: {} starts asking for the simple state of {} datacenters.", getSimulation().clockStr(), getName(), datacenters.size());
     }
