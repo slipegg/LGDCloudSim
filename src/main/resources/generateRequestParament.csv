@@ -1,5 +1,5 @@
   Parament Name,Parament
-FromDcPercent,{"1":1.0}
+FromDcPercent,"{""1"":1.0}"
 RequestPerNumMin,8
 RequestPerNumMax,8
 RequestTimeIntervalMin,100

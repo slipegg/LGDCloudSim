@@ -17,3 +17,7 @@ generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_
 generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_b"
 generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_c"
 generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_d"
+generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_e"
+generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_f"
+generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_g"
+generateOneClusterHostResource "google.com:google-cluster-data.clusterdata_2019_h"

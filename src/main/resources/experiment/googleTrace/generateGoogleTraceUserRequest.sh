@@ -70,3 +70,7 @@ generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_a
 generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_b" "bigqueryexample1" "10000"
 generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_c" "bigqueryexample1" "10000"
 generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_d" "bigqueryexample1" "10000"
+generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_e" "bigqueryexample1" "10000"
+generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_f" "bigqueryexample1" "10000"
+generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_g" "bigqueryexample1" "10000"
+generateOneClusterUserRequest "google.com:google-cluster-data.clusterdata_2019_h" "bigqueryexample1" "10000"
