@@ -5,6 +5,7 @@ import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Factory;
 import org.cloudsimplus.core.FactorySimple;
 import org.cloudsimplus.core.Simulation;
+import org.cloudsimplus.network.RandomDelayDynamicModel;
 import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.util.Log;
 import org.cpnsim.datacenter.Datacenter;
@@ -58,6 +59,7 @@ public class InterScheduleExample {
 
     private void initNetwork() {
         BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
+        networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
         networkTopology.mapNode(cpnSim.getCis(), 0);
         cpnSim.setNetworkTopology(networkTopology);
         for (int collabId : cpnSim.getCollaborationManager().getCollaborationIds()) {
