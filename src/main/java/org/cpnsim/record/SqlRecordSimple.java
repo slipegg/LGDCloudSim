@@ -32,9 +32,12 @@ public class SqlRecordSimple implements SqlRecord {
 
     public SqlRecordSimple() {
 //        this("./RecordDb", "scaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".db", "userRequest", "instanceGroup", "instance");
-        this("./RecordDb", "cpnSim.db", "userRequest", "instanceGroup", "instanceGroupGraph", "instance");
+        this("cpnSim.db");
     }
 
+    public SqlRecordSimple(String dbName) {
+        this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance");
+    }
 
     public SqlRecordSimple(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName) {
         this.dbDir = dbDir;
