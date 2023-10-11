@@ -178,19 +178,21 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
                 availableSumSoftmax.add(((simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter))
                         + (simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter))) / (double) cpuRamSum);
             }
-            List<Double> simpleHostStateAvgCpuRamSoftmax = new ArrayList<>();
-            long simpleHostStateCpuRamSum = 0L;
+            List<Double> simpleAvgCpuRamSoftmax = new ArrayList<>();
+            double simpleAvgCpuRamSum = 0L;
             for (Datacenter datacenter : availableDatacenters) {
                 SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
-                simpleHostStateCpuRamSum += simpleStateEasyObject.getAvgSimpleHostStateCpu() + simpleStateEasyObject.getAvgSimpleHostStateRam();
+                simpleAvgCpuRamSum += (simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)) / (double) simpleStateEasyObject.getHostNum()
+                        + (simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)) / (double) simpleStateEasyObject.getHostNum();
             }
             for (Datacenter datacenter : availableDatacenters) {
                 SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
-                simpleHostStateAvgCpuRamSoftmax.add((simpleStateEasyObject.getAvgSimpleHostStateCpu() + simpleStateEasyObject.getAvgSimpleHostStateRam()) / (double) simpleHostStateCpuRamSum);
+                simpleAvgCpuRamSoftmax.add(((simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)) / simpleStateEasyObject.getHostNum()
+                        + (simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)) / simpleStateEasyObject.getHostNum()) / simpleAvgCpuRamSum);
             }
             List<Double> availableSoftmax = new ArrayList<>();
             for (int i = 0; i < availableDatacenters.size(); i++) {
-                availableSoftmax.add(availableSumSoftmax.get(i) + 5 * simpleHostStateAvgCpuRamSoftmax.get(i));
+                availableSoftmax.add(availableSumSoftmax.get(i) + simpleAvgCpuRamSoftmax.get(i));
             }
             int selectDcId = IntStream.range(0, availableSoftmax.size())
                     .reduce((a, b) -> availableSoftmax.get(a) > availableSoftmax.get(b) ? a : b)
