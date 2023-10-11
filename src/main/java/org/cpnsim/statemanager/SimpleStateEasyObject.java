@@ -8,13 +8,15 @@ import java.util.List;
 @Getter
 @Setter
 public class SimpleStateEasyObject {
+    int hostNum;
     long cpuAvailableSum;
     long ramAvailableSum;
     long storageAvailableSum;
     long bwAvailableSum;
     List<HostState> simpleHostStates;
 
-    public SimpleStateEasyObject(long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum, List<HostState> simpleHostStates) {
+    public SimpleStateEasyObject(int hostNum, long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum, List<HostState> simpleHostStates) {
+        this.hostNum = hostNum;
         this.cpuAvailableSum = cpuAvailableSum;
         this.ramAvailableSum = ramAvailableSum;
         this.storageAvailableSum = storageAvailableSum;

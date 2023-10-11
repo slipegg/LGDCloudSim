@@ -57,23 +57,23 @@ public class SimpleStateEasy implements SimpleState {
         long ramAvailableSum = this.ramAvailableSum;
         long storageAvailableSum = this.storageAvailableSum;
         long bwAvailableSum = this.bwAvailableSum;
-        InstanceQueue instanceQueue = datacenter.getInstanceQueue();
-        for (Instance instance : instanceQueue.getAllItem(false)) {
-            cpuAvailableSum -= instance.getCpu();
-            ramAvailableSum -= instance.getRam();
-            storageAvailableSum -= instance.getStorage();
-            bwAvailableSum -= instance.getBw();
-        }
-        List<InnerScheduler> innerSchedulers = datacenter.getInnerSchedulers();
-        for (InnerScheduler innerScheduler : innerSchedulers) {
-            InstanceQueue innerInstanceQueue = innerScheduler.getInstanceQueue();
-            for (Instance instance : innerInstanceQueue.getAllItem(false)) {
-                cpuAvailableSum -= instance.getCpu();
-                ramAvailableSum -= instance.getRam();
-                storageAvailableSum -= instance.getStorage();
-                bwAvailableSum -= instance.getBw();
-            }
-        }
+//        InstanceQueue instanceQueue = datacenter.getInstanceQueue();
+//        for (Instance instance : instanceQueue.getAllItem(false)) {
+//            cpuAvailableSum -= instance.getCpu();
+//            ramAvailableSum -= instance.getRam();
+//            storageAvailableSum -= instance.getStorage();
+//            bwAvailableSum -= instance.getBw();
+//        }
+//        List<InnerScheduler> innerSchedulers = datacenter.getInnerSchedulers();
+//        for (InnerScheduler innerScheduler : innerSchedulers) {
+//            InstanceQueue innerInstanceQueue = innerScheduler.getInstanceQueue();
+//            for (Instance instance : innerInstanceQueue.getAllItem(false)) {
+//                cpuAvailableSum -= instance.getCpu();
+//                ramAvailableSum -= instance.getRam();
+//                storageAvailableSum -= instance.getStorage();
+//                bwAvailableSum -= instance.getBw();
+//            }
+//        }
         List<HostState> simpleHostStates = new ArrayList<>();
         Set<Integer> simpleHostIds = new HashSet<>();
         Random random = new Random();
@@ -82,11 +82,11 @@ public class SimpleStateEasy implements SimpleState {
         for (int i = 0; i < 100 && i < hostNum; i++) {
             hostId = random.nextInt(hostNum);
             while (simpleHostIds.contains(hostId)) {
-                hostId += 1;
+                hostId = (hostId + 1) % hostNum;
             }
             simpleHostIds.add(hostId);
             simpleHostStates.add(datacenter.getStatesManager().getNowHostState(hostId));
         }
-        return new SimpleStateEasyObject(cpuAvailableSum, ramAvailableSum, storageAvailableSum, bwAvailableSum, simpleHostStates);
+        return new SimpleStateEasyObject(datacenter.getStatesManager().getHostNum(), cpuAvailableSum, ramAvailableSum, storageAvailableSum, bwAvailableSum, simpleHostStates);
     }
 }
