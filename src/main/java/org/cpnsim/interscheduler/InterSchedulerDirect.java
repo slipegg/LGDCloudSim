@@ -116,10 +116,10 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
             availableDatacenters.removeIf(
                     datacenter -> {
                         SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(datacenter);
-                        return instanceGroup.getCpuSum() > simpleStateEasyObject.getCpuAvailableSum()
-                                || instanceGroup.getRamSum() > simpleStateEasyObject.getRamAvailableSum()
-                                || instanceGroup.getStorageSum() > simpleStateEasyObject.getStorageAvailableSum()
-                                || instanceGroup.getBwSum() > simpleStateEasyObject.getBwAvailableSum();
+                        return instanceGroup.getCpuSum() > simpleStateEasyObject.getCpuAvailableSum() - allocatedRecorder.getAllocatedCpuSum(datacenter)
+                                || instanceGroup.getRamSum() > simpleStateEasyObject.getRamAvailableSum() - allocatedRecorder.getAllocatedRamSum(datacenter)
+                                || instanceGroup.getStorageSum() > simpleStateEasyObject.getStorageAvailableSum() - allocatedRecorder.getAllocatedStorageSum(datacenter)
+                                || instanceGroup.getBwSum() > simpleStateEasyObject.getBwAvailableSum() - allocatedRecorder.getAllocatedBwSum(datacenter);
                     });
 
             // Filter based on the instanceGroupGraph and network topology
@@ -192,7 +192,7 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
             }
             List<Double> availableSoftmax = new ArrayList<>();
             for (int i = 0; i < availableDatacenters.size(); i++) {
-                availableSoftmax.add(availableSumSoftmax.get(i) + simpleAvgCpuRamSoftmax.get(i));
+                availableSoftmax.add(availableSumSoftmax.get(i) + 2 * simpleAvgCpuRamSoftmax.get(i));
             }
             int selectDcId = IntStream.range(0, availableSoftmax.size())
                     .reduce((a, b) -> availableSoftmax.get(a) > availableSoftmax.get(b) ? a : b)
