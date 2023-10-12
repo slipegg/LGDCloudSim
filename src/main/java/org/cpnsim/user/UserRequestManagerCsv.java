@@ -61,7 +61,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int sendTimes = 0;
 
     public UserRequestManagerCsv(String fileName) {
-        random = new Random(1);
+        random = new Random();
 
         this.fileName = fileName;
         // 将CSV文件的路径传递给File对象
