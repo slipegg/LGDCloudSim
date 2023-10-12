@@ -666,7 +666,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 Map<InstanceGroup, Datacenter> decideResult = interScheduler.decideTargetDatacenter(instanceGroupSendResultMap, waitDecideInstanceGroups);
                 double delay = interScheduler.getDecideTargetDatacenterCostTime();
                 sendDecideResult(decideResult, delay);
-                LOGGER.info("{}: {} decides to schedule {} InstanceGroup.", getSimulation().clockStr(), getName(), decideResult.size());
+                LOGGER.info("{}: {} decides to schedule {} InstanceGroup after receiving all responds.", getSimulation().clockStr(), getName(), decideResult.size());
             }
         }
     }
@@ -774,6 +774,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             Map<InstanceGroup, Double> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
             double costTime = interScheduler.getDecideReciveGroupResultCostTime();
             sendOverNetwork(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
+            LOGGER.info("{}: {} received {} instanceGroups to mark scores for them.", getSimulation().clockStr(), getName(), instanceGroups.size());
         }
     }
 
@@ -847,6 +848,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
 
             interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState().generate(this));
+
+//            List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
+//            for(Datacenter datacenter:datacenters){
+//                interScheduler.getInterScheduleSimpleStateMap().put(this, datacenter.getStatesManager().getSimpleState().generate(datacenter));
+//            }
             List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
             LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
             if (instanceGroups.size() == 0) {
