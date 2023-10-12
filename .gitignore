@@ -2,7 +2,7 @@
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-RecordDb/
+/RecordDb/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
