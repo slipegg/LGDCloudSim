@@ -5,10 +5,7 @@ import org.cpnsim.datacenter.LoadBalanceRound;
 import org.cpnsim.datacenter.ResourceAllocateSelector;
 import org.cpnsim.datacenter.ResourceAllocateSelectorSimple;
 import org.cpnsim.innerscheduler.*;
-import org.cpnsim.interscheduler.InterScheduler;
-import org.cpnsim.interscheduler.InterSchedulerDirect;
-import org.cpnsim.interscheduler.InterSchedulerMinTCODirect;
-import org.cpnsim.interscheduler.InterSchedulerSimple;
+import org.cpnsim.interscheduler.*;
 import org.cpnsim.statemanager.PredictionManager;
 import org.cpnsim.statemanager.PredictionManagerSimple;
 
@@ -39,6 +36,7 @@ public class FactorySimple implements Factory {
             case "simple", "Simple" -> new InterSchedulerSimple(id, simulation, collaborationId);
             case "direct", "Direct" -> new InterSchedulerDirect(id, simulation, collaborationId);
             case "minTCODirect" -> new InterSchedulerMinTCODirect(id, simulation, collaborationId);
+            case "consult", "Consult" -> new InterSchedulerConsult(id, simulation, collaborationId);
             default -> null;
         };
     }
