@@ -21,8 +21,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -57,8 +57,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -93,8 +93,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -129,8 +129,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -165,8 +165,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -201,8 +201,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -237,8 +237,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -273,8 +273,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -309,8 +309,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
@@ -345,8 +345,8 @@
             }
           ],
           "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
+            "type": "consult",
+            "isDirectSend": false
           },
           "synchronizationGap": 0,
           "innerSchedulers": [
