@@ -825,13 +825,17 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processGroupFilterDcBegin() {
         List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
         interScheduler.getInterScheduleSimpleStateMap().clear();
-        for (Datacenter datacenter : datacenters) {
-            if (datacenter != this) {
-                sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
-                interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
+        if (datacenters.size() == 1 && datacenters.get(0) == this) {
+            startInterSchedule();
+        } else {
+            for (Datacenter datacenter : datacenters) {
+                if (datacenter != this) {
+                    sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
+                    interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
+                }
             }
+            LOGGER.info("{}: {} starts asking for the simple state of {} other datacenters.", getSimulation().clockStr(), getName(), datacenters.size() - 1);
         }
-        LOGGER.info("{}: {} starts asking for the simple state of {} other datacenters.", getSimulation().clockStr(), getName(), datacenters.size() - 1);
     }
 
     private void processAskSimpleState(final SimEvent evt) {
@@ -846,22 +850,21 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
                 return;
             }
-
-            interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState().generate(this));
-
-//            List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
-//            for(Datacenter datacenter:datacenters){
-//                interScheduler.getInterScheduleSimpleStateMap().put(this, datacenter.getStatesManager().getSimpleState().generate(datacenter));
-//            }
-            List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
-            LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
-            if (instanceGroups.size() == 0) {
-                return;
-            }
-            Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
-            double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
-            send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
+            startInterSchedule();
         }
+    }
+
+    private void startInterSchedule() {
+        interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState().generate(this));
+
+        List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
+        LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
+        if (instanceGroups.size() == 0) {
+            return;
+        }
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
+        double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
+        send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
     }
 
     /**
