@@ -12,6 +12,7 @@ import org.cpnsim.request.UserRequestSimple;
 import org.cpnsim.statemanager.PartitionRangesManager;
 import org.cpnsim.statemanager.StatesManager;
 import org.cpnsim.statemanager.StatesManagerSimple;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -47,8 +48,10 @@ public class ResourceAllocateSelectorSimpleTest {
         ResourceAllocateSelector resourceAllocateSelector = new ResourceAllocateSelectorSimple();
         resourceAllocateSelector.setDatacenter(datacenter);
 
-        Map<Integer, List<Instance>> res = resourceAllocateSelector.selectResourceAllocate(innerScheduleResults);
-        Map<Integer, List<Instance>> exceptedRes = Map.of(0, List.of(instance, instance), -1, List.of(instance));
-        assertEquals(exceptedRes, res);
+        ResourceAllocateResult res = resourceAllocateSelector.selectResourceAllocate(innerScheduleResults);
+        Map<Integer, List<Instance>> exceptedSuccessRes = Map.of(0, List.of(instance, instance));
+        Map<InnerScheduler, List<Instance>> exceptedFailRes = Map.of(innerScheduler, List.of(instance));
+        Assertions.assertEquals(exceptedSuccessRes, res.getSuccessRes());
+        Assertions.assertEquals(exceptedFailRes, res.getFailRes());
     }
 }

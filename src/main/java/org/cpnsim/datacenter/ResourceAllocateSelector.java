@@ -23,7 +23,7 @@ public interface ResourceAllocateSelector extends DatacenterEntity {
      * @param innerScheduleResults the inner schedule results
      * @return the result of the resource allocation
      */
-    Map<Integer, List<Instance>> selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults);
+    ResourceAllocateResult selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults);
 
     /**
      * Get the number of conflicts when resource allocating.

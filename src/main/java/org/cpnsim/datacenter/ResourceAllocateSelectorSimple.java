@@ -3,6 +3,7 @@ package org.cpnsim.datacenter;
 import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.innerscheduler.InnerScheduleResult;
+import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.UserRequest;
 import org.cpnsim.statemanager.HostState;
@@ -32,8 +33,9 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
     Map<Integer, Integer> partitionConflicts = new HashMap<>();
 
     @Override
-    public Map<Integer, List<Instance>> selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults) {
-        Map<Integer, List<Instance>> res = new HashMap<>();
+    public ResourceAllocateResult selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults) {
+        Map<Integer, List<Instance>> successRes = new HashMap<>();
+        Map<InnerScheduler, List<Instance>> failRes = null;
         StatesManager statesManager = datacenter.getStatesManager();
         for (InnerScheduleResult innerScheduleResult : innerScheduleResults) {
             Map<Integer, List<Instance>> scheduleRes = innerScheduleResult.getScheduleResult();
@@ -47,11 +49,16 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
                     }
                     if (hostState.isSuitable(instance)) {
                         hostState.allocate(instance);
-                        res.putIfAbsent(hostId, new ArrayList<>());
-                        res.get(hostId).add(instance);
+                        successRes.putIfAbsent(hostId, new ArrayList<>());
+                        successRes.get(hostId).add(instance);
                     } else {
-                        res.putIfAbsent(-1, new ArrayList<>());
-                        res.get(-1).add(instance);
+                        instance.addRetryHostId(hostId);
+                        if (failRes == null) {
+                            failRes = new HashMap<>();
+                        }
+                        failRes.putIfAbsent(innerScheduleResult.getInnerScheduler(), new ArrayList<>());
+                        failRes.get(innerScheduleResult.getInnerScheduler()).add(instance);
+
                         int partitionId = datacenter.getStatesManager().getPartitionRangesManager().getPartitionId(hostId);
                         if (partitionConflicts.containsKey(partitionId)) {
                             partitionConflicts.put(partitionId, partitionConflicts.get(partitionId) + 1);
@@ -62,7 +69,7 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
                 }
             }
         }
-        return res;
+        return new ResourceAllocateResult(successRes, failRes);
     }
 
     @Override

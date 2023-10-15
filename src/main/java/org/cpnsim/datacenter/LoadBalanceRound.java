@@ -51,7 +51,7 @@ public class LoadBalanceRound implements LoadBalance {
             if (end == start) {
                 break;
             }
-            innerScheduler.addInstance(instances.subList(start, end));
+            innerScheduler.addInstance(instances.subList(start, end), false);
             sentInnerSchedulers.add(innerScheduler);
             start = end;
         }

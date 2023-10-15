@@ -3,6 +3,9 @@ package org.cpnsim.request;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 public class InstanceSimple implements Instance {
@@ -23,6 +26,7 @@ public class InstanceSimple implements Instance {
     int retryNum;
     int retryMaxNum;
     int state;
+    List<Integer> retryHostIds;
 
     //还缺userRequest和instanceGroup等待后面进行设置
     public InstanceSimple(int id, int cpu, int ram, int storage, int bw) {
@@ -71,6 +75,20 @@ public class InstanceSimple implements Instance {
     @Override
     public boolean isFailed() {
         return this.state == UserRequest.FAILED;
+    }
+
+    @Override
+    public Instance addRetryHostId(int hostId) {
+        if (this.retryHostIds == null) {
+            this.retryHostIds = new ArrayList<>();
+        }
+        this.retryHostIds.add(hostId);
+        return this;
+    }
+
+    @Override
+    public List<Integer> getRetryHostIds() {
+        return retryHostIds;
     }
 
     @Override

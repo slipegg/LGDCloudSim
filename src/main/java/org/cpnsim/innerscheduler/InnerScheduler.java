@@ -20,13 +20,15 @@ public interface InnerScheduler extends Nameable, DatacenterEntity {
 
     InnerScheduler setName(String name);
 
-    InnerScheduler addInstance(List<Instance> instances);
+    InnerScheduler addInstance(List<Instance> instances, boolean isRetry);
 
-    InnerScheduler addInstance(Instance instance);
+    InnerScheduler addInstance(Instance instance, boolean isRetry);
 
-    boolean isQueueEmpty();
+    boolean isQueuesEmpty();
 
-    int getQueueSize();
+    int getNewInstanceQueueSize();
+
+    int getRetryInstanceQueueSize();
 
     Map<Integer, List<Instance>> schedule();
 

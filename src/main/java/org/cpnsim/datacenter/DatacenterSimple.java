@@ -15,7 +15,6 @@ import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
 import org.cpnsim.request.UserRequest;
 import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.statemanager.SimpleState;
 import org.cpnsim.statemanager.StatesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -422,21 +421,30 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param evt
      */
     private void processPreAllocateResource(SimEvent evt) {
-        LOGGER.info("{}: {}'s all innerScheduler result has been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
-        Map<Integer, List<Instance>> allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResults);
+        LOGGER.info("{}: {}'s all innerScheduler results have been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
+        ResourceAllocateResult allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResults);
+        if (allocateResult.getFailRes() != null && allocateResult.getFailRes().size() > 0) {
+            for (Map.Entry<InnerScheduler, List<Instance>> entry : allocateResult.getFailRes().entrySet()) {
+                innerScheduleFailed(entry.getValue(), entry.getKey());
+            }
+        }
+        if (!allocateResult.getSuccessRes().isEmpty()) {
+            allocateResource(allocateResult.getSuccessRes());
+        }
+        for (InnerScheduleResult innerScheduleResult : this.innerSchedulerResults) {
+            InnerScheduler innerScheduler = innerScheduleResult.getInnerScheduler();
+            if (innerScheduler.isQueuesEmpty()) {
+                isInnerSchedulerBusy.put(innerScheduler, false);
+            } else {
+                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
+            }
+        }
+
         this.innerSchedulerResults.clear();
-        if (allocateResult.containsKey(-1)) {
-            innerScheduleFailed(allocateResult.get(-1));
-            allocateResult.remove(-1);
-        }
-        if (!allocateResult.isEmpty()) {
-            allocateResource(allocateResult);
-        }
     }
 
     private void allocateResource(Map<Integer, List<Instance>> allocateResult) {
         LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
-        List<Instance> failedInstances = null;
         Map<Integer, List<Instance>> finishInstances = new HashMap<>();
         for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
             int hostId = entry.getKey();
@@ -447,11 +455,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
                 if (!statesManager.allocate(hostId, instance))//理论上到这里不会出现分配失败的情况
                 {
-                    if (failedInstances == null) {
-                        failedInstances = new ArrayList<>();
-                    }
-                    failedInstances.add(instance);
-                    continue;
+                    LOGGER.error("{}: {}'s Instance{} failed to allocate resources on host{} after processPreAllocateResource", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+                    System.exit(-1);
                 }
                 instance.setState(UserRequest.RUNNING);
                 instance.setHost(hostId);
@@ -466,9 +471,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         getSimulation().getSqlRecord().recordInstancesCreateInfo(finishInstances);
-        if (failedInstances != null) {
-            innerScheduleFailed(failedInstances);
-        }
         sendFinishInstanceRunEvt(finishInstances);
     }
 
@@ -496,18 +498,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 statesManager.revertHostState(scheduleResult, innerScheduler);
             }
             if (scheduleResult.containsKey(-1)) {
-                innerScheduleFailed(scheduleResult.get(-1));
+                innerScheduleFailed(scheduleResult.get(-1), innerScheduler);
                 scheduleResult.remove(-1);
             }
             innerSchedulerResults.add(innerSchedulerResult);
             if (!scheduleResult.isEmpty()) {
                 send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, null);
-            }
-            if (innerScheduler.getQueueSize() != 0) {
-                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
-            } else {
+            } else if (innerScheduler.isQueuesEmpty()) {
                 isInnerSchedulerBusy.put(innerScheduler, false);
+            } else if (!innerScheduler.isQueuesEmpty()) {
+                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
             }
+//            if (innerScheduler.getNewInstanceQueueSize() != 0) {
+//                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
+//            } else {
+//                isInnerSchedulerBusy.put(innerScheduler, false);
+//            }
         }
     }
 
@@ -531,20 +537,20 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void innerScheduleFailed(List<Instance> instances) {
-        List<Instance> retryInstances = new ArrayList<>();
-        for (Instance instance : instances) {
+    private void innerScheduleFailed(List<Instance> instances, InnerScheduler innerScheduler) {
+        Iterator<Instance> instanceIterator = instances.iterator();
+        while (instanceIterator.hasNext()) {
+            Instance instance = instanceIterator.next();
             instance.addRetryNum();
             if (instance.isFailed()) {
                 UserRequest userRequest = instance.getUserRequest();
                 userRequest.setFailReason("instance" + instance.getId());
                 send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, userRequest);
-            } else {
-                retryInstances.add(instance);
+                instanceIterator.remove();
             }
         }
-        LOGGER.warn("{}: {}'s {} instances failed to schedule,it is retrying.", getSimulation().clockStr(), getName(), retryInstances.size());
-        send(this, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, retryInstances);
+        innerScheduler.addInstance(instances, true);
+        LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), innerScheduler.getName(), instances.size());
     }
 
     /**

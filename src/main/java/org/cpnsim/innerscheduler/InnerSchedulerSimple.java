@@ -30,6 +30,9 @@ public class InnerSchedulerSimple implements InnerScheduler {
     String name;
     @Getter
     InstanceQueue instanceQueue;
+    @Getter
+    @Setter
+    InstanceQueue retryInstanceQueue;
 
     @Getter
     @Setter
@@ -51,6 +54,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
                 stream().sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).collect(Collectors.toList());
         instanceQueue = new InstanceQueueFifo(100);
+        retryInstanceQueue = new InstanceQueueFifo(100);
     }
 
     public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
@@ -59,7 +63,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
-        instanceQueue = new InstanceQueueFifo(5000);
+        instanceQueue = new InstanceQueueFifo(200);
+        retryInstanceQueue = new InstanceQueueFifo(200);
         this.firstPartitionId = firstPartitionId;
         this.partitionNum = partitionNum;
         setId(id);
@@ -71,37 +76,56 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     @Override
-    public InnerScheduler addInstance(List<Instance> instances) {
-        instanceQueue.add(instances);
+    public InnerScheduler addInstance(List<Instance> instances, boolean isRetry) {
+        if (isRetry) {
+            retryInstanceQueue.add(instances);
+        } else {
+            instanceQueue.add(instances);
+        }
         return this;
     }
 
     @Override
-    public InnerScheduler addInstance(Instance instance) {
-        instanceQueue.add(instance);
+    public InnerScheduler addInstance(Instance instance, boolean isRetry) {
+        if (isRetry) {
+            retryInstanceQueue.add(instance);
+        } else {
+            instanceQueue.add(instance);
+        }
         return this;
     }
 
     @Override
-    public boolean isQueueEmpty() {
-        return instanceQueue.size() == 0;
+    public boolean isQueuesEmpty() {
+        return instanceQueue.size() == 0 && retryInstanceQueue.size() == 0;
     }
 
     @Override
-    public int getQueueSize() {
+    public int getNewInstanceQueueSize() {
         return instanceQueue.size();
+    }
+
+    @Override
+    public int getRetryInstanceQueueSize() {
+        return retryInstanceQueue.size();
     }
 
     @Override
     public Map<Integer, List<Instance>> schedule() {
         //TODO 域内调度
-        List<Instance> instances = instanceQueue.getBatchItem(true);
+        List<Instance> instances;
+        if (retryInstanceQueue.size() != 0) {
+            instances = retryInstanceQueue.getBatchItem(true);
+        } else {
+            instances = instanceQueue.getBatchItem(true);
+
+        }
         SynState synState = datacenter.getStatesManager().getSynState(this);
         double startTime = System.currentTimeMillis();
         Map<Integer, List<Instance>> res = scheduleInstances(instances, synState);
         double endTime = System.currentTimeMillis();
         lastScheduleTime = datacenter.getSimulation().clock();
-        this.scheduleCostTime = BigDecimal.valueOf((instances.size() * 0.01)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
+        this.scheduleCostTime = BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
         LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size(), scheduleCostTime);
         return res;
     }
