@@ -107,6 +107,7 @@ public class SynStateSimple implements SynState {
         this.smallSynGap = smallSynGap;
         this.synGap = synGap;
         this.predictable = predictable;
+        this.nowTime = nowTime;
         int smallSynNum = (int) (nowTime / smallSynGap);
         this.latestSynPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionRangesManager.getPartitionNum();
 
