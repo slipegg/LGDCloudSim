@@ -36,13 +36,20 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
     public ResourceAllocateResult selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults) {
         Map<Integer, List<Instance>> successRes = new HashMap<>();
         Map<InnerScheduler, List<Instance>> failRes = null;
+        Map<Integer, HostState> allocateHostStates = new HashMap<>();
         StatesManager statesManager = datacenter.getStatesManager();
         for (InnerScheduleResult innerScheduleResult : innerScheduleResults) {
             Map<Integer, List<Instance>> scheduleRes = innerScheduleResult.getScheduleResult();
             for (Map.Entry<Integer, List<Instance>> entry : scheduleRes.entrySet()) {
                 int hostId = entry.getKey();
                 List<Instance> instances = entry.getValue();
-                HostState hostState = statesManager.getNowHostState(hostId);//注意这里是拷贝，不影响原始的状态
+                HostState hostState;
+                if (allocateHostStates.containsKey(hostId)) {
+                    hostState = allocateHostStates.get(hostId);
+                } else {
+                    hostState = statesManager.getNowHostState(hostId);
+                    allocateHostStates.put(hostId, hostState);
+                }
                 for (Instance instance : instances) {
                     if (instance.getUserRequest().getState() == UserRequest.FAILED) {
                         continue;
