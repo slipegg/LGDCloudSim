@@ -26,9 +26,8 @@ public class InnerSchedulerPartitionMultiLevel extends InnerSchedulerSimple {
 
     int getSuitHostId(SynState synState, Instance instance) {
         int synPartitionId = firstPartitionId;
-        if (datacenter.getStatesManager().getSmallSynGap() != 0) {
-            int smallSynNum = (int) (datacenter.getSimulation().clock() / datacenter.getStatesManager().getSmallSynGap());
-            synPartitionId = (firstPartitionId + smallSynNum) % partitionNum;
+        if (datacenter.getStatesManager().isSynCostTime()) {
+            synPartitionId = (firstPartitionId + datacenter.getStatesManager().getSmallSynGapCount()) % partitionNum;
         }
         PartitionRangesManager partitionRangesManager = datacenter.getStatesManager().getPartitionRangesManager();
         int partitionNum = partitionRangesManager.getPartitionNum();

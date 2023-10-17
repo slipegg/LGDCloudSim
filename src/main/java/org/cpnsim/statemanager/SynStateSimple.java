@@ -51,34 +51,20 @@ public class SynStateSimple implements SynState {
     Map<Integer, Map<Integer, int[]>> selfHostState;
 
     /**
-     * see {@link  InnerScheduler}
-     **/
-    InnerScheduler scheduler;
-
-    /**
-     * The time interval between two synchronization points for a {@link InnerScheduler}
-     **/
-    double smallSynGap;
-
-    /**
-     * The time it takes for a {@link InnerScheduler} to synchronize all hosts in the datacenter
-     **/
-    double synGap;
-
-    /**
      * The id of the last partition to synchronize
      **/
     int latestSynPartitionId;
 
     /**
-     * The time when the state was last synced for each region
+     * The small syn count when the state was last synced for each region
      **/
-    Map<Integer, Double> partitionLatestSynTime = new HashMap<>();
+
+    Map<Integer, Integer> partitionLatestSynCount = new HashMap<>();
 
     /**
-     * Earliest recorded time for each partition, which is used by the {@link PredictionManager}
+     * Earliest recorded small syn count for each partition, which is used by the {@link PredictionManager}
      **/
-    Map<Integer, Double> partitionOldestSynTime = new HashMap<>();
+    Map<Integer, Integer> partitionOldSynCount = new HashMap<>();
 
     /**
      * The host status has been predicted, the purpose of this data is to prevent repeated predictions
@@ -86,36 +72,35 @@ public class SynStateSimple implements SynState {
     Map<Integer, int[]> predictHostStateMap = new HashMap<>();
 
     /**
-     * Current moment
-     **/
-    double nowTime;
-
-    /**
      * Whether to enable prediction
      **/
     boolean predictable;
 
+    SynGapManager synGapManager;
+
     public SynStateSimple(Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState, int[] nowHostStates,
                           PartitionRangesManager partitionRangesManager, Map<Integer, Map<Integer, int[]>> selfHostState, InnerScheduler scheduler,
-                          PredictionManager predictionManager, double nowTime, double smallSynGap, double synGap, int predictRecordNum, boolean predictable) {
+                          PredictionManager predictionManager, SynGapManager synGapManager, int predictRecordNum, boolean predictable) {
         this.synState = synState;
         this.nowHostStates = nowHostStates;
         this.partitionRangesManager = partitionRangesManager;
         this.selfHostState = selfHostState;
-        this.scheduler = scheduler;
         this.predictionManager = predictionManager;
-        this.smallSynGap = smallSynGap;
-        this.synGap = synGap;
+        this.synGapManager = synGapManager;
         this.predictable = predictable;
-        this.nowTime = nowTime;
-        int smallSynNum = (int) (nowTime / smallSynGap);
-        this.latestSynPartitionId = (scheduler.getFirstPartitionId() + smallSynNum) % partitionRangesManager.getPartitionNum();
+        this.latestSynPartitionId = (scheduler.getFirstPartitionId() + synGapManager.getSmallSynGapCount()) % partitionRangesManager.getPartitionNum();
 
         for (int partitionId : partitionRangesManager.getPartitionIds()) {
-            double latestSynTime = max(0.0, smallSynGap * (smallSynNum - (latestSynPartitionId + partitionRangesManager.getPartitionNum() - partitionId) % partitionRangesManager.getPartitionNum()));//TODO 有问题，如果分区和时间不能被整除应该要处理
-            double oldestSynTime = latestSynTime - synGap * (min(latestSynTime / synGap, predictRecordNum - 1));
-            partitionLatestSynTime.put(partitionId, latestSynTime);
-            partitionOldestSynTime.put(partitionId, oldestSynTime);
+            int partDistanceLatestSynPartition = (latestSynPartitionId + partitionRangesManager.getPartitionNum() - partitionId) % partitionRangesManager.getPartitionNum();
+            int partLatestSmallSynGapCount = max(0, synGapManager.getSmallSynGapCount() - partDistanceLatestSynPartition);
+            partitionLatestSynCount.put(partitionId, partLatestSmallSynGapCount);
+
+            int additionRecordNum = 0;
+            if (predictable) {
+                additionRecordNum = min(partLatestSmallSynGapCount / partitionRangesManager.getPartitionNum(), predictRecordNum - 1);
+            }
+            int partOldSmallSynGapCount = partLatestSmallSynGapCount - partitionRangesManager.getPartitionNum() * additionRecordNum;
+            partitionOldSynCount.put(partitionId, partOldSmallSynGapCount);
         }
     }
 
@@ -191,18 +176,19 @@ public class SynStateSimple implements SynState {
      * @return the state of the host when synchronized
      */
     private int[] getSynHostState(int hostId) {
-        if (smallSynGap == 0) {
+        if (!synGapManager.isSynCostTime()) {
             return null;
         }
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         TreeMap<Double, Map<Integer, int[]>> partitionSynState = synState.get(partitionId);
         //TODO 这里需要再细看一下
-        double synTime = partitionLatestSynTime.get(partitionId);
-        while (synTime <= nowTime) {
+        int latestSmallSynCount = partitionLatestSynCount.get(partitionId);
+        while (latestSmallSynCount <= synGapManager.getSmallSynGapCount()) {
+            double synTime = synGapManager.getSynTime(latestSmallSynCount);
             if (partitionSynState.containsKey(synTime) && partitionSynState.get(synTime).containsKey(hostId)) {
                 return partitionSynState.get(synTime).get(hostId);
             }
-            synTime += smallSynGap;
+            latestSmallSynCount++;
         }
         return null;
     }
@@ -217,7 +203,7 @@ public class SynStateSimple implements SynState {
      * @return the predicted host state
      */
     private int[] getPredictSynState(int hostId) {
-        if (smallSynGap == 0) {
+        if (!synGapManager.isSynCostTime()) {
             return null;
         }
         if (predictHostStateMap.containsKey(hostId)) {
@@ -226,18 +212,23 @@ public class SynStateSimple implements SynState {
         List<HostStateHistory> hostStateHistories = new ArrayList<>();
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         TreeMap<Double, Map<Integer, int[]>> partitionSynState = synState.get(partitionId);
-        double synTime = partitionLatestSynTime.get(partitionId);
-        double oldTime = partitionOldestSynTime.get(partitionId);
-        for (double time : partitionSynState.keySet()) {
-            if (time >= oldTime && partitionSynState.get(time).containsKey(hostId)) {
-                hostStateHistories.add(new HostStateHistory(partitionSynState.get(time).get(hostId), time));
+        int latestSmallSynCount = partitionLatestSynCount.get(partitionId);
+        int oldSmallSynCount = partitionOldSynCount.get(partitionId);
+        int tmpCount = oldSmallSynCount;
+        while (tmpCount <= synGapManager.getSmallSynGapCount()) {
+            if (tmpCount >= oldSmallSynCount) {
+                double time = synGapManager.getSynTime(tmpCount);
+                if (partitionSynState.containsKey(time) && partitionSynState.get(time).containsKey(hostId)) {
+                    hostStateHistories.add(new HostStateHistory(partitionSynState.get(time).get(hostId), time));
+                }
                 do {
-                    oldTime += synGap;
-                } while (time >= oldTime);
+                    oldSmallSynCount += partitionRangesManager.getPartitionNum();
+                } while (tmpCount >= oldSmallSynCount);
+                if (oldSmallSynCount > latestSmallSynCount) {
+                    break;
+                }
             }
-            if (oldTime > synTime) {
-                break;
-            }
+            tmpCount++;
         }
         if (hostStateHistories.size() == 0) {
             return null;

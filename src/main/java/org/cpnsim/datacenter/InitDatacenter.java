@@ -216,6 +216,10 @@ public class InitDatacenter {
             PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
             statesManager.setPredictionManager(predictionManager);
             int predictRecordNum = predictionJson.getInt("predictRecordNum");
+            if (predictRecordNum <= 0) {
+                LOGGER.error("predictRecordNum must be greater than 0");
+                System.exit(-1);
+            }
             statesManager.setPredictRecordNum(predictRecordNum);
         }
     }

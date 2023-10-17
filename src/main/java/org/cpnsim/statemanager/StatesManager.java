@@ -46,9 +46,6 @@ public interface StatesManager {
     /** Get the {@link DatacenterPowerOnRecord}. */
     DatacenterPowerOnRecord getDatacenterPowerOnRecord();
 
-    /** Get the synchronization gap for {@link InnerScheduler} to sync in partition. */
-    double getSmallSynGap();
-
     /** Get the {@link PartitionRangesManager}. */
     PartitionRangesManager getPartitionRangesManager();
 
@@ -111,4 +108,12 @@ public interface StatesManager {
     int getMaxCpuCapacity();
 
     int getMaxRamCapacity();
+
+    boolean isSynCostTime();
+
+    double getNextSynDelay();
+
+    int getSmallSynGapCount();
+
+    boolean isInLatestSmallSynGap(double time);
 }

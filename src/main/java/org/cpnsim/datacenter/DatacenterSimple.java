@@ -269,8 +269,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         sendNow(getSimulation().getCis(), CloudSimTag.DC_REGISTRATION_REQUEST, this);
-        if (statesManager.getSmallSynGap() > 0) {
-            send(this, statesManager.getSmallSynGap(), CloudSimTag.SYN_STATE, null);
+        if (statesManager.isSynCostTime()) {
+            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE, null);
         }
     }
 
@@ -302,12 +302,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     /**
      * Calling {@link StatesManager#synAllState()} to synchronize the state of the datacenter.
-     * And send a {@link CloudSimTag#SYN_STATE} event to itself after {@link StatesManager#getSmallSynGap()}.
+     * And send a {@link CloudSimTag#SYN_STATE} event to itself after smallSynGap.
      */
     private void processSynState() {
         statesManager.synAllState();
-        if (statesManager.getSmallSynGap() > 0) {
-            send(this, statesManager.getSmallSynGap(), CloudSimTag.SYN_STATE, null);
+        if (statesManager.isSynCostTime()) {
+            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE, null);
         }
     }
 
@@ -494,7 +494,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             Map<Integer, List<Instance>> scheduleResult = innerSchedulerResult.getScheduleResult();
             InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
             LOGGER.info("{}: {}'s {} ends scheduling instances,it scheduling for {} hosts", getSimulation().clockStr(), getName(), innerScheduler.getName(), scheduleResult.size());
-            if (!isInSameSmallSynGap(innerSchedulerResult.getScheduleTime(), getSimulation().clock())) {//把同步时对这一调度的记录补回来
+            if (!statesManager.isInLatestSmallSynGap(innerSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
                 statesManager.revertHostState(scheduleResult, innerScheduler);
             }
             if (scheduleResult.containsKey(-1)) {
@@ -515,10 +515,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 //                isInnerSchedulerBusy.put(innerScheduler, false);
 //            }
         }
-    }
-
-    private boolean isInSameSmallSynGap(double lastTime, double nowTime) {
-        return (int) (lastTime / statesManager.getSmallSynGap()) == (int) (nowTime / statesManager.getSmallSynGap());
     }
 
     /**

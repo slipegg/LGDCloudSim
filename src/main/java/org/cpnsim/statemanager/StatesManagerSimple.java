@@ -33,11 +33,6 @@ public class StatesManagerSimple implements StatesManager {
     private int totalBwInUse;
 
     /**
-     * The time it takes to synchronize all regions in a datacenter
-     **/
-    private double synGap;
-
-    /**
      * Whether to enable prediction
      **/
     private boolean predictable;
@@ -76,12 +71,6 @@ public class StatesManagerSimple implements StatesManager {
     private PartitionRangesManager partitionRangesManager;
 
     /**
-     * The time it takes to synchronize a partition in a datacenter for an InnerScheduler
-     **/
-    @Getter
-    private double smallSynGap;
-
-    /**
      * see {@link  PredictionManager}
      **/
     @Getter
@@ -93,7 +82,7 @@ public class StatesManagerSimple implements StatesManager {
      **/
     @Getter
     @Setter
-    private int predictRecordNum = 0;
+    private int predictRecordNum = 1;
 
     /**
      * The datacenter,see {@link Datacenter}
@@ -115,12 +104,13 @@ public class StatesManagerSimple implements StatesManager {
     @Getter
     private int maxRamCapacity;
 
+    private SynGapManager synGapManager;
+
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
         this.partitionRangesManager = partitionRangesManager;
-        this.synGap = synGap;
-        this.smallSynGap = synGap / partitionRangesManager.getPartitionNum();
+        this.synGapManager = new SynGapManager(synGap, partitionRangesManager.getPartitionNum());
         this.maxCpuCapacity = maxCpuCapacity;
         this.maxRamCapacity = maxRamCapacity;
         this.simpleState = new SimpleStateEasy();
@@ -173,14 +163,14 @@ public class StatesManagerSimple implements StatesManager {
         Map<Integer, Map<Integer, int[]>> selfHostState;
         int[] partitionIds = partitionRangesManager.getPartitionIds();
 
-        if (!selfHostStateMap.containsKey(scheduler) || synGap == 0) {
+        if (!selfHostStateMap.containsKey(scheduler) || !synGapManager.isSynCostTime()) {
             selfHostStateMap.put(scheduler, new HashMap<>());
             for (int partitionId : partitionIds) {
                 selfHostStateMap.get(scheduler).put(partitionId, new HashMap<>());
             }
         }
         selfHostState = selfHostStateMap.get(scheduler);
-        return new SynStateSimple(synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler, predictionManager, getDatacenter().getSimulation().clock(), smallSynGap, synGap, predictRecordNum, predictable);
+        return new SynStateSimple(synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler, predictionManager, synGapManager, predictRecordNum, predictable);
     }
 
     /**
@@ -188,20 +178,21 @@ public class StatesManagerSimple implements StatesManager {
      */
     @Override
     public StatesManager synAllState() {
-        if (synGap == 0) {
+        if (!isSynCostTime()) {
             return this;
         }
-        double nowTime = datacenter.getSimulation().clock();
+        synGapManager.synGapCountAddOne();
+        int latestSmallSynGapCount = synGapManager.getSmallSynGapCount();
         for (Map<Double, Map<Integer, int[]>> partitionSynStateMap : synStateMap.values()) {
-            if (!predictable && nowTime - synGap >= 0) {
-                partitionSynStateMap.remove(nowTime - synGap);
-            } else if (predictable && nowTime - synGap * predictRecordNum >= 0) {
-                partitionSynStateMap.remove(nowTime - synGap * predictRecordNum);
+            if (!predictable && latestSmallSynGapCount >= partitionNum) {
+                partitionSynStateMap.remove(synGapManager.getSynTime(latestSmallSynGapCount - partitionNum));
+            } else if (predictable && latestSmallSynGapCount >= partitionNum * getPredictRecordNum()) {
+                partitionSynStateMap.remove(synGapManager.getSynTime(latestSmallSynGapCount - partitionNum * getPredictRecordNum()));
             }
-            partitionSynStateMap.put(nowTime, new HashMap<>());
+            partitionSynStateMap.put(synGapManager.getSynTime(latestSmallSynGapCount), new HashMap<>());
         }
         for (InnerScheduler scheduler : selfHostStateMap.keySet()) {
-            int clearPartitionId = ((int) (nowTime / smallSynGap) + scheduler.getFirstPartitionId()) % partitionNum;
+            int clearPartitionId = (latestSmallSynGapCount + scheduler.getFirstPartitionId()) % partitionNum;
             selfHostStateMap.get(scheduler).get(clearPartitionId).clear();
         }
         return this;
@@ -279,7 +270,7 @@ public class StatesManagerSimple implements StatesManager {
 
     @Override
     public StatesManager revertHostState(Map<Integer, List<Instance>> scheduleResult, InnerScheduler innerScheduler) {
-        int clearPartitionId = ((int) (datacenter.getSimulation().clock() / smallSynGap) + innerScheduler.getFirstPartitionId()) % partitionNum;
+        int clearPartitionId = (synGapManager.getSmallSynGapCount() + innerScheduler.getFirstPartitionId()) % partitionNum;
         for (int hostId : scheduleResult.keySet()) {
             if (partitionRangesManager.getPartitionId(hostId) == clearPartitionId) {
                 int[] hostState = new int[HostState.STATE_NUM];
@@ -294,6 +285,26 @@ public class StatesManagerSimple implements StatesManager {
             }
         }
         return this;
+    }
+
+    @Override
+    public boolean isSynCostTime() {
+        return synGapManager.isSynCostTime();
+    }
+
+    @Override
+    public double getNextSynDelay() {
+        return synGapManager.getNextSynDelay(datacenter.getSimulation().clock());
+    }
+
+    @Override
+    public int getSmallSynGapCount() {
+        return synGapManager.getSmallSynGapCount();
+    }
+
+    @Override
+    public boolean isInLatestSmallSynGap(double time) {
+        return time >= synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
     }
 
     /**
