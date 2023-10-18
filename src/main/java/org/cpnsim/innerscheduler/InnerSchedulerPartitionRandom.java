@@ -14,8 +14,6 @@ public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
 
     @Override
     public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
-        int hostNum = datacenter.getStatesManager().getHostNum();
-        //TODO 域内调度
         Map<Integer, List<Instance>> res = new HashMap<>();
 
         for (Instance instance : instances) {

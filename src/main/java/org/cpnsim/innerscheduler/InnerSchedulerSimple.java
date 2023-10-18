@@ -63,8 +63,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
-        instanceQueue = new InstanceQueueFifo(200);
-        retryInstanceQueue = new InstanceQueueFifo(200);
+        instanceQueue = new InstanceQueueFifo(100);
+        retryInstanceQueue = new InstanceQueueFifo(100);
         this.firstPartitionId = firstPartitionId;
         this.partitionNum = partitionNum;
         setId(id);
