@@ -87,6 +87,8 @@ public interface StatesManager {
      */
     StatesManager revertHostState(Map<Integer, List<Instance>> scheduleResult, InnerScheduler innerScheduler);
 
+    StatesManager revertSelftHostState(List<Instance> instances, InnerScheduler innerScheduler);
+
     /**
      * Set the record data num for predicting.
      */

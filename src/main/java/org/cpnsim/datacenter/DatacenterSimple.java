@@ -425,7 +425,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         ResourceAllocateResult allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResults);
         if (allocateResult.getFailRes() != null && allocateResult.getFailRes().size() > 0) {
             for (Map.Entry<InnerScheduler, List<Instance>> entry : allocateResult.getFailRes().entrySet()) {
-                innerScheduleFailed(entry.getValue(), entry.getKey());
+                innerScheduleFailed(entry.getValue(), entry.getKey(), true);
             }
         }
         if (!allocateResult.getSuccessRes().isEmpty()) {
@@ -498,7 +498,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 statesManager.revertHostState(scheduleResult, innerScheduler);
             }
             if (scheduleResult.containsKey(-1)) {
-                innerScheduleFailed(scheduleResult.get(-1), innerScheduler);
+                innerScheduleFailed(scheduleResult.get(-1), innerScheduler, false);
                 scheduleResult.remove(-1);
             }
             innerSchedulerResults.add(innerSchedulerResult);
@@ -533,7 +533,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void innerScheduleFailed(List<Instance> instances, InnerScheduler innerScheduler) {
+    private void innerScheduleFailed(List<Instance> instances, InnerScheduler innerScheduler, boolean isNeedRevertSelfHostState) {
         Iterator<Instance> instanceIterator = instances.iterator();
         while (instanceIterator.hasNext()) {
             Instance instance = instanceIterator.next();
@@ -546,6 +546,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         innerScheduler.addInstance(instances, true);
+        if (isNeedRevertSelfHostState) {
+            statesManager.revertSelftHostState(instances, innerScheduler);
+        }
         LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), innerScheduler.getName(), instances.size());
     }
 
@@ -557,7 +560,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processLoadBalanceSend(SimEvent evt) {
         List<Instance> instances = instanceQueue.getAllItem(true);
         if (instances.size() != 0) {
-            List<InnerScheduler> sentInnerScheduler = loadBalance.sendInstances(instances);
+            Set<InnerScheduler> sentInnerScheduler = loadBalance.sendInstances(instances);
             if (instanceQueue.size() > 0) {
                 send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
             }

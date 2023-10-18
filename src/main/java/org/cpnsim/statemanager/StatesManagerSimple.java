@@ -288,6 +288,24 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
+    public StatesManager revertSelftHostState(List<Instance> instances, InnerScheduler innerScheduler) {
+        Map<Integer, Map<Integer, int[]>> selfHostState = selfHostStateMap.get(innerScheduler);
+        for (Instance instance : instances) {
+            if (instance.getRetryHostIds() == null || instance.getRetryHostIds().size() == 0) {
+                LOGGER.error("{}: instance {} has no retry host id in revertSelftHostState function", getDatacenter().getSimulation().clockStr(), instance.getId());
+                System.exit(-1);
+            }
+            int hostId = instance.getRetryHostIds().get(instance.getRetryHostIds().size() - 1);
+            int[] hostState = selfHostState.get(partitionRangesManager.getPartitionId(hostId)).get(hostId);
+            hostState[0] += instance.getCpu();
+            hostState[1] += instance.getRam();
+            hostState[2] += instance.getStorage();
+            hostState[3] += instance.getBw();
+        }
+        return this;
+    }
+
+    @Override
     public boolean isSynCostTime() {
         return synGapManager.isSynCostTime();
     }
