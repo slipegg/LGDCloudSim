@@ -26,7 +26,7 @@ public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
                 synPartitionId = (firstPartitionId + datacenter.getStatesManager().getSmallSynGapCount()) % partitionNum;
             }
             for (int p = 0; p < partitionNum; p++) {
-                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + p) % partitionNum);
+                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + partitionNum - p) % partitionNum);
                 int startHostId = random.nextInt(range[1] - range[0] + 1);
                 int rangeLength = range[1] - range[0] + 1;
                 for (int i = 0; i < rangeLength; i++) {
