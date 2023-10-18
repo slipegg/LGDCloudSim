@@ -2,8 +2,8 @@ package org.cpnsim.datacenter;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.cpnsim.request.Instance;
 import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.request.Instance;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import java.util.Set;
  * @author Jiawen Liu
  * @since CPNSim 1.0
  */
-public class LoadBalanceRound implements LoadBalance {
+public class LoadBalanceBatch implements LoadBalance {
     /**
      * the datacenter to be load balanced.
      **/
@@ -40,26 +40,23 @@ public class LoadBalanceRound implements LoadBalance {
     @Override
     public Set<InnerScheduler> sendInstances(List<Instance> instances) {
         Set<InnerScheduler> sentInnerSchedulers = new HashSet<>();
+        int batchSize = 100;
         int size = instances.size();
-        List<InnerScheduler> innerSchedulers = datacenter.getInnerSchedulers();
-        int onceSendSize = size / innerSchedulers.size();
-        int remainder = size % innerSchedulers.size();
-
-        int start = 0;
-        int end;
-        for (int i = 0; i < innerSchedulers.size(); i++) {
-            InnerScheduler innerScheduler = innerSchedulers.get((lastInnerSchedulerId + i) % innerSchedulers.size());
-            end = start + onceSendSize + (i < remainder ? 1 : 0);
-            if (end == start) {
-                break;
-            }
-            innerScheduler.addInstance(instances.subList(start, end), false);
+        int startIndex = 0;
+        int endIndex = 0;
+        while (endIndex < size) {
+            endIndex = Math.min(startIndex + batchSize, size);
+            List<Instance> batchInstances = instances.subList(startIndex, endIndex);
+            InnerScheduler innerScheduler = datacenter.getInnerSchedulers().get(lastInnerSchedulerId);
+            lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getInnerSchedulers().size();
+            innerScheduler.addInstance(batchInstances, false);
             sentInnerSchedulers.add(innerScheduler);
-            start = end;
+            startIndex = endIndex;
         }
 
-        lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getInnerSchedulers().size();
-        LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {} innerSchedulers,On average, each scheduler receives around {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(), sentInnerSchedulers.size(), onceSendSize);
+        LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {} innerSchedulers,On average, each scheduler receives around {} instances",
+                datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(),
+                sentInnerSchedulers.size(), instances.size() / sentInnerSchedulers.size());
         return sentInnerSchedulers;
     }
 

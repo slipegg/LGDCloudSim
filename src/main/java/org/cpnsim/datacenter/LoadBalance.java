@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * An interface to be implemented by each class that represents a load balancer.
@@ -28,7 +29,7 @@ public interface LoadBalance extends DatacenterEntity {
      * @param instances the instance to be sent to the datacenter
      * @return
      */
-    List<InnerScheduler> sendInstances(List<Instance> instances);
+    Set<InnerScheduler> sendInstances(List<Instance> instances);
 
     /**
      * Set the load balance cost time.

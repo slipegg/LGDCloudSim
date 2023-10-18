@@ -1,9 +1,6 @@
 package org.cloudsimplus.core;
 
-import org.cpnsim.datacenter.LoadBalance;
-import org.cpnsim.datacenter.LoadBalanceRound;
-import org.cpnsim.datacenter.ResourceAllocateSelector;
-import org.cpnsim.datacenter.ResourceAllocateSelectorSimple;
+import org.cpnsim.datacenter.*;
 import org.cpnsim.innerscheduler.*;
 import org.cpnsim.interscheduler.*;
 import org.cpnsim.statemanager.PredictionManager;
@@ -45,6 +42,7 @@ public class FactorySimple implements Factory {
     public LoadBalance getLoadBalance(String type) {
         return switch (type) {
             case "round", "Round" -> new LoadBalanceRound();
+            case "batch", "Batch" -> new LoadBalanceBatch();
             default -> null;
         };
     }
