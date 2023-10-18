@@ -273,8 +273,7 @@ public class StatesManagerSimple implements StatesManager {
         int clearPartitionId = (synGapManager.getSmallSynGapCount() + innerScheduler.getFirstPartitionId()) % partitionNum;
         for (int hostId : scheduleResult.keySet()) {
             if (partitionRangesManager.getPartitionId(hostId) == clearPartitionId) {
-                int[] hostState = new int[HostState.STATE_NUM];
-                System.arraycopy(hostStates, hostId * HostState.STATE_NUM, hostState, 0, HostState.STATE_NUM);
+                int[] hostState = getLatestSynHostState(hostId);
                 for (Instance instance : scheduleResult.get(hostId)) {
                     hostState[0] -= instance.getCpu();
                     hostState[1] -= instance.getRam();
@@ -285,6 +284,19 @@ public class StatesManagerSimple implements StatesManager {
             }
         }
         return this;
+    }
+
+    private int[] getLatestSynHostState(int hostId) {
+        double time = synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        Map<Integer, int[]> partitionSynState = synStateMap.get(partitionId).get(time);
+        if (partitionSynState.containsKey(hostId)) {
+            return partitionSynState.get(hostId);
+        } else {
+            int[] hostState = new int[HostState.STATE_NUM];
+            System.arraycopy(hostStates, hostId * HostState.STATE_NUM, hostState, 0, HostState.STATE_NUM);
+            return hostState;
+        }
     }
 
     @Override
