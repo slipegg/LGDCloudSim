@@ -1,0 +1,178 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "datacenters": [
+        {
+          "id": 1,
+          "hostNum": 100000,
+          "partitions": [
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            },
+            {
+              "length": 5000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 100000
+            }
+          ],
+          "interScheduler": {
+            "type": "direct",
+            "isDirectSend": true
+          },
+          "synchronizationGap": 6000,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 1,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 2,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 3,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 4,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 5,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 6,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 7,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 8,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 9,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 10,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 11,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 12,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 13,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 14,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 15,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 16,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 17,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 18,
+              "type": "partitionRandom"
+            },
+            {
+              "firstPartitionIndex": 19,
+              "type": "partitionRandom"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    }
+  ]
+}

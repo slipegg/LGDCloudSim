@@ -21,7 +21,9 @@ public class InnerScheduleExample {
     UserSimple user;
     UserRequestManager userRequestManager;
     String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/innerScheduleExperiment/topology.brite";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/DatacentersConfigDistributeDirect.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/DatacentersSynState-20Schedulers-500SynGap.json";
+    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/DatacentersShareState-20Schedulers-500SynGap.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/test/DatacentersConfig.json";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/innerScheduleExperiment/generateRequestParament.csv";
 
     public static void main(String[] args) {
@@ -30,8 +32,9 @@ public class InnerScheduleExample {
 
     private InnerScheduleExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.INFO);
+        Log.setLevel(Level.OFF);
         cpnSim = new CloudSim();
+        cpnSim.setIsSqlRecord(false);
         factory = new FactorySimple();
         initUser();
         initDatacenters();

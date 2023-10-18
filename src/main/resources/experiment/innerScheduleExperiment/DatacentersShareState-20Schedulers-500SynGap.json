@@ -1,0 +1,121 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "datacenters": [
+        {
+          "id": 1,
+          "hostNum": 100000,
+          "partitions": [
+            {
+              "length": 100000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 100000
+            }
+          ],
+          "interScheduler": {
+            "type": "direct",
+            "isDirectSend": true
+          },
+          "synchronizationGap": 500,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    }
+  ]
+}
