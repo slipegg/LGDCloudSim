@@ -81,7 +81,7 @@
             "type": "direct",
             "isDirectSend": true
           },
-          "synchronizationGap": 6000,
+          "synchronizationGap": 8000,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,

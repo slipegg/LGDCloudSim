@@ -31,7 +31,7 @@ public class InterScheduleExample {
 
     private InterScheduleExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.INFO);
+        Log.setLevel(Level.ERROR);
         cpnSim = new CloudSim();
         factory = new FactorySimple();
         initUser();
