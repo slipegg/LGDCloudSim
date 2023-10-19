@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
+import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.request.Instance;
 
@@ -269,18 +270,31 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public StatesManager revertHostState(Map<Integer, List<Instance>> scheduleResult, InnerScheduler innerScheduler) {
-        int clearPartitionId = (synGapManager.getSmallSynGapCount() + innerScheduler.getFirstPartitionId()) % partitionNum;
-        for (int hostId : scheduleResult.keySet()) {
-            if (partitionRangesManager.getPartitionId(hostId) == clearPartitionId) {
+    public StatesManager revertHostState(InnerScheduleResult innerSchedulerResult) {
+        int smallSynGapCount = synGapManager.getSmallSynGapCount();
+        InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
+        Set<Integer> clearPartitions = new HashSet<>();
+        while(clearPartitions.size()!=partitionNum&&smallSynGapCount>=0){
+            double time = synGapManager.getSynTime(smallSynGapCount);
+            if(time<innerSchedulerResult.getScheduleTime()){
+                break;
+            }
+            clearPartitions.add((smallSynGapCount + innerScheduler.getFirstPartitionId()) % partitionNum);
+            smallSynGapCount--;
+        }
+        LOGGER.error("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
+
+        for (int hostId : innerSchedulerResult.getScheduleResult().keySet()) {
+            int partitionId = partitionRangesManager.getPartitionId(hostId);
+            if (clearPartitions.contains(partitionId)) {
                 int[] hostState = getLatestSynHostState(hostId);
-                for (Instance instance : scheduleResult.get(hostId)) {
+                for (Instance instance : innerSchedulerResult.getScheduleResult().get(hostId)) {
                     hostState[0] -= instance.getCpu();
                     hostState[1] -= instance.getRam();
                     hostState[2] -= instance.getStorage();
                     hostState[3] -= instance.getBw();
                 }
-                selfHostStateMap.get(innerScheduler).get(clearPartitionId).put(hostId, hostState);
+                selfHostStateMap.get(innerScheduler).get(partitionId).put(hostId, hostState);
             }
         }
         return this;
@@ -302,11 +316,16 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public StatesManager revertSelftHostState(List<Instance> instances, InnerScheduler innerScheduler) {
         Map<Integer, Map<Integer, int[]>> selfHostState = selfHostStateMap.get(innerScheduler);
+        LOGGER.error("{}: revert self host state:{}", getDatacenter().getSimulation().clockStr(), innerScheduler.getName());
+        for(Map.Entry<Integer, Map<Integer, int[]>> entry:selfHostState.entrySet()){
+            LOGGER.error("partitionId:{},hostState.size():{}",entry.getKey(),entry.getValue().size());
+        }
         for (Instance instance : instances) {
             if (instance.getRetryHostIds() == null || instance.getRetryHostIds().size() == 0) {
                 LOGGER.error("{}: instance {} has no retry host id in revertSelftHostState function", getDatacenter().getSimulation().clockStr(), instance.getId());
                 System.exit(-1);
             }
+            LOGGER.error("instance{} retryHostIds:{}", instance.getId(),instance.getRetryHostIds());
             int hostId = instance.getRetryHostIds().get(instance.getRetryHostIds().size() - 1);
             int[] hostState = selfHostState.get(partitionRangesManager.getPartitionId(hostId)).get(hostId);
             hostState[0] += instance.getCpu();

@@ -495,7 +495,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
             LOGGER.info("{}: {}'s {} ends scheduling instances,it scheduling for {} hosts", getSimulation().clockStr(), getName(), innerScheduler.getName(), scheduleResult.size());
             if (!statesManager.isInLatestSmallSynGap(innerSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
-                statesManager.revertHostState(scheduleResult, innerScheduler);
+                statesManager.revertHostState(innerSchedulerResult);
             }
             if (scheduleResult.containsKey(-1)) {
                 innerScheduleFailed(scheduleResult.get(-1), innerScheduler, false);
