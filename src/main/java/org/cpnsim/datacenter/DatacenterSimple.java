@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * An interface to be implemented by each class that represents a datacenter.
@@ -345,7 +344,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     finishInstance(instance);
                 }
                 getSimulation().getSqlRecord().recordInstancesFinishInfo((List<Instance>) list);
-                getSimulation().getSqlRecord().recordInstanceSubmitDelay((List<Instance>) list);
             }
         }
     }
@@ -447,7 +445,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void allocateResource(Map<Integer, List<Instance>> allocateResult) {
         LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
-        Map<Integer, List<Instance>> successAllocatedInstances = new HashMap<>();
+        Map<Integer, List<Instance>> finishInstances = new HashMap<>();
         for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
             int hostId = entry.getKey();
             List<Instance> instances = entry.getValue();
@@ -466,14 +464,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 updateTCO();
                 int lifeTime = instance.getLifeTime();
 //                if (lifeTime > 0) {
-                successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
-                successAllocatedInstances.get(lifeTime).add(instance);
+                    finishInstances.putIfAbsent(lifeTime, new ArrayList<>());
+                    finishInstances.get(lifeTime).add(instance);
 //                }
 //                getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
             }
         }
         getSimulation().getSqlRecord().recordInstancesCreateInfo(successAllocatedInstances);
-        getSimulation().getSqlRecord().recordInstanceSubmitDelay(successAllocatedInstances.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
         sendFinishInstanceRunEvt(successAllocatedInstances);
     }
 

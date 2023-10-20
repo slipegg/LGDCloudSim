@@ -221,6 +221,8 @@ public class SqlRecordSimple implements SqlRecord {
                         statement.setDouble(12, instance.getStartTime());
                         statement.addBatch();
                     }
+                    instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
+                    instanceNum++;
                 }
             }
             statement.executeBatch();
@@ -273,6 +275,10 @@ public class SqlRecordSimple implements SqlRecord {
                 statement.setDouble(12, instance.getStartTime());
                 statement.setDouble(13, instance.getFinishTime());
                 statement.addBatch();
+                if (instance.getStartTime() == -1) {
+                    instanceDelaySum += instance.getFinishTime() - instance.getInstanceGroup().getReceivedTime();
+                    instanceNum++;
+                }
             }
             statement.executeBatch();
         } catch (SQLException e) {
@@ -384,7 +390,6 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
-
     private void createConflictTable() throws SQLException {
         sql = "DROP TABLE IF EXISTS " + this.conflictTableName;
         stmt.executeUpdate(sql);
@@ -408,14 +413,6 @@ public class SqlRecordSimple implements SqlRecord {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void recordInstanceSubmitDelay(List<Instance> instances) {
-        for (Instance instance : instances) {
-            instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
-            instanceNum++;
         }
     }
 

@@ -61,7 +61,12 @@ public class SqlRecordNull implements SqlRecord {
 
     @Override
     public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
-
+        for (List<Instance> instanceList : instances.values()) {
+            for (Instance instance : instanceList) {
+                instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
+                instanceNum++;
+            }
+        }
     }
 
     @Override
@@ -71,20 +76,17 @@ public class SqlRecordNull implements SqlRecord {
 
     @Override
     public void recordInstancesAllInfo(List<Instance> instances) {
-
+        for (Instance instance : instances) {
+            if (instance.getStartTime() == -1) {
+                instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
+                instanceNum++;
+            }
+        }
     }
 
     @Override
     public void recordConflict(double time, int sum) {
 
-    }
-
-    @Override
-    public void recordInstanceSubmitDelay(List<Instance> instances) {
-        for (Instance instance : instances) {
-            instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
-            instanceNum++;
-        }
     }
 
     @Override
