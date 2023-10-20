@@ -32,5 +32,7 @@ public interface SqlRecord {
 
     void recordInstancesAllInfo(List<Instance> instances);
 
+    void recordConflict(double time, int sum);
+
     void close();
 }

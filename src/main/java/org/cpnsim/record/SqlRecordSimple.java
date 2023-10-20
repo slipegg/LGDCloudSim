@@ -23,12 +23,15 @@ public class SqlRecordSimple implements SqlRecord {
     private String instanceGroupTableName = null;
     private String instanceGroupGraphTableName = null;
     private String instanceTableName = null;
+    private String conflictTableName = null;
     private String dbName = null;
     private String dbDir = null;
     @Getter
     private String dbPath = null;
     private String sql = null;
     private PreparedStatement statement;
+
+    private double lastRecordConflictTime = -1;
 
     public SqlRecordSimple() {
 //        this("./RecordDb", "scaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".db", "userRequest", "instanceGroup", "instance");
@@ -53,6 +56,7 @@ public class SqlRecordSimple implements SqlRecord {
         this.instanceGroupTableName = instanceGroupTableName;
         this.instanceGroupGraphTableName = instanceGroupGraphTableName;
         this.instanceTableName = instanceTableName;
+        conflictTableName = "conflict";
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -69,6 +73,7 @@ public class SqlRecordSimple implements SqlRecord {
             createInstanceGroupTable();
             createGroupGraphTable();
             createInstanceTable();
+            createConflictTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -377,4 +382,46 @@ public class SqlRecordSimple implements SqlRecord {
         stmt.executeUpdate(sql);
         conn.commit();
     }
+
+
+    private void createConflictTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.conflictTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.conflictTableName + " " +
+                "(time DOUBLE PRIMARY KEY NOT NULL," +
+                " conflictSum INT NOT NULL) ";
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+
+    public void recordConflict(double time, int sum) {
+        int tmpTime = (int) time / 10 * 10;
+        try {
+            if (lastRecordConflictTime != tmpTime) {
+                sql = "INSERT INTO " + this.conflictTableName + " (time, conflictSum) VALUES (" + tmpTime + "," + sum + ");";
+                stmt.executeUpdate(sql);
+                lastRecordConflictTime = tmpTime;
+            } else {
+                sql = "UPDATE " + this.conflictTableName + " SET conflictSum = conflictSum + " + sum + " WHERE time = " + tmpTime + ";";
+                stmt.executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private void preRecordConflicts() {
+//        try {
+//            statement = conn.prepareStatement("INSERT INTO " + this.conflictTableName +
+//                    "(time, conflictSum) " + "VALUES (?, ?)");
+//            for (double i =0 ; i<3000; i+=10){
+//                statement.setDouble(1, i);
+//                statement.setInt(2, 0);
+//                statement.addBatch();
+//            }
+//            statement.executeBatch();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

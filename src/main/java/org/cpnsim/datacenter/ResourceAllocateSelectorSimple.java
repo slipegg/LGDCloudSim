@@ -38,6 +38,7 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
         Map<InnerScheduler, List<Instance>> failRes = null;
         Map<Integer, HostState> allocateHostStates = new HashMap<>();
         StatesManager statesManager = datacenter.getStatesManager();
+        int conflictSum = 0;
         for (InnerScheduleResult innerScheduleResult : innerScheduleResults) {
             Map<Integer, List<Instance>> scheduleRes = innerScheduleResult.getScheduleResult();
             for (Map.Entry<Integer, List<Instance>> entry : scheduleRes.entrySet()) {
@@ -72,9 +73,13 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
                         } else {
                             partitionConflicts.put(partitionId, 1);
                         }
+                        conflictSum += 1;
                     }
                 }
             }
+        }
+        if (conflictSum != 0) {
+            getDatacenter().getSimulation().getSqlRecord().recordConflict(getDatacenter().getSimulation().clock(), conflictSum);
         }
         return new ResourceAllocateResult(successRes, failRes);
     }

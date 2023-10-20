@@ -73,6 +73,11 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
+    public void recordConflict(double time, int sum) {
+
+    }
+
+    @Override
     public void close() {
 
     }
