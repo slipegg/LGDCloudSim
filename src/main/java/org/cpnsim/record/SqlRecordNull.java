@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public class SqlRecordNull implements SqlRecord {
+    private double instanceDelaySum = 0.0;
+    private long instanceNum = 0L;
 
     public SqlRecordNull() {
     }
@@ -75,6 +77,21 @@ public class SqlRecordNull implements SqlRecord {
     @Override
     public void recordConflict(double time, int sum) {
 
+    }
+
+    @Override
+    public void recordInstanceSubmitDelay(List<Instance> instances) {
+        for (Instance instance : instances) {
+            instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
+            instanceNum++;
+        }
+    }
+
+    @Override
+    public double getAvgInstanceSubmitDelay() {
+        System.out.println("instanceDelaySum: " + instanceDelaySum);
+        System.out.println("instanceNum: " + instanceNum);
+        return instanceDelaySum / instanceNum;
     }
 
     @Override

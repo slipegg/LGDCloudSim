@@ -182,6 +182,8 @@ public class CloudSim implements Simulation {
             DatacenterPowerOnRecord record = datacenter.getStatesManager().getDatacenterPowerOnRecord();
             System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
         }
+        double avgInstanceSubmitDelay = getSqlRecord().getAvgInstanceSubmitDelay();
+        System.out.printf("Average instance submit delay = %f\n", avgInstanceSubmitDelay);
         System.out.printf("All TCO = %f\n", allCost);
     }
 

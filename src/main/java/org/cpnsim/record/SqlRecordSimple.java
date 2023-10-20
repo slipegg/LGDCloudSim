@@ -30,8 +30,9 @@ public class SqlRecordSimple implements SqlRecord {
     private String dbPath = null;
     private String sql = null;
     private PreparedStatement statement;
-
     private double lastRecordConflictTime = -1;
+    private double instanceDelaySum = 0.0;
+    private long instanceNum = 0L;
 
     public SqlRecordSimple() {
 //        this("./RecordDb", "scaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".db", "userRequest", "instanceGroup", "instance");
@@ -410,18 +411,18 @@ public class SqlRecordSimple implements SqlRecord {
         }
     }
 
-//    private void preRecordConflicts() {
-//        try {
-//            statement = conn.prepareStatement("INSERT INTO " + this.conflictTableName +
-//                    "(time, conflictSum) " + "VALUES (?, ?)");
-//            for (double i =0 ; i<3000; i+=10){
-//                statement.setDouble(1, i);
-//                statement.setInt(2, 0);
-//                statement.addBatch();
-//            }
-//            statement.executeBatch();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Override
+    public void recordInstanceSubmitDelay(List<Instance> instances) {
+        for (Instance instance : instances) {
+            instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
+            instanceNum++;
+        }
+    }
+
+    @Override
+    public double getAvgInstanceSubmitDelay() {
+        System.out.println("instanceDelaySum: " + instanceDelaySum);
+        System.out.println("instanceNum: " + instanceNum);
+        return instanceDelaySum / instanceNum;
+    }
 }

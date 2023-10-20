@@ -34,5 +34,9 @@ public interface SqlRecord {
 
     void recordConflict(double time, int sum);
 
+    void recordInstanceSubmitDelay(List<Instance> instances);
+
+    double getAvgInstanceSubmitDelay();
+
     void close();
 }
