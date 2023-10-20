@@ -78,7 +78,7 @@ public class SqlRecordNull implements SqlRecord {
     public void recordInstancesAllInfo(List<Instance> instances) {
         for (Instance instance : instances) {
             if (instance.getStartTime() == -1) {
-                instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
+                instanceDelaySum += instance.getFinishTime() - instance.getInstanceGroup().getReceivedTime();
                 instanceNum++;
             }
         }
