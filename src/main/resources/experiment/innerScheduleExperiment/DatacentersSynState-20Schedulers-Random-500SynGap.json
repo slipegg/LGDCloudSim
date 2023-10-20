@@ -85,83 +85,83 @@
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 1,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 2,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 3,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 4,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 5,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 6,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 7,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 8,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 9,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 10,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 11,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 12,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 13,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 14,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 15,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 16,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 17,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 18,
-              "type": "partitionRandom"
+              "type": "random"
             },
             {
               "firstPartitionIndex": 19,
-              "type": "partitionRandom"
+              "type": "random"
             }
           ],
           "loadBalancer": {

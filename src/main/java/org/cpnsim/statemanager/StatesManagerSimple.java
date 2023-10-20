@@ -282,7 +282,7 @@ public class StatesManagerSimple implements StatesManager {
             clearPartitions.add((smallSynGapCount + innerScheduler.getFirstPartitionId()) % partitionNum);
             smallSynGapCount--;
         }
-        LOGGER.error("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
+//        LOGGER.error("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
 
         for (int hostId : innerSchedulerResult.getScheduleResult().keySet()) {
             int partitionId = partitionRangesManager.getPartitionId(hostId);
@@ -316,16 +316,16 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public StatesManager revertSelftHostState(List<Instance> instances, InnerScheduler innerScheduler) {
         Map<Integer, Map<Integer, int[]>> selfHostState = selfHostStateMap.get(innerScheduler);
-        LOGGER.error("{}: revert self host state:{}", getDatacenter().getSimulation().clockStr(), innerScheduler.getName());
-        for(Map.Entry<Integer, Map<Integer, int[]>> entry:selfHostState.entrySet()){
-            LOGGER.error("partitionId:{},hostState.size():{}",entry.getKey(),entry.getValue().size());
-        }
+//        LOGGER.error("{}: revert self host state:{}", getDatacenter().getSimulation().clockStr(), innerScheduler.getName());
+//        for(Map.Entry<Integer, Map<Integer, int[]>> entry:selfHostState.entrySet()){
+//            LOGGER.error("partitionId:{},hostState.size():{}",entry.getKey(),entry.getValue().size());
+//        }
         for (Instance instance : instances) {
             if (instance.getRetryHostIds() == null || instance.getRetryHostIds().size() == 0) {
                 LOGGER.error("{}: instance {} has no retry host id in revertSelftHostState function", getDatacenter().getSimulation().clockStr(), instance.getId());
                 System.exit(-1);
             }
-            LOGGER.error("instance{} retryHostIds:{}", instance.getId(),instance.getRetryHostIds());
+//            LOGGER.error("instance{} retryHostIds:{}", instance.getId(),instance.getRetryHostIds());
             int hostId = instance.getRetryHostIds().get(instance.getRetryHostIds().size() - 1);
             int[] hostState = selfHostState.get(partitionRangesManager.getPartitionId(hostId)).get(hostId);
             hostState[0] += instance.getCpu();
