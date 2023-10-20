@@ -4,7 +4,7 @@ RequestPerNumMin,640
 RequestPerNumMax,640
 RequestTimeIntervalMin,10
 RequestTimeIntervalMax,10
-RequestTimes,1000
+RequestTimes,3000
 RequestGroupNumMin,1
 RequestGroupNumMax,1
 GroupInstanceNumMin,1
