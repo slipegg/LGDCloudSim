@@ -317,7 +317,6 @@ public class CloudInformationService extends CloudSimEntity {
                 }
             }
             getSimulation().getSqlRecord().recordInstancesAllInfo(recordInstances);
-            getSimulation().getSqlRecord().recordInstanceSubmitDelay(recordInstances);
         }
     }
 }

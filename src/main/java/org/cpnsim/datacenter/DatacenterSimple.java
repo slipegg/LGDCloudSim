@@ -445,7 +445,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void allocateResource(Map<Integer, List<Instance>> allocateResult) {
         LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
-        Map<Integer, List<Instance>> finishInstances = new HashMap<>();
+        Map<Integer, List<Instance>> successAllocatedInstances = new HashMap<>();
         for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
             int hostId = entry.getKey();
             List<Instance> instances = entry.getValue();
@@ -464,8 +464,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 updateTCO();
                 int lifeTime = instance.getLifeTime();
 //                if (lifeTime > 0) {
-                    finishInstances.putIfAbsent(lifeTime, new ArrayList<>());
-                    finishInstances.get(lifeTime).add(instance);
+                successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
+                successAllocatedInstances.get(lifeTime).add(instance);
 //                }
 //                getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
             }
