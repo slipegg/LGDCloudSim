@@ -4,7 +4,7 @@
       "id": 0,
       "datacenters": [
         {
-          "id": 0,
+          "id": 1,
           "location": [
             93.6250,
             41.5868
@@ -145,7 +145,7 @@
       "id": 1,
       "datacenters": [
         {
-          "id": 1,
+          "id": 2,
           "location": [
             118.2437,
             34.0522
@@ -272,7 +272,7 @@
       "id": 2,
       "datacenters": [
         {
-          "id": 2,
+          "id": 3,
           "location": [
             114.1694,
             22.3193
@@ -413,7 +413,7 @@
       "id": 3,
       "datacenters": [
         {
-          "id": 3,
+          "id": 4,
           "location": [
             139.6917,
             35.6895
@@ -540,7 +540,7 @@
       "id": 4,
       "datacenters": [
         {
-          "id": 4,
+          "id": 5,
           "location": [
             -0.1278,
             51.5074
@@ -681,7 +681,7 @@
       "id": 5,
       "datacenters": [
         {
-          "id": 5,
+          "id": 6,
           "location": [
             25.7482,
             61.9241
@@ -808,7 +808,7 @@
       "id": 6,
       "datacenters": [
         {
-          "id": 6,
+          "id": 7,
           "location": [
             46.6333,
             23.5505
@@ -970,7 +970,7 @@
       "id": 7,
       "datacenters": [
         {
-          "id": 7,
+          "id": 8,
           "location": [
             151.2093,
             33.8688

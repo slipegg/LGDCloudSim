@@ -26,14 +26,14 @@ public class googleTraceExample {
     String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/googleTrace/topology.brite";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/googleTrace/datacenter/1_collaborations.json";
     Map<String, Integer> GOOGLE_TRACE_REQUEST_FILE_DC_MAP = new HashMap<>() {{
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", 0);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_b_user_requests.csv", 1);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_c_user_requests.csv", 2);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_d_user_requests.csv", 3);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_e_user_requests.csv", 4);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_f_user_requests.csv", 5);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_g_user_requests.csv", 6);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_h_user_requests.csv", 7);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", 1);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_b_user_requests.csv", 2);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_c_user_requests.csv", 3);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_d_user_requests.csv", 4);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_e_user_requests.csv", 5);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_f_user_requests.csv", 6);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_g_user_requests.csv", 7);
+        put("./src/main/resources/experiment/googleTrace/userRequest/2019_h_user_requests.csv", 8);
     }};
 
     int MAX_CPU_CAPACITY = 10000;
@@ -66,6 +66,7 @@ public class googleTraceExample {
         System.out.println("模拟总耗时：" + (end - start) / 1000 + "s");
         System.out.println("运行过程占用最大内存: " + MemoryRecord.getMaxUsedMemory() / 1000000 + " Mb");
         System.out.println("运行结果保存路径:" + cpnSim.getSqlRecord().getDbPath());
+        System.out.println("数据中心间调度花费时间：" + cpnSim.getSqlRecord().getInterScheduleTime());
     }
 
     private void initUser() {
@@ -210,5 +211,10 @@ DatacenterSimple7 all has 0 conflicts.
 DatacenterSimple7 has a maximum of 7 hosts powered on, with a total usage time of 13762942.650000 ms for all hosts
 All TCO = 116547.856794
 ========================================================================================================================
+==================
+1 collaborations
+21
+2 collaborations
+13
 
  */
