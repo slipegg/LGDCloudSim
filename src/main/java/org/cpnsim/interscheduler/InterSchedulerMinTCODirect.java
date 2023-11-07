@@ -23,12 +23,15 @@ public class InterSchedulerMinTCODirect extends InterSchedulerSimple {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         NetworkTopology networkTopology = simulation.getNetworkTopology();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
+        double startTime = System.currentTimeMillis();
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> availableDatacenters = getAvailableDatacenters(instanceGroup, allDatacenters, networkTopology);
             instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
         }
+        double finishTime = System.currentTimeMillis();
         interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        this.filterSuitableDatacenterCostTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
+        this.filterSuitableDatacenterCostTime = finishTime - startTime;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
+        getDatacenter().getSimulation().getSqlRecord().addInterScheduleTime(this.filterSuitableDatacenterCostTime);
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> datacenters = instanceGroupAvaiableDatacenters.get(instanceGroup);
             Datacenter targetDatacenter = getMinTCODatacenter(datacenters, instanceGroup);

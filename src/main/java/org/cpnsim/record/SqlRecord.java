@@ -37,4 +37,8 @@ public interface SqlRecord {
     double getAvgInstanceSubmitDelay();
 
     void close();
+
+    void addInterScheduleTime(double interScheduleTime);
+
+    double getInterScheduleTime();
 }

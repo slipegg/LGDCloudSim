@@ -863,13 +863,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState().generate(this));
 
         List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
-        LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
         if (instanceGroups.size() == 0) {
             return;
         }
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
         double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
         send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
+        LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.It costs {}ms.", getSimulation().clockStr(), getName(), instanceGroups.size(), filterSuitableDatacenterCostTime);
     }
 
     /**

@@ -33,6 +33,7 @@ public class SqlRecordSimple implements SqlRecord {
     private double lastRecordConflictTime = -1;
     private double instanceDelaySum = 0.0;
     private long instanceNum = 0L;
+    private double interScheduleTime = 0.0;
 
     public SqlRecordSimple() {
 //        this("./RecordDb", "scaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".db", "userRequest", "instanceGroup", "instance");
@@ -309,6 +310,16 @@ public class SqlRecordSimple implements SqlRecord {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void addInterScheduleTime(double interScheduleTime) {
+        this.interScheduleTime += interScheduleTime;
+    }
+
+    @Override
+    public double getInterScheduleTime() {
+        return interScheduleTime;
     }
 
     private void createUserRequestTable() throws SQLException {

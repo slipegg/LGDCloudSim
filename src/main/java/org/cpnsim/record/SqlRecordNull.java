@@ -11,6 +11,8 @@ public class SqlRecordNull implements SqlRecord {
     private double instanceDelaySum = 0.0;
     private long instanceNum = 0L;
 
+    private double interScheduleTime = 0.0;
+
     public SqlRecordNull() {
     }
 
@@ -99,5 +101,15 @@ public class SqlRecordNull implements SqlRecord {
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public void addInterScheduleTime(double interScheduleTime) {
+        this.interScheduleTime += interScheduleTime;
+    }
+
+    @Override
+    public double getInterScheduleTime() {
+        return this.interScheduleTime;
     }
 }
