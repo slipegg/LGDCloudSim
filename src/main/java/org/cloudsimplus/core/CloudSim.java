@@ -45,7 +45,7 @@ public class CloudSim implements Simulation {
     @Getter
     @Setter
     private boolean isSqlRecord;
-    SqlRecord sqlRecord;
+    SqlRecord sqlRecord = new SqlRecordNull();
     @Getter
     private int simulationAccuracy;
     private double terminationTime = -1;
