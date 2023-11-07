@@ -2,10 +2,8 @@ package org.cpnsim.datacenter;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Simulation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.cpnsim.interscheduler.InterScheduler;
 
 import java.util.*;
 
@@ -35,19 +33,32 @@ public class CollaborationManagerSimple implements CollaborationManager {
      */
     private Map<Integer, Set<Datacenter>> collaborationMap;
 
+    private Map<Integer, Datacenter> datacenterIdMap;
+
     /**
      * The Simulation.
      */
     private Simulation cloudSim;
 
+    @Getter
+    private Map<Integer, GroupQueue> collaborationGroupQueueMap = new HashMap<>();
+
+    @Getter
+    private Map<Integer, InterScheduler> collaborationCenterSchedulerMap = new HashMap<>();
+
+    @Getter
+    private Map<Integer, Boolean> centerSchedulerBusyMap = new HashMap<>();
+
     public CollaborationManagerSimple(Simulation simulation) {
         this.cloudSim = simulation;
         this.collaborationMap = new HashMap<>();
+        this.datacenterIdMap = new HashMap<>();
         simulation.setCollaborationManager(this);
     }
 
     @Override
     public CollaborationManager addDatacenter(Datacenter datacenter, int collaborationId) {
+        datacenterIdMap.put(datacenter.getId(), datacenter);
         Set<Datacenter> datacenters = collaborationMap.get(collaborationId);
         if (datacenters == null) {
             datacenters = new HashSet<>();
@@ -88,6 +99,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
             datacenters.addAll(addDatacenters);
             for (Datacenter datacenter : addDatacenters) {
                 datacenterAddCollaborationId(datacenter, collaborationId);
+                datacenterIdMap.put(datacenter.getId(), datacenter);
             }
         }
         return this;
@@ -101,6 +113,16 @@ public class CollaborationManagerSimple implements CollaborationManager {
             datacenters.remove(datacenter);
         }
         datacenterRemoveCollaborationId(datacenter, collaborationId);
+        boolean isInCollaboration = false;
+        for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
+            if (entry.getValue().contains(datacenter)) {
+                isInCollaboration = true;
+                break;
+            }
+        }
+        if (!isInCollaboration) {
+            datacenterIdMap.remove(datacenter.getId());
+        }
         return this;
     }
 
@@ -127,6 +149,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
         for (Integer collaborationId : collaborationIds) {
             removeDatacenter(datacenter, collaborationId);
         }
+        datacenterIdMap.remove(datacenter.getId());
         return this;
     }
 
@@ -192,8 +215,8 @@ public class CollaborationManagerSimple implements CollaborationManager {
         for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
             Set<Datacenter> datacenters = entry.getValue();
             for (Datacenter datacenter : datacenters) {
-                if (datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() < smallCpuSum) {
-                    smallCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum();
+                if (datacenter.getStatesManager().getSimpleState().getCpuAvailableSum() < smallCpuSum) {
+                    smallCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvailableSum();
                     smallCpuCollaborationId = entry.getKey();
                     minCpuDatacenter = datacenter;
                 }
@@ -205,8 +228,8 @@ public class CollaborationManagerSimple implements CollaborationManager {
             }
             Set<Datacenter> datacenters = entry.getValue();
             for (Datacenter datacenter : datacenters) {
-                if (datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum() > maxCpuSum) {
-                    maxCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvaiableSum();
+                if (datacenter.getStatesManager().getSimpleState().getCpuAvailableSum() > maxCpuSum) {
+                    maxCpuSum = datacenter.getStatesManager().getSimpleState().getCpuAvailableSum();
                     maxCpuCollaborationId = entry.getKey();
                     maxCpuDatacenter = datacenter;
                 }
@@ -222,5 +245,33 @@ public class CollaborationManagerSimple implements CollaborationManager {
         smallCpuDatacenters.add(maxCpuDatacenter);
         maxCpuDatacenters.add(minCpuDatacenter);
         return this;
+    }
+
+    @Override
+    public CollaborationManager addCenterScheduler(InterScheduler centerScheduler) {
+        int collaborationId = centerScheduler.getCollaborationId();
+        collaborationGroupQueueMap.put(collaborationId, new GroupQueueFifo());
+        collaborationCenterSchedulerMap.put(collaborationId, centerScheduler);
+        centerSchedulerBusyMap.put(collaborationId, false);
+        return this;
+    }
+
+    @Override
+    public Datacenter getDatacenterById(int datacenterId) {
+        if (!datacenterIdMap.containsKey(datacenterId)) {
+            LOGGER.error("There is no datacenter with id {} in the simulation", datacenterId);
+        }
+        return datacenterIdMap.get(datacenterId);
+    }
+
+    @Override
+    public int getOnlyCollaborationId(int datacenterId) {
+        Datacenter srcDatacenter = getDatacenterById(datacenterId);
+        Set<Integer> collaborationIds = srcDatacenter.getCollaborationIds();
+        if (collaborationIds.size() > 1) {
+            LOGGER.error("{} has more than one collaboration.It is not allow in getOnlyCollaborationId", srcDatacenter.getName());
+            assert false;
+        }
+        return collaborationIds.iterator().next();
     }
 }

@@ -11,7 +11,7 @@ public interface Factory {
 
     PredictionManager getPredictionManager(String type);
 
-    InterScheduler getInterScheduler(String type);
+    InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId);
 
     LoadBalance getLoadBalance(String type);
 

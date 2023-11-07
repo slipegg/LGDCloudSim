@@ -14,20 +14,17 @@ public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
 
     @Override
     public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
-        int hostNum = datacenter.getStatesManager().getHostNum();
-        //TODO 域内调度
         Map<Integer, List<Instance>> res = new HashMap<>();
 
         for (Instance instance : instances) {
             int suitId = -1;
 
             int synPartitionId = firstPartitionId;
-            if (datacenter.getStatesManager().getSmallSynGap() != 0) {
-                int smallSynNum = (int) (datacenter.getSimulation().clock() / datacenter.getStatesManager().getSmallSynGap());
-                synPartitionId = (firstPartitionId + smallSynNum) % partitionNum;
+            if (datacenter.getStatesManager().isSynCostTime()) {
+                synPartitionId = (firstPartitionId + datacenter.getStatesManager().getSmallSynGapCount()) % partitionNum;
             }
             for (int p = 0; p < partitionNum; p++) {
-                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + p) % partitionNum);
+                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + partitionNum - p) % partitionNum);
                 int startHostId = random.nextInt(range[1] - range[0] + 1);
                 int rangeLength = range[1] - range[0] + 1;
                 for (int i = 0; i < rangeLength; i++) {

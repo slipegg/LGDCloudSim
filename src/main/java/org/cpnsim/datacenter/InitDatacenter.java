@@ -5,15 +5,16 @@ import org.cloudsimplus.core.Simulation;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.statemanager.*;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class to initialize datacenters.
@@ -23,6 +24,7 @@ import java.util.Map;
  * @since CPNSim 1.0
  */
 public class InitDatacenter {
+    private static Logger LOGGER = LoggerFactory.getLogger(InitDatacenter.class.getSimpleName());
     /**
      * The {@link Simulation} object.
      **/
@@ -32,6 +34,10 @@ public class InitDatacenter {
      * The {@link Factory} object.
      **/
     private static Factory factory;
+
+    private static int interSchedulerId = 0;
+
+    private static int innerSchedulerId = 0;
 
     /**
      * Initialize datacenters.
@@ -44,10 +50,17 @@ public class InitDatacenter {
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
+            int collaborationId = collaborationJson.getInt("id");
+            boolean isCenterSchedule = collaborationJson.containsKey("centerScheduler");
+            if (isCenterSchedule) {
+                JsonObject centerScheduler = collaborationJson.getJsonObject("centerScheduler");
+                InterScheduler interScheduler = factory.getInterScheduler(centerScheduler.getString("type"), interSchedulerId++, cpnSim, collaborationId);
+                collaborationManager.addCenterScheduler(interScheduler);
+            }
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
                 JsonObject datacenterJson = collaborationJson.getJsonArray("datacenters").getJsonObject(j);
-                Datacenter datacenter = getDatacenter(datacenterJson);
-                collaborationManager.addDatacenter(datacenter, collaborationJson.getInt("id"));
+                Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule);
+                collaborationManager.addDatacenter(datacenter, collaborationId);
             }
         }
     }
@@ -74,8 +87,13 @@ public class InitDatacenter {
      * @param datacenterJson a {@link JsonObject} object
      * @return a {@link StatesManager} object
      */
-    private static Datacenter getDatacenter(JsonObject datacenterJson) {
-        Datacenter datacenter = new DatacenterSimple(cpnSim, datacenterJson.getInt("id"));
+    private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule) {
+        int id = datacenterJson.getInt("id");
+        if (id == 0) {
+            LOGGER.error("0 is the id of CIS,Datacenter id should not be 0");
+            System.exit(1);
+        }
+        Datacenter datacenter = new DatacenterSimple(cpnSim, id);
 
         StatesManager statesManager = getStatesManager(datacenterJson);
         datacenter.setStatesManager(statesManager);
@@ -84,11 +102,16 @@ public class InitDatacenter {
         datacenter.setInnerSchedulers(innerSchedulers);
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
-        InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"));
-        if (interSchedulerJson.containsKey("isDirectSend")) {
-            interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
+        if (isCenterSchedule) {
+            datacenter.setCentralizedInterSchedule(true);
+        } else {
+            InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId);
+            interScheduler.setDatacenter(datacenter);
+            if (interSchedulerJson.containsKey("isDirectSend")) {
+                interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
+            }
+            datacenter.setInterScheduler(interScheduler);
         }
-        datacenter.setInterScheduler(interScheduler);
 
         JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
         LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
@@ -113,13 +136,11 @@ public class InitDatacenter {
      */
     private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<InnerScheduler> innerSchedulers = new ArrayList<>();
-        int innerSchdeuleId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
             int firstPartitionId = schedulerJson.getInt("firstPartitionIndex");
-            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchdeuleId, firstPartitionId, partitionNum);
+            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchedulerId++, firstPartitionId, partitionNum);
             innerSchedulers.add(scheduler);
-            innerSchdeuleId++;
         }
         return innerSchedulers;
     }
@@ -134,13 +155,31 @@ public class InitDatacenter {
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
         double synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
 //        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, innerSchedulers);
-        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap);
+        int[] maxCpuRam = getMaxCpuRam(datacenterJson);
+        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
 
         setPrediction(statesManager, datacenterJson);
 
         initHostState(statesManager, datacenterJson);
 
         return statesManager;
+    }
+
+    private static int[] getMaxCpuRam(JsonObject datacenterJson) {
+        int maxCpu = 0;
+        int maxRam = 0;
+        for (int k = 0; k < datacenterJson.getJsonArray("hostStates").size(); k++) {
+            JsonObject hostStateJson = datacenterJson.getJsonArray("hostStates").getJsonObject(k);
+            int cpu = hostStateJson.getInt("cpu");
+            int ram = hostStateJson.getInt("ram");
+            if (cpu > maxCpu) {
+                maxCpu = cpu;
+            }
+            if (ram > maxRam) {
+                maxRam = ram;
+            }
+        }
+        return new int[]{maxCpu, maxRam};
     }
 
     /**
@@ -177,6 +216,10 @@ public class InitDatacenter {
             PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
             statesManager.setPredictionManager(predictionManager);
             int predictRecordNum = predictionJson.getInt("predictRecordNum");
+            if (predictRecordNum <= 0) {
+                LOGGER.error("predictRecordNum must be greater than 0");
+                System.exit(-1);
+            }
             statesManager.setPredictRecordNum(predictRecordNum);
         }
     }
@@ -210,6 +253,25 @@ public class InitDatacenter {
         double unitRackPrice = unitPriceJson.getJsonNumber("rack").doubleValue();
         double unitStoragePrice = unitPriceJson.getJsonNumber("storage").doubleValue();
         double unitBwPrice = unitPriceJson.getJsonNumber("bw").doubleValue();
+        if (unitPriceJson.containsKey("bwBillingType")) {
+            String bwBillingType = unitPriceJson.getString("bwBillingType");
+            if (!Objects.equals(bwBillingType, "used") && !Objects.equals(bwBillingType, "fixed")) {
+                LOGGER.error("bwBillingType should be either used or fixed");
+                System.exit(1);
+            } else {
+                datacenter.setBwBillingType(bwBillingType);
+                if (bwBillingType.equals("used")) {
+                    if (unitPriceJson.containsKey("bwUtilization")) {
+                        double bwUtilization = unitPriceJson.getJsonNumber("bwUtilization").doubleValue();
+                        datacenter.setBwUtilization(bwUtilization);
+                    } else {
+                        LOGGER.error("A double type bwUtilization should be set when bwBillingType is used");
+                        System.exit(1);
+                    }
+                }
+
+            }
+        }
         datacenter.setUnitCpuPrice(unitCpuPrice);
         datacenter.setUnitRamPrice(unitRamPrice);
         datacenter.setUnitRackPrice(unitRackPrice);

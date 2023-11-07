@@ -1,0 +1,369 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "datacenters": [
+        {
+          "id": 1,
+          "hostNum": 25000,
+          "partitions": [
+            {
+              "length": 25000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 25000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 2,
+          "hostNum": 35000,
+          "partitions": [
+            {
+              "length": 35000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 35000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 3,
+          "hostNum": 7000,
+          "partitions": [
+            {
+              "length": 7000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 7000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 4,
+          "hostNum": 7000,
+          "partitions": [
+            {
+              "length": 7000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 7000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 5,
+          "hostNum": 7000,
+          "partitions": [
+            {
+              "length": 7000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 7000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 6,
+          "hostNum": 7000,
+          "partitions": [
+            {
+              "length": 7000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 7000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 7,
+          "hostNum": 3000,
+          "partitions": [
+            {
+              "length": 3000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 3000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 8,
+          "hostNum": 3000,
+          "partitions": [
+            {
+              "length": 3000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 3000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 9,
+          "hostNum": 3000,
+          "partitions": [
+            {
+              "length": 3000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 3000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        },
+        {
+          "id": 10,
+          "hostNum": 3000,
+          "partitions": [
+            {
+              "length": 3000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 3000
+            }
+          ],
+          "interScheduler": {
+            "type": "consult",
+            "isDirectSend": false
+          },
+          "synchronizationGap": 0,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    }
+  ]
+}

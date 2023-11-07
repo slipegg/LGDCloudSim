@@ -22,35 +22,28 @@ import static org.junit.jupiter.api.Assertions.*;
  * @date 2023/7/13 10:44
  */
 public class InterSchedulerSimpleTest {
+    Simulation simulation = new CloudSim();
 
     @Test
     public void testNewScheduleInterSchedulerSimpleNoParam(){
-        InterScheduler interScheduler=new InterSchedulerSimple();
+        InterScheduler interScheduler = new InterSchedulerSimple(simulation, 0);
         assertEquals(0,interScheduler.getId());
     }
 
     @Test
-    public void testNewScheduleInterSchedulerSimpleParams(){
-        Simulation simulation=new CloudSim();
-        Datacenter datacenter=new DatacenterSimple(simulation);
-        int id=1;
-        InterScheduler interScheduler=new InterSchedulerSimple(id,datacenter);
-        assertEquals(id,interScheduler.getId());
-        assertSame(datacenter,interScheduler.getDatacenter());
-    }
-
-    @Test
-    public void testSetId(){
-        int id=1;
-        InterScheduler interScheduler=new InterSchedulerSimple();
-        interScheduler.setId(id);
-        assertEquals(id,interScheduler.getId());
+    public void testNewScheduleInterSchedulerSimpleParams() {
+        Datacenter datacenter = new DatacenterSimple(simulation);
+        int id = 1;
+        InterScheduler interScheduler = new InterSchedulerSimple(id, simulation, 0);
+        interScheduler.setDatacenter(datacenter);
+        assertEquals(id, interScheduler.getId());
+        assertSame(datacenter, interScheduler.getDatacenter());
     }
 
     @Test
     public void testSetDatacenter(){
-        InterScheduler interScheduler=new InterSchedulerSimple();
-        Simulation simulation=new CloudSim();
+        InterScheduler interScheduler = new InterSchedulerSimple(simulation, 0);
+        Simulation simulation = new CloudSim();
         Datacenter datacenter=new DatacenterSimple(simulation);
         interScheduler.setDatacenter(datacenter);
         assertSame(datacenter,interScheduler.getDatacenter());
@@ -58,7 +51,7 @@ public class InterSchedulerSimpleTest {
 
     @Test
     public void testIsDirected(){
-        InterScheduler interScheduler=new InterSchedulerSimple();
+        InterScheduler interScheduler = new InterSchedulerSimple(simulation, 0);
         assertFalse(interScheduler.isDirectedSend());
     }
 
@@ -85,8 +78,8 @@ public class InterSchedulerSimpleTest {
         instanceGroup.setUserRequest(failedRequest);
         instanceGroups.add(instanceGroup);
 
-        InterScheduler interScheduler=new InterSchedulerSimple();
-        Map<InstanceGroup, Double> result=interScheduler.decideReciveGroupResult(instanceGroups);
+        InterScheduler interScheduler = new InterSchedulerSimple(simulation, 0);
+        Map<InstanceGroup, Double> result = interScheduler.decideReciveGroupResult(instanceGroups);
         assertEquals(4,result.size());
         assertFalse(result.containsKey(failedRequest));
     }
@@ -127,8 +120,8 @@ public class InterSchedulerSimpleTest {
                 instanceGroup3,datacenterIntegerMap3
         );
 
-        InterScheduler interScheduler=new InterSchedulerSimple();
-        Map<InstanceGroup,Datacenter> result= interScheduler.decideTargetDatacenter(instanceGroupMapMap,instanceGroups);
+        InterScheduler interScheduler = new InterSchedulerSimple(simulation, 0);
+        Map<InstanceGroup, Datacenter> result = interScheduler.decideTargetDatacenter(instanceGroupMapMap, instanceGroups);
 
         assertEquals(3,result.size());
 

@@ -45,7 +45,7 @@ public class CloudSim implements Simulation {
     @Getter
     @Setter
     private boolean isSqlRecord;
-    SqlRecord sqlRecord;
+    SqlRecord sqlRecord = new SqlRecordNull();
     @Getter
     private int simulationAccuracy;
     private double terminationTime = -1;
@@ -56,7 +56,7 @@ public class CloudSim implements Simulation {
         this.future = new FutureQueue();
         this.deferred = new DeferredQueue();
         this.cis = new CloudInformationService(this);
-        this.simulationAccuracy = 2;
+        this.simulationAccuracy = 3;
         this.isSqlRecord = true;
     }
 
@@ -142,7 +142,6 @@ public class CloudSim implements Simulation {
 
         while (processEvents(Double.MAX_VALUE)) {
             MemoryRecord.recordMemory();
-            // getTCO(); // TODO: find a better way to trace TCO
         }
         finish();
         MemoryRecord.recordMemory();
@@ -168,17 +167,24 @@ public class CloudSim implements Simulation {
 
     private void finish() {
         LOGGER.info("Simulation finished at {}.", clockStr());
+        double allCost = 0;
         for (Datacenter datacenter : getCis().getDatacenterList()) {
+            double dcCost = datacenter.getAllCost();
+            System.out.printf("%s's TCO = %f\n", datacenter.getName(), dcCost);
+            allCost += dcCost;
             Map<Integer, Integer> partitionConflicts = datacenter.getResourceAllocateSelector().getPartitionConflicts();
-            int conflictSum=0;
+            int conflictSum = 0;
             for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
                 System.out.printf("%s's Partition%d has %d conflicts.\n", datacenter.getName(), entry.getKey(), entry.getValue());
-                conflictSum+=entry.getValue();
+                conflictSum += entry.getValue();
             }
             System.out.printf("%s all has %d conflicts.\n", datacenter.getName(), conflictSum);
             DatacenterPowerOnRecord record = datacenter.getStatesManager().getDatacenterPowerOnRecord();
             System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
         }
+        double avgInstanceSubmitDelay = getSqlRecord().getAvgInstanceSubmitDelay();
+        System.out.printf("Average instance submit delay = %f\n", avgInstanceSubmitDelay);
+        System.out.printf("All TCO = %f\n", allCost);
     }
 
     @Override
@@ -281,7 +287,7 @@ public class CloudSim implements Simulation {
 
         running = true;
         entityList.forEach(SimEntity::start);
-        LOGGER.info("Entities started.");
+        LOGGER.info("{}: All entities started.", clockStr());
     }
 
     @Override

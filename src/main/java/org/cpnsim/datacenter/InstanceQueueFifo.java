@@ -46,26 +46,34 @@ public class InstanceQueueFifo implements InstanceQueue {
     }
 
     @Override
-    public List<Instance> getBatchItem() {
-        return getItems(batchNum);
+    public List<Instance> getBatchItem(boolean isRemove) {
+        return getItems(batchNum, isRemove);
     }
 
     @Override
-    public List<Instance> getAllItem() {
-        return getItems(this.instances.size());
+    public List<Instance> getAllItem(boolean isRemove) {
+        return getItems(this.instances.size(), isRemove);
     }
 
-    private List<Instance> getItems(int num) {
+    private List<Instance> getItems(int num, boolean isRemove) {
         List<Instance> sendInstances = new ArrayList<>();
         for (int i = 0; i < num; i++) {
             if (this.instances.size() == 0) {
                 break;
             }
             if (this.instances.get(0).getUserRequest().getState() == UserRequest.FAILED) {
-                this.instances.remove(0);
+                if (isRemove) {
+                    this.instances.remove(0);
+                } else {
+                    sendInstances.add(this.instances.get(i));
+                }
                 continue;
             }
-            sendInstances.add(this.instances.remove(0));
+            if (isRemove) {
+                sendInstances.add(this.instances.remove(0));
+            } else {
+                sendInstances.add(this.instances.get(i));
+            }
         }
         return sendInstances;
     }

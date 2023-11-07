@@ -1,13 +1,8 @@
 package org.cloudsimplus.core;
 
-import org.cpnsim.datacenter.LoadBalance;
-import org.cpnsim.datacenter.LoadBalanceRound;
-import org.cpnsim.datacenter.ResourceAllocateSelector;
-import org.cpnsim.datacenter.ResourceAllocateSelectorSimple;
+import org.cpnsim.datacenter.*;
 import org.cpnsim.innerscheduler.*;
-import org.cpnsim.interscheduler.InterScheduler;
-import org.cpnsim.interscheduler.InterSchedulerDirect;
-import org.cpnsim.interscheduler.InterSchedulerSimple;
+import org.cpnsim.interscheduler.*;
 import org.cpnsim.statemanager.PredictionManager;
 import org.cpnsim.statemanager.PredictionManagerSimple;
 
@@ -20,6 +15,7 @@ public class FactorySimple implements Factory {
             case "minHostOn" -> new InnerSchedulerMinHostOn(id, firstPartitionId, partitionNum);
             case "FirstFit" -> new InnerSchedulerFirstFit(id, firstPartitionId, partitionNum);
             case "multiLevel" -> new InnerSchedulerPartitionMultiLevel(id, firstPartitionId, partitionNum);
+            case "fixedPartitionRandom" -> new InnerSchedulerFixedPartitionRandom(id, firstPartitionId, partitionNum);
             default -> null;
         };
     }
@@ -33,10 +29,12 @@ public class FactorySimple implements Factory {
     }
 
     @Override
-    public InterScheduler getInterScheduler(String type) {
+    public InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId) {
         return switch (type) {
-            case "simple", "Simple" -> new InterSchedulerSimple();
-            case "direct", "Direct" -> new InterSchedulerDirect();
+            case "simple", "Simple" -> new InterSchedulerSimple(id, simulation, collaborationId);
+            case "direct", "Direct" -> new InterSchedulerDirect(id, simulation, collaborationId);
+            case "minTCODirect" -> new InterSchedulerMinTCODirect(id, simulation, collaborationId);
+            case "consult", "Consult" -> new InterSchedulerConsult(id, simulation, collaborationId);
             default -> null;
         };
     }
@@ -45,6 +43,7 @@ public class FactorySimple implements Factory {
     public LoadBalance getLoadBalance(String type) {
         return switch (type) {
             case "round", "Round" -> new LoadBalanceRound();
+            case "batch", "Batch" -> new LoadBalanceBatch();
             default -> null;
         };
     }

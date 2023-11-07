@@ -5,6 +5,7 @@ import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
 
 import java.util.List;
@@ -110,6 +111,26 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
+    public Datacenter setCentralizedInterSchedule(boolean centralizedInterSchedule) {
+        return null;
+    }
+
+    @Override
+    public boolean isCentralizedInterSchedule() {
+        return false;
+    }
+
+    @Override
+    public double getEstimatedTCO(InstanceGroup instanceGroup) {
+        return 0;
+    }
+
+    @Override
+    public InstanceQueue getInstanceQueue() {
+        return null;
+    }
+
+    @Override
     public int compareTo(SimEntity o) {
         return 0;
     }
@@ -210,7 +231,32 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
+    public double getResourceCost() {
+        return 0;
+    }
+
+    @Override
     public double getAllCost() {
+        return 0;
+    }
+
+    @Override
+    public DatacenterPrice setBwBillingType(String bwBillingType) {
+        return null;
+    }
+
+    @Override
+    public String getBwBillingType() {
+        return null;
+    }
+
+    @Override
+    public DatacenterPrice setBwUtilization(double bwUtilization) {
+        return null;
+    }
+
+    @Override
+    public double getBwUtilization() {
         return 0;
     }
 

@@ -168,7 +168,7 @@ public abstract class CloudSimEntity implements SimEntity {
         schedule(dest, delay, tag, data);
     }
 
-    protected void sendBetweenDc(final SimEntity dest, double delay, final int tag, final Object data) {
+    protected void sendOverNetwork(final SimEntity dest, double delay, final int tag, final Object data) {
         requireNonNull(dest);
         if (dest.getId() < 0) {
             LOGGER.error("{}.send(): invalid entity id {} for {}", getName(), dest.getId(), dest);

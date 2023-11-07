@@ -42,6 +42,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * See {@link InstanceQueue}.
      */
+    @Getter
     private InstanceQueue instanceQueue;
 
     /**
@@ -133,14 +134,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double bwCost;
 
     /**
-     * The number of CPUs used.
-     * It is used to calculate the number of racks that need to be rented.
-     */
-    private int usedCpuNum;
-
-    /**
      * Number of CPUs in a rack.
      **/
+    //TODO 需要删除这个概念
     @Getter
     @Setter
     private int cpuNumPerRack;
@@ -153,10 +149,21 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double unitRackPrice;
 
     @Getter
+    @Setter
+    private String bwBillingType = "fixed";
+
+    @Getter
+    @Setter
+    private double bwUtilization;
+
+    @Getter
     private double TCOEnergy;
 
     @Getter
     private double TCORack;
+
+    @Setter
+    private boolean centralizedInterSchedule;
 
     /**
      * The InnerScheduleResult List.
@@ -191,7 +198,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.unitBwPrice = 1.0;
         this.unitRackPrice = 100.0;
         this.cpuNumPerRack = 10;
-        this.usedCpuNum = 0;
         this.cpuCost = 0.0;
         this.ramCost = 0.0;
         this.storageCost = 0.0;
@@ -242,12 +248,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     @Override
     public double getRackCost() {
-        return Math.ceil((double) usedCpuNum / cpuNumPerRack) * unitRackPrice;
+        int maxPowerOnHostNum = statesManager.getDatacenterPowerOnRecord().getMaxHostNum();
+        return maxPowerOnHostNum * unitRackPrice;
+    }
+
+    @Override
+    public double getResourceCost() {
+        return cpuCost + ramCost + storageCost + bwCost;
     }
 
     @Override
     public double getAllCost() {
-        return cpuCost + ramCost + storageCost + bwCost + getRackCost();
+        return getResourceCost() + getRackCost();
     }
 
     /**
@@ -257,8 +269,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         sendNow(getSimulation().getCis(), CloudSimTag.DC_REGISTRATION_REQUEST, this);
-        if (statesManager.getSmallSynGap() > 0) {
-            send(this, statesManager.getSmallSynGap(), CloudSimTag.SYN_STATE, null);
+        if (statesManager.isSynCostTime()) {
+            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE, null);
         }
     }
 
@@ -271,6 +283,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.SYN_STATE -> processSynState();
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
+            case CloudSimTag.ASK_SIMPLE_STATE -> processAskSimpleState(evt);
+            case CloudSimTag.RESPOND_SIMPLE_STATE -> processRespondSimpleState(evt);
             case CloudSimTag.GROUP_FILTER_DC_END -> processGroupFilterDcEnd(evt);
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP -> processRespondDcReviveGroup(evt);
@@ -288,12 +302,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     /**
      * Calling {@link StatesManager#synAllState()} to synchronize the state of the datacenter.
-     * And send a {@link CloudSimTag#SYN_STATE} event to itself after {@link StatesManager#getSmallSynGap()}.
+     * And send a {@link CloudSimTag#SYN_STATE} event to itself after smallSynGap.
      */
     private void processSynState() {
         statesManager.synAllState();
-        if (statesManager.getSmallSynGap() > 0) {
-            send(this, statesManager.getSmallSynGap(), CloudSimTag.SYN_STATE, null);
+        if (statesManager.isSynCostTime()) {
+            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE, null);
         }
     }
 
@@ -301,11 +315,20 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (instance.getStartTime() == -1 || instance.getFinishTime() == -1) {
             return;
         }
-        cpuCost += instance.getCpu() * unitCpuPrice * (instance.getFinishTime() - instance.getStartTime());
-        ramCost += instance.getRam() * unitRamPrice * (instance.getFinishTime() - instance.getStartTime());
-        storageCost += instance.getStorage() * unitStoragePrice * (instance.getFinishTime() - instance.getStartTime());
-        bwCost += instance.getBw() * unitBwPrice * (instance.getFinishTime() - instance.getStartTime());
-        usedCpuNum += instance.getCpu();
+        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
+        cpuCost += instance.getCpu() * unitCpuPrice * lifeTimeSec;
+        ramCost += instance.getRam() * unitRamPrice * lifeTimeSec;
+        storageCost += instance.getStorage() * unitStoragePrice * lifeTimeSec;
+        bwCost += calculateInstanceBwCost(instance);
+    }
+
+    private double calculateInstanceBwCost(Instance instance) {
+        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
+        if (bwBillingType.equals("used")) {
+            return (instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * unitBwPrice;
+        } else {
+            return instance.getBw() * unitBwPrice * lifeTimeSec;
+        }
     }
 
     /**
@@ -398,22 +421,31 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param evt
      */
     private void processPreAllocateResource(SimEvent evt) {
-        LOGGER.info("{}: {}'s all innerScheduler result has been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
-        Map<Integer, List<Instance>> allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResults);
+        LOGGER.info("{}: {}'s all innerScheduler results have been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
+        ResourceAllocateResult allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResults);
+        if (allocateResult.getFailRes() != null && allocateResult.getFailRes().size() > 0) {
+            for (Map.Entry<InnerScheduler, List<Instance>> entry : allocateResult.getFailRes().entrySet()) {
+                innerScheduleFailed(entry.getValue(), entry.getKey(), true);
+            }
+        }
+        if (!allocateResult.getSuccessRes().isEmpty()) {
+            allocateResource(allocateResult.getSuccessRes());
+        }
+        for (InnerScheduleResult innerScheduleResult : this.innerSchedulerResults) {
+            InnerScheduler innerScheduler = innerScheduleResult.getInnerScheduler();
+            if (innerScheduler.isQueuesEmpty()) {
+                isInnerSchedulerBusy.put(innerScheduler, false);
+            } else {
+                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
+            }
+        }
+
         this.innerSchedulerResults.clear();
-        if (allocateResult.containsKey(-1)) {
-            innerScheduleFailed(allocateResult.get(-1));
-            allocateResult.remove(-1);
-        }
-        if (!allocateResult.isEmpty()) {
-            allocateResource(allocateResult);
-        }
     }
 
     private void allocateResource(Map<Integer, List<Instance>> allocateResult) {
         LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
-        List<Instance> failedInstances = null;
-        Map<Integer, List<Instance>> finishInstances = new HashMap<>();
+        Map<Integer, List<Instance>> successAllocatedInstances = new HashMap<>();
         for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
             int hostId = entry.getKey();
             List<Instance> instances = entry.getValue();
@@ -423,36 +455,32 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
                 if (!statesManager.allocate(hostId, instance))//理论上到这里不会出现分配失败的情况
                 {
-                    if (failedInstances == null) {
-                        failedInstances = new ArrayList<>();
-                    }
-                    failedInstances.add(instance);
-                    continue;
+                    LOGGER.error("{}: {}'s Instance{} failed to allocate resources on host{} after processPreAllocateResource", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+                    System.exit(-1);
                 }
                 instance.setState(UserRequest.RUNNING);
                 instance.setHost(hostId);
                 instance.setStartTime(getSimulation().clock());
                 updateTCO();
                 int lifeTime = instance.getLifeTime();
-                if (lifeTime > 0) {
-                    finishInstances.putIfAbsent(lifeTime, new ArrayList<>());
-                    finishInstances.get(lifeTime).add(instance);
-                }
+//                if (lifeTime > 0) {
+                successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
+                successAllocatedInstances.get(lifeTime).add(instance);
+//                }
 //                getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
             }
         }
-        getSimulation().getSqlRecord().recordInstancesCreateInfo(finishInstances);
-        if (failedInstances != null) {
-            innerScheduleFailed(failedInstances);
-        }
-        sendFinishInstanceRunEvt(finishInstances);
+        getSimulation().getSqlRecord().recordInstancesCreateInfo(successAllocatedInstances);
+        sendFinishInstanceRunEvt(successAllocatedInstances);
     }
 
     private void sendFinishInstanceRunEvt(Map<Integer, List<Instance>> finishInstances) {
         for (Map.Entry<Integer, List<Instance>> entry : finishInstances.entrySet()) {
             int lifeTime = entry.getKey();
             List<Instance> instances = entry.getValue();
-            send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
+            if (lifeTime > 0) {
+                send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
+            }
         }
     }
 
@@ -466,27 +494,27 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             Map<Integer, List<Instance>> scheduleResult = innerSchedulerResult.getScheduleResult();
             InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
             LOGGER.info("{}: {}'s {} ends scheduling instances,it scheduling for {} hosts", getSimulation().clockStr(), getName(), innerScheduler.getName(), scheduleResult.size());
-            if (!isInSameSmallSynGap(innerSchedulerResult.getScheduleTime(), getSimulation().clock())) {//把同步时对这一调度的记录补回来
-                statesManager.revertHostState(scheduleResult, innerScheduler);
+            if (!statesManager.isInLatestSmallSynGap(innerSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
+                statesManager.revertHostState(innerSchedulerResult);
             }
             if (scheduleResult.containsKey(-1)) {
-                innerScheduleFailed(scheduleResult.get(-1));
+                innerScheduleFailed(scheduleResult.get(-1), innerScheduler, false);
                 scheduleResult.remove(-1);
             }
             innerSchedulerResults.add(innerSchedulerResult);
             if (!scheduleResult.isEmpty()) {
                 send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, null);
-            }
-            if (innerScheduler.getQueueSize() != 0) {
-                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
-            } else {
+            } else if (innerScheduler.isQueuesEmpty()) {
                 isInnerSchedulerBusy.put(innerScheduler, false);
+            } else if (!innerScheduler.isQueuesEmpty()) {
+                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
             }
+//            if (innerScheduler.getNewInstanceQueueSize() != 0) {
+//                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
+//            } else {
+//                isInnerSchedulerBusy.put(innerScheduler, false);
+//            }
         }
-    }
-
-    private boolean isInSameSmallSynGap(double lastTime, double nowTime) {
-        return (int) (lastTime / statesManager.getSmallSynGap()) == (int) (nowTime / statesManager.getSmallSynGap());
     }
 
     /**
@@ -505,20 +533,23 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void innerScheduleFailed(List<Instance> instances) {
-        List<Instance> retryInstances = new ArrayList<>();
-        for (Instance instance : instances) {
+    private void innerScheduleFailed(List<Instance> instances, InnerScheduler innerScheduler, boolean isNeedRevertSelfHostState) {
+        Iterator<Instance> instanceIterator = instances.iterator();
+        while (instanceIterator.hasNext()) {
+            Instance instance = instanceIterator.next();
             instance.addRetryNum();
             if (instance.isFailed()) {
                 UserRequest userRequest = instance.getUserRequest();
                 userRequest.setFailReason("instance" + instance.getId());
                 send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, userRequest);
-            } else {
-                retryInstances.add(instance);
+                instanceIterator.remove();
             }
         }
-        LOGGER.warn("{}: {}'s {} instances failed to schedule,it is retrying.", getSimulation().clockStr(), getName(), retryInstances.size());
-        send(this, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, retryInstances);
+        innerScheduler.addInstance(instances, true);
+        if (isNeedRevertSelfHostState) {
+            statesManager.revertSelftHostState(instances, innerScheduler);
+        }
+        LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), innerScheduler.getName(), instances.size());
     }
 
     /**
@@ -527,9 +558,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param evt
      */
     private void processLoadBalanceSend(SimEvent evt) {
-        List<Instance> instances = instanceQueue.getAllItem();
+        List<Instance> instances = instanceQueue.getAllItem(true);
         if (instances.size() != 0) {
-            List<InnerScheduler> sentInnerScheduler = loadBalance.sendInstances(instances);
+            Set<InnerScheduler> sentInnerScheduler = loadBalance.sendInstances(instances);
             if (instanceQueue.size() > 0) {
                 send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
             }
@@ -577,7 +608,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                         instanceGroup.setReceivedTime(getSimulation().clock());
                     }
                 }
-                interScheduler.receiveEmployGroup(instanceGroups);
+                if (!isCentralizedInterSchedule()) {
+                    interScheduler.receiveEmployGroup(instanceGroups);
+                }
                 instanceQueue.add(instanceGroups);
                 LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
                         getSimulation().clockStr(),
@@ -638,7 +671,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 Map<InstanceGroup, Datacenter> decideResult = interScheduler.decideTargetDatacenter(instanceGroupSendResultMap, waitDecideInstanceGroups);
                 double delay = interScheduler.getDecideTargetDatacenterCostTime();
                 sendDecideResult(decideResult, delay);
-                LOGGER.info("{}: {} decides to schedule {} InstanceGroup after receiving all respond.", getSimulation().clockStr(), getName(), decideResult.size());
+                LOGGER.info("{}: {} decides to schedule {} InstanceGroup after receiving all responds.", getSimulation().clockStr(), getName(), decideResult.size());
             }
         }
     }
@@ -723,8 +756,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         return true;
-
-        // TODO: TCO
     }
 
 
@@ -747,7 +778,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> instanceGroups) {
             Map<InstanceGroup, Double> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
             double costTime = interScheduler.getDecideReciveGroupResultCostTime();
-            sendBetweenDc(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
+            sendOverNetwork(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
+            LOGGER.info("{}: {} received {} instanceGroups to mark scores for them.", getSimulation().clockStr(), getName(), instanceGroups.size());
         }
     }
 
@@ -796,14 +828,48 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * It will send an GROUP_FILTER_DC_END evt to call {!link #processGroupAssignDcEnd(SimEvent)} after the {@link InterScheduler#getFilterSuitableDatacenterCostTime}
      */
     private void processGroupFilterDcBegin() {
+        List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
+        interScheduler.getInterScheduleSimpleStateMap().clear();
+        if (datacenters.size() == 1 && datacenters.get(0) == this) {
+            startInterSchedule();
+        } else {
+            for (Datacenter datacenter : datacenters) {
+                if (datacenter != this) {
+                    sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
+                    interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
+                }
+            }
+            LOGGER.info("{}: {} starts asking for the simple state of {} other datacenters.", getSimulation().clockStr(), getName(), datacenters.size() - 1);
+        }
+    }
+
+    private void processAskSimpleState(final SimEvent evt) {
+        Object simpleState = statesManager.getSimpleState().generate(this);
+        sendOverNetwork(evt.getSource(), 0, CloudSimTag.RESPOND_SIMPLE_STATE, simpleState);
+        LOGGER.info("{}: {} sends the simple state of itself to {}.", getSimulation().clockStr(), getName(), evt.getSource().getName());
+    }
+
+    private void processRespondSimpleState(final SimEvent evt) {
+        if (evt.getData() != null) {
+            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), evt.getData());
+            if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
+                return;
+            }
+            startInterSchedule();
+        }
+    }
+
+    private void startInterSchedule() {
+        interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState().generate(this));
+
         List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
-        LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), instanceGroups.size());
         if (instanceGroups.size() == 0) {
             return;
         }
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
         double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
         send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
+        LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.It costs {}ms.", getSimulation().clockStr(), getName(), instanceGroups.size(), filterSuitableDatacenterCostTime);
     }
 
     /**
@@ -872,9 +938,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     }
                     instanceGroup.setState(UserRequest.SCHEDULING);
                 }
-                sendBetweenDc(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
+                sendOverNetwork(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
             } else {
-                sendBetweenDc(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
+                sendOverNetwork(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
             }
         }
         //处理调度失败的instanceGroup
@@ -897,6 +963,24 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             send(this, 0, CloudSimTag.USER_REQUEST_SEND, retryInstanceGroups);
             LOGGER.warn("{}: {}'s {} instance groups retry.", getSimulation().clockStr(), getName(), retryInstanceGroups.size());
         }
+    }
+
+    @Override
+    public boolean isCentralizedInterSchedule() {
+        return centralizedInterSchedule;
+    }
+
+    @Override
+    public double getEstimatedTCO(InstanceGroup instanceGroup) {
+        double tco = 0;
+        for (Instance instance : instanceGroup.getInstanceList()) {
+            tco += instance.getCpu() * unitCpuPrice * instance.getLifeTime() / 1000.0
+                    + instance.getRam() * unitRamPrice * instance.getLifeTime() / 1000.0
+                    + instance.getStorage() * unitStoragePrice * instance.getLifeTime() / 1000.0
+                    + instance.getBw() * unitBwPrice * instance.getLifeTime() / 1000.0
+                    + (double) instance.getCpu() / statesManager.getMaxCpuCapacity() * unitRackPrice;
+        }
+        return tco;
     }
 
     @Override

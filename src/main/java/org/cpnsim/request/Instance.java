@@ -3,6 +3,8 @@ package org.cpnsim.request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public interface Instance extends RequestEntity {
     Logger LOGGER = LoggerFactory.getLogger(Instance.class.getSimpleName());
 
@@ -66,4 +68,8 @@ public interface Instance extends RequestEntity {
     Instance setRetryNum(int retryNum);
 
     Instance setRetryMaxNum(int retryMaxNum);
+
+    Instance addRetryHostId(int hostId);
+
+    List<Integer> getRetryHostIds();
 }

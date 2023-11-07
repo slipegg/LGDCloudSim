@@ -24,7 +24,6 @@ public class InitDatacenterTest {
         HostState hostState = datacenter.getStatesManager().getNowHostState(0);
         HostState exceptedHostState = new HostState(10, 10, 10, 10);
         assertEquals(exceptedHostState, hostState);
-        assertEquals(60, datacenter.getStatesManager().getSmallSynGap(), 0.1);
         assertEquals(2, datacenter.getInnerSchedulers().size());
         InnerScheduler innerScheduler0 = datacenter.getInnerSchedulers().get(0);
         assertEquals(0, innerScheduler0.getFirstPartitionId());

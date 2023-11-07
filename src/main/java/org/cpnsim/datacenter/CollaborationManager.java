@@ -1,5 +1,6 @@
 package org.cpnsim.datacenter;
 
+import org.cpnsim.interscheduler.InterScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,4 +120,16 @@ public interface CollaborationManager {
      * Strategies for realigning collaborative areas
      */
     CollaborationManager changeCollaboration();
+
+    CollaborationManager addCenterScheduler(InterScheduler centerScheduler);
+
+    Map<Integer, GroupQueue> getCollaborationGroupQueueMap();
+
+    Map<Integer, InterScheduler> getCollaborationCenterSchedulerMap();
+
+    Map<Integer, Boolean> getCenterSchedulerBusyMap();
+
+    Datacenter getDatacenterById(int datacenterId);
+
+    int getOnlyCollaborationId(int datacenterId);
 }

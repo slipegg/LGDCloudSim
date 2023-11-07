@@ -2,8 +2,10 @@ package org.cpnsim.interscheduler;
 
 import org.cloudsimplus.core.DatacenterEntity;
 import org.cloudsimplus.core.Nameable;
+import org.cloudsimplus.core.Simulation;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.statemanager.SimpleState;
 
 import java.util.List;
 import java.util.Map;
@@ -40,4 +42,12 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
     boolean isDirectedSend();
 
     InterScheduler setDirectedSend(boolean directedSend);
+
+    InterScheduler setSimulation(Simulation simulation);
+
+    int getCollaborationId();
+
+    InterScheduler setCollaborationId(int collaborationId);
+
+    Map<Datacenter, Object> getInterScheduleSimpleStateMap();
 }

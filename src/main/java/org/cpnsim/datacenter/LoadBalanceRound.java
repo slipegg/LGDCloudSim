@@ -6,9 +6,9 @@ import org.cpnsim.request.Instance;
 import org.cpnsim.innerscheduler.InnerScheduler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import static org.apache.commons.lang3.math.NumberUtils.max;
+import java.util.Set;
 
 /**
  * A class to represent a load balancer.
@@ -23,7 +23,6 @@ public class LoadBalanceRound implements LoadBalance {
      * the datacenter to be load balanced.
      **/
     @Getter
-    @Setter
     Datacenter datacenter;
 
     /**
@@ -39,8 +38,8 @@ public class LoadBalanceRound implements LoadBalance {
     int lastInnerSchedulerId = 0;
 
     @Override
-    public List<InnerScheduler> sendInstances(List<Instance> instances) {
-        List<InnerScheduler> sentInnerSchedulers = new ArrayList<>();
+    public Set<InnerScheduler> sendInstances(List<Instance> instances) {
+        Set<InnerScheduler> sentInnerSchedulers = new HashSet<>();
         int size = instances.size();
         List<InnerScheduler> innerSchedulers = datacenter.getInnerSchedulers();
         int onceSendSize = size / innerSchedulers.size();
@@ -54,7 +53,7 @@ public class LoadBalanceRound implements LoadBalance {
             if (end == start) {
                 break;
             }
-            innerScheduler.addInstance(instances.subList(start, end));
+            innerScheduler.addInstance(instances.subList(start, end), false);
             sentInnerSchedulers.add(innerScheduler);
             start = end;
         }
@@ -62,5 +61,10 @@ public class LoadBalanceRound implements LoadBalance {
         lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getInnerSchedulers().size();
         LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {} innerSchedulers,On average, each scheduler receives around {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(), sentInnerSchedulers.size(), onceSendSize);
         return sentInnerSchedulers;
+    }
+
+    @Override
+    public void setDatacenter(Datacenter datacenter) {
+        this.datacenter = datacenter;
     }
 }

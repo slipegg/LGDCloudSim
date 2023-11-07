@@ -32,5 +32,13 @@ public interface SqlRecord {
 
     void recordInstancesAllInfo(List<Instance> instances);
 
+    void recordConflict(double time, int sum);
+
+    double getAvgInstanceSubmitDelay();
+
     void close();
+
+    void addInterScheduleTime(double interScheduleTime);
+
+    double getInterScheduleTime();
 }
