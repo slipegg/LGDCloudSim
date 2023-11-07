@@ -1,0 +1,150 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "datacenters": [
+        {
+          "id": 1,
+          "hostNum": 100000,
+          "partitions": [
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            },
+            {
+              "length": 6250
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 800,
+              "bw": 800,
+              "length": 100000
+            }
+          ],
+          "interScheduler": {
+            "type": "direct",
+            "isDirectSend": true
+          },
+          "synchronizationGap": 10000,
+          "innerSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 1,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 2,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 3,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 4,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 5,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 6,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 7,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 8,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 9,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 10,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 11,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 12,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 13,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 14,
+              "type": "random"
+            },
+            {
+              "firstPartitionIndex": 15,
+              "type": "random"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    }
+  ]
+}
