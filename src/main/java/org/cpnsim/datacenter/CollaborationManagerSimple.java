@@ -260,6 +260,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
     public Datacenter getDatacenterById(int datacenterId) {
         if (!datacenterIdMap.containsKey(datacenterId)) {
             LOGGER.error("There is no datacenter with id {} in the simulation", datacenterId);
+            return Datacenter.NULL;
         }
         return datacenterIdMap.get(datacenterId);
     }

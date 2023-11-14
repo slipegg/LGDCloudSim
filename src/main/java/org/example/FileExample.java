@@ -19,9 +19,9 @@ public class FileExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/topology.brite";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/generateRequestParament.csv";
+    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/centerInterSchedule/topology.brite";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/centerInterSchedule/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/centerInterSchedule/generateRequestParameter.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();
@@ -54,8 +54,6 @@ public class FileExample {
 
     private void initDatacenters() {
         InitDatacenter.initDatacenters(cpnSim, factory, DATACENTER_CONFIG_FILE);
-        cpnSim.getCollaborationManager().setIsChangeCollaborationSyn(true);
-        cpnSim.getCollaborationManager().setChangeCollaborationSynTime(3000);
     }
 
     private void initNetwork() {

@@ -1,10 +1,10 @@
 package org.cpnsim.datacenter;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.request.Instance;
+import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
 import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.StatesManager;
@@ -82,6 +82,33 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
             getDatacenter().getSimulation().getSqlRecord().recordConflict(getDatacenter().getSimulation().clock(), conflictSum);
         }
         return new ResourceAllocateResult(successRes, failRes);
+    }
+
+    @Override
+    public List<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups) {
+        List<InstanceGroup> failedScheduledInstanceGroups = new ArrayList<>();
+
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            Map<Integer, HostState> hostStatesIfScheduled = new HashMap<>();
+            for (Instance instance : instanceGroup.getInstances()) {
+                HostState hostState;
+                if (hostStatesIfScheduled.containsKey(instance.getExpectedScheduleHostId())) {
+                    hostState = hostStatesIfScheduled.get(instance.getExpectedScheduleHostId());
+                } else {
+                    hostState = getDatacenter().getStatesManager().getNowHostState(instance.getExpectedScheduleHostId());
+                }
+
+                if (hostState.isSuitable(instance)) {
+                    hostState.allocate(instance);
+                    hostStatesIfScheduled.put(instance.getExpectedScheduleHostId(), hostState);
+                } else {
+                    failedScheduledInstanceGroups.add(instanceGroup);
+                    break;
+                }
+            }
+        }
+
+        return failedScheduledInstanceGroups;
     }
 
     @Override

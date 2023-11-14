@@ -270,7 +270,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         sendNow(getSimulation().getCis(), CloudSimTag.DC_REGISTRATION_REQUEST, this);
         if (statesManager.isSynCostTime()) {
-            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE, null);
+            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
+        }
+
+        if (interScheduler != null) {
+            Map<Double, List<SimEntity>> initSynStateBetweenDcTargets = new HashMap<>();
+            for (Map.Entry<Datacenter, Double> synDcGap : interScheduler.getDcStateSynInterval().entrySet()) {
+                if (synDcGap.getValue() != 0) {
+                    initSynStateBetweenDcTargets.putIfAbsent(synDcGap.getValue(), new ArrayList<>());
+                    initSynStateBetweenDcTargets.get(synDcGap.getValue()).add(synDcGap.getKey());
+                }
+            }
+            if (!initSynStateBetweenDcTargets.isEmpty()) {
+                for (Map.Entry<Double, List<SimEntity>> entry : initSynStateBetweenDcTargets.entrySet()) {
+                    sendNow(this, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
+                }
+            }
         }
     }
 
@@ -280,7 +295,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-            case CloudSimTag.SYN_STATE -> processSynState();
+            case CloudSimTag.SYN_STATE_IN_DC -> processSynStateInDc();
+            case CloudSimTag.SYN_STATE_BETWEEN_DC -> processSynStateBetweenDc(evt);
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
             case CloudSimTag.ASK_SIMPLE_STATE -> processAskSimpleState(evt);
@@ -289,7 +305,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP -> processRespondDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP -> processRespondDcReviveGroupGiveUp(evt);
-            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY -> processRespondDcReviveGroupEmploy(evt);
+            case CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD -> processScheduleToDcNoForward(evt);
+            case CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD -> processScheduleToDcAndForward(evt);
+            case CloudSimTag.SCHEDULE_TO_DC_HOST -> processScheduleToDcHost(evt);
             case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);//负载均衡花费时间，不形成瓶颈
             case CloudSimTag.INNER_SCHEDULE_BEGIN -> processInnerScheduleBegin(evt);
             case CloudSimTag.INNER_SCHEDULE_END -> processInnerScheduleEnd(evt);
@@ -300,14 +318,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    //需要保证传递过来的都是同一个同步时间的dc,
+    private void processSynStateBetweenDc(SimEvent evt) {
+        if (evt.getData() instanceof List<?> synTargets) {
+            if (!synTargets.isEmpty() && synTargets.get(0) instanceof Datacenter) {
+                List<Datacenter> datacenters = (List<Datacenter>) synTargets;
+                interScheduler.synBetweenDcState(datacenters);
+                //TODO 需要考虑中途同步时间是否会变，会变的话需要检查，如果一直都不会变，就不改了
+                send(this, interScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
+            }
+        }
+    }
+
     /**
      * Calling {@link StatesManager#synAllState()} to synchronize the state of the datacenter.
-     * And send a {@link CloudSimTag#SYN_STATE} event to itself after smallSynGap.
+     * And send a {@link CloudSimTag#SYN_STATE_IN_DC} event to itself after smallSynGap.
      */
-    private void processSynState() {
+    private void processSynStateInDc() {
         statesManager.synAllState();
         if (statesManager.isSynCostTime()) {
-            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE, null);
+            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
         }
     }
 
@@ -478,6 +508,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         for (Map.Entry<Integer, List<Instance>> entry : finishInstances.entrySet()) {
             int lifeTime = entry.getKey();
             List<Instance> instances = entry.getValue();
+
             if (lifeTime > 0) {
                 send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
             }
@@ -535,21 +566,30 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void innerScheduleFailed(List<Instance> instances, InnerScheduler innerScheduler, boolean isNeedRevertSelfHostState) {
         Iterator<Instance> instanceIterator = instances.iterator();
+        Set<UserRequest> failedUserRequests = new HashSet<>();
+
         while (instanceIterator.hasNext()) {
             Instance instance = instanceIterator.next();
             instance.addRetryNum();
             if (instance.isFailed()) {
                 UserRequest userRequest = instance.getUserRequest();
-                userRequest.setFailReason("instance" + instance.getId());
-                send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, userRequest);
+                userRequest.addFailReason("instance" + instance.getId());
+                failedUserRequests.add(userRequest);
                 instanceIterator.remove();
             }
         }
+
         innerScheduler.addInstance(instances, true);
+
         if (isNeedRevertSelfHostState) {
             statesManager.revertSelftHostState(instances, innerScheduler);
         }
+
         LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), innerScheduler.getName(), instances.size());
+
+        if (failedUserRequests.size() > 0) {
+            send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
+        }
     }
 
     /**
@@ -583,6 +623,119 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
             instanceGroups.removeIf(instanceGroup -> instanceGroup.getUserRequest().getState() == UserRequest.FAILED);
             interScheduler.receiveNotEmployGroup(instanceGroups);
+        }
+    }
+
+    private void processScheduleToDcHost(SimEvent evt) {
+        if (evt.getData() instanceof List<?> instanceGroupsTmp) {
+            List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
+            instanceGroups.removeIf(instanceGroup -> instanceGroup.getUserRequest().getState() == UserRequest.FAILED);
+
+            List<InstanceGroup> failedInstanceGroups = allocateBwForInstanceGroups(instanceGroups);
+
+            List<InstanceGroup> conflictedInstanceGroup = resourceAllocateSelector.filterConflictedInstanceGroup(instanceGroups);
+            failedInstanceGroups.addAll(conflictedInstanceGroup);
+
+            List<InstanceGroup> allocateFailedInstanceGroups = allocateResourceForInstanceGroups(instanceGroups);
+            failedInstanceGroups.addAll(allocateFailedInstanceGroups);
+
+            instanceGroups.removeAll(failedInstanceGroups);
+
+            if (failedInstanceGroups.size() > 0) {
+                send(getSimulation().getCis(), 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, failedInstanceGroups);
+            } else {
+                send(getSimulation().getCis(), 0, CloudSimTag.SCHEDULE_TO_DC_HOST_OK, null);
+            }
+
+            markAndRecordInstanceGroups(instanceGroups);
+            getSimulation().getSqlRecord().recordInstancesCreateInfo(instanceGroups);
+        }
+    }
+
+    private void markAndRecordInstanceGroups(List<InstanceGroup> instanceGroups) {
+        instanceGroups.forEach(instanceGroup -> instanceGroup.setReceivedTime(getSimulation().clock()));
+        instanceGroups.forEach(instanceGroup -> instanceGroup.setReceiveDatacenter(this));
+        getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
+    }
+
+    private List<InstanceGroup> allocateBwForInstanceGroups(List<InstanceGroup> instanceGroups) {
+        List<InstanceGroup> failedInstanceGroups = new ArrayList<>();
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            if (!allocateBwForGroup(instanceGroup, this)) {
+                failedInstanceGroups.add(instanceGroup);
+            }
+        }
+        return failedInstanceGroups;
+    }
+
+    private List<InstanceGroup> allocateResourceForInstanceGroups(List<InstanceGroup> instanceGroups) {
+        List<InstanceGroup> failedInstanceGroups = new ArrayList<>();
+        Map<Integer, List<Instance>> lifeInstancesMap = new HashMap<>();
+
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            for (Instance instance : instanceGroup.getInstances()) {
+                if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                    continue;
+                }
+
+                boolean allocateResult = statesManager.allocate(instance);
+                if (!allocateResult) {
+                    LOGGER.warn("{} : {}'s Instance{} failed to allocate resources on host{} after resourceAllocateSelector", getSimulation().clockStr(), getName(), instance.getId(), instance.getExpectedScheduleHostId());
+                    failedInstanceGroups.add(instanceGroup);
+                }
+
+                updateAfterInstanceAllocated(instance);
+
+                int lifeTime = instance.getLifeTime();
+                lifeInstancesMap.putIfAbsent(lifeTime, new ArrayList<>());
+                lifeInstancesMap.get(lifeTime).add(instance);
+            }
+        }
+
+        sendFinishInstanceRunEvt(lifeInstancesMap);
+
+        return failedInstanceGroups;
+    }
+
+    private void updateAfterInstanceAllocated(Instance instance) {
+        instance.setState(UserRequest.RUNNING);
+        instance.setStartTime(getSimulation().clock());
+        instance.setHost(instance.getExpectedScheduleHostId());
+    }
+
+    private void processScheduleToDcNoForward(SimEvent evt) {
+        if (evt.getData() instanceof List<?> instanceGroupsTmp) {
+            List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
+            deleteFailedInstanceGroupAndSetReceivedTime(instanceGroups);
+
+            instanceQueue.add(instanceGroups);
+
+            LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
+                    getSimulation().clockStr(),
+                    getName(),
+                    evt.getSource().getName(),
+                    instanceGroups.size(),
+                    instanceQueue.size());
+
+            getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
+
+            sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
+        }
+    }
+
+    private void processScheduleToDcAndForward(SimEvent evt) {
+
+    }
+
+    private void deleteFailedInstanceGroupAndSetReceivedTime(List<InstanceGroup> instanceGroups) {
+        Iterator<InstanceGroup> iterator = instanceGroups.iterator();
+        while (iterator.hasNext()) {
+            InstanceGroup instanceGroup = iterator.next();
+            if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
+                iterator.remove(); // 使用迭代器的remove()方法安全地删除元素
+            } else {
+                instanceGroup.setReceivedTime(getSimulation().clock());
+            }
         }
     }
 
@@ -722,7 +875,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 int isEmploy = entry1.getKey();
                 List<InstanceGroup> instanceGroups = entry1.getValue();
                 if (isEmploy == 1) {
-                    send(datacenter, delay, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
+//                    send(datacenter, delay, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
                 } else {
                     send(datacenter, delay, CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP, instanceGroups);
                 }
@@ -778,7 +931,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> instanceGroups) {
             Map<InstanceGroup, Double> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
             double costTime = interScheduler.getDecideReciveGroupResultCostTime();
-            sendOverNetwork(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
+            send(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
             LOGGER.info("{}: {} received {} instanceGroups to mark scores for them.", getSimulation().clockStr(), getName(), instanceGroups.size());
         }
     }
@@ -825,7 +978,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     /**
      * Assign a datacenter to InstanceGroup, but at this point, the results were not sent out.
-     * It will send an GROUP_FILTER_DC_END evt to call {!link #processGroupAssignDcEnd(SimEvent)} after the {@link InterScheduler#getFilterSuitableDatacenterCostTime}
+     * It will send an GROUP_FILTER_DC_END evt to call {!link #processGroupAssignDcEnd(SimEvent)} after the {@link InterScheduler#getScheduleTime}
      */
     private void processGroupFilterDcBegin() {
         List<Datacenter> datacenters = getSimulation().getCollaborationManager().getDatacenters(this);
@@ -835,7 +988,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         } else {
             for (Datacenter datacenter : datacenters) {
                 if (datacenter != this) {
-                    sendOverNetwork(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
+                    send(datacenter, 0, CloudSimTag.ASK_SIMPLE_STATE, null);
                     interScheduler.getInterScheduleSimpleStateMap().put(datacenter, null);
                 }
             }
@@ -845,7 +998,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processAskSimpleState(final SimEvent evt) {
         Object simpleState = statesManager.getSimpleState().generate(this);
-        sendOverNetwork(evt.getSource(), 0, CloudSimTag.RESPOND_SIMPLE_STATE, simpleState);
+        send(evt.getSource(), 0, CloudSimTag.RESPOND_SIMPLE_STATE, simpleState);
         LOGGER.info("{}: {} sends the simple state of itself to {}.", getSimulation().clockStr(), getName(), evt.getSource().getName());
     }
 
@@ -867,7 +1020,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             return;
         }
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
-        double filterSuitableDatacenterCostTime = interScheduler.getFilterSuitableDatacenterCostTime();
+        double filterSuitableDatacenterCostTime = interScheduler.getScheduleTime();
         send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
         LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.It costs {}ms.", getSimulation().clockStr(), getName(), instanceGroups.size(), filterSuitableDatacenterCostTime);
     }
@@ -938,9 +1091,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     }
                     instanceGroup.setState(UserRequest.SCHEDULING);
                 }
-                sendOverNetwork(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
+//                send(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
             } else {
-                sendOverNetwork(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
+                send(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
             }
         }
         //处理调度失败的instanceGroup
@@ -949,19 +1102,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void interScheduleFail(List<InstanceGroup> instanceGroups) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
+        Set<UserRequest> failedUserRequests = new HashSet<>();
+
         for (InstanceGroup instanceGroup : instanceGroups) {
             //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
             instanceGroup.addRetryNum();
             if (instanceGroup.isFailed()) {
-                instanceGroup.getUserRequest().setFailReason("InstanceGroup" + instanceGroup.getId());
-                send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, instanceGroup.getUserRequest());
+                instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId());
+                failedUserRequests.add(instanceGroup.getUserRequest());
             } else {
                 retryInstanceGroups.add(instanceGroup);
             }
         }
+
         if (retryInstanceGroups.size() > 0) {
             send(this, 0, CloudSimTag.USER_REQUEST_SEND, retryInstanceGroups);
             LOGGER.warn("{}: {}'s {} instance groups retry.", getSimulation().clockStr(), getName(), retryInstanceGroups.size());
+        }
+
+        if (failedUserRequests.size() > 0) {
+            send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
         }
     }
 
@@ -973,7 +1133,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public double getEstimatedTCO(InstanceGroup instanceGroup) {
         double tco = 0;
-        for (Instance instance : instanceGroup.getInstanceList()) {
+        for (Instance instance : instanceGroup.getInstances()) {
             tco += instance.getCpu() * unitCpuPrice * instance.getLifeTime() / 1000.0
                     + instance.getRam() * unitRamPrice * instance.getLifeTime() / 1000.0
                     + instance.getStorage() * unitStoragePrice * instance.getLifeTime() / 1000.0

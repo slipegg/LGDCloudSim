@@ -115,6 +115,11 @@ public class SimpleStateSimple implements SimpleState {
     }
 
     @Override
+    public SimpleState clone() {
+        return null;
+    }
+
+    @Override
     public Object generate(Datacenter datacenter) {
         SimpleStateSimple simpleStateSimple = new SimpleStateSimple(this.maxCpuCapacity, this.maxRamCapacity);
         simpleStateSimple.setCpuAvailableSum(this.cpuAvailableSum);

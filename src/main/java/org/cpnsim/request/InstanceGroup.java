@@ -5,9 +5,9 @@ import org.cpnsim.datacenter.Datacenter;
 import java.util.List;
 
 public interface InstanceGroup extends RequestEntity {
-    List<Instance> getInstanceList();
+    List<Instance> getInstances();
 
-    InstanceGroup setInstanceList(List<Instance> instanceList);
+    InstanceGroup setInstances(List<Instance> instanceList);
 
     int getGroupType();
 

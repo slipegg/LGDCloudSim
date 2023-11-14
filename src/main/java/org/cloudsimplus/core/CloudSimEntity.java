@@ -161,6 +161,10 @@ public abstract class CloudSimEntity implements SimEntity {
             delay = 0;
         }
 
+        if (dest.getId() != getId()) {
+            delay += getNetworkDelay(this, dest);
+        }
+
         if (Double.isInfinite(delay)) {
             throw new IllegalArgumentException("The specified delay is infinite value");
         }

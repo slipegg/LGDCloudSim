@@ -29,9 +29,10 @@ public class FactorySimple implements Factory {
     }
 
     @Override
-    public InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId) {
+    public InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId, boolean isDcTarget, boolean isSupportForward) {
         return switch (type) {
-            case "simple", "Simple" -> new InterSchedulerSimple(id, simulation, collaborationId);
+            case "simple", "Simple" ->
+                    new InterSchedulerSimple(id, simulation, collaborationId, isDcTarget, isSupportForward);
             case "direct", "Direct" -> new InterSchedulerDirect(id, simulation, collaborationId);
             case "minTCODirect" -> new InterSchedulerMinTCODirect(id, simulation, collaborationId);
             case "consult", "Consult" -> new InterSchedulerConsult(id, simulation, collaborationId);

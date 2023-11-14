@@ -51,18 +51,54 @@ public class InitDatacenter {
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
             int collaborationId = collaborationJson.getInt("id");
+
             boolean isCenterSchedule = collaborationJson.containsKey("centerScheduler");
-            if (isCenterSchedule) {
-                JsonObject centerScheduler = collaborationJson.getJsonObject("centerScheduler");
-                InterScheduler interScheduler = factory.getInterScheduler(centerScheduler.getString("type"), interSchedulerId++, cpnSim, collaborationId);
-                collaborationManager.addCenterScheduler(interScheduler);
-            }
+            boolean isDcTarget = collaborationJson.getJsonObject("centerScheduler").getBoolean("isDcTarget");
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
                 JsonObject datacenterJson = collaborationJson.getJsonArray("datacenters").getJsonObject(j);
-                Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule);
+                Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule, isDcTarget);
                 collaborationManager.addDatacenter(datacenter, collaborationId);
             }
+
+            if (isCenterSchedule) {
+                initCenterScheduler(collaborationJson.getJsonObject("centerScheduler"), collaborationId, collaborationManager);
+            }
         }
+    }
+
+    private static void initCenterScheduler(JsonObject centerSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
+        String centerSchedulerType = centerSchedulerJson.getString("type");
+        boolean isDcTarget = centerSchedulerJson.getBoolean("isDcTarget");
+        boolean isSupportForward = false;
+        if (isDcTarget) {
+            isSupportForward = centerSchedulerJson.getBoolean("isSupportForward");
+        }
+        InterScheduler interScheduler = factory.getInterScheduler(centerSchedulerType, interSchedulerId++, cpnSim, collaborationId, isDcTarget, isSupportForward);
+
+        Object[] dcStateSynIntervalAndType = getDcStateSynIntervalAndType(centerSchedulerJson, collaborationManager);
+        interScheduler.setDcStateSynInterval((Map<Datacenter, Double>) dcStateSynIntervalAndType[0]);
+        interScheduler.setDcStateSynType((Map<Datacenter, String>) dcStateSynIntervalAndType[1]);
+
+        collaborationManager.addCenterScheduler(interScheduler);
+    }
+
+    private static Object[] getDcStateSynIntervalAndType(JsonObject dcStateSynInfoJson, CollaborationManager collaborationManager) {
+        Map<Datacenter, Double> dcStateSynInterval = new HashMap<>();
+        Map<Datacenter, String> dcStateSynType = new HashMap<>();
+        for (int i = 0; i < dcStateSynInfoJson.getJsonArray("dcStateSynInfo").size(); i++) {
+            JsonObject synDcStateInfo = dcStateSynInfoJson.getJsonArray("dcStateSynInfo").getJsonObject(i);
+            int dcId = synDcStateInfo.getInt("dcId");
+            double interval = synDcStateInfo.getJsonNumber("synInterval").doubleValue();
+            String synStateType = synDcStateInfo.getString("synStateType");
+            Datacenter datacenter = collaborationManager.getDatacenterById(dcId);
+
+            if (datacenter == Datacenter.NULL) {
+                throw new IllegalArgumentException("Datacenter id " + dcId + " in dcStateSynInfo is not found");
+            }
+            dcStateSynInterval.put(datacenter, interval);
+            dcStateSynType.put(datacenter, synStateType);
+        }
+        return new Object[]{dcStateSynInterval, dcStateSynType};
     }
 
     /**
@@ -87,7 +123,7 @@ public class InitDatacenter {
      * @param datacenterJson a {@link JsonObject} object
      * @return a {@link StatesManager} object
      */
-    private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule) {
+    private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule, boolean isDcTarget) {
         int id = datacenterJson.getInt("id");
         if (id == 0) {
             LOGGER.error("0 is the id of CIS,Datacenter id should not be 0");
@@ -95,17 +131,14 @@ public class InitDatacenter {
         }
         Datacenter datacenter = new DatacenterSimple(cpnSim, id);
 
-        StatesManager statesManager = getStatesManager(datacenterJson);
+        StatesManager statesManager = getStatesManager(datacenterJson, isCenterSchedule, isDcTarget);
         datacenter.setStatesManager(statesManager);
-
-        List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
-        datacenter.setInnerSchedulers(innerSchedulers);
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         if (isCenterSchedule) {
             datacenter.setCentralizedInterSchedule(true);
         } else {
-            InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId);
+            InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId, false, false);
             interScheduler.setDatacenter(datacenter);
             if (interSchedulerJson.containsKey("isDirectSend")) {
                 interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
@@ -113,9 +146,15 @@ public class InitDatacenter {
             datacenter.setInterScheduler(interScheduler);
         }
 
-        JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
-        LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
-        datacenter.setLoadBalance(loadBalance);
+
+        if (!(isCenterSchedule && !isDcTarget)) {
+            JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
+            LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
+            datacenter.setLoadBalance(loadBalance);
+
+            List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
+            datacenter.setInnerSchedulers(innerSchedulers);
+        }
 
         JsonObject resourceAllocateSelectorJson = datacenterJson.getJsonObject("resourceAllocateSelector");
         ResourceAllocateSelector resourceAllocateSelector = factory.getResourceAllocateSelector(resourceAllocateSelectorJson.getString("type"));
@@ -123,7 +162,7 @@ public class InitDatacenter {
 
         JsonObject unitPriceJson = datacenterJson.getJsonObject("resourceUnitPrice");
         setDatacenterResourceUnitPrice(datacenter, unitPriceJson);
-        
+
         return datacenter;
     }
 
@@ -150,10 +189,15 @@ public class InitDatacenter {
      *
      * @param datacenterJson a {@link JsonObject} object
      */
-    private static StatesManager getStatesManager(JsonObject datacenterJson) {
+    private static StatesManager getStatesManager(JsonObject datacenterJson, boolean isCenterSchedule, boolean isDcTarget) {
         int hostNum = datacenterJson.getInt("hostNum");
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
-        double synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
+        double synchronizationGap;
+        if (isCenterSchedule && !isDcTarget) {
+            synchronizationGap = 0;
+        } else {
+            synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
+        }
 //        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, innerSchedulers);
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
         StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);

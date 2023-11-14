@@ -11,7 +11,6 @@ import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.SimpleStateEasyObject;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class InterSchedulerConsult extends InterSchedulerSimple {
     Random random = new Random();
@@ -228,7 +227,7 @@ public class InterSchedulerConsult extends InterSchedulerSimple {
                 allocatedRecorder.updateResourceAllocated(instanceGroup, selectDatacenters);
             }
         }
-        this.filterSuitableDatacenterCostTime = 0.1 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.scheduleTime = 0.1 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return instanceGroupAvailableDatacenters;
     }
 
@@ -280,13 +279,13 @@ public class InterSchedulerConsult extends InterSchedulerSimple {
 
     private double markScore(InstanceGroup instanceGroup, List<HostState> hostStates) {
         int suitHostNum = 0;
-        for (Instance instance : instanceGroup.getInstanceList()) {
+        for (Instance instance : instanceGroup.getInstances()) {
             for (HostState hostState : hostStates) {
                 if (hostState.isSuitable(instance)) {
                     suitHostNum++;
                 }
             }
         }
-        return suitHostNum / (double) hostStates.size() * instanceGroup.getInstanceList().size();
+        return suitHostNum / (double) hostStates.size() * instanceGroup.getInstances().size();
     }
 }

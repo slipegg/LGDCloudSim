@@ -72,6 +72,11 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
+    public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
+
+    }
+
+    @Override
     public void recordInstancesFinishInfo(List<Instance> instances) {
 
     }

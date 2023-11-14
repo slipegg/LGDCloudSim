@@ -3,6 +3,7 @@ package org.cpnsim.datacenter;
 import org.cloudsimplus.core.DatacenterEntity;
 import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.request.Instance;
+import org.cpnsim.request.InstanceGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -29,4 +30,6 @@ public interface ResourceAllocateSelector extends DatacenterEntity {
      * Get the number of conflicts when resource allocating.
      */
     Map<Integer, Integer> getPartitionConflicts();
+
+    List<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups);
 }

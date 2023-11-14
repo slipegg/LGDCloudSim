@@ -1,7 +1,6 @@
 package org.cpnsim.record;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
@@ -90,13 +89,12 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordUserRequestsSubmitinfo(List<UserRequest> userRequests) {
         try {
-            statement = conn.prepareStatement("INSERT INTO " + this.userRequestTableName + " (id,belongDc,submitTime,instanceGroupNum,successInstanceGroupNum) VALUES (?,?,?,?,?);");
+            statement = conn.prepareStatement("INSERT INTO " + this.userRequestTableName + " (id,belongDc,submitTime,instanceGroupNum) VALUES (?,?,?,?);");
             for (UserRequest userRequest : userRequests) {
                 statement.setInt(1, userRequest.getId());
                 statement.setInt(2, userRequest.getBelongDatacenterId());
                 statement.setDouble(3, userRequest.getSubmitTime());
                 statement.setInt(4, userRequest.getInstanceGroups().size());
-                statement.setInt(5, 0);
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -119,15 +117,14 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstanceGroupsReceivedInfo(List<InstanceGroup> instanceGroups) {
         try {
-            statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,successInstanceNum) VALUES (?,?,?,?,?,?,?);");
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum) VALUES (?,?,?,?,?,?);");
             for (InstanceGroup instanceGroup : instanceGroups) {
                 statement.setInt(1, instanceGroup.getId());
                 statement.setInt(2, instanceGroup.getUserRequest().getId());
                 statement.setInt(3, instanceGroup.getRetryNum());
                 statement.setInt(4, instanceGroup.getReceiveDatacenter().getId());
                 statement.setDouble(5, instanceGroup.getReceivedTime());
-                statement.setInt(6, instanceGroup.getInstanceList().size());
-                statement.setInt(7, 0);
+                statement.setInt(6, instanceGroup.getInstances().size());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -157,12 +154,12 @@ public class SqlRecordSimple implements SqlRecord {
     }
 
     @Override
-    public void recordInstanceGroupGraphReleaseInfo(int srcDcId, int dstDcId, double finishTime) {
+    public void recordInstanceGroupGraphReleaseInfo(int srcInstanceGroupId, int dstInstanceGroupId, double finishTime) {
         try {
             sql = "UPDATE " + this.instanceGroupGraphTableName +
                     " SET finishTime = " + finishTime +
-                    " WHERE (srcDcId = " + srcDcId +
-                    " AND dstDcId = " + dstDcId + ");";
+                    " WHERE (srcInstanceGroupId = " + srcInstanceGroupId +
+                    " AND dstInstanceGroupId = " + dstInstanceGroupId + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -172,12 +169,12 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstanceGroupAllInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum,successInstanceNum) VALUES ("
+            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum) VALUES ("
                     + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + ","
                     + instanceGroup.getReceiveDatacenter().getId() + "," + instanceGroup.getReceivedTime() + ","
                     + instanceGroup.getFinishTime() + "," +
-                    +instanceGroup.getInstanceList().size() + "," +
-                    +0 + ");";
+                    +instanceGroup.getInstances().size() + ","
+                    + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -207,6 +204,40 @@ public class SqlRecordSimple implements SqlRecord {
             //遍历instances的value
             for (List<Instance> instanceList : instances.values()) {
                 for (Instance instance : instanceList) {
+                    if (instance.getState() == UserRequest.RUNNING) {
+                        statement.setInt(1, instance.getId());
+                        statement.setInt(2, instance.getInstanceGroup().getId());
+                        statement.setInt(3, instance.getUserRequest().getId());
+                        statement.setDouble(4, instance.getCpu());
+                        statement.setDouble(5, instance.getRam());
+                        statement.setDouble(6, instance.getStorage());
+                        statement.setDouble(7, instance.getBw());
+                        statement.setDouble(8, instance.getLifeTime());
+                        statement.setInt(9, instance.getRetryNum());
+                        statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
+                        statement.setInt(11, instance.getHost());
+                        statement.setDouble(12, instance.getStartTime());
+                        statement.addBatch();
+                    }
+                    instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
+                    instanceNum++;
+                }
+            }
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
+        try {
+            statement = conn.prepareStatement("INSERT INTO instance " +
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //遍历instances的value
+            for (InstanceGroup instanceGroup : instanceGroups) {
+                for (Instance instance : instanceGroup.getInstances()) {
                     if (instance.getState() == UserRequest.RUNNING) {
                         statement.setInt(1, instance.getId());
                         statement.setInt(2, instance.getInstanceGroup().getId());
@@ -332,7 +363,6 @@ public class SqlRecordSimple implements SqlRecord {
                 " submitTime DOUBLE NOT NULL, " +
                 " finishTime DOUBLE, " +
                 " instanceGroupNum INT NOT NULL, " +
-                " successInstanceGroupNum INT NOT NULL, " +
                 " state CHAR(10) , " +
                 " failReason CHAR(100))";
         stmt.executeUpdate(sql);
@@ -352,7 +382,6 @@ public class SqlRecordSimple implements SqlRecord {
                 " receivedTime DOUBLE NOT NULL," +
                 " finishTime DOUBLE," +
                 " instanceNum INT NOT NULL, " +
-                " successInstanceNum INT NOT NULL, " +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;

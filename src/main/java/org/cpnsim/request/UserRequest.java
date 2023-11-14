@@ -49,7 +49,7 @@ public interface UserRequest extends ChangeableId {
 
     UserRequest addSuccessGroupNum();
 
-    UserRequest setFailReason(String failReason);
+    UserRequest addFailReason(String failReason);
 
     String getFailReason();
 

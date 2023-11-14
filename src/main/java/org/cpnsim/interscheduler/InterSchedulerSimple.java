@@ -5,15 +5,22 @@ import lombok.Setter;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.network.topologies.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.datacenter.GroupQueue;
+import org.cpnsim.datacenter.GroupQueueFifo;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
-import org.cpnsim.statemanager.SimpleState;
+import org.cpnsim.statemanager.DetailedDcStateSimple;
+import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.SimpleStateEasyObject;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class InterSchedulerSimple implements InterScheduler {
+    public Logger LOGGER = Logger.getLogger(InterSchedulerSimple.class.getName());
+    boolean isDcTarget;
+    boolean isSupportForward;
     @Getter
     @Setter
     Simulation simulation;
@@ -28,7 +35,7 @@ public class InterSchedulerSimple implements InterScheduler {
     int id;
 
     @Getter
-    double filterSuitableDatacenterCostTime = 0.0;
+    double scheduleTime = 0.0;
     @Getter
     double decideReciveGroupResultCostTime = 0.0;
     @Getter
@@ -37,6 +44,18 @@ public class InterSchedulerSimple implements InterScheduler {
     @Setter
     boolean directedSend = false;
 
+    @Getter
+    GroupQueue instanceGroupQueue = new GroupQueueFifo();
+
+    @Getter
+    GroupQueue retryInstanceGroupQueue = new GroupQueueFifo();
+
+    @Getter
+    @Setter
+    Map<Datacenter, Double> dcStateSynInterval = new HashMap<>();
+    @Getter
+    @Setter
+    private Map<Datacenter, String> dcStateSynType = new HashMap<>();
     @Getter
     Map<Datacenter, Object> interScheduleSimpleStateMap = new HashMap<>();
 
@@ -56,18 +75,225 @@ public class InterSchedulerSimple implements InterScheduler {
         this.collaborationId = collaborationId;
     }
 
+    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, boolean isDcTarget, boolean isSupportForward) {
+        this.id = id;
+        this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
+        this.simulation = simulation;
+        this.collaborationId = collaborationId;
+        this.isDcTarget = isDcTarget;
+        this.isSupportForward = isSupportForward;
+    }
+
+    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, boolean isDcTarget) {
+        this.id = id;
+        this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
+        this.simulation = simulation;
+        this.collaborationId = collaborationId;
+        this.isDcTarget = isDcTarget;
+        if (isDcTarget) {
+            this.isSupportForward = false;
+            LOGGER.warning("Targeting Dc but not setting whether to run forwarding, default setting is not allowing forwarding");
+        }
+    }
+
     @Override
     public Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         NetworkTopology networkTopology = simulation.getNetworkTopology();
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters = new HashMap<>();
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> availableDatacenters = getAvailableDatacenters(instanceGroup, allDatacenters, networkTopology);
-            instanceGroupAvaiableDatacenters.put(instanceGroup, availableDatacenters);
+            instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
         }
-        interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        this.filterSuitableDatacenterCostTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
-        return instanceGroupAvaiableDatacenters;
+        interScheduleByNetworkTopology(instanceGroupAvailableDatacenters, networkTopology);
+        this.scheduleTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
+        return instanceGroupAvailableDatacenters;
+    }
+
+    private Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenterByEasySimple(List<InstanceGroup> instanceGroups) {
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
+            //根据接入时延要求得到可调度的数据中心
+            filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
+            //根据简单的资源抽样信息得到可调度的数据中心
+            filterDatacentersByResourceSample(instanceGroup, availableDatacenters);
+            instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
+        }
+        interScheduleByNetworkTopology(instanceGroupAvailableDatacenters, networkTopology);
+        return instanceGroupAvailableDatacenters;
+    }
+
+    private Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenterByNetwork(List<InstanceGroup> instanceGroups) {
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
+            //根据接入时延要求得到可调度的数据中心
+            filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
+            instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
+        }
+        interScheduleByNetworkTopology(instanceGroupAvailableDatacenters, networkTopology);
+        return instanceGroupAvailableDatacenters;
+    }
+
+    @Override
+    public InterSchedulerResult schedule(List<InstanceGroup> instanceGroups) {
+        synDcStateRealTime();
+
+        if (isDcTarget) {
+            return scheduleToDatacenter(instanceGroups);
+        } else {
+            return scheduleToHost(instanceGroups);
+        }
+    }
+
+    @Override
+    public InterSchedulerResult schedule() {
+        synDcStateRealTime();
+
+        List<InstanceGroup> waitSchedulingInstanceGroups = getWaitSchedulingInstanceGroups();
+
+        scheduleTime = 0.2;
+
+        if (isDcTarget) {
+            return scheduleToDatacenter(waitSchedulingInstanceGroups);
+        } else {
+            return scheduleToHost(waitSchedulingInstanceGroups);
+        }
+    }
+
+    private List<InstanceGroup> getWaitSchedulingInstanceGroups() {
+        if (retryInstanceGroupQueue.isEmpty()) {
+            return instanceGroupQueue.getBatchItem();
+        } else {
+            return retryInstanceGroupQueue.getBatchItem();
+        }
+    }
+
+    private void synDcStateRealTime() {
+        List<Datacenter> realTimeSynDcList = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        for (Map.Entry<Datacenter, Double> dcStateSynIntervalEntry : dcStateSynInterval.entrySet()) {
+            Datacenter datacenter = dcStateSynIntervalEntry.getKey();
+            double interval = dcStateSynIntervalEntry.getValue();
+
+            if (interval != 0) {
+                realTimeSynDcList.remove(datacenter);
+            }
+        }
+
+        synBetweenDcState(realTimeSynDcList);
+    }
+
+    private InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, isDcTarget, isSupportForward, allDatacenters);
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByEasySimple(instanceGroups);
+        for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleRes : instanceGroupAvailableDatacenters.entrySet()) {
+            if (scheduleRes.getValue().size() == 0) {
+                interSchedulerResult.getFailedInstanceGroups().add(scheduleRes.getKey());
+            } else {
+                Datacenter target = scheduleRes.getValue().get(random.nextInt(scheduleRes.getValue().size()));
+                interSchedulerResult.addDcResult(scheduleRes.getKey(), target);
+            }
+        }
+
+        return interSchedulerResult;
+    }
+
+    private InterSchedulerResult scheduleToHost(List<InstanceGroup> instanceGroups) {
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, false, allDatacenters);
+
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
+
+        for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleResEntry : instanceGroupAvailableDatacenters.entrySet()) {
+            InstanceGroup instanceGroupToBeScheduled = scheduleResEntry.getKey();
+            List<Datacenter> availableDatacenters = scheduleResEntry.getValue();
+            if (availableDatacenters.size() == 0) {
+                interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
+            } else {
+                Datacenter scheduleResult = scheduleForInstanceGroupAndInstance(instanceGroupToBeScheduled, availableDatacenters);
+
+                if (scheduleResult == Datacenter.NULL) {
+                    interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
+                } else {
+                    interSchedulerResult.addDcResult(instanceGroupToBeScheduled, scheduleResult);
+                }
+            }
+        }
+
+        return interSchedulerResult;
+    }
+
+    private Datacenter scheduleForInstanceGroupAndInstance(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
+        int dcStartIndex = random.nextInt(availableDatacenters.size());
+        int i = 0;
+        for (; i < availableDatacenters.size(); i++) {
+            int dcIndex = (dcStartIndex + i) % availableDatacenters.size();
+            Datacenter dcSelected = availableDatacenters.get(dcIndex);
+
+            boolean isSuccessScheduled = scheduleHostInDcForInstanceGroup(instanceGroup, dcSelected);
+
+            if (isSuccessScheduled) {
+                return dcSelected;
+            }
+        }
+        return Datacenter.NULL;
+    }
+
+    private boolean scheduleHostInDcForInstanceGroup(InstanceGroup instanceGroup, Datacenter datacenter) {
+        if (interScheduleSimpleStateMap.containsKey(datacenter)
+                && interScheduleSimpleStateMap.get(datacenter) instanceof DetailedDcStateSimple detailedDcStateSimple) {
+            Map<Instance, Integer> scheduleResult = new HashMap<>();
+
+            for (Instance instance : instanceGroup.getInstances()) {
+                int scheduledHostId = randomScheduleInstanceByDetailedDcStateSimple(instance, detailedDcStateSimple);
+
+                if (scheduledHostId != -1) {
+                    scheduleResult.put(instance, scheduledHostId);
+                } else {
+                    break;
+                }
+            }
+
+            if (scheduleResult.size() == instanceGroup.getInstances().size()) {
+                recordScheduledResultInInstances(scheduleResult);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            throw new IllegalStateException("InterSchedulerSimple.scheduleHostInDcForInstanceGroup: Invalid state of " + datacenter.getName());
+        }
+    }
+
+    private int randomScheduleInstanceByDetailedDcStateSimple(Instance instance, DetailedDcStateSimple detailedDcStateSimple) {
+        int hostNum = detailedDcStateSimple.getHostNum();
+        int startIndex = random.nextInt(hostNum);
+
+        for (int i = 0; i < hostNum; i++) {
+            int index = (startIndex + i) % hostNum;
+            HostState hostState = detailedDcStateSimple.getHostState(index);
+
+            if (hostState.isSuitable(instance)) {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    private void recordScheduledResultInInstances(Map<Instance, Integer> scheduleResult) {
+        for (Map.Entry<Instance, Integer> scheduleResultEntry : scheduleResult.entrySet()) {
+            Instance instance = scheduleResultEntry.getKey();
+            int hostId = scheduleResultEntry.getValue();
+
+            instance.setExpectedScheduleHostId(hostId);
+        }
     }
 
     @Override
@@ -113,6 +339,47 @@ public class InterSchedulerSimple implements InterScheduler {
     @Override
     public boolean isDirectedSend() {
         return directedSend;
+    }
+
+    @Override
+    public void synBetweenDcState(List<Datacenter> datacenters) {
+        for (Datacenter datacenter : datacenters) {
+            if (!dcStateSynType.containsKey(datacenter)) {
+                throw new IllegalStateException("InterSchedulerSimple.synBetweenDcState: There is not type of " + datacenter.getName());
+            }
+
+            String stateType = dcStateSynType.get(datacenter);
+            interScheduleSimpleStateMap.put(datacenter, datacenter.getStatesManager().getStateByType(stateType));
+        }
+    }
+
+    @Override
+    public void addUserRequests(List<UserRequest> userRequests) {
+        instanceGroupQueue.add(userRequests);
+    }
+
+    @Override
+    public void addInstanceGroups(List<InstanceGroup> instanceGroups, boolean isRetry) {
+        if (isRetry) {
+            retryInstanceGroupQueue.add(instanceGroups);
+        } else {
+            instanceGroupQueue.add(instanceGroups);
+        }
+    }
+
+    @Override
+    public boolean isQueuesEmpty() {
+        return instanceGroupQueue.size() == 0 && retryInstanceGroupQueue.size() == 0;
+    }
+
+    @Override
+    public int getNewQueueSize() {
+        return instanceGroupQueue.size();
+    }
+
+    @Override
+    public int getRetryQueueSize() {
+        return retryInstanceGroupQueue.size();
     }
 
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑

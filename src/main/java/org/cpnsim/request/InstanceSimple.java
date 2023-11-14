@@ -27,6 +27,7 @@ public class InstanceSimple implements Instance {
     int retryMaxNum;
     int state;
     List<Integer> retryHostIds;
+    int expectedScheduleHostId;
 
     //还缺userRequest和instanceGroup等待后面进行设置
     public InstanceSimple(int id, int cpu, int ram, int storage, int bw) {

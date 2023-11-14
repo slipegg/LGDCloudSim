@@ -35,15 +35,29 @@ public class GroupQueueFifo implements GroupQueue {
     }
 
     @Override
-    public GroupQueue add(List<UserRequest> userRequests) {
-        for (UserRequest userRequest : userRequests) {
-            add(userRequest);
+    public GroupQueue add(List<?> userRequestsOrInstanceGroups) {
+        if (userRequestsOrInstanceGroups.size() != 0) {
+            if (userRequestsOrInstanceGroups.get(0) instanceof UserRequest) {
+                for (UserRequest userRequest : (List<UserRequest>) userRequestsOrInstanceGroups) {
+                    add(userRequest);
+                }
+            } else if (userRequestsOrInstanceGroups.get(0) instanceof InstanceGroup) {
+                for (InstanceGroup instanceGroup : (List<InstanceGroup>) userRequestsOrInstanceGroups) {
+                    add(instanceGroup);
+                }
+            } else {
+                throw new RuntimeException("The type of the list is not supported.");
+            }
         }
         return this;
     }
 
     @Override
     public GroupQueue add(UserRequest userRequest) {//先到先服务在到来时不需要排队
+        if (userRequest.getState() == UserRequest.FAILED) {
+            return this;
+        }
+
         List<InstanceGroup> instanceGroups = userRequest.getInstanceGroups();
         this.instanceGroups.addAll(instanceGroups);
         return this;
@@ -51,6 +65,10 @@ public class GroupQueueFifo implements GroupQueue {
 
     @Override
     public GroupQueue add(InstanceGroup instanceGroup) {
+        if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
+            return this;
+        }
+
         this.instanceGroups.add(instanceGroup);
         return this;
     }
@@ -83,6 +101,11 @@ public class GroupQueueFifo implements GroupQueue {
     @Override
     public int size() {
         return instanceGroups.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return instanceGroups.size() == 0;
     }
 
 }

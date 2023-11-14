@@ -11,7 +11,7 @@ import java.util.List;
 public class InstanceGroupSimple implements InstanceGroup{
     int id;
     UserRequest userRequest;
-    List<Instance> instanceList;
+    List<Instance> instances;
     int groupType;
     int destDatacenterId;
     double accessLatency;
@@ -33,7 +33,7 @@ public class InstanceGroupSimple implements InstanceGroup{
 
     public InstanceGroupSimple(int id) {
         this.id = id;
-        this.instanceList = new ArrayList<>();
+        this.instances = new ArrayList<>();
         this.groupType = 0;
         this.retryNum = 0;
         this.retryMaxNum = 3;
@@ -45,22 +45,21 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.successInstanceNum = 0;
     }
 
-    public InstanceGroupSimple(int id, List<Instance> instanceList) {
+    public InstanceGroupSimple(int id, List<Instance> instances) {
         this(id);
-        setInstanceList(instanceList);
+        setInstances(instances);
     }
 
     @Override
     public void setUserRequest(UserRequest userRequest) {
         this.userRequest = userRequest;
-        for (Instance instance : instanceList) {
+        for (Instance instance : instances) {
             instance.setUserRequest(userRequest);
         }
     }
 
-    @Override
-    public InstanceGroup setInstanceList(List<Instance> instanceList) {
-        this.instanceList = instanceList;
+    public InstanceGroup setInstances(List<Instance> instanceList) {
+        this.instances = instanceList;
         this.storageSum = 0;
         this.bwSum = 0;
         this.cpuSum = 0;
@@ -92,7 +91,7 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Override
     public InstanceGroup addSuccessInstanceNum() {
         this.successInstanceNum++;
-        if (this.successInstanceNum == this.instanceList.size()) {
+        if (this.successInstanceNum == this.instances.size()) {
             this.state = UserRequest.SUCCESS;
         }
         return this;
@@ -106,6 +105,6 @@ public class InstanceGroupSimple implements InstanceGroup{
     @Override
     public String toString() {
         return "InstanceGroupSimple [id=" + id
-                + ", instanceList=" + instanceList + "]";
+                + ", instanceList=" + instances + "]";
     }
 }

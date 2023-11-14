@@ -2,9 +2,11 @@ package org.cpnsim.interscheduler;
 
 import org.cloudsimplus.core.DatacenterEntity;
 import org.cloudsimplus.core.Nameable;
+import org.cloudsimplus.core.SimEntity;
 import org.cloudsimplus.core.Simulation;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.UserRequest;
 import org.cpnsim.statemanager.SimpleState;
 
 import java.util.List;
@@ -25,7 +27,11 @@ import java.util.Map;
 public interface InterScheduler extends Nameable, DatacenterEntity {
     Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups);
 
-    double getFilterSuitableDatacenterCostTime();
+    InterSchedulerResult schedule(List<InstanceGroup> instanceGroups);
+
+    InterSchedulerResult schedule();
+
+    double getScheduleTime();
 
     Map<InstanceGroup, Double> decideReciveGroupResult(List<InstanceGroup> instanceGroups);
 
@@ -50,4 +56,22 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
     InterScheduler setCollaborationId(int collaborationId);
 
     Map<Datacenter, Object> getInterScheduleSimpleStateMap();
+
+    void synBetweenDcState(List<Datacenter> datacenters);
+
+    Map<Datacenter, Double> getDcStateSynInterval();
+
+    void addUserRequests(List<UserRequest> userRequests);
+
+    void addInstanceGroups(List<InstanceGroup> instanceGroups, boolean isRetry);
+
+    boolean isQueuesEmpty();
+
+    InterScheduler setDcStateSynType(Map<Datacenter, String> dcStateSynType);
+
+    InterScheduler setDcStateSynInterval(Map<Datacenter, Double> dcStateSynInterval);
+
+    int getNewQueueSize();
+
+    int getRetryQueueSize();
 }

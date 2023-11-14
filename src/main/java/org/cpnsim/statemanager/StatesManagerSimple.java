@@ -249,6 +249,15 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
+    public Object getStateByType(String type) {
+        return switch (type) {
+            case "detailed" -> new DetailedDcStateSimple(hostStates);
+            case "easySimple" -> simpleState.generate(datacenter);
+            default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
+        };
+    }
+
+    @Override
     public boolean getPredictable() {
         return predictable;
     }
@@ -354,6 +363,11 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public boolean isInLatestSmallSynGap(double time) {
         return time >= synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
+    }
+
+    @Override
+    public boolean allocate(Instance instance) {
+        return allocate(instance.getExpectedScheduleHostId(), instance);
     }
 
     /**

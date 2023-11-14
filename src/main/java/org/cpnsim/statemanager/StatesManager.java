@@ -44,22 +44,36 @@ public interface StatesManager {
     /** Release the instance on the host with hostId. */
     StatesManager release(int hostId, Instance instance);
 
-    /** Get the {@link DatacenterPowerOnRecord}. */
+    /**
+     * Get the {@link DatacenterPowerOnRecord}.
+     */
     DatacenterPowerOnRecord getDatacenterPowerOnRecord();
 
-    /** Get the {@link PartitionRangesManager}. */
+    /**
+     * Get the {@link PartitionRangesManager}.
+     */
     PartitionRangesManager getPartitionRangesManager();
 
-    /** Get the {@link SimpleState}. */
+    /**
+     * Get the {@link SimpleState}.
+     */
     SimpleState getSimpleState();
 
-    /** Whether to use the prediction function. */
+    Object getStateByType(String type);
+
+    /**
+     * Whether to use the prediction function.
+     */
     boolean getPredictable();
 
-    /** Set whether to use the prediction function. */
+    /**
+     * Set whether to use the prediction function.
+     */
     StatesManager setPredictable(boolean predictable);
 
-    /** Get the {@link PredictionManager}. */
+    /**
+     * Get the {@link PredictionManager}.
+     */
     PredictionManager getPredictionManager();
 
     /** Set the {@link PredictionManager}. */
@@ -119,4 +133,6 @@ public interface StatesManager {
     int getSmallSynGapCount();
 
     boolean isInLatestSmallSynGap(double time);
+
+    boolean allocate(Instance instance);
 }

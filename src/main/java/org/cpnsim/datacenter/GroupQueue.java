@@ -17,7 +17,7 @@ public interface GroupQueue {
      *
      * @param userRequests the list of userRequests to be added to the queue
      */
-    GroupQueue add(List<UserRequest> userRequests);
+    GroupQueue add(List<?> userRequestsOrInstanceGroups);
 
     /**
      * Add a userRequest to the queue.
@@ -57,4 +57,6 @@ public interface GroupQueue {
      * Set the number of instanceGroups to be sent in a batch.
      */
     GroupQueue setBatchNum(int batchNum);
+
+    boolean isEmpty();
 }
