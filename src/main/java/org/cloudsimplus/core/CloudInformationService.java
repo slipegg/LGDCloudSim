@@ -63,7 +63,7 @@ public class CloudInformationService extends CloudSimEntity {
     protected void startInternal() {
         CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
         if (collaborationManager.getIsChangeCollaborationSyn()) {
-            send(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
+            sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
         }
 
         for (InterScheduler interScheduler : collaborationManager.getCollaborationCenterSchedulerMap().values()) {
@@ -71,7 +71,7 @@ public class CloudInformationService extends CloudSimEntity {
 
             if (!initSynStateBetweenDcTargets.isEmpty()) {
                 for (Map.Entry<Double, List<Datacenter>> entry : initSynStateBetweenDcTargets.entrySet()) {
-                    sendNow(this, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
+                    sendWithoutNetwork(this, 0, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
                 }
             }
         }
@@ -117,7 +117,7 @@ public class CloudInformationService extends CloudSimEntity {
                 InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
                 interScheduler.synBetweenDcState(datacenters);
                 //TODO 需要考虑中途同步时间是否会变，会变的话需要检查，如果一直都不会变，就不改了
-                send(this, interScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
+                sendWithoutNetwork(this, interScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
             }
         }
     }
@@ -435,7 +435,7 @@ public class CloudInformationService extends CloudSimEntity {
         CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
         collaborationManager.changeCollaboration();
         if (collaborationManager.getIsChangeCollaborationSyn()) {
-            send(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
+            sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
         }
     }
 

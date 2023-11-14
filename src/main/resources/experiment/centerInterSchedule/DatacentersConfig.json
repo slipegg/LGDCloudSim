@@ -8,12 +8,12 @@
         "dcStateSynInfo": [
           {
             "dcId": 1,
-            "synInterval": 100,
+            "synInterval": 0,
             "synStateType": "detailed"
           },
           {
             "dcId": 2,
-            "synInterval": 100,
+            "synInterval": 0,
             "synStateType": "detailed"
           }
         ]

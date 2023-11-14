@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.cloudsimplus.core.events.CloudSimEvent;
 import org.cloudsimplus.core.events.SimEvent;
+import org.cpnsim.user.UserSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,9 +161,29 @@ public abstract class CloudSimEntity implements SimEntity {
         if (delay < 0) {
             delay = 0;
         }
+        if (!((this instanceof UserSimple) || (dest instanceof UserSimple))) {
+            if (dest.getId() != getId()) {
+                delay += getNetworkDelay(this, dest);
+            }
+        }
 
-        if (dest.getId() != getId()) {
-            delay += getNetworkDelay(this, dest);
+        if (Double.isInfinite(delay)) {
+            throw new IllegalArgumentException("The specified delay is infinite value");
+        }
+
+        schedule(dest, delay, tag, data);
+    }
+
+    protected void sendWithoutNetwork(final SimEntity dest, double delay, final int tag, final Object data) {
+        requireNonNull(dest);
+        if (dest.getId() < 0) {
+            LOGGER.error("{}.send(): invalid entity id {} for {}", getName(), dest.getId(), dest);
+            return;
+        }
+
+        // if delay is negative, then it doesn't make sense. So resets to 0.0
+        if (delay < 0) {
+            delay = 0;
         }
 
         if (Double.isInfinite(delay)) {

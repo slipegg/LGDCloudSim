@@ -268,7 +268,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
-        sendNow(getSimulation().getCis(), CloudSimTag.DC_REGISTRATION_REQUEST, this);
+        sendWithoutNetwork(getSimulation().getCis(), 0, CloudSimTag.DC_REGISTRATION_REQUEST, this);
         if (statesManager.isSynCostTime()) {
             send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
         }
@@ -283,7 +283,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
             if (!initSynStateBetweenDcTargets.isEmpty()) {
                 for (Map.Entry<Double, List<SimEntity>> entry : initSynStateBetweenDcTargets.entrySet()) {
-                    sendNow(this, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
+                    sendWithoutNetwork(this, 0, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
                 }
             }
         }
@@ -325,7 +325,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 List<Datacenter> datacenters = (List<Datacenter>) synTargets;
                 interScheduler.synBetweenDcState(datacenters);
                 //TODO 需要考虑中途同步时间是否会变，会变的话需要检查，如果一直都不会变，就不改了
-                send(this, interScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
+                sendWithoutNetwork(this, interScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
             }
         }
     }
