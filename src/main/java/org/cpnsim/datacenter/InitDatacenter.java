@@ -54,9 +54,13 @@ public class InitDatacenter {
 
             boolean isCenterSchedule = collaborationJson.containsKey("centerScheduler");
             boolean isDcTarget = collaborationJson.getJsonObject("centerScheduler").getBoolean("isDcTarget");
+            boolean isSupportForward = false;
+            if (isDcTarget) {
+                isSupportForward = collaborationJson.getJsonObject("centerScheduler").getBoolean("isSupportForward");
+            }
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
                 JsonObject datacenterJson = collaborationJson.getJsonArray("datacenters").getJsonObject(j);
-                Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule, isDcTarget);
+                Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule, isDcTarget, isSupportForward);
                 collaborationManager.addDatacenter(datacenter, collaborationId);
             }
 
@@ -123,11 +127,10 @@ public class InitDatacenter {
      * @param datacenterJson a {@link JsonObject} object
      * @return a {@link StatesManager} object
      */
-    private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule, boolean isDcTarget) {
+    private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule, boolean isDcTarget, boolean isSupportForward) {
         int id = datacenterJson.getInt("id");
         if (id == 0) {
-            LOGGER.error("0 is the id of CIS,Datacenter id should not be 0");
-            System.exit(1);
+            throw new IllegalArgumentException("0 is the id of CIS,Datacenter id should not be 0");
         }
         Datacenter datacenter = new DatacenterSimple(cpnSim, id);
 
@@ -137,7 +140,7 @@ public class InitDatacenter {
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         if (isCenterSchedule) {
             datacenter.setCentralizedInterSchedule(true);
-        } else {
+        } else if (isSupportForward) {
             InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId, false, false);
             interScheduler.setDatacenter(datacenter);
             if (interSchedulerJson.containsKey("isDirectSend")) {

@@ -191,7 +191,7 @@ public class InterSchedulerSimple implements InterScheduler {
     private InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, isDcTarget, isSupportForward, allDatacenters);
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByEasySimple(instanceGroups);
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
         for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleRes : instanceGroupAvailableDatacenters.entrySet()) {
             if (scheduleRes.getValue().size() == 0) {
                 interSchedulerResult.getFailedInstanceGroups().add(scheduleRes.getKey());

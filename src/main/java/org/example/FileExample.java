@@ -20,9 +20,11 @@ public class FileExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/centerInterSchedule/topology.brite";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/centerInterSchedule/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/centerInterSchedule/generateRequestParameter.csv";
+    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/interFrame/topology.brite";
+    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerInterToHostSchedule/DatacentersConfig.json";
+//    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerInterSchedule/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerInterToDcNoForwardSchedule/generateRequestParameter.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();

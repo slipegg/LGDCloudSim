@@ -266,21 +266,23 @@ public class CloudInformationService extends CloudSimEntity {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             int collaborationId = interSchedulerResult.getCollaborationId();
 
+            if (interSchedulerResult.getIsDcTarget() && !interSchedulerResult.getIsSupportForward()) {
+                allocateBwForInterSchedulerResult(interSchedulerResult);
+            }
+
             sendInterScheduleResult(interSchedulerResult);
 
             handleFailedInterScheduling(interSchedulerResult);
 
-//            if (collaborationManager.getCollaborationGroupQueueMap().get(collaborationId).size() > 0) {
-//                send(this, 0, CloudSimTag.GROUP_FILTER_DC_BEGIN, collaborationId);
-//            } else {
-//                collaborationManager.getCenterSchedulerBusyMap().put(collaborationId, false);
-//            }
+            if (interSchedulerResult.getIsDcTarget()) {
+                startCenterInterScheduling(collaborationId);
+            }
 
-            LOGGER.info("{}: collaboration{}'s centerScheduler ends finding available Datacenters for {} instanceGroups.It is waiting replies.", getSimulation().clockStr(), collaborationId, interSchedulerResult.getInstanceGroupSize());
+            LOGGER.info("{}: collaboration{}'s centerScheduler ends finding available Datacenters for {} instanceGroups.", getSimulation().clockStr(), collaborationId, interSchedulerResult.getInstanceGroupSize());
         }
     }
 
-    private void allocateBwForInstanceGroup(InterSchedulerResult interSchedulerResult) {
+    private void allocateBwForInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getScheduledResultMap().entrySet()) {
             Datacenter datacenter = entry.getKey();
             List<InstanceGroup> instanceGroups = entry.getValue();
@@ -310,7 +312,9 @@ public class CloudInformationService extends CloudSimEntity {
             if (instanceGroups.size() > 0) {
                 send(datacenter, 0, evtTag, instanceGroups);
 
-                interSchedulerRepliesWaitingMap.get(interSchedulerResult.getCollaborationId()).put(datacenter, false);
+                if (evtTag == CloudSimTag.SCHEDULE_TO_DC_HOST) {
+                    interSchedulerRepliesWaitingMap.get(interSchedulerResult.getCollaborationId()).put(datacenter, false);
+                }
             }
         }
     }
@@ -318,9 +322,9 @@ public class CloudInformationService extends CloudSimEntity {
     private int getEvtTagByInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
         if (interSchedulerResult.getIsDcTarget()) {
             if (interSchedulerResult.getIsSupportForward()) {
-                return CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD;
-            } else {
                 return CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD;
+            } else {
+                return CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD;
             }
         } else {
             return CloudSimTag.SCHEDULE_TO_DC_HOST;
