@@ -8,7 +8,7 @@ import org.cloudsimplus.core.CloudSimTag;
 import org.cloudsimplus.core.SimEntity;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.events.SimEvent;
-import org.cpnsim.innerscheduler.InnerScheduleResult;
+import org.cpnsim.innerscheduler.InnerSchedulerResult;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
@@ -168,7 +168,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * The InnerScheduleResult List.
      **/
-    private List<InnerScheduleResult> innerSchedulerResults;
+    private List<InnerSchedulerResult> innerSchedulerResults;
 
     /**
      * The instanceGroup SendResult Map.It is used for inter scheduler.
@@ -453,55 +453,61 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processPreAllocateResource(SimEvent evt) {
         LOGGER.info("{}: {}'s all innerScheduler results have been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
         ResourceAllocateResult allocateResult = resourceAllocateSelector.selectResourceAllocate(this.innerSchedulerResults);
-        if (allocateResult.getFailRes() != null && allocateResult.getFailRes().size() > 0) {
-            for (Map.Entry<InnerScheduler, List<Instance>> entry : allocateResult.getFailRes().entrySet()) {
-                innerScheduleFailed(entry.getValue(), entry.getKey(), true);
+
+        Map<InnerScheduler, List<Instance>> failedAllocatedRes = allocateResource(allocateResult.getSuccessRes());
+
+        allocateResult.getFailRes().putAll(failedAllocatedRes);
+
+        for (Map.Entry<InnerScheduler, List<Instance>> entry : allocateResult.getFailRes().entrySet()) {
+            InnerScheduler innerScheduler = entry.getKey();
+            List<Instance> failedInstances = entry.getValue();
+
+            if (!failedInstances.isEmpty()) {
+                innerScheduleFailed(failedInstances, innerScheduler, true);
             }
         }
-        if (!allocateResult.getSuccessRes().isEmpty()) {
-            allocateResource(allocateResult.getSuccessRes());
-        }
-        for (InnerScheduleResult innerScheduleResult : this.innerSchedulerResults) {
-            InnerScheduler innerScheduler = innerScheduleResult.getInnerScheduler();
-            if (innerScheduler.isQueuesEmpty()) {
-                isInnerSchedulerBusy.put(innerScheduler, false);
-            } else {
-                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
-            }
+
+        for (InnerSchedulerResult innerSchedulerResult : this.innerSchedulerResults) {
+            InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
+            startInnerScheduling(innerScheduler);
         }
 
         this.innerSchedulerResults.clear();
     }
 
-    private void allocateResource(Map<Integer, List<Instance>> allocateResult) {
-        LOGGER.info("{}: {} is allocate resource for {} hosts.", getSimulation().clockStr(), getName(), allocateResult.size());
+    private Map<InnerScheduler, List<Instance>> allocateResource(Map<InnerScheduler, List<Instance>> allocatedResult) {
+        LOGGER.info("{}: {} is allocate resource.", getSimulation().clockStr(), getName());
         Map<Integer, List<Instance>> successAllocatedInstances = new HashMap<>();
-        for (Map.Entry<Integer, List<Instance>> entry : allocateResult.entrySet()) {
-            int hostId = entry.getKey();
+        Map<InnerScheduler, List<Instance>> failedInstances = new HashMap<>();
+
+        for (Map.Entry<InnerScheduler, List<Instance>> entry : allocatedResult.entrySet()) {
+            InnerScheduler innerScheduler = entry.getKey();
             List<Instance> instances = entry.getValue();
             for (Instance instance : instances) {
                 if (instance.getUserRequest().getState() == UserRequest.FAILED) {
                     continue;
                 }
-                if (!statesManager.allocate(hostId, instance))//理论上到这里不会出现分配失败的情况
+
+                int allocatedHostId = instance.getExpectedScheduleHostId();
+                if (!statesManager.allocate(allocatedHostId, instance))//理论上到这里不会出现分配失败的情况
                 {
-                    LOGGER.error("{}: {}'s Instance{} failed to allocate resources on host{} after processPreAllocateResource", getSimulation().clockStr(), getName(), instance.getId(), hostId);
-                    System.exit(-1);
+                    LOGGER.warn("{}: {}'s Instance{} failed to allocate resources on host{} after processPreAllocateResource", getSimulation().clockStr(), getName(), instance.getId(), instance.getExpectedScheduleHostId());
+                    failedInstances.putIfAbsent(innerScheduler, new ArrayList<>());
+                    failedInstances.get(innerScheduler).add(instance);
                 }
-                instance.setState(UserRequest.RUNNING);
-                instance.setHost(hostId);
-                instance.setStartTime(getSimulation().clock());
-                updateTCO();
+
+                updateAfterInstanceAllocated(instance);
+
                 int lifeTime = instance.getLifeTime();
-//                if (lifeTime > 0) {
                 successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
                 successAllocatedInstances.get(lifeTime).add(instance);
-//                }
-//                getSimulation().getSqlRecord().recordInstanceCreateInfo(instance);
             }
         }
+
         getSimulation().getSqlRecord().recordInstancesCreateInfo(successAllocatedInstances);
         sendFinishInstanceRunEvt(successAllocatedInstances);
+
+        return failedInstances;
     }
 
     private void sendFinishInstanceRunEvt(Map<Integer, List<Instance>> finishInstances) {
@@ -518,33 +524,40 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * Publish the results of the {@link InnerScheduler}
      *
-     * @param evt the data of the event is {@link InnerScheduleResult}
+     * @param evt the data of the event is {@link InnerSchedulerResult}
      */
     private void processInnerScheduleEnd(SimEvent evt) {
-        if (evt.getData() instanceof InnerScheduleResult innerSchedulerResult) {
-            Map<Integer, List<Instance>> scheduleResult = innerSchedulerResult.getScheduleResult();
+        if (evt.getData() instanceof InnerSchedulerResult innerSchedulerResult) {
             InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
-            LOGGER.info("{}: {}'s {} ends scheduling instances,it scheduling for {} hosts", getSimulation().clockStr(), getName(), innerScheduler.getName(), scheduleResult.size());
+
+            LOGGER.info("{}: {}'s {} ends scheduling instances.", getSimulation().clockStr(), getName(), innerScheduler.getName());
+
             if (!statesManager.isInLatestSmallSynGap(innerSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
                 statesManager.revertHostState(innerSchedulerResult);
             }
-            if (scheduleResult.containsKey(-1)) {
-                innerScheduleFailed(scheduleResult.get(-1), innerScheduler, false);
-                scheduleResult.remove(-1);
+
+            if (!innerSchedulerResult.isFailedInstancesEmpty()) {
+                innerScheduleFailed(innerSchedulerResult.getFailedInstances(), innerScheduler, false);
             }
             innerSchedulerResults.add(innerSchedulerResult);
-            if (!scheduleResult.isEmpty()) {
+            if (!innerSchedulerResult.isScheduledInstancesEmpty()) {
                 send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, null);
-            } else if (innerScheduler.isQueuesEmpty()) {
+            } else {
                 isInnerSchedulerBusy.put(innerScheduler, false);
-            } else if (!innerScheduler.isQueuesEmpty()) {
-                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
             }
 //            if (innerScheduler.getNewInstanceQueueSize() != 0) {
 //                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
 //            } else {
 //                isInnerSchedulerBusy.put(innerScheduler, false);
 //            }
+        }
+    }
+
+    private void startInnerScheduling(InnerScheduler innerScheduler) {
+        if (innerScheduler.isQueuesEmpty()) {
+            isInnerSchedulerBusy.put(innerScheduler, false);
+        } else if (!innerScheduler.isQueuesEmpty()) {
+            send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, innerScheduler);
         }
     }
 
@@ -556,10 +569,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      */
     private void processInnerScheduleBegin(SimEvent evt) {
         if (evt.getData() instanceof InnerScheduler innerScheduler) {
-            InnerScheduleResult innerScheduleResult = new InnerScheduleResult(innerScheduler);
-            innerScheduleResult.setScheduleResult(innerScheduler.schedule());
-            innerScheduleResult.setScheduleTime(getSimulation().clock());
+            InnerSchedulerResult innerScheduleResult = innerScheduler.schedule();
+
             double costTime = innerScheduler.getScheduleCostTime();
+
+            LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", getSimulation().clockStr(), this.getName(), innerScheduler.getName(), innerScheduleResult.getInstanceNum(), costTime);
+
             send(this, costTime, CloudSimTag.INNER_SCHEDULE_END, innerScheduleResult);
         }
     }
@@ -570,6 +585,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         while (instanceIterator.hasNext()) {
             Instance instance = instanceIterator.next();
+            if (instance.getExpectedScheduleHostId() != -1) {
+                instance.addRetryHostId(instance.getExpectedScheduleHostId());
+                instance.setExpectedScheduleHostId(-1);
+            }
+
             instance.addRetryNum();
             if (instance.isFailed()) {
                 UserRequest userRequest = instance.getUserRequest();
@@ -701,6 +721,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instance.setState(UserRequest.RUNNING);
         instance.setStartTime(getSimulation().clock());
         instance.setHost(instance.getExpectedScheduleHostId());
+        instance.setExpectedScheduleHostId(-1);
     }
 
     private void processScheduleToDcNoForward(SimEvent evt) {

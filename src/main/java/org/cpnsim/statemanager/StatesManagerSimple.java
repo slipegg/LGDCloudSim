@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
-import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.innerscheduler.InnerSchedulerResult;
 import org.cpnsim.request.Instance;
 
 import java.util.*;
@@ -279,30 +279,29 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public StatesManager revertHostState(InnerScheduleResult innerSchedulerResult) {
+    public StatesManager revertHostState(InnerSchedulerResult innerSchedulerResult) {
         int smallSynGapCount = synGapManager.getSmallSynGapCount();
         InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
         Set<Integer> clearPartitions = new HashSet<>();
-        while(clearPartitions.size()!=partitionNum&&smallSynGapCount>=0){
+        while (clearPartitions.size() != partitionNum && smallSynGapCount >= 0) {
             double time = synGapManager.getSynTime(smallSynGapCount);
-            if(time<innerSchedulerResult.getScheduleTime()){
+            if (time < innerSchedulerResult.getScheduleTime()) {
                 break;
             }
             clearPartitions.add((smallSynGapCount + innerScheduler.getFirstPartitionId()) % partitionNum);
             smallSynGapCount--;
         }
-//        LOGGER.error("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
+//        LOGGER.debugger("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
 
-        for (int hostId : innerSchedulerResult.getScheduleResult().keySet()) {
+        for (Instance instance : innerSchedulerResult.getScheduledInstances()) {
+            int hostId = instance.getExpectedScheduleHostId();
             int partitionId = partitionRangesManager.getPartitionId(hostId);
             if (clearPartitions.contains(partitionId)) {
                 int[] hostState = getLatestSynHostState(hostId);
-                for (Instance instance : innerSchedulerResult.getScheduleResult().get(hostId)) {
-                    hostState[0] -= instance.getCpu();
-                    hostState[1] -= instance.getRam();
-                    hostState[2] -= instance.getStorage();
-                    hostState[3] -= instance.getBw();
-                }
+                hostState[0] += instance.getCpu();
+                hostState[1] += instance.getRam();
+                hostState[2] += instance.getStorage();
+                hostState[3] += instance.getBw();
                 selfHostStateMap.get(innerScheduler).get(partitionId).put(hostId, hostState);
             }
         }

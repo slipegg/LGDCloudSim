@@ -13,10 +13,10 @@ public class InnerSchedulerRandom extends InnerSchedulerSimple {
     }
 
     @Override
-    public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
+    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
+
         int hostNum = datacenter.getStatesManager().getHostNum();
-        //TODO 域内调度
-        Map<Integer, List<Instance>> res = new HashMap<>();
 
         for (Instance instance : instances) {
             int suitId = -1;
@@ -32,10 +32,13 @@ public class InnerSchedulerRandom extends InnerSchedulerSimple {
 
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
+                instance.setExpectedScheduleHostId(suitId);
+                innerSchedulerResult.addScheduledInstance(instance);
+            } else {
+                innerSchedulerResult.addFailedScheduledInstance(instance);
             }
-            res.putIfAbsent(suitId, new ArrayList<>());
-            res.get(suitId).add(instance);
         }
-        return res;
+
+        return innerSchedulerResult;
     }
 }

@@ -13,8 +13,8 @@ public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
     }
 
     @Override
-    public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
-        Map<Integer, List<Instance>> res = new HashMap<>();
+    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
 
         for (Instance instance : instances) {
             int suitId = -1;
@@ -41,10 +41,13 @@ public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
 
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
+                instance.setExpectedScheduleHostId(suitId);
+                innerSchedulerResult.addScheduledInstance(instance);
+            } else {
+                innerSchedulerResult.addFailedScheduledInstance(instance);
             }
-            res.putIfAbsent(suitId, new ArrayList<>());
-            res.get(suitId).add(instance);
         }
-        return res;
+
+        return innerSchedulerResult;
     }
 }

@@ -274,11 +274,11 @@ public class CloudInformationService extends CloudSimEntity {
 
             handleFailedInterScheduling(interSchedulerResult);
 
-            if (interSchedulerResult.getIsDcTarget()) {
+            if (interSchedulerResult.getIsDcTarget() || interSchedulerResult.isScheduledInstanceGroupsEmpty()) {
                 startCenterInterScheduling(collaborationId);
             }
 
-            LOGGER.info("{}: collaboration{}'s centerScheduler ends finding available Datacenters for {} instanceGroups.", getSimulation().clockStr(), collaborationId, interSchedulerResult.getInstanceGroupSize());
+            LOGGER.info("{}: collaboration{}'s centerScheduler ends finding available Datacenters for {} instanceGroups.", getSimulation().clockStr(), collaborationId, interSchedulerResult.getInstanceGroupNum());
         }
     }
 

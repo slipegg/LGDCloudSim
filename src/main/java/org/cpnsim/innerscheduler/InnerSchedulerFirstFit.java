@@ -16,32 +16,35 @@ public class InnerSchedulerFirstFit extends InnerSchedulerSimple{
     }
 
     @Override
-    public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
-        Map<Integer, List<Instance>> res = new HashMap<>();
+    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
         for (Instance instance : instances) {
             int suitId = -1;
 
-            int p = 0 ;
+            int p = 0;
             for (; p < partitionNum; p++) {
                 int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange(lastPartitionIndx);
-                for (int i=range[0]; i <= range[1]; i++) {
+                for (int i = range[0]; i <= range[1]; i++) {
                     if (synState.isSuitable(lastHostIndex, instance)) {
                         suitId = lastHostIndex;
                         break;
                     }
-                    lastHostIndex=++lastHostIndex%(range[1]-range[0]+1);
+                    lastHostIndex = ++lastHostIndex % (range[1] - range[0] + 1);
                 }
                 if (suitId != -1) {
                     break;
                 }
-                lastPartitionIndx = ++lastPartitionIndx%partitionNum;
+                lastPartitionIndx = ++lastPartitionIndx % partitionNum;
             }
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
+                instance.setExpectedScheduleHostId(suitId);
+                innerSchedulerResult.addScheduledInstance(instance);
+            } else {
+                innerSchedulerResult.addFailedScheduledInstance(instance);
             }
-            res.putIfAbsent(suitId, new ArrayList<>());
-            res.get(suitId).add(instance);
         }
-        return res;
+
+        return innerSchedulerResult;
     }
 }

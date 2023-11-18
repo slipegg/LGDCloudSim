@@ -43,6 +43,7 @@ public class InstanceSimple implements Instance {
         this.retryMaxNum = 3;
 
         this.host = -1;
+        this.expectedScheduleHostId = -1;
         this.startTime = -1;
         this.finishTime = -1;
 

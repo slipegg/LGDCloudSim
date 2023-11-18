@@ -18,7 +18,7 @@ public class InterSchedulerResult {
     private Boolean isSupportForward;
     private Map<Datacenter, List<InstanceGroup>> scheduledResultMap;
     private List<InstanceGroup> failedInstanceGroups;
-    private int instanceGroupSize;
+    private int instanceGroupNum;
 
     public InterSchedulerResult(int collaborationId, Boolean isDcTarget, Boolean isSupportForward, List<Datacenter> allDatacenters) {
         this.collaborationId = collaborationId;
@@ -35,12 +35,12 @@ public class InterSchedulerResult {
 
     public void addDcResult(InstanceGroup instanceGroup, Datacenter datacenter) {
         this.scheduledResultMap.get(datacenter).add(instanceGroup);
-        this.instanceGroupSize++;
+        this.instanceGroupNum++;
     }
 
     public void addFailedInstanceGroup(InstanceGroup instanceGroup) {
         this.failedInstanceGroups.add(instanceGroup);
-        this.instanceGroupSize++;
+        this.instanceGroupNum++;
     }
 
     private void initDcResultMap(List<Datacenter> datacenters) {
@@ -48,5 +48,10 @@ public class InterSchedulerResult {
         for (Datacenter datacenter : datacenters) {
             this.scheduledResultMap.put(datacenter, new ArrayList<>());
         }
+    }
+
+    public boolean isScheduledInstanceGroupsEmpty() {
+        int sum = scheduledResultMap.values().stream().mapToInt(List::size).sum();
+        return sum == 0;
     }
 }

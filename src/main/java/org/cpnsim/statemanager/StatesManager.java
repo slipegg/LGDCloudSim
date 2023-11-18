@@ -2,14 +2,13 @@ package org.cpnsim.statemanager;
 
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
-import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.innerscheduler.InnerSchedulerResult;
 import org.cpnsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * An interface to be implemented by each class that is responsible for managing the states of the datacenter.
@@ -100,7 +99,7 @@ public interface StatesManager {
      * it will clear all the selfHostStates in this area, and the scheduler actually thinks that it has successfully scheduled itself,
      * so we need to use the InnerScheduler's The scheduling result restores selfHostState.
      */
-    StatesManager revertHostState(InnerScheduleResult innerSchedulerResult);
+    StatesManager revertHostState(InnerSchedulerResult innerSchedulerResult);
 
     StatesManager revertSelftHostState(List<Instance> instances, InnerScheduler innerScheduler);
 

@@ -30,7 +30,7 @@ public interface InnerScheduler extends Nameable, DatacenterEntity {
 
     int getRetryInstanceQueueSize();
 
-    Map<Integer, List<Instance>> schedule();
+    InnerSchedulerResult schedule();
 
     double getScheduleCostTime();
 
@@ -41,8 +41,6 @@ public interface InnerScheduler extends Nameable, DatacenterEntity {
     int getFirstPartitionId();
 
     double getLastScheduleTime();
-
-    Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState);
 
     InstanceQueue getInstanceQueue();
 }
