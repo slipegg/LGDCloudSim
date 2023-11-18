@@ -14,23 +14,23 @@ import java.util.Map;
 @Setter
 public class InterSchedulerResult {
     private int collaborationId;//给集中调度器用的
-    private Boolean isDcTarget;
+    private int target;
     private Boolean isSupportForward;
     private Map<Datacenter, List<InstanceGroup>> scheduledResultMap;
     private List<InstanceGroup> failedInstanceGroups;
     private int instanceGroupNum;
 
-    public InterSchedulerResult(int collaborationId, Boolean isDcTarget, Boolean isSupportForward, List<Datacenter> allDatacenters) {
+    public InterSchedulerResult(int collaborationId, int target, Boolean isSupportForward, List<Datacenter> allDatacenters) {
         this.collaborationId = collaborationId;
-        this.isDcTarget = isDcTarget;
+        this.target = target;
         this.isSupportForward = isSupportForward;
         this.failedInstanceGroups = new ArrayList<>();
         initDcResultMap(allDatacenters);
 
     }
 
-    public InterSchedulerResult(int collaborationId, Boolean isDcTarget, List<Datacenter> allDatacenters) {
-        this(collaborationId, isDcTarget, false, allDatacenters);
+    public InterSchedulerResult(int collaborationId, int target, List<Datacenter> allDatacenters) {
+        this(collaborationId, target, false, allDatacenters);
     }
 
     public void addDcResult(InstanceGroup instanceGroup, Datacenter datacenter) {

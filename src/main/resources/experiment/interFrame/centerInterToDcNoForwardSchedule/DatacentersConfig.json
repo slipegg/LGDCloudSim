@@ -4,7 +4,7 @@
       "id": 1,
       "centerScheduler": {
         "type": "simple",
-        "isDcTarget": true,
+        "target": "dc",
         "isSupportForward": false,
         "dcStateSynInfo": [
           {

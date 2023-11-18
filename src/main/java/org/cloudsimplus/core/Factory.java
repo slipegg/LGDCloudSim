@@ -11,7 +11,7 @@ public interface Factory {
 
     PredictionManager getPredictionManager(String type);
 
-    InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId, boolean isDcTarget, boolean isSupportForward);
+    InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward);
 
     LoadBalance getLoadBalance(String type);
 

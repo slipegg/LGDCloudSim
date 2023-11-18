@@ -15,6 +15,7 @@ import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.interscheduler.CenterSchedulerResult;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.interscheduler.InterSchedulerResult;
+import org.cpnsim.interscheduler.InterSchedulerSimple;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
@@ -266,7 +267,7 @@ public class CloudInformationService extends CloudSimEntity {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             int collaborationId = interSchedulerResult.getCollaborationId();
 
-            if (interSchedulerResult.getIsDcTarget() && !interSchedulerResult.getIsSupportForward()) {
+            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET && !interSchedulerResult.getIsSupportForward()) {
                 allocateBwForInterSchedulerResult(interSchedulerResult);
             }
 
@@ -274,7 +275,7 @@ public class CloudInformationService extends CloudSimEntity {
 
             handleFailedInterScheduling(interSchedulerResult);
 
-            if (interSchedulerResult.getIsDcTarget() || interSchedulerResult.isScheduledInstanceGroupsEmpty()) {
+            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET || interSchedulerResult.isScheduledInstanceGroupsEmpty()) {
                 startCenterInterScheduling(collaborationId);
             }
 
@@ -320,14 +321,16 @@ public class CloudInformationService extends CloudSimEntity {
     }
 
     private int getEvtTagByInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
-        if (interSchedulerResult.getIsDcTarget()) {
+        if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET) {
             if (interSchedulerResult.getIsSupportForward()) {
                 return CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD;
             } else {
                 return CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD;
             }
-        } else {
+        } else if (interSchedulerResult.getTarget() == InterSchedulerSimple.HOST_TARGET) {
             return CloudSimTag.SCHEDULE_TO_DC_HOST;
+        } else {
+            throw new RuntimeException(String.format("%s: %s received an error target,it is not DC_TARGET or HOST_TARGET", getSimulation().clockStr(), getName()));
         }
     }
 

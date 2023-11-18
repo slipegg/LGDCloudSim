@@ -18,8 +18,12 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class InterSchedulerSimple implements InterScheduler {
+    public static final int NULL = -1;
+    public static final int DC_TARGET = 0;
+    public static final int HOST_TARGET = 1;
+    public static final int MIXED_TARGET = 2;
     public Logger LOGGER = Logger.getLogger(InterSchedulerSimple.class.getName());
-    boolean isDcTarget;
+    int target;
     boolean isSupportForward;
     @Getter
     @Setter
@@ -75,25 +79,13 @@ public class InterSchedulerSimple implements InterScheduler {
         this.collaborationId = collaborationId;
     }
 
-    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, boolean isDcTarget, boolean isSupportForward) {
+    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
         this.id = id;
         this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
         this.simulation = simulation;
         this.collaborationId = collaborationId;
-        this.isDcTarget = isDcTarget;
+        this.target = target;
         this.isSupportForward = isSupportForward;
-    }
-
-    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, boolean isDcTarget) {
-        this.id = id;
-        this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
-        this.simulation = simulation;
-        this.collaborationId = collaborationId;
-        this.isDcTarget = isDcTarget;
-        if (isDcTarget) {
-            this.isSupportForward = false;
-            LOGGER.warning("Targeting Dc but not setting whether to run forwarding, default setting is not allowing forwarding");
-        }
     }
 
     @Override
@@ -144,10 +136,12 @@ public class InterSchedulerSimple implements InterScheduler {
     public InterSchedulerResult schedule(List<InstanceGroup> instanceGroups) {
         synDcStateRealTime();
 
-        if (isDcTarget) {
+        if (target == DC_TARGET) {
             return scheduleToDatacenter(instanceGroups);
-        } else {
+        } else if (target == HOST_TARGET) {
             return scheduleToHost(instanceGroups);
+        } else {
+            throw new IllegalStateException("InterSchedulerSimple.schedule: Invalid target of " + target);
         }
     }
 
@@ -159,10 +153,12 @@ public class InterSchedulerSimple implements InterScheduler {
 
         scheduleTime = 0.2;
 
-        if (isDcTarget) {
+        if (target == DC_TARGET) {
             return scheduleToDatacenter(waitSchedulingInstanceGroups);
-        } else {
+        } else if (target == HOST_TARGET) {
             return scheduleToHost(waitSchedulingInstanceGroups);
+        } else {
+            throw new IllegalStateException("InterSchedulerSimple.schedule: Invalid target of " + target);
         }
     }
 
@@ -190,7 +186,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
     private InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, isDcTarget, isSupportForward, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
         for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleRes : instanceGroupAvailableDatacenters.entrySet()) {
             if (scheduleRes.getValue().size() == 0) {
@@ -206,7 +202,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
     private InterSchedulerResult scheduleToHost(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, false, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, allDatacenters);
 
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
 
