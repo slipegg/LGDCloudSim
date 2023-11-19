@@ -253,6 +253,7 @@ public class StatesManagerSimple implements StatesManager {
         return switch (type) {
             case "detailed" -> new DetailedDcStateSimple(hostStates);
             case "easySimple" -> simpleState.generate(datacenter);
+            case "null" -> null;
             default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
         };
     }

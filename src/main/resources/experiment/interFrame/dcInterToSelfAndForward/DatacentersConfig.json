@@ -21,7 +21,7 @@
               {
                 "dcId": 2,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "null"
               }
             ]
           },
@@ -69,7 +69,7 @@
               {
                 "dcId": 1,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "null"
               },
               {
                 "dcId": 2,
