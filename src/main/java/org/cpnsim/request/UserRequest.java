@@ -55,5 +55,8 @@ public interface UserRequest extends ChangeableId {
 
     UserRequest addAllocatedEdge(InstanceGroupEdge edge);
 
+
+    UserRequest delAllocatedEdge(InstanceGroupEdge edge);
+
     List<InstanceGroupEdge> getAllocatedEdges();
 }

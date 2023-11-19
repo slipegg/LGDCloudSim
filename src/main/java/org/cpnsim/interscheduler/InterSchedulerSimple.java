@@ -41,7 +41,7 @@ public class InterSchedulerSimple implements InterScheduler {
     @Getter
     double scheduleTime = 0.0;
     @Getter
-    double decideReciveGroupResultCostTime = 0.0;
+    double decideReceiveGroupResultCostTime = 0.0;
     @Getter
     double decideTargetDatacenterCostTime = 0.0;
     @Getter
@@ -62,6 +62,8 @@ public class InterSchedulerSimple implements InterScheduler {
     private Map<Datacenter, String> dcStateSynType = new HashMap<>();
     @Getter
     Map<Datacenter, Object> interScheduleSimpleStateMap = new HashMap<>();
+    @Getter
+    Map<Datacenter, Boolean> repliesWaitingMap = new HashMap<>();
 
     Random random = new Random(1);
 
@@ -157,9 +159,69 @@ public class InterSchedulerSimple implements InterScheduler {
             return scheduleToDatacenter(waitSchedulingInstanceGroups);
         } else if (target == HOST_TARGET) {
             return scheduleToHost(waitSchedulingInstanceGroups);
+        } else if (target == MIXED_TARGET) {
+            return scheduleMixed(waitSchedulingInstanceGroups);
         } else {
             throw new IllegalStateException("InterSchedulerSimple.schedule: Invalid target of " + target);
         }
+    }
+
+    private InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
+
+        for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleResEntry : instanceGroupAvailableDatacenters.entrySet()) {
+            InstanceGroup instanceGroupToBeScheduled = scheduleResEntry.getKey();
+            List<Datacenter> availableDatacenters = scheduleResEntry.getValue();
+
+            if (availableDatacenters.size() == 0) {
+                interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
+            } else {
+                Datacenter scheduleResult = scheduleMixedInstanceGroup(instanceGroupToBeScheduled, availableDatacenters);
+
+                if (scheduleResult == Datacenter.NULL) {
+                    interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
+                } else {
+                    interSchedulerResult.addDcResult(instanceGroupToBeScheduled, scheduleResult);
+                }
+            }
+        }
+
+        return interSchedulerResult;
+    }
+
+    private Datacenter scheduleMixedInstanceGroup(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
+        if (availableDatacenters.contains(datacenter)) {
+            if (random.nextDouble() < 0.1) {//暂时性测试用
+                availableDatacenters.remove(datacenter);
+            } else {
+                boolean isScheduleToSelfSuccess = scheduleHostInDcForInstanceGroup(instanceGroup, datacenter);
+                if (isScheduleToSelfSuccess) {
+                    return datacenter;
+                } else {
+                    availableDatacenters.remove(datacenter);
+                }
+            }
+        }
+
+        return selectDcToForward(instanceGroup, availableDatacenters);
+    }
+
+    private Datacenter selectDcToForward(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
+        if (availableDatacenters.size() == 0) {
+            return Datacenter.NULL;
+        }
+
+        int historyForwardDcLength = instanceGroup.getForwardDatacenterIdsHistory().size();
+        int collaborationId = simulation.getCollaborationManager().getOnlyCollaborationId(datacenter.getId());
+        int datacenterNumInCollaboration = simulation.getCollaborationManager().getDatacenters(collaborationId).size();
+        if (historyForwardDcLength >= datacenterNumInCollaboration - 1) {
+            return Datacenter.NULL;
+        }
+
+        int dcSelectedIndex = random.nextInt(availableDatacenters.size());
+        return availableDatacenters.get(dcSelectedIndex);
     }
 
     private List<InstanceGroup> getWaitSchedulingInstanceGroups() {
@@ -303,7 +365,7 @@ public class InterSchedulerSimple implements InterScheduler {
             Double score = random.nextDouble(100);
             result.put(instanceGroup, score);
         }
-        this.decideReciveGroupResultCostTime = 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.decideReceiveGroupResultCostTime = 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return result;
     }
 
@@ -376,6 +438,26 @@ public class InterSchedulerSimple implements InterScheduler {
     @Override
     public int getRetryQueueSize() {
         return retryInstanceGroupQueue.size();
+    }
+
+    @Override
+    public void addReplyWaitingDatacenter(Datacenter datacenter) {
+        repliesWaitingMap.put(datacenter, false);
+    }
+
+    @Override
+    public void receiveReplyFromDatacenter(Datacenter datacenter) {
+        repliesWaitingMap.put(datacenter, true);
+    }
+
+    @Override
+    public boolean isAllReplyReceived() {
+        return repliesWaitingMap.values().stream().allMatch(Boolean::booleanValue);
+    }
+
+    @Override
+    public void clearReplyWaitingDatacenter() {
+        repliesWaitingMap.clear();
     }
 
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑

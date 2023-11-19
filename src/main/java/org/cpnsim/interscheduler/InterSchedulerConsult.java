@@ -242,7 +242,7 @@ public class InterSchedulerConsult extends InterSchedulerSimple {
             Double score = markScore(instanceGroup, simpleHostStates);
             result.put(instanceGroup, score);
         }
-        this.decideReciveGroupResultCostTime = 0.01 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.decideReceiveGroupResultCostTime = 0.01 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return result;
     }
 

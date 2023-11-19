@@ -30,6 +30,7 @@ public class InstanceGroupSimple implements InstanceGroup{
     double receivedTime;
     double finishTime;
     int successInstanceNum;
+    List<Integer> forwardDatacenterIdsHistory;
 
     public InstanceGroupSimple(int id) {
         this.id = id;
@@ -43,6 +44,7 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.receivedTime = -1;
         this.finishTime = -1;
         this.successInstanceNum = 0;
+        this.forwardDatacenterIdsHistory = new ArrayList<>();
     }
 
     public InstanceGroupSimple(int id, List<Instance> instances) {
@@ -94,6 +96,12 @@ public class InstanceGroupSimple implements InstanceGroup{
         if (this.successInstanceNum == this.instances.size()) {
             this.state = UserRequest.SUCCESS;
         }
+        return this;
+    }
+
+    @Override
+    public InstanceGroup addForwardDatacenterIdHistory(int datacenterId) {
+        this.forwardDatacenterIdsHistory.add(datacenterId);
         return this;
     }
 

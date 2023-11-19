@@ -80,6 +80,12 @@ public class UserRequestSimple implements UserRequest {
     }
 
     @Override
+    public UserRequest delAllocatedEdge(InstanceGroupEdge edge) {
+        allocatedEdges.remove(edge);
+        return this;
+    }
+
+    @Override
     public UserRequest addFailReason(String failReason) {
         this.failReason = this.failReason + "-" + failReason;
         return this;

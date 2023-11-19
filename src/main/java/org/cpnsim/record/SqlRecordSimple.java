@@ -1,8 +1,10 @@
 package org.cpnsim.record;
 
 import lombok.Getter;
+import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.InstanceGroupEdge;
 import org.cpnsim.request.UserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +13,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SqlRecordSimple implements SqlRecord {
     Logger LOGGER = LoggerFactory.getLogger(SqlRecordSimple.class.getSimpleName());
@@ -150,6 +154,49 @@ public class SqlRecordSimple implements SqlRecord {
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void recordInstanceGroupsGraph(List<InstanceGroup> instanceGroups) {
+        try {
+            Set<InstanceGroupEdge> recordEdges = new HashSet<>();
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupGraphTableName + " (srcDcId,srcInstanceGroupId,dstDcId,dstInstanceGroupId,bw,startTime) VALUES (?,?,?,?,?,?);");
+
+            for (InstanceGroup instanceGroup : instanceGroups) {
+                List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
+                for (InstanceGroup dst : dstInstanceGroups) {
+                    InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dst);
+                    if (!recordEdges.contains(edge)) {
+                        addEdgeToStatement(edge, instanceGroup.getReceivedTime());
+                        recordEdges.add(edge);
+                    }
+                }
+
+                List<InstanceGroup> srcInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
+                for (InstanceGroup src : srcInstanceGroups) {
+                    InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
+                    if (!recordEdges.contains(edge)) {
+                        addEdgeToStatement(edge, instanceGroup.getReceivedTime());
+                        recordEdges.add(edge);
+                    }
+                }
+            }
+
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addEdgeToStatement(InstanceGroupEdge instanceGroupEdge, double clock) throws SQLException {
+        if (instanceGroupEdge.getSrc().getReceiveDatacenter() != Datacenter.NULL && instanceGroupEdge.getDst().getReceiveDatacenter() != Datacenter.NULL) {
+            statement.setInt(1, instanceGroupEdge.getSrc().getReceiveDatacenter().getId());
+            statement.setInt(2, instanceGroupEdge.getSrc().getId());
+            statement.setInt(3, instanceGroupEdge.getDst().getReceiveDatacenter().getId());
+            statement.setInt(4, instanceGroupEdge.getDst().getId());
+            statement.setDouble(5, instanceGroupEdge.getRequiredBw());
+            statement.setDouble(6, clock);
+            statement.addBatch();
         }
     }
 

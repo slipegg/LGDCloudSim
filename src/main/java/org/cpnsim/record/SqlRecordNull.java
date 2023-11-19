@@ -57,6 +57,11 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
+    public void recordInstanceGroupsGraph(List<InstanceGroup> instanceGroups) {
+
+    }
+
+    @Override
     public void recordInstanceGroupGraphReleaseInfo(int srcDcId, int dstDcId, double finishTime) {
 
     }

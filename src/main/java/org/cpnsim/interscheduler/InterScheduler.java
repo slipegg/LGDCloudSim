@@ -2,12 +2,10 @@ package org.cpnsim.interscheduler;
 
 import org.cloudsimplus.core.DatacenterEntity;
 import org.cloudsimplus.core.Nameable;
-import org.cloudsimplus.core.SimEntity;
 import org.cloudsimplus.core.Simulation;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
-import org.cpnsim.statemanager.SimpleState;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,7 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
 
     Map<InstanceGroup, Double> decideReciveGroupResult(List<InstanceGroup> instanceGroups);
 
-    double getDecideReciveGroupResultCostTime();
+    double getDecideReceiveGroupResultCostTime();
 
     Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Double>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups);
 
@@ -74,4 +72,12 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
     int getNewQueueSize();
 
     int getRetryQueueSize();
+
+    void addReplyWaitingDatacenter(Datacenter datacenter);
+
+    void receiveReplyFromDatacenter(Datacenter datacenter);
+
+    boolean isAllReplyReceived();
+
+    void clearReplyWaitingDatacenter();
 }

@@ -58,4 +58,8 @@ public interface InstanceGroup extends RequestEntity {
     InstanceGroup setFinishTime(double finishedTime);
 
     double getFinishTime();
+
+    InstanceGroup addForwardDatacenterIdHistory(int datacenterId);
+
+    List<Integer> getForwardDatacenterIdsHistory();
 }

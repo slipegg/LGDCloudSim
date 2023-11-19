@@ -10,6 +10,7 @@ import org.cpnsim.statemanager.*;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.FileReader;
@@ -70,9 +71,47 @@ public class InitDatacenter {
             }
 
             if (isCenterSchedule) {
-                initCenterScheduler(collaborationJson.getJsonObject("centerScheduler"), collaborationId, collaborationManager);
+                JsonObject centerSchedulerJson = collaborationJson.getJsonObject("centerScheduler");
+                InterScheduler interScheduler = initInterScheduler(centerSchedulerJson, collaborationId, collaborationManager);
+
+                collaborationManager.addCenterScheduler(interScheduler);
+            }
+
+            if (isNeedInterSchedulerForDc(isCenterSchedule, target, isSupportForward)) {
+                initInterSchedulers(collaborationJson.getJsonArray("datacenters"), collaborationId, collaborationManager);
             }
         }
+    }
+
+    private static void initInterSchedulers(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
+        for (int j = 0; j < datacenters.size(); j++) {
+            JsonObject datacenterJson = datacenters.getJsonObject(j);
+            JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
+            if (interSchedulerJson == null) {
+                throw new IllegalArgumentException("interScheduler should not be null");
+            }
+
+            InterScheduler interScheduler = initInterScheduler(interSchedulerJson, collaborationId, collaborationManager);
+
+            int datacenterId = datacenterJson.getInt("id");
+            Datacenter datacenter = collaborationManager.getDatacenterById(datacenterId);
+            interScheduler.setDatacenter(datacenter);
+            datacenter.setInterScheduler(interScheduler);
+        }
+    }
+
+    private static InterScheduler initInterScheduler(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
+        String interSchedulerType = interSchedulerJson.getString("type");
+        int target = getInterScheduleTarget(interSchedulerJson);
+        boolean isSupportForward = false;
+        if (target == InterSchedulerSimple.DC_TARGET) {
+            isSupportForward = interSchedulerJson.getBoolean("isSupportForward");
+        }
+        InterScheduler interScheduler = factory.getInterScheduler(interSchedulerType, interSchedulerId++, cpnSim, collaborationId, target, isSupportForward);
+        Object[] dcStateSynIntervalAndType = getDcStateSynIntervalAndType(interSchedulerJson, collaborationManager);
+        interScheduler.setDcStateSynInterval((Map<Datacenter, Double>) dcStateSynIntervalAndType[0]);
+        interScheduler.setDcStateSynType((Map<Datacenter, String>) dcStateSynIntervalAndType[1]);
+        return interScheduler;
     }
 
     private static int getInterScheduleTarget(JsonObject centerSchedulerJson) {
@@ -87,22 +126,6 @@ public class InitDatacenter {
             case "mixed" -> InterSchedulerSimple.MIXED_TARGET;
             default -> throw new IllegalArgumentException("target should be dc, host or mixed");
         };
-    }
-
-    private static void initCenterScheduler(JsonObject centerSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
-        String centerSchedulerType = centerSchedulerJson.getString("type");
-        int target = getInterScheduleTarget(centerSchedulerJson);
-        boolean isSupportForward = false;
-        if (target == InterSchedulerSimple.DC_TARGET) {
-            isSupportForward = centerSchedulerJson.getBoolean("isSupportForward");
-        }
-        InterScheduler interScheduler = factory.getInterScheduler(centerSchedulerType, interSchedulerId++, cpnSim, collaborationId, target, isSupportForward);
-
-        Object[] dcStateSynIntervalAndType = getDcStateSynIntervalAndType(centerSchedulerJson, collaborationManager);
-        interScheduler.setDcStateSynInterval((Map<Datacenter, Double>) dcStateSynIntervalAndType[0]);
-        interScheduler.setDcStateSynType((Map<Datacenter, String>) dcStateSynIntervalAndType[1]);
-
-        collaborationManager.addCenterScheduler(interScheduler);
     }
 
     private static Object[] getDcStateSynIntervalAndType(JsonObject dcStateSynInfoJson, CollaborationManager collaborationManager) {
@@ -159,15 +182,12 @@ public class InitDatacenter {
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         if (isCenterSchedule) {
             datacenter.setCentralizedInterSchedule(true);
-        } else if (isSupportForward) {
+        }
+        if (isNeedInterSchedulerForDc(isCenterSchedule, target, isSupportForward)) {
             InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId, target, false);
             interScheduler.setDatacenter(datacenter);
-            if (interSchedulerJson.containsKey("isDirectSend")) {
-                interScheduler.setDirectedSend(interSchedulerJson.getBoolean("isDirectSend"));
-            }
             datacenter.setInterScheduler(interScheduler);
         }
-
 
         if (isNeedInnerSchedule(isCenterSchedule, target)) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
@@ -186,6 +206,10 @@ public class InitDatacenter {
         setDatacenterResourceUnitPrice(datacenter, unitPriceJson);
 
         return datacenter;
+    }
+
+    private static boolean isNeedInterSchedulerForDc(boolean isCenterSchedule, int target, boolean isSupportForward) {
+        return (isCenterSchedule && isSupportForward) || (!isCenterSchedule);
     }
 
     private static boolean isNeedInnerSchedule(boolean isCenterSchedule, int target) {

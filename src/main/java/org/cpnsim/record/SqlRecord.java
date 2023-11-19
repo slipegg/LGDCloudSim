@@ -24,6 +24,8 @@ public interface SqlRecord {
 
     void recordInstanceGroupGraphAllocateInfo(int srcDcId, int srcInstanceGroupId, int dstDcId, int dstInstanceGroupId, double bw, double startTime);
 
+    void recordInstanceGroupsGraph(List<InstanceGroup> instanceGroups);
+
     void recordInstanceGroupGraphReleaseInfo(int srcInstanceGroupId, int dstInstanceGroupId, double finishTime);
 
     void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances);
