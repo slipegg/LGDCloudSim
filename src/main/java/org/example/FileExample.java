@@ -25,8 +25,10 @@ public class FileExample {
 //    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerInterToHostSchedule/generateRequestParameter.csv";
 //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
 //    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerInterToDcNoForwardSchedule/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/generateRequestParameter.csv";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/DatacentersConfig.json";
+//    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerToDcAndForward/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerToDcAndForward/generateRequestParameter.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();

@@ -290,7 +290,6 @@ public class CloudInformationService extends CloudSimEntity {
 
         if (evtTag == CloudSimTag.SCHEDULE_TO_DC_HOST) {
             interScheduler.clearReplyWaitingDatacenter();
-
         }
 
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getScheduledResultMap().entrySet()) {

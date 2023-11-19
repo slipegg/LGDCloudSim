@@ -189,7 +189,7 @@ public class InitDatacenter {
             datacenter.setInterScheduler(interScheduler);
         }
 
-        if (isNeedInnerSchedule(isCenterSchedule, target)) {
+        if (isNeedInnerSchedule(isCenterSchedule, target, isSupportForward)) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
             LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
             datacenter.setLoadBalance(loadBalance);
@@ -212,9 +212,10 @@ public class InitDatacenter {
         return (isCenterSchedule && isSupportForward) || (!isCenterSchedule);
     }
 
-    private static boolean isNeedInnerSchedule(boolean isCenterSchedule, int target) {
+    private static boolean isNeedInnerSchedule(boolean isCenterSchedule, int target, boolean isSupportForward) {
         return !((isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET)
-                || (!isCenterSchedule && target == InterSchedulerSimple.MIXED_TARGET));
+                || (!isCenterSchedule && target == InterSchedulerSimple.MIXED_TARGET)
+                || (isCenterSchedule && target == InterSchedulerSimple.DC_TARGET && isSupportForward));
     }
 
     /**

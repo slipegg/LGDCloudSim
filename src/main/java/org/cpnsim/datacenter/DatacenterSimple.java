@@ -299,7 +299,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         switch (evt.getTag()) {
             case CloudSimTag.SYN_STATE_IN_DC -> processSynStateInDc();
             case CloudSimTag.SYN_STATE_BETWEEN_DC -> processSynStateBetweenDc(evt);
-            case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
+            case CloudSimTag.USER_REQUEST_SEND, CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD -> processUserRequestsSend(evt);
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
             case CloudSimTag.ASK_SIMPLE_STATE -> processAskSimpleState(evt);
             case CloudSimTag.RESPOND_SIMPLE_STATE -> processRespondSimpleState(evt);
@@ -308,7 +308,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP -> processRespondDcReviveGroup(evt);
             case CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP -> processRespondDcReviveGroupGiveUp(evt);
             case CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD -> processScheduleToDcNoForward(evt);
-            case CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD -> processScheduleToDcAndForward(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST -> processScheduleToDcHost(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
@@ -802,10 +801,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void processScheduleToDcAndForward(SimEvent evt) {
-
-    }
-
     private void deleteFailedInstanceGroupAndSetReceivedTime(List<InstanceGroup> instanceGroups) {
         Iterator<InstanceGroup> iterator = instanceGroups.iterator();
         while (iterator.hasNext()) {
@@ -1025,12 +1020,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 List<UserRequest> userRequests = (List<UserRequest>) userRequestsTmp;
                 interScheduler.addUserRequests(userRequests);
 
-                LOGGER.info("{}: {} received {} user request.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), interScheduler.getNewQueueSize());
+                LOGGER.info("{}: {} received {} user request from {}.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), evt.getSource().getName(), interScheduler.getNewQueueSize());
             } else if (userRequestsTmp.get(0) instanceof InstanceGroup) {
                 List<InstanceGroup> instanceGroups = (List<InstanceGroup>) userRequestsTmp;
                 interScheduler.addInstanceGroups(instanceGroups, false);
 
-                LOGGER.info("{}: {} received {} instanceGroups.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), interScheduler.getNewQueueSize());
+                LOGGER.info("{}: {} received {} instanceGroups from {}.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), evt.getSource().getName(), interScheduler.getNewQueueSize());
             }
         }
         if (!isGroupFilterDcBusy) {
