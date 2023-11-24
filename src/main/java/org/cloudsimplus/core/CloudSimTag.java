@@ -21,10 +21,7 @@ public class CloudSimTag {
     public static final int NEED_SEND_USER_REQUEST = BASE + 4;//USER发送用户请求给dc
     public static final int GROUP_FILTER_DC_BEGIN = BASE + 5;//USER发送用户请求,需要比USER_REQUEST_SEND小
     public static final int GROUP_FILTER_DC_END = GROUP_FILTER_DC_BEGIN + 1;//USER发送用户请求,需要比USER_REQUEST_SEND小
-    public static final int ASK_DC_REVIVE_GROUP = GROUP_FILTER_DC_END + 1;
-    public static final int RESPOND_DC_REVIVE_GROUP = ASK_DC_REVIVE_GROUP + 1;
-    public static final int RESPOND_DC_REVIVE_GROUP_GIVE_UP = RESPOND_DC_REVIVE_GROUP + 1;
-    public static final int SCHEDULE_TO_DC_AND_FORWARD = RESPOND_DC_REVIVE_GROUP_GIVE_UP + 1;
+    public static final int SCHEDULE_TO_DC_AND_FORWARD = GROUP_FILTER_DC_END + 1;
     public static final int SCHEDULE_TO_DC_NO_FORWARD = SCHEDULE_TO_DC_AND_FORWARD + 1;
     public static final int SCHEDULE_TO_DC_HOST = SCHEDULE_TO_DC_NO_FORWARD + 1;
     public static final int SCHEDULE_TO_DC_HOST_OK = SCHEDULE_TO_DC_HOST + 1;
@@ -64,9 +61,6 @@ public class CloudSimTag {
             case ASK_SIMPLE_STATE -> "ASK_SIMPLE_STATE";
             case RESPOND_SIMPLE_STATE -> "RESPOND_SIMPLE_STATE";
             case GROUP_FILTER_DC_END -> "GROUP_FILTER_DC_END";
-            case ASK_DC_REVIVE_GROUP -> "ASK_DC_REVIVE_GROUP";
-            case RESPOND_DC_REVIVE_GROUP -> "RESPOND_DC_REVIVE_GROUP_ACCEPT";
-            case RESPOND_DC_REVIVE_GROUP_GIVE_UP -> "RESPOND_DC_REVIVE_GROUP_GIVE_UP";
             case LOAD_BALANCE_SEND -> "LOAD_BALANCE_SEND";
             case INNER_SCHEDULE_BEGIN -> "INNER_SCHEDULE_BEGIN";
             case INNER_SCHEDULE_END -> "INNER_SCHEDULE_END";

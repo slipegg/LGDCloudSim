@@ -309,12 +309,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.SYN_STATE_BETWEEN_DC -> processSynStateBetweenDc(evt);
             case CloudSimTag.USER_REQUEST_SEND, CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD -> processUserRequestsSend(evt);
             case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
-            case CloudSimTag.ASK_SIMPLE_STATE -> processAskSimpleState(evt);
-            case CloudSimTag.RESPOND_SIMPLE_STATE -> processRespondSimpleState(evt);
             case CloudSimTag.GROUP_FILTER_DC_END -> processGroupFilterDcEnd(evt);
-            case CloudSimTag.ASK_DC_REVIVE_GROUP -> processAskDcReviveGroup(evt);
-            case CloudSimTag.RESPOND_DC_REVIVE_GROUP -> processRespondDcReviveGroup(evt);
-            case CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP -> processRespondDcReviveGroupGiveUp(evt);
             case CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD -> processScheduleToDcNoForward(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST -> processScheduleToDcHost(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
@@ -644,19 +639,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    /**
-     * Tell the datacenter not to place InstanceGroups in that datacenter
-     *
-     * @param evt the data of the event is a List of InstanceGroups.
-     */
-    private void processRespondDcReviveGroupGiveUp(SimEvent evt) {
-        if (evt.getData() instanceof List<?> instanceGroupsTmp) {
-            List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
-            instanceGroups.removeIf(instanceGroup -> instanceGroup.getUserRequest().getState() == UserRequest.FAILED);
-            interScheduler.receiveNotEmployGroup(instanceGroups);
-        }
-    }
-
     private void processScheduleToDcHostResponse(SimEvent evt) {
         Datacenter sourceDc = (Datacenter) evt.getSource();
         interScheduler.receiveReplyFromDatacenter(sourceDc);
@@ -821,150 +803,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    /**
-     * Tell the datacenter to place InstanceGroups in that datacenter
-     *
-     * @param evt the data of the event is a List of InstanceGroups or a List of Instances.
-     */
-    private void processRespondDcReviveGroupEmploy(SimEvent evt) {
-        if (evt.getData() instanceof List<?> instancesTmp) {
-            if (instancesTmp.size() == 0) {
-                return;
-            }
-            if (instancesTmp.get(0) instanceof InstanceGroup) {
-                List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instancesTmp;
-
-                Iterator<InstanceGroup> iterator = instanceGroups.iterator();
-                while (iterator.hasNext()) {
-                    InstanceGroup instanceGroup = iterator.next();
-                    if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
-                        iterator.remove(); // 使用迭代器的remove()方法安全地删除元素
-                    } else if (instanceGroup.getReceivedTime() == -1) {
-                        instanceGroup.setReceivedTime(getSimulation().clock());
-                    }
-                }
-                if (!isCentralizedInterSchedule()) {
-                    interScheduler.receiveEmployGroup(instanceGroups);
-                }
-                instanceQueue.add(instanceGroups);
-                LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
-                        getSimulation().clockStr(),
-                        getName(),
-                        evt.getSource().getName(),
-                        instanceGroups.size(),
-                        instanceQueue.size());
-                getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
-            } else if (instancesTmp.get(0) instanceof Instance) {
-                List<Instance> instances = (List<Instance>) instancesTmp;
-                instances.removeIf(instance -> instance.getUserRequest().getState() == UserRequest.FAILED);
-                instanceQueue.add(instances);
-                LOGGER.info("{}: {} receives {}'s respond to employ {} Instances.Now the size of instanceQueue is {}.",
-                        getSimulation().clockStr(),
-                        getName(),
-                        evt.getSource().getName(),
-                        instances.size(),
-                        instanceQueue.size());
-            }
-        } else if (evt.getData() instanceof Instance instance) {
-            if (instance.getUserRequest().getState() == UserRequest.FAILED) {
-                return;
-            }
-            instanceQueue.add(instance);
-            LOGGER.info("{}: {} receives {}'s respond to employ Instance{}.Now the size of instanceQueue is {}.",
-                    getSimulation().clockStr(),
-                    getName(),
-                    evt.getSource().getName(),
-                    instance.getId(),
-                    instanceQueue.size());
-        }
-        sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
-    }
-
-    /**
-     * the datacenter reply whether they can receive this instanceGroups.
-     *
-     * @param evt the data of this evt is a list of instanceGroups.
-     */
-    private void processRespondDcReviveGroup(SimEvent evt) {
-        if (evt.getData() instanceof Map<?,?> responseResultTmp) {
-            Datacenter srcDatacenter = (Datacenter) evt.getSource();
-            Map<InstanceGroup,Double> responseResult = (Map<InstanceGroup,Double>) responseResultTmp;
-            List<InstanceGroup> waitDecideInstanceGroups = null;
-            for (InstanceGroup instanceGroup : responseResult.keySet()) {
-                if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
-                    continue;
-                }
-                instanceGroupSendResultMap.get(instanceGroup).put(srcDatacenter, responseResult.get(instanceGroup));
-                if (isAllSendResultReceived(instanceGroup)) {
-                    if (waitDecideInstanceGroups == null) {
-                        waitDecideInstanceGroups = new ArrayList<>();
-                    }
-                    waitDecideInstanceGroups.add(instanceGroup);
-                }
-            }
-            if (waitDecideInstanceGroups != null) {
-                Map<InstanceGroup, Datacenter> decideResult = interScheduler.decideTargetDatacenter(instanceGroupSendResultMap, waitDecideInstanceGroups);
-                double delay = interScheduler.getDecideTargetDatacenterCostTime();
-                sendDecideResult(decideResult, delay);
-                LOGGER.info("{}: {} decides to schedule {} InstanceGroup after receiving all responds.", getSimulation().clockStr(), getName(), decideResult.size());
-            }
-        }
-    }
-
-    private void sendDecideResult(Map<InstanceGroup, Datacenter> decideResult, double delay) {
-        Map<Datacenter, Map<Integer, List<InstanceGroup>>> sendResult = new HashMap<>();
-        List<InstanceGroup> failInstanceGroups = new ArrayList<>();
-        for (Map.Entry<InstanceGroup, Datacenter> entry : decideResult.entrySet()) {
-            InstanceGroup instanceGroup = entry.getKey();
-            Datacenter receiveDatacenter = entry.getValue();
-            if (receiveDatacenter == null) {
-                failInstanceGroups.add(instanceGroup);
-            } else {
-                instanceGroup.setReceiveDatacenter(receiveDatacenter);
-                if (!allocateBwForGroup(instanceGroup, receiveDatacenter)) {
-                    failInstanceGroups.add(instanceGroup);
-                    continue;
-                }
-                instanceGroup.setState(UserRequest.SCHEDULING);
-                //整合发送的结果
-                for (Datacenter datacenter : instanceGroupSendResultMap.get(instanceGroup).keySet()) {
-                    if (!sendResult.containsKey(datacenter)) {
-                        sendResult.put(datacenter, new HashMap<>());
-                    }
-                    if (datacenter == receiveDatacenter) {
-                        if (!sendResult.get(datacenter).containsKey((Integer) 1)) {
-                            sendResult.get(datacenter).put(1, new ArrayList<>());
-                        }
-                        sendResult.get(datacenter).get(1).add(instanceGroup);
-                    } else {
-                        if (!sendResult.get(datacenter).containsKey((Integer) 0)) {
-                            sendResult.get(datacenter).put(0, new ArrayList<>());
-                        }
-                        sendResult.get(datacenter).get(0).add(instanceGroup);
-                    }
-                }
-            }
-            instanceGroupSendResultMap.remove(instanceGroup);
-        }
-        //调度失败的InstanceGroup
-        if (failInstanceGroups.size() > 0) {
-            interScheduleFail(failInstanceGroups);
-        }
-        for (Map.Entry<Datacenter, Map<Integer, List<InstanceGroup>>> entry : sendResult.entrySet()) {
-            Datacenter datacenter = entry.getKey();
-            Map<Integer, List<InstanceGroup>> result = entry.getValue();
-            for (Map.Entry<Integer, List<InstanceGroup>> entry1 : result.entrySet()) {
-                int isEmploy = entry1.getKey();
-                List<InstanceGroup> instanceGroups = entry1.getValue();
-                if (isEmploy == 1) {
-//                    send(datacenter, delay, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
-                } else {
-                    send(datacenter, delay, CloudSimTag.RESPOND_DC_REVIVE_GROUP_GIVE_UP, instanceGroups);
-                }
-            }
-        }
-    }
-
     private boolean allocateBwForGroup(InstanceGroup instanceGroup, Datacenter receiveDatacenter) {
         UserRequest userRequest = instanceGroup.getUserRequest();
         List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
@@ -988,31 +826,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
         return true;
-    }
-
-
-    //TODO 可以优化一下速度
-    private boolean isAllSendResultReceived(InstanceGroup instanceGroup) {
-        for (Map.Entry<Datacenter, Double> entry : instanceGroupSendResultMap.get(instanceGroup).entrySet()) {
-            if (entry.getValue() == -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Ask if the datacenter can receive the instanceGroups.
-     *
-     * @param evt The data of evt is a List of InstanceGroups.
-     */
-    private void processAskDcReviveGroup(SimEvent evt) {
-        if (evt.getData() instanceof List<?> instanceGroups) {
-            Map<InstanceGroup, Double> reviveGroupResult = interScheduler.decideReciveGroupResult((List<InstanceGroup>) instanceGroups);
-            double costTime = interScheduler.getDecideReceiveGroupResultCostTime();
-            send(evt.getSource(), costTime, CloudSimTag.RESPOND_DC_REVIVE_GROUP, reviveGroupResult);
-            LOGGER.info("{}: {} received {} instanceGroups to mark scores for them.", getSimulation().clockStr(), getName(), instanceGroups.size());
-        }
     }
 
     /**
@@ -1051,35 +864,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         double filterSuitableDatacenterCostTime = interScheduler.getScheduleTime();
         send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, interSchedulerResult);
         LOGGER.info("{}: {} starts inter scheduling.It costs {}ms.", getSimulation().clockStr(), getName(), filterSuitableDatacenterCostTime);
-    }
-
-    private void processAskSimpleState(final SimEvent evt) {
-        Object simpleState = statesManager.getSimpleState().generate(this);
-        send(evt.getSource(), 0, CloudSimTag.RESPOND_SIMPLE_STATE, simpleState);
-        LOGGER.info("{}: {} sends the simple state of itself to {}.", getSimulation().clockStr(), getName(), evt.getSource().getName());
-    }
-
-    private void processRespondSimpleState(final SimEvent evt) {
-        if (evt.getData() != null) {
-            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), evt.getData());
-            if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
-                return;
-            }
-            startInterSchedule();
-        }
-    }
-
-    private void startInterSchedule() {
-        interScheduler.getInterScheduleSimpleStateMap().put(this, statesManager.getSimpleState().generate(this));
-
-        List<InstanceGroup> instanceGroups = groupQueue.getBatchItem();
-        if (instanceGroups.size() == 0) {
-            return;
-        }
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
-        double filterSuitableDatacenterCostTime = interScheduler.getScheduleTime();
-        send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, instanceGroupAvailableDatacenters);
-        LOGGER.info("{}: {} starts finding available Datacenters for {} instance groups.It costs {}ms.", getSimulation().clockStr(), getName(), instanceGroups.size(), filterSuitableDatacenterCostTime);
     }
 
     /**
@@ -1143,63 +927,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instanceGroups.forEach(instanceGroup -> instanceGroup.addForwardDatacenterIdHistory(getId()));
     }
 
-    //根据筛选情况进行调度
-    private void interScheduleByResult(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters) {
-        boolean isDirectedSend = interScheduler.isDirectedSend();
-        Map<Datacenter, List<InstanceGroup>> sendMap = new HashMap<>();//记录每个数据中心需要发送的亲和组以统一发送
-        List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
-        for (Map.Entry<InstanceGroup, List<Datacenter>> entry : instanceGroupAvaiableDatacenters.entrySet()) {
-            InstanceGroup instanceGroup = entry.getKey();
-            List<Datacenter> datacenters = entry.getValue();
-            if (datacenters.size() == 0) {
-                //如果没有可调度的数据中心，那么就要么再次尝试要么设置为失败
-                retryInstanceGroups.add(instanceGroup);
-            } else {
-                //如果有可调度的数据中心，那么就将其发送给可调度的数据中心
-                for (Datacenter datacenter : datacenters) {
-                    if (sendMap.containsKey(datacenter)) {
-                        sendMap.get(datacenter).add(instanceGroup);
-                    } else {
-                        List<InstanceGroup> instanceGroups = new ArrayList<>();
-                        instanceGroups.add(instanceGroup);
-                        sendMap.put(datacenter, instanceGroups);
-                    }
-                    //维护instanceGroupSendResultMap，以统计后续的返回结果
-                    if (!isDirectedSend) {
-                        if (instanceGroupSendResultMap.containsKey(instanceGroup)) {
-                            instanceGroupSendResultMap.get(instanceGroup).put(datacenter, -1.0);
-                        }
-                        else {
-                            Map<Datacenter, Double> datacenterIntegerMap = new HashMap<>();
-                            datacenterIntegerMap.put(datacenter, -1.0);
-                            instanceGroupSendResultMap.put(instanceGroup, datacenterIntegerMap);
-                        }
-                    }
-                }
-            }
-        }
-        //向每个dc以list的形式发送instanceGroups
-        for (Map.Entry<Datacenter, List<InstanceGroup>> entry : sendMap.entrySet()) {
-            Datacenter datacenter = entry.getKey();
-            List<InstanceGroup> instanceGroups = entry.getValue();
-            if (isDirectedSend) {
-                for(InstanceGroup instanceGroup:instanceGroups){
-                    instanceGroup.setReceiveDatacenter(datacenter);
-                    if (!allocateBwForGroup(instanceGroup, datacenter)) {
-                        retryInstanceGroups.add(instanceGroup);
-                        continue;
-                    }
-                    instanceGroup.setState(UserRequest.SCHEDULING);
-                }
-//                send(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
-            } else {
-                send(datacenter, 0, CloudSimTag.ASK_DC_REVIVE_GROUP, instanceGroups);
-            }
-        }
-        //处理调度失败的instanceGroup
-        interScheduleFail(retryInstanceGroups);
-    }
-
     private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
         Set<UserRequest> failedUserRequests = new HashSet<>();
@@ -1224,31 +951,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (failedUserRequests.size() > 0) {
             send(this, 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
-        }
-    }
-
-    private void interScheduleFail(List<InstanceGroup> instanceGroups) {
-        List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
-        Set<UserRequest> failedUserRequests = new HashSet<>();
-
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
-            instanceGroup.addRetryNum();
-            if (instanceGroup.isFailed()) {
-                instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId());
-                failedUserRequests.add(instanceGroup.getUserRequest());
-            } else {
-                retryInstanceGroups.add(instanceGroup);
-            }
-        }
-
-        if (retryInstanceGroups.size() > 0) {
-            send(this, 0, CloudSimTag.USER_REQUEST_SEND, retryInstanceGroups);
-            LOGGER.warn("{}: {}'s {} instance groups retry.", getSimulation().clockStr(), getName(), retryInstanceGroups.size());
-        }
-
-        if (failedUserRequests.size() > 0) {
-            send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
         }
     }
 

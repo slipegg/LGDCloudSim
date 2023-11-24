@@ -181,24 +181,6 @@ public class CloudInformationService extends CloudSimEntity {
         }
     }
 
-    private void markInstanceGroups(List<InstanceGroup> instanceGroups, Datacenter datacenter) {
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            instanceGroup.setState(UserRequest.SCHEDULING);
-            instanceGroup.setReceiveDatacenter(datacenter);
-        }
-    }
-
-    private List<InstanceGroup> allocateBwForInstanceGroups(List<InstanceGroup> instanceGroups, Datacenter datacenter) {
-        List<InstanceGroup> failedInstanceGroups = new ArrayList<>();
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            instanceGroup.setReceiveDatacenter(datacenter);
-            if (!allocateBwForGroup(instanceGroup, datacenter)) {
-                failedInstanceGroups.add(instanceGroup);
-            }
-        }
-        return failedInstanceGroups;
-    }
-
     private void startCenterInterScheduling(int collaborationId) {
         InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
         if (interScheduler.isQueuesEmpty()) {
@@ -219,27 +201,6 @@ public class CloudInformationService extends CloudSimEntity {
 
             double scheduleTime = interScheduler.getScheduleTime();
             send(this, scheduleTime, CloudSimTag.GROUP_FILTER_DC_END, interSchedulerResult);
-        }
-    }
-
-    private void processRespondSimpleState(final SimEvent evt) {
-        if (evt.getData() != null) {
-            int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(evt.getSource().getId());
-            InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
-            interScheduler.getInterScheduleSimpleStateMap().put((Datacenter) evt.getSource(), evt.getData());
-            if (interScheduler.getInterScheduleSimpleStateMap().containsValue(null)) {
-                return;
-            }
-
-            List<InstanceGroup> instanceGroups = getSimulation().getCollaborationManager().getCollaborationGroupQueueMap().get(collaborationId).getBatchItem();
-            LOGGER.info("{}: collaboration{}'s centerScheduler starts finding available Datacenters for {} instance groups.", getSimulation().clockStr(), collaborationId, instanceGroups.size());
-            if (instanceGroups.size() == 0) {
-                return;
-            }
-            Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = interScheduler.filterSuitableDatacenter(instanceGroups);
-            CenterSchedulerResult centerSchedulerResult = new CenterSchedulerResult(collaborationId, instanceGroupAvailableDatacenters);
-            double filterSuitableDatacenterCostTime = interScheduler.getScheduleTime();
-            send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, centerSchedulerResult);
         }
     }
 
@@ -315,51 +276,6 @@ public class CloudInformationService extends CloudSimEntity {
         }
     }
 
-    //根据筛选情况进行调度
-//    private void InterScheduleByResult(InterSchedulerResult interSchedulerResult) {
-//        Map<Datacenter, List<InstanceGroup>> sendMap = new HashMap<>();//记录每个数据中心需要发送的亲和组以统一发送
-//        List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
-//        for (Map.Entry<InstanceGroup, List<Datacenter>> entry : instanceGroupAvaiableDatacenters.entrySet()) {
-//            InstanceGroup instanceGroup = entry.getKey();
-//            List<Datacenter> datacenters = entry.getValue();
-//            if (datacenters.size() == 0) {
-//                //如果没有可调度的数据中心，那么就要么再次尝试要么设置为失败
-//                retryInstanceGroups.add(instanceGroup);
-//            } else {
-//                if (datacenters.size() > 1) {
-//                    LOGGER.error("{}: InstanceGroup{} has more than one datacenter.It is not allow in centerScheduling", getSimulation().clockStr(), instanceGroup.getId());
-//                    assert false;
-//                }
-//                //如果有可调度的数据中心，那么就将其发送给可调度的数据中心
-//                Datacenter datacenter = datacenters.get(0);
-//                if (sendMap.containsKey(datacenter)) {
-//                    sendMap.get(datacenter).add(instanceGroup);
-//                } else {
-//                    List<InstanceGroup> instanceGroups = new ArrayList<>();
-//                    instanceGroups.add(instanceGroup);
-//                    sendMap.put(datacenter, instanceGroups);
-//                }
-//            }
-//        }
-//        //向每个dc以list的形式发送instanceGroups
-//        for (Map.Entry<Datacenter, List<InstanceGroup>> entry : sendMap.entrySet()) {
-//            Datacenter datacenter = entry.getKey();
-//            List<InstanceGroup> instanceGroups = entry.getValue();
-//            for (InstanceGroup instanceGroup : instanceGroups) {
-//                instanceGroup.setReceiveDatacenter(datacenter);
-//                if (!allocateBwForGroup(instanceGroup, datacenter)) {
-//                    retryInstanceGroups.add(instanceGroup);
-//                    continue;
-//                }
-//                instanceGroup.setState(UserRequest.SCHEDULING);
-//            }
-//            sendOverNetwork(datacenter, 0, CloudSimTag.RESPOND_DC_REVIVE_GROUP_EMPLOY, instanceGroups);
-//        }
-//        //处理调度失败的instanceGroup
-//        interScheduleFail(retryInstanceGroups);
-//    }
-
-
     private void handleFailedInterScheduling(int collaborationId, List<InstanceGroup> failedInstanceGroups) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
         Set<UserRequest> failedUserRequests = new HashSet<>();
@@ -387,7 +303,6 @@ public class CloudInformationService extends CloudSimEntity {
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
         }
     }
-
 
     private boolean allocateBwForGroup(InstanceGroup instanceGroup, Datacenter receiveDatacenter) {
         UserRequest userRequest = instanceGroup.getUserRequest();
