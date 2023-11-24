@@ -663,7 +663,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
-            interScheduler.addInstanceGroups(failedInstanceGroups, true);
+            handleFailedInterScheduling(failedInstanceGroups);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedInstanceGroups.size());
@@ -1091,6 +1091,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             sendInterScheduleResult(interSchedulerResult);
 
+            handleFailedInterScheduling(interSchedulerResult.getFailedInstanceGroups());
+
             LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getScheduledResultMap().size());
 
             if (isScheduleToSelfEmpty(interSchedulerResult)) {
@@ -1196,6 +1198,33 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         //处理调度失败的instanceGroup
         interScheduleFail(retryInstanceGroups);
+    }
+
+    private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups) {
+        List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
+        Set<UserRequest> failedUserRequests = new HashSet<>();
+
+        for (InstanceGroup instanceGroup : failedInstanceGroups) {
+            //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
+            instanceGroup.addRetryNum();
+
+            if (instanceGroup.isFailed()) {
+                instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId());
+
+                failedUserRequests.add(instanceGroup.getUserRequest());
+            } else {
+                retryInstanceGroups.add(instanceGroup);
+            }
+        }
+
+        if (retryInstanceGroups.size() > 0) {
+            interScheduler.addInstanceGroups(retryInstanceGroups, true);
+        }
+
+        if (failedUserRequests.size() > 0) {
+            send(this, 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
+            LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
+        }
     }
 
     private void interScheduleFail(List<InstanceGroup> instanceGroups) {

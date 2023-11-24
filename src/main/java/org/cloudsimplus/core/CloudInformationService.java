@@ -167,7 +167,7 @@ public class CloudInformationService extends CloudSimEntity {
 
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
-            addFailedInstanceGroupsByCollaborationId(collaborationId, failedInstanceGroups);
+            handleFailedInterScheduling(collaborationId, failedInstanceGroups);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedInstanceGroups.size());
@@ -197,11 +197,6 @@ public class CloudInformationService extends CloudSimEntity {
             }
         }
         return failedInstanceGroups;
-    }
-
-    private void addFailedInstanceGroupsByCollaborationId(int collaborationId, List<InstanceGroup> failedInstanceGroups) {
-        InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
-        interScheduler.addInstanceGroups(failedInstanceGroups, true);
     }
 
     private void startCenterInterScheduling(int collaborationId) {
@@ -258,7 +253,7 @@ public class CloudInformationService extends CloudSimEntity {
 
             sendInterScheduleResult(interSchedulerResult);
 
-            handleFailedInterScheduling(interSchedulerResult);
+            handleFailedInterScheduling(interSchedulerResult.getCollaborationId(), interSchedulerResult.getFailedInstanceGroups());
 
             if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET
                     || interSchedulerResult.isScheduledInstanceGroupsEmpty()) {
@@ -365,10 +360,9 @@ public class CloudInformationService extends CloudSimEntity {
 //    }
 
 
-    private void handleFailedInterScheduling(InterSchedulerResult interSchedulerResult) {
+    private void handleFailedInterScheduling(int collaborationId, List<InstanceGroup> failedInstanceGroups) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
         Set<UserRequest> failedUserRequests = new HashSet<>();
-        List<InstanceGroup> failedInstanceGroups = interSchedulerResult.getFailedInstanceGroups();
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {
             //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
@@ -384,7 +378,6 @@ public class CloudInformationService extends CloudSimEntity {
         }
 
         if (retryInstanceGroups.size() > 0) {
-            int collaborationId = interSchedulerResult.getCollaborationId();
             InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
             interScheduler.addInstanceGroups(retryInstanceGroups, true);
         }
