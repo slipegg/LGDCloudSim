@@ -54,10 +54,6 @@ enum ParsingState {
         @Override
         void parse(final TopologyReaderBrite reader, final String line) {
             // first test to step to the next parsing-state (edges)
-            if (line.contains("AccessDelay:")) {
-                reader.setState(ParsingState.ACCESSDELAY);
-                return;
-            }
             if (line.contains("Edges:")) {
                 reader.setState(ParsingState.EDGES);
                 return;
@@ -65,36 +61,12 @@ enum ParsingState {
 
             // List of fields in the line to parse
             // NodeID, xpos, ypos, inDegree, outDegree, AS_id, type(router/AS)
-            final Double[] parsedFields = {0.0, 0.0, 0.0, 0.0};
+            final Double[] parsedFields = {0.0};
             if (!reader.parseLine(line, parsedFields, Double::valueOf)) {
                 return;
             }
-            final Point2D coordinates = new Point2D(parsedFields[1], parsedFields[2]);
-            final TopologicalNode topoNode = new TopologicalNode(parsedFields[0].intValue(), coordinates);
-            reader.getGraph().addNode(topoNode);
-        }
-    },
-
-
-    ACCESSDELAY {
-        @Override
-        void parse(final TopologyReaderBrite reader, final String line) {
-            // first test to step to the next parsing-state (edges)
-            if (line.contains("Edges:")) {
-                reader.setState(ParsingState.EDGES);
-                return;
-            }
-            // List of fields in the line to parse
-            // EdgeID, fromNode, toNode, linkDelay, linkBandwidth
-            final Double[] parsedFields = {0.0, 0.0, 0.0};
-            if (!reader.parseLine(line, parsedFields, Double::valueOf)) {
-                return;
-            }
-            final int fromNode = parsedFields[0].intValue();
-            final int toNode = parsedFields[1].intValue();
-            final double accessLatency = parsedFields[2];
-
-            reader.getGraph().getNodeList().get(fromNode).setAccessLatency(toNode, accessLatency);
+            final TopologicalNode topologicalNode = new TopologicalNode(parsedFields[0].intValue());
+            reader.getGraph().addNode(topologicalNode);
         }
     },
 
@@ -105,10 +77,6 @@ enum ParsingState {
         @Override
         void parse(final TopologyReaderBrite reader, final String line) {
             // first test to step to the next parsing-state (edges)
-            if (line.contains("AccessDelay:")) {
-                reader.setState(ParsingState.ACCESSDELAY);
-                return;
-            }
             // List of fields in the line to parse
             // EdgeID, fromNode, toNode, linkDelay, linkBandwidth
             final Double[] parsedFields = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};

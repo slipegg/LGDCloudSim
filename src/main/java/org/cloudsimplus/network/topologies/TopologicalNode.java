@@ -35,21 +35,6 @@ public final class TopologicalNode {
     private int id;
 
     /**
-     * The name of the node
-     */
-    @NonNull
-    private String nodeName;
-
-    /**
-     * The x,y world coordinates of this network-node.
-     */
-    @NonNull
-    private Point2D worldCoordinates;
-
-    private Map<Integer, Double> accessLatency;
-
-
-    /**
      * Creates a network topology node with ID equals to zero.
      */
     public TopologicalNode() {
@@ -62,38 +47,6 @@ public final class TopologicalNode {
      * @param id The BRITE id of the node inside the network
      */
     public TopologicalNode(final int id) {
-        this(id, new Point2D(0, 0));
-    }
-
-    /**
-     * Creates a network topology node including world-coordinates.
-     *
-     * @param id               The BRITE id of the node inside the network
-     * @param worldCoordinates the x,y world-coordinates of the Node
-     */
-    public TopologicalNode(final int id, final Point2D worldCoordinates) {
-        this(id, String.valueOf(id), worldCoordinates);
-    }
-
-    /**
-     * Creates a network topology node including world-coordinates and the nodeName.
-     *
-     * @param id               The BRITE id of the node inside the network
-     * @param nodeName         The name of the node inside the network
-     * @param worldCoordinates the x,y world-coordinates of the Node
-     */
-    public TopologicalNode(final int id, final String nodeName, final Point2D worldCoordinates) {
-        this.setId(id);
-        this.setNodeName(nodeName);
-        this.setWorldCoordinates(worldCoordinates);
-        this.accessLatency = new HashMap<>();
-    }
-
-    public void setAccessLatency(int dstId, double latency) {
-        accessLatency.put(dstId, latency);
-    }
-
-    public double getAccessLatency(int dstId) {
-        return accessLatency.get(dstId);
+        this.id = id;
     }
 }

@@ -62,7 +62,7 @@ public interface NetworkTopology {
 
     double getDynamicDelay(SimEntity src, SimEntity dest, double time);
 
-    double getAcessLatency(SimEntity src, SimEntity dest);
+    double getAcessLatency(String srcRegion, String destRegion);
 
     double getTCONetwork();
 }

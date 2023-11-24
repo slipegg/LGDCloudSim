@@ -97,6 +97,8 @@ public class BriteNetworkTopology implements NetworkTopology {
     @Getter
     private double TCONetwork;
 
+    private RegionDelayManager regionDelayManager;
+
     /**
      * Instantiates a Network Topology from a file inside the <b>application's resource directory</b>.
      *
@@ -111,6 +113,11 @@ public class BriteNetworkTopology implements NetworkTopology {
     public static BriteNetworkTopology getInstance(final String fileName, boolean directed) {
         final InputStreamReader reader = ResourceLoader.newInputStreamReader(fileName, BriteNetworkTopology.class);
         return new BriteNetworkTopology(reader, directed);
+    }
+
+    public static BriteNetworkTopology getInstance(final String briteFileName, String regionDelayFileName) {
+        final InputStreamReader reader = ResourceLoader.newInputStreamReader(briteFileName, BriteNetworkTopology.class);
+        return new BriteNetworkTopology(reader, regionDelayFileName);
     }
 
     /**
@@ -154,10 +161,7 @@ public class BriteNetworkTopology implements NetworkTopology {
      * @see #getInstance(String)
      */
     private BriteNetworkTopology(final InputStreamReader reader) {
-        this();
-        final var instance = new TopologyReaderBrite();
-        graph = instance.readGraphFile(reader);
-        generateMatrices(false);//默认是无向图
+        this(reader, false);
     }
 
     private BriteNetworkTopology(final InputStreamReader reader, boolean directed) {
@@ -165,6 +169,19 @@ public class BriteNetworkTopology implements NetworkTopology {
         final var instance = new TopologyReaderBrite();
         graph = instance.readGraphFile(reader);
         generateMatrices(directed);
+    }
+
+    private BriteNetworkTopology(final InputStreamReader reader, String regionDelayFileName) {
+        this(reader, regionDelayFileName, false);
+    }
+
+    private BriteNetworkTopology(final InputStreamReader reader, String regionDelayFileName, boolean directed) {
+        this();
+        final var instance = new TopologyReaderBrite();
+        graph = instance.readGraphFile(reader);
+        generateMatrices(directed);
+
+        regionDelayManager = new RegionDelayManager(regionDelayFileName);
     }
 
     /**
@@ -403,9 +420,7 @@ public class BriteNetworkTopology implements NetworkTopology {
     }
 
     @Override
-    public double getAcessLatency(SimEntity src, SimEntity dest) {
-        int srcId = entitiesMap.get(src);
-        int dstId = entitiesMap.get(dest);
-        return graph.getNodeList().get(srcId).getAccessLatency(dstId);
+    public double getAcessLatency(String srcRegion, String destRegion) {
+        return regionDelayManager.getDelay(srcRegion, destRegion);
     }
 }

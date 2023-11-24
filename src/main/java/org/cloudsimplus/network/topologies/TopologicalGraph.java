@@ -104,13 +104,7 @@ public class TopologicalGraph {
         builder.append("topological-node-information: ").append(System.lineSeparator());
 
         for (final TopologicalNode node : nodeList) {
-            builder.append("%d | (%s)%n".formatted(node.getId(), node.getWorldCoordinates()));
-        }
-
-        builder.append("%n%nnode-access latency-information:%n".formatted());
-
-        for (final TopologicalNode node : nodeList) {
-            builder.append("node %d: %s%n".formatted(node.getId(), node.getAccessLatency()));
+            builder.append("%d %n".formatted(node.getId()));
         }
 
         builder.append("%n%nnode-link-information:%n".formatted());
