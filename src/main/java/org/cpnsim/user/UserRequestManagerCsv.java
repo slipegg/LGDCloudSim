@@ -1,6 +1,7 @@
 package org.cpnsim.user;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.apache.commons.csv.CSVFormat;
@@ -17,7 +18,10 @@ import java.util.*;
 
 public class UserRequestManagerCsv implements UserRequestManager {
     private String fileName;
-    private TreeMap<Integer, Double> FromDcPercent;
+    private TreeMap<Integer, TreeMap<String, Double>> DcDistributionAndRegion = new TreeMap<>();
+    private TreeMap<Integer, Double> DcDistribution = new TreeMap<>();
+    double DcDistributionSum = 0;
+    double DCDistributionAndRegionSum = 0;
     private int RequestPerNumMin = -2;
     private int RequestPerNumMax = -2;
     private int RequestTimeIntervalMin = -2;
@@ -77,7 +81,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
                 // 从CSV记录中读取特定列的值
                 String title = csvRecord.get(0);
                 switch (title) {
-                    case "FromDcPercent" -> this.FromDcPercent = stringToMap(csvRecord.get(1));
+                    case "DcDistribution" -> updateDynamictMap(csvRecord.get(1));
                     case "RequestPerNumMin" -> this.RequestPerNumMin = Integer.parseInt(csvRecord.get(1));
                     case "RequestPerNumMax" -> this.RequestPerNumMax = Integer.parseInt(csvRecord.get(1));
                     case "RequestTimeIntervalMin" -> this.RequestTimeIntervalMin = Integer.parseInt(csvRecord.get(1));
@@ -135,14 +139,29 @@ public class UserRequestManagerCsv implements UserRequestManager {
         for (int i = 0; i < requestNum; i++) {
             UserRequest userRequest = generateAUserRequest();
             int belongDatacenterId = -1;
-            double randomDouble = random.nextDouble(FromDcPercent.get(FromDcPercent.lastKey()));
-            for (Map.Entry<Integer, Double> entry : FromDcPercent.entrySet()) {
-                if (randomDouble < entry.getValue()) {
-                    belongDatacenterId = entry.getKey();
-                    break;
+            String belongRegion = null;
+            double randomDouble = random.nextDouble(DcDistributionSum + DCDistributionAndRegionSum);
+            if (randomDouble < DcDistributionSum) {
+                for (Map.Entry<Integer, Double> entry : DcDistribution.entrySet()) {
+                    if (randomDouble < entry.getValue()) {
+                        belongDatacenterId = entry.getKey();
+                        break;
+                    }
+                }
+            } else {
+                randomDouble -= DcDistributionSum;
+                for (Map.Entry<Integer, TreeMap<String, Double>> entry : DcDistributionAndRegion.entrySet()) {
+                    for (Map.Entry<String, Double> innerEntry : entry.getValue().entrySet()) {
+                        if (randomDouble < innerEntry.getValue()) {
+                            belongDatacenterId = entry.getKey();
+                            belongRegion = innerEntry.getKey();
+                            break;
+                        }
+                    }
                 }
             }
             userRequest.setBelongDatacenterId(belongDatacenterId);
+            userRequest.setRegion(belongRegion);
             userRequest.setSubmitTime(nextSendTime);
             userRequests.add(userRequest);
             if (!userRequestsMap.containsKey(belongDatacenterId)) {
@@ -211,7 +230,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph);
     }
 
-    private TreeMap<Integer, Double> stringToMap(String str) {
+    public TreeMap<Integer, Double> stringToMap(String str) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             TreeMap<Integer, Double> map = objectMapper.readValue(str, new TypeReference<TreeMap<Integer, Double>>() {
@@ -227,6 +246,62 @@ public class UserRequestManagerCsv implements UserRequestManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static TreeMap<Integer, TreeMap<String, Double>> convertToTreeMap(String jsonString) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(jsonString);
+
+        TreeMap<Integer, TreeMap<String, Double>> resultMap = new TreeMap<>();
+
+        double sum = 0;
+        for (Iterator<Map.Entry<String, JsonNode>> it = rootNode.fields(); it.hasNext(); ) {
+            Map.Entry<String, JsonNode> outerEntry = it.next();
+            int outerKey = Integer.parseInt(outerEntry.getKey());
+            JsonNode innerNode = outerEntry.getValue();
+
+            TreeMap<String, Double> innerMap = new TreeMap<>();
+            for (Iterator<Map.Entry<String, JsonNode>> innerIt = innerNode.fields(); innerIt.hasNext(); ) {
+                Map.Entry<String, JsonNode> entry = innerIt.next();
+                String innerKey = entry.getKey();
+                double innerValue = entry.getValue().asDouble();
+                sum += innerValue;
+                innerMap.put(innerKey, sum);
+            }
+
+            resultMap.put(outerKey, innerMap);
+        }
+
+        return resultMap;
+    }
+
+    private void updateDynamictMap(String jsonString) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(jsonString);
+
+        for (Iterator<Map.Entry<String, JsonNode>> it = rootNode.fields(); it.hasNext(); ) {
+            Map.Entry<String, JsonNode> outerEntry = it.next();
+            int outerKey = Integer.parseInt(outerEntry.getKey());
+            JsonNode innerNode = outerEntry.getValue();
+
+            if (innerNode.isNumber()) {
+                // 如果是数字
+                DcDistributionSum += innerNode.asDouble();
+                DcDistribution.put(outerKey, DcDistributionSum);
+            } else {
+                // 如果是 JSON 对象
+                TreeMap<String, Double> innerMap = new TreeMap<>();
+                for (Iterator<Map.Entry<String, JsonNode>> innerIt = innerNode.fields(); innerIt.hasNext(); ) {
+                    Map.Entry<String, JsonNode> entry = innerIt.next();
+                    String innerKey = entry.getKey();
+                    double innerValue = entry.getValue().asDouble();
+                    DCDistributionAndRegionSum += innerValue;
+                    innerMap.put(innerKey, DCDistributionAndRegionSum);
+                }
+
+                DcDistributionAndRegion.put(outerKey, innerMap);
+            }
+        }
     }
 
     private void checkVars() {
@@ -324,4 +399,14 @@ public class UserRequestManagerCsv implements UserRequestManager {
             throw new RuntimeException("The following variables have not been initialized: " + uninitializedVars);
         }
     }
+
+
+    public static void main(String[] args) {
+        String str = "{\"1\":0.5,\"2\":0.5}";
+        TreeMap<Integer, TreeMap<String, Double>> DcDistribution;
+
+
+    }
+
+//    {"1":{"africa-south1":0.4,"asia-east1":0.1},"2":{"asia-east2":0.5}}
 }

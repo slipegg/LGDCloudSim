@@ -11,6 +11,7 @@ import java.util.List;
 public class UserRequestSimple implements UserRequest {
     @Getter
     private int id;
+    private String region;
     private double submitTime;
     private double finishTime;
     private int belongDatacenterId;
