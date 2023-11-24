@@ -176,6 +176,8 @@ public class InitDatacenter {
         }
         Datacenter datacenter = new DatacenterSimple(cpnSim, id);
 
+        addRegionInfo(datacenter, datacenterJson);
+
         StatesManager statesManager = getStatesManager(datacenterJson, isCenterSchedule, target);
         datacenter.setStatesManager(statesManager);
 
@@ -206,6 +208,19 @@ public class InitDatacenter {
         setDatacenterResourceUnitPrice(datacenter, unitPriceJson);
 
         return datacenter;
+    }
+
+    private static void addRegionInfo(Datacenter datacenter, JsonObject datacenterJson) {
+        if (datacenterJson.containsKey("region")) {
+            String region = datacenterJson.getString("region");
+            datacenter.setRegion(region);
+        }
+        if (datacenterJson.containsKey("location")) {
+            JsonArray location = datacenterJson.getJsonArray("location");
+            double x = location.getJsonNumber(0).doubleValue();
+            double y = location.getJsonNumber(1).doubleValue();
+            datacenter.setLocation(x, y);
+        }
     }
 
     private static boolean isNeedInterSchedulerForDc(boolean isCenterSchedule, int target, boolean isSupportForward) {

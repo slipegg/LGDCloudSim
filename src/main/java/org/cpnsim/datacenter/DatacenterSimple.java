@@ -21,6 +21,7 @@ import org.cpnsim.statemanager.StatesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.geom.Point2D;
 import java.util.*;
 
 /**
@@ -35,6 +36,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * the Logger.
      **/
     public Logger LOGGER = LoggerFactory.getLogger(DatacenterSimple.class.getSimpleName());
+
+    @Getter
+    @Setter
+    private String region;
+
+    @Getter
+    private Point2D location;
 
     /**
      * See {@link GroupQueue}.
@@ -1231,6 +1239,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     + (double) instance.getCpu() / statesManager.getMaxCpuCapacity() * unitRackPrice;
         }
         return tco;
+    }
+
+    @Override
+    public Datacenter setLocation(double latitude, double longitude) {
+        location = new Point2D.Double(latitude, longitude);
+        return this;
     }
 
     @Override

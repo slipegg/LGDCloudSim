@@ -7,6 +7,7 @@ import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
 
 import javax.xml.crypto.Data;
+import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Set;
 
@@ -66,4 +67,12 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     double getEstimatedTCO(InstanceGroup instanceGroup);
 
     InstanceQueue getInstanceQueue();
+
+    String getRegion();
+
+    Datacenter setRegion(String region);
+
+    Point2D getLocation();
+
+    Datacenter setLocation(double latitude, double longitude);
 }
