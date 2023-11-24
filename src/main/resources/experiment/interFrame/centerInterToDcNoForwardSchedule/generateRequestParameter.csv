@@ -1,5 +1,5 @@
   Parament Name,Parament
-FromDcPercent,"{""1"":0.5,""2"":0.5}"
+DcDistribution,"{""1"":{""africa-south1"":0.4,""asia-east1"":0.1},""2"":{""asia-east1"":0.5}}"
 RequestPerNumMin,10
 RequestPerNumMax,10
 RequestTimeIntervalMin,10

@@ -21,14 +21,15 @@ public class FileExample {
     UserSimple user;
     UserRequestManager userRequestManager;
     String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/interFrame/topology.brite";
+    String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerInterToHostSchedule/DatacentersConfig.json";
 //    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerInterToHostSchedule/generateRequestParameter.csv";
 //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
 //    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerInterToDcNoForwardSchedule/generateRequestParameter.csv";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/DatacentersConfig.json";
-//    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerToDcAndForward/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerToDcAndForward/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/dcInterToSelfAndForward/generateRequestParameter.csv";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerToDcAndForward/DatacentersConfig.json";
+//    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerToDcAndForward/generateRequestParameter.csv";
 
     public static void main(String[] args) {
         FileExample fileExample = new FileExample();
@@ -64,7 +65,7 @@ public class FileExample {
     }
 
     private void initNetwork() {
-        BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
+        BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE, REGION_DELAY_FILE);
         networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
         networkTopology.mapNode(cpnSim.getCis(), 0);
         cpnSim.setNetworkTopology(networkTopology);

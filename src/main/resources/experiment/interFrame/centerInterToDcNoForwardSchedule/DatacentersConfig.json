@@ -22,6 +22,7 @@
       "datacenters": [
         {
           "id": 1,
+          "region": "africa-south1",
           "location": [
             116.404,
             39.915
@@ -59,6 +60,7 @@
         },
         {
           "id": 2,
+          "region": "asia-east1",
           "location": [
             116.404,
             39.915

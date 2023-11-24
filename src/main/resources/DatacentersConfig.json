@@ -3,22 +3,34 @@
     {
       "id": 1,
       "centerScheduler": {
-        "type": "direct"
+        "type": "simple",
+        "target": "dc",
+        "isSupportForward": false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "null"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "null"
+          }
+        ]
       },
       "datacenters": [
         {
           "id": 1,
+          "region": "africa-south1",
           "location": [
             116.404,
             39.915
           ],
-          "hostNum": 2,
+          "hostNum": 200,
           "partitions": [
             {
-              "length": 1
-            },
-            {
-              "length": 1
+              "length": 200
             }
           ],
           "hostStates": [
@@ -28,44 +40,35 @@
               "storage": 10,
               "bw": 10,
               "startId": 0,
-              "length": 2
+              "length": 200
             }
           ],
-          "synchronizationGap": 120,
+          "synchronizationGap": 0,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
-              "type": "simple"
-            },
-            {
-              "firstPartitionIndex": 1,
-              "type": "simple"
+              "type": "random"
             }
           ],
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
-            "type": "simple"
-          },
-          "prediction": {
             "type": "simple"
           },
           "isPredict": false
         },
         {
           "id": 2,
+          "region": "africa-east1",
           "location": [
             116.404,
             39.915
           ],
-          "hostNum": 50,
+          "hostNum": 200,
           "partitions": [
             {
-              "length": 25
-            },
-            {
-              "length": 25
+              "length": 200
             }
           ],
           "hostStates": [
@@ -75,27 +78,20 @@
               "storage": 10,
               "bw": 10,
               "startId": 0,
-              "length": 50
+              "length": 200
             }
           ],
-          "synchronizationGap": 120,
+          "synchronizationGap": 0,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
-              "type": "simple"
-            },
-            {
-              "firstPartitionIndex": 1,
-              "type": "simple"
+              "type": "random"
             }
           ],
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
-            "type": "simple"
-          },
-          "prediction": {
             "type": "simple"
           },
           "isPredict": false
