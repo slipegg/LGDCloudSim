@@ -103,9 +103,15 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
             List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
 
             // Filter based on access latency
-            Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+            String belongRegion = instanceGroup.getUserRequest().getRegion();
+            if (belongRegion == null) {
+                Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+                belongRegion = belongDatacenter.getRegion();
+            }
+
+            String finalBelongRegion = belongRegion;// To use in lambda expression
             availableDatacenters.removeIf(
-                    datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(belongDatacenter, datacenter));
+                    datacenter -> instanceGroup.getAccessLatency() <= networkTopology.getAcessLatency(finalBelongRegion, datacenter.getRegion()));
 
             // Filter based on the total remaining resources
             availableDatacenters.removeIf(

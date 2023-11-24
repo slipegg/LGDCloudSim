@@ -471,8 +471,16 @@ public class InterSchedulerSimple implements InterScheduler {
     }
 
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
-        Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
-        allDatacenters.removeIf(datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(belongDatacenter, datacenter));
+        // Filter based on access latency
+        String belongRegion = instanceGroup.getUserRequest().getRegion();
+        if (belongRegion == null) {
+            Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+            belongRegion = belongDatacenter.getRegion();
+        }
+
+        String finalBelongRegion = belongRegion;// To use in lambda expression
+        allDatacenters.removeIf(
+                datacenter -> instanceGroup.getAccessLatency() <= networkTopology.getAcessLatency(finalBelongRegion, datacenter.getRegion()));
     }
 
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
