@@ -4,10 +4,10 @@ import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Factory;
 import org.cloudsimplus.core.FactorySimple;
 import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.network.topologies.BriteNetworkTopology;
 import org.cloudsimplus.util.Log;
-import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.InitDatacenter;
+import org.cpnsim.network.NetworkTopology;
+import org.cpnsim.network.NetworkTopologySimple;
 import org.cpnsim.user.UserRequestManager;
 import org.cpnsim.user.UserRequestManagerCsv;
 import org.cpnsim.user.UserSimple;
@@ -19,7 +19,9 @@ public class UnitPriceConfiguration {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/topology.brite";
+    String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
+    String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
+    String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfig.json";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParament.csv";
 
@@ -57,13 +59,8 @@ public class UnitPriceConfiguration {
     }
 
     private void initNetwork() {
-        BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE);
+        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
         cpnSim.setNetworkTopology(networkTopology);
-        for (int collabId : cpnSim.getCollaborationManager().getCollaborationIds()) {
-            for (Datacenter datacenter : cpnSim.getCollaborationManager().getDatacenters(collabId)) {
-                networkTopology.mapNode(datacenter, datacenter.getId());
-            }
-        }
     }
     
 }

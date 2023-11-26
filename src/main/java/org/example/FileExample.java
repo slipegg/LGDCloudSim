@@ -5,10 +5,10 @@ import org.cloudsimplus.core.CloudSim;
 import org.cloudsimplus.core.Factory;
 import org.cloudsimplus.core.FactorySimple;
 import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.network.RandomDelayDynamicModel;
-import org.cloudsimplus.network.topologies.BriteNetworkTopology;
+import org.cpnsim.network.NetworkTopology;
+import org.cpnsim.network.NetworkTopologySimple;
+import org.cpnsim.network.RandomDelayDynamicModel;
 import org.cloudsimplus.util.Log;
-import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.InitDatacenter;
 import org.cpnsim.record.MemoryRecord;
 import org.cpnsim.user.UserRequestManager;
@@ -20,8 +20,9 @@ public class FileExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String NETWORK_TOPOLOGY_FILE = "./src/main/resources/experiment/interFrame/topology.brite";
     String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
+    String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
+    String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerInterToHostSchedule/DatacentersConfig.json";
 //    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrame/centerInterToHostSchedule/generateRequestParameter.csv";
 //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrame/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
@@ -65,14 +66,8 @@ public class FileExample {
     }
 
     private void initNetwork() {
-        BriteNetworkTopology networkTopology = BriteNetworkTopology.getInstance(NETWORK_TOPOLOGY_FILE, REGION_DELAY_FILE);
+        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
         networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
-        networkTopology.mapNode(cpnSim.getCis(), 0);
         cpnSim.setNetworkTopology(networkTopology);
-        for (int collabId : cpnSim.getCollaborationManager().getCollaborationIds()) {
-            for (Datacenter datacenter : cpnSim.getCollaborationManager().getDatacenters(collabId)) {
-                networkTopology.mapNode(datacenter, datacenter.getId());
-            }
-        }
     }
 }
