@@ -11,7 +11,7 @@ import java.util.List;
 public class UserRequestSimple implements UserRequest {
     @Getter
     private int id;
-    private String region;
+    private String area;
     private double submitTime;
     private double finishTime;
     private int belongDatacenterId;
@@ -88,7 +88,11 @@ public class UserRequestSimple implements UserRequest {
 
     @Override
     public UserRequest addFailReason(String failReason) {
-        this.failReason = this.failReason + "-" + failReason;
+        if (this.failReason.equals("")) {
+            this.failReason = failReason;
+        } else {
+            this.failReason = this.failReason + "-" + failReason;
+        }
         return this;
     }
 

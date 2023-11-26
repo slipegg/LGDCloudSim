@@ -59,7 +59,7 @@ public interface UserRequest extends ChangeableId {
 
     List<InstanceGroupEdge> getAllocatedEdges();
 
-    String getRegion();
+    String getArea();
 
-    UserRequest setRegion(String region);
+    UserRequest setArea(String area);
 }
