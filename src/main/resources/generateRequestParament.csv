@@ -1,5 +1,5 @@
   Parament Name,Parament
-FromDcPercent,"{""1"":{""africa-south1"":0.4,""africa-east1"":0.1},""2"":{""africa-east1"":0.5}}"
+FromDcPercent,"{""1"":{""shanghai"":0.4,""beijing"":0.1},""2"":{""beijing"":0.5}}"
 RequestPerNumMin,10
 RequestPerNumMax,10
 RequestTimeIntervalMin,10
