@@ -1,6 +1,4 @@
-package org.cloudsimplus.network;
-
-import org.cloudsimplus.core.SimEntity;
+package org.cpnsim.network;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -9,9 +7,9 @@ import java.util.Random;
 
 public class RandomDelayDynamicModel implements DelayDynamicModel {
     @Override
-    public double getDynamicDelay(SimEntity src, SimEntity dst, double delay, double time) {
-        // Ensure that the dynamic delay of the same two locations at the same time is the same
-        long seed = hashMap(src.getId(), dst.getId(), time);
+    public double getDynamicDelay(int srcId, int dstId, double delay, double time) {
+        // Ensure that the dynamic delay of the same two region at the same time is the same
+        long seed = hashMap(srcId, dstId, time);
         Random random = new Random(seed);
         return Math.max(delay + random.nextGaussian() * 4, 0);
     }

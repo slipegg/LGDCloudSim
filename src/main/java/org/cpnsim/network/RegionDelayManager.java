@@ -1,4 +1,4 @@
-package org.cloudsimplus.network.topologies;
+package org.cpnsim.network;
 
 import lombok.Getter;
 import org.apache.commons.csv.CSVFormat;
@@ -14,6 +14,8 @@ import java.util.Set;
 public class RegionDelayManager {
     @Getter
     private Map<String, Map<String, Double>> regionDelayMap;
+    @Getter
+    private double averageDelay;
 
     public RegionDelayManager(String fileName) {
         this.regionDelayMap = new HashMap<>();
@@ -24,6 +26,9 @@ public class RegionDelayManager {
     private void readRegionDelayFile(String fileName) {
         try (FileReader fileReader = new FileReader(fileName);
              CSVParser csvParser = CSVFormat.DEFAULT.withHeader().withDelimiter(',').parse(fileReader)) {
+
+            double delaySum = 0;
+            int regionCount = 0;
 
             // 获取表头，去除前后空格
             String[] header = csvParser.getHeaderMap().keySet().toArray(new String[0]);
@@ -41,9 +46,12 @@ public class RegionDelayManager {
                     String destinationRegion = header[i];
                     double delay = Double.parseDouble(csvRecord.get(i));
                     delayMap.put(destinationRegion, delay);
+                    delaySum += delay;
+                    regionCount++;
                 }
 
                 regionDelayMap.put(region, delayMap);
+                averageDelay = delaySum / regionCount;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,5 +68,16 @@ public class RegionDelayManager {
         }
 
         return regionDelayMap.get(sourceRegion).get(destinationRegion);
+    }
+
+    public Set<String> getRegions() {
+        return regionDelayMap.keySet();
+    }
+
+    public static void main(String[] args) {
+        String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
+        RegionDelayManager regionDelayManager = new RegionDelayManager(REGION_DELAY_FILE);
+        System.out.println(regionDelayManager.getRegionDelayMap());
+        System.out.println(regionDelayManager.getDelay("africa-south1", "asia-east1"));
     }
 }
