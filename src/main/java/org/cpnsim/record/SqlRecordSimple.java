@@ -219,8 +219,8 @@ public class SqlRecordSimple implements SqlRecord {
             sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum) VALUES ("
                     + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + ","
                     + instanceGroup.getReceiveDatacenter().getId() + "," + instanceGroup.getReceivedTime() + ","
-                    + instanceGroup.getFinishTime() + "," +
-                    +instanceGroup.getInstances().size() + ","
+                    + instanceGroup.getFinishTime() + ","
+                    + instanceGroup.getInstances().size()
                     + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
