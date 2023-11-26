@@ -1,6 +1,6 @@
 package org.cpnsim.request;
 
-import org.cloudsimplus.core.ChangeableId;
+import org.cpnsim.core.ChangeableId;
 
 public interface RequestEntity extends ChangeableId {
     UserRequest getUserRequest();

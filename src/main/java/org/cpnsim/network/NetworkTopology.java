@@ -1,6 +1,6 @@
 package org.cpnsim.network;
 
-import org.cloudsimplus.core.SimEntity;
+import org.cpnsim.core.SimEntity;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.UserRequest;
 

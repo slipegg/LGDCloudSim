@@ -1,9 +1,8 @@
 package org.cpnsim.datacenter;
 
-import org.cloudsimplus.core.Factory;
-import org.cloudsimplus.core.Simulation;
+import org.cpnsim.core.Factory;
+import org.cpnsim.core.Simulation;
 import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.innerscheduler.InnerSchedulerSimple;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.interscheduler.InterSchedulerSimple;
 import org.cpnsim.statemanager.*;
@@ -17,7 +16,6 @@ import java.io.FileReader;
 import java.util.*;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class to initialize datacenters.

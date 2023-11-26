@@ -1,8 +1,8 @@
 package org.cpnsim.datacenter;
 
-import org.cloudsimplus.core.SimEntity;
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.core.events.SimEvent;
+import org.cpnsim.core.SimEntity;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.core.events.SimEvent;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.request.InstanceGroup;

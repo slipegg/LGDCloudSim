@@ -2,7 +2,7 @@ package org.cpnsim.datacenter;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.cloudsimplus.core.Simulation;
+import org.cpnsim.core.Simulation;
 import org.cpnsim.interscheduler.InterScheduler;
 
 import java.util.*;

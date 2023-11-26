@@ -1,6 +1,6 @@
 package org.cpnsim.interscheduler;
 
-import org.cloudsimplus.core.Simulation;
+import org.cpnsim.core.Simulation;
 import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;

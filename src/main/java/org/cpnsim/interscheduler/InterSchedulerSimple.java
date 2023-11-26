@@ -2,7 +2,7 @@ package org.cpnsim.interscheduler;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.cloudsimplus.core.Simulation;
+import org.cpnsim.core.Simulation;
 import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.GroupQueue;

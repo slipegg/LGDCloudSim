@@ -1,8 +1,8 @@
 package org.cpnsim.interscheduler;
 
-import org.cloudsimplus.core.DatacenterEntity;
-import org.cloudsimplus.core.Nameable;
-import org.cloudsimplus.core.Simulation;
+import org.cpnsim.core.DatacenterEntity;
+import org.cpnsim.core.Nameable;
+import org.cpnsim.core.Simulation;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;

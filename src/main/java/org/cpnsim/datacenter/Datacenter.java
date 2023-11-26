@@ -1,12 +1,11 @@
 package org.cpnsim.datacenter;
 
-import org.cloudsimplus.core.SimEntity;
+import org.cpnsim.core.SimEntity;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
 
-import javax.xml.crypto.Data;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Set;

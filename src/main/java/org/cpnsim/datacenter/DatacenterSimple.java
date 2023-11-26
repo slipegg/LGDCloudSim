@@ -3,11 +3,11 @@ package org.cpnsim.datacenter;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.cloudsimplus.core.CloudSimEntity;
-import org.cloudsimplus.core.CloudSimTag;
-import org.cloudsimplus.core.SimEntity;
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.core.events.SimEvent;
+import org.cpnsim.core.CloudSimEntity;
+import org.cpnsim.core.CloudSimTag;
+import org.cpnsim.core.SimEntity;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.core.events.SimEvent;
 import org.cpnsim.innerscheduler.InnerSchedulerResult;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.interscheduler.InterSchedulerResult;
@@ -949,7 +949,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
 
         if (failedUserRequests.size() > 0) {
-            send(this, 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
+            send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
         }
     }

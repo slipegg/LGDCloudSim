@@ -1,8 +1,8 @@
 package org.cpnsim.network;
 
 import lombok.Setter;
-import org.cloudsimplus.core.CloudInformationService;
-import org.cloudsimplus.core.SimEntity;
+import org.cpnsim.core.CloudInformationService;
+import org.cpnsim.core.SimEntity;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.UserRequest;
 

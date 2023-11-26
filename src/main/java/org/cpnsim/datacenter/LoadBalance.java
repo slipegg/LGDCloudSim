@@ -1,6 +1,6 @@
 package org.cpnsim.datacenter;
 
-import org.cloudsimplus.core.DatacenterEntity;
+import org.cpnsim.core.DatacenterEntity;
 import org.cpnsim.request.Instance;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.slf4j.Logger;

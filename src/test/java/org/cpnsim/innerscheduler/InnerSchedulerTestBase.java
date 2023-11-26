@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.core.SimulationNull;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.core.SimulationNull;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterNull;
 import org.cpnsim.request.Instance;

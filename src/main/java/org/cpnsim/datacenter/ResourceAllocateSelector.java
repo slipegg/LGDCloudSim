@@ -1,6 +1,6 @@
 package org.cpnsim.datacenter;
 
-import org.cloudsimplus.core.DatacenterEntity;
+import org.cpnsim.core.DatacenterEntity;
 import org.cpnsim.innerscheduler.InnerSchedulerResult;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
