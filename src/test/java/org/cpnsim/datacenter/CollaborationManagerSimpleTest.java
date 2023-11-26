@@ -1,7 +1,6 @@
 package org.cpnsim.datacenter;
 
 import org.cloudsimplus.core.CloudSim;
-import org.cloudsimplus.core.Simulation;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;

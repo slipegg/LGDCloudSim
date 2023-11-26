@@ -3,20 +3,16 @@ package org.cpnsim.innerscheduler;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.cloudsimplus.core.ChangeableId;
 import org.cloudsimplus.core.Simulation;
 import org.cloudsimplus.core.SimulationNull;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterNull;
 import org.cpnsim.request.Instance;
-import org.cpnsim.request.InstanceSimple;
 import org.cpnsim.statemanager.PartitionRangesManager;
 import org.cpnsim.statemanager.StatesManager;
 import org.cpnsim.statemanager.StatesManagerSimple;
