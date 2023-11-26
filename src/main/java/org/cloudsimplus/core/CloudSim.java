@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.cloudsimplus.core.events.*;
-import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.CollaborationManager;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
@@ -328,7 +328,7 @@ public class CloudSim implements Simulation {
             TCOEnergySum += datacenter.getTCOEnergy();
             TCORackSum += datacenter.getTCORack();
         }
-        TCONetworkSum += networkTopology.getTCONetwork();
+        TCONetworkSum += networkTopology.getNetworkTCO();
         TCOSum = TCOEnergySum + TCORackSum + TCONetworkSum;
         LOGGER.debug("TCO Detail: Total Energy = {}", TCOEnergySum);
         LOGGER.debug("TCO Detail: Total Rack = {}", TCORackSum);

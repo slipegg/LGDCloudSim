@@ -1,7 +1,7 @@
 package org.cpnsim.interscheduler;
 
 import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
@@ -103,7 +103,7 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
             List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
 
             // Filter based on access latency
-            String belongRegion = instanceGroup.getUserRequest().getRegion();
+            String belongRegion = instanceGroup.getUserRequest().getArea();
             if (belongRegion == null) {
                 Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
                 belongRegion = belongDatacenter.getRegion();
@@ -111,7 +111,7 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
 
             String finalBelongRegion = belongRegion;// To use in lambda expression
             availableDatacenters.removeIf(
-                    datacenter -> instanceGroup.getAccessLatency() <= networkTopology.getAcessLatency(finalBelongRegion, datacenter.getRegion()));
+                    datacenter -> instanceGroup.getAccessLatency() <= networkTopology.getAccessLatency(instanceGroup.getUserRequest(), datacenter));
 
             // Filter based on the total remaining resources
             availableDatacenters.removeIf(

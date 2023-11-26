@@ -1,10 +1,9 @@
 package org.cloudsimplus.core;
 
 import org.cloudsimplus.core.events.SimEvent;
-import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.CollaborationManager;
 import org.cpnsim.record.SqlRecord;
-import org.cpnsim.record.SqlRecordSimple;
 
 import java.util.function.Predicate;
 
