@@ -166,10 +166,6 @@ public class CloudInformationService extends CloudSimEntity {
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
             handleFailedInterScheduling(collaborationId, failedInstanceGroups);
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedInstanceGroups.size());
-            }
         }
     }
 
@@ -389,12 +385,13 @@ public class CloudInformationService extends CloudSimEntity {
     }
 
     private void markInstanceGroupFailedAndRecord(InstanceGroup instanceGroup) {
-        instanceGroup.setState(UserRequest.FAILED);
         instanceGroup.setFinishTime(getSimulation().clock());
 
         if (instanceGroup.getState() == UserRequest.SCHEDULING) {
+            instanceGroup.setState(UserRequest.FAILED);
             getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
         } else {
+            instanceGroup.setState(UserRequest.FAILED);
             getSimulation().getSqlRecord().recordInstanceGroupAllInfo(instanceGroup);
         }
     }

@@ -393,7 +393,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         } else {
             instance.setState(UserRequest.FAILED);
-            LOGGER.warn("{}: {}'s Instance{} is terminated prematurely on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.warn("{}: {}'s Instance{} is terminated prematurely on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+            }
         }
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
@@ -713,6 +715,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void markAndRecordInstanceGroups(List<InstanceGroup> instanceGroups) {
         instanceGroups.forEach(instanceGroup -> instanceGroup.setReceivedTime(getSimulation().clock()));
+        instanceGroups.forEach(instanceGroup -> instanceGroup.setState(UserRequest.SCHEDULING));
         getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
     }
 
@@ -740,8 +743,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
                 boolean allocateResult = statesManager.allocate(instance);
                 if (!allocateResult) {
-                    LOGGER.warn("{} : {}'s Instance{} failed to allocate resources on host{} after resourceAllocateSelector", getSimulation().clockStr(), getName(), instance.getId(), instance.getExpectedScheduleHostId());
+                    LOGGER.error("{}: {}'s Instance{} of UserRequest{} failed to allocate resources on host{} after resourceAllocateSelector", getSimulation().clockStr(), getName(), instance.getId(), instance.getUserRequest().getId(), instance.getExpectedScheduleHostId());
                     failedInstanceGroups.add(instanceGroup);
+                    continue;
                 }
 
                 updateAfterInstanceAllocated(instance);
