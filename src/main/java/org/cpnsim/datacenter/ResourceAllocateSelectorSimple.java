@@ -84,8 +84,8 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
     public List<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups) {
         List<InstanceGroup> failedScheduledInstanceGroups = new ArrayList<>();
 
+        Map<Integer, HostState> hostStatesIfScheduled = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
-            Map<Integer, HostState> hostStatesIfScheduled = new HashMap<>();
             for (Instance instance : instanceGroup.getInstances()) {
                 HostState hostState;
                 if (hostStatesIfScheduled.containsKey(instance.getExpectedScheduleHostId())) {
