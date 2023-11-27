@@ -63,7 +63,7 @@ public class InterSchedulerSimple implements InterScheduler {
     @Getter
     Map<Datacenter, Object> interScheduleSimpleStateMap = new HashMap<>();
 
-    Random random = new Random(1);
+    Random random = new Random();
 
     public InterSchedulerSimple(Simulation simulation, int collaborationId) {
         this.id = 0;
@@ -317,6 +317,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
                 if (scheduledHostId != -1) {
                     scheduleResult.put(instance, scheduledHostId);
+                    detailedDcStateSimple.allocate(instance, scheduledHostId);
                 } else {
                     break;
                 }

@@ -1,6 +1,7 @@
 package org.cpnsim.statemanager;
 
 import lombok.Getter;
+import org.cpnsim.request.Instance;
 
 public class DetailedDcStateSimple {
     int[] hostStates;
@@ -14,5 +15,13 @@ public class DetailedDcStateSimple {
 
     public HostState getHostState(int hostId) {
         return new HostState(hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1], hostStates[hostId * HostState.STATE_NUM + 2], hostStates[hostId * HostState.STATE_NUM + 3]);
+    }
+
+    public DetailedDcStateSimple allocate(Instance instance, int hostId) {
+        hostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
+        hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
+        hostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
+        hostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+        return this;
     }
 }
