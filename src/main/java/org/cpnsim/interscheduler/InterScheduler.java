@@ -72,12 +72,4 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
     int getNewQueueSize();
 
     int getRetryQueueSize();
-
-    void addReplyWaitingDatacenter(Datacenter datacenter);
-
-    void receiveReplyFromDatacenter(Datacenter datacenter);
-
-    boolean isAllReplyReceived();
-
-    void clearReplyWaitingDatacenter();
 }

@@ -318,18 +318,22 @@ public class InitDatacenter {
      * @param datacenterJson a {@link JsonObject} object
      */
     private static void setPrediction(StatesManager statesManager, JsonObject datacenterJson) {
-        boolean isPredict = datacenterJson.getBoolean("isPredict");
-        statesManager.setPredictable(isPredict);
-        if (isPredict) {
-            JsonObject predictionJson = datacenterJson.getJsonObject("prediction");
-            PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
-            statesManager.setPredictionManager(predictionManager);
-            int predictRecordNum = predictionJson.getInt("predictRecordNum");
-            if (predictRecordNum <= 0) {
-                LOGGER.error("predictRecordNum must be greater than 0");
-                System.exit(-1);
+        if (datacenterJson.containsKey("isPredict")) {
+            boolean isPredict = datacenterJson.getBoolean("isPredict");
+            statesManager.setPredictable(isPredict);
+            if (isPredict) {
+                JsonObject predictionJson = datacenterJson.getJsonObject("prediction");
+                PredictionManager predictionManager = factory.getPredictionManager(predictionJson.getString("type"));
+                statesManager.setPredictionManager(predictionManager);
+                int predictRecordNum = predictionJson.getInt("predictRecordNum");
+                if (predictRecordNum <= 0) {
+                    LOGGER.error("predictRecordNum must be greater than 0");
+                    System.exit(-1);
+                }
+                statesManager.setPredictRecordNum(predictRecordNum);
             }
-            statesManager.setPredictRecordNum(predictRecordNum);
+        } else {
+            statesManager.setPredictable(false);
         }
     }
 

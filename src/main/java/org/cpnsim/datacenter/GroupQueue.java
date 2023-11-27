@@ -38,6 +38,8 @@ public interface GroupQueue {
      */
     List<InstanceGroup> getBatchItem();
 
+    List<InstanceGroup> getItems(int num);
+
     /**
      * Get all groupInstances from the queue.
      */

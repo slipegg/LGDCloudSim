@@ -162,7 +162,6 @@ public class CloudInformationService extends CloudSimEntity {
         Datacenter sourceDc = (Datacenter) evt.getSource();
         int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(sourceDc.getId());
         InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
-        interScheduler.receiveReplyFromDatacenter(sourceDc);
 
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
@@ -171,12 +170,6 @@ public class CloudInformationService extends CloudSimEntity {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedInstanceGroups.size());
             }
-        }
-
-        if (interScheduler.isAllReplyReceived()) {
-            LOGGER.info("{}: collaboration{}'s centerScheduler received all replies.", getSimulation().clockStr(), collaborationId);
-
-            startCenterInterScheduling(collaborationId);
         }
     }
 
@@ -194,12 +187,12 @@ public class CloudInformationService extends CloudSimEntity {
             CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
             InterScheduler interScheduler = collaborationManager.getCollaborationCenterSchedulerMap().get(collaborationId);
 
-            LOGGER.info("{}: collaboration{}'s centerScheduler starts scheduling.", getSimulation().clockStr(), collaborationId);
-
             InterSchedulerResult interSchedulerResult = interScheduler.schedule();
 
             double scheduleTime = interScheduler.getScheduleTime();
             send(this, scheduleTime, CloudSimTag.GROUP_FILTER_DC_END, interSchedulerResult);
+
+            LOGGER.info("{}: collaboration{}'s centerScheduler starts scheduling.It will cost {}ms", getSimulation().clockStr(), collaborationId, scheduleTime);
         }
     }
 
@@ -215,10 +208,11 @@ public class CloudInformationService extends CloudSimEntity {
 
             handleFailedInterScheduling(interSchedulerResult.getCollaborationId(), interSchedulerResult.getFailedInstanceGroups());
 
-            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET
-                    || interSchedulerResult.isScheduledInstanceGroupsEmpty()) {
-                startCenterInterScheduling(collaborationId);
-            }
+//            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET
+//                    || interSchedulerResult.isScheduledInstanceGroupsEmpty()) {
+//                startCenterInterScheduling(collaborationId);
+//            }
+            startCenterInterScheduling(collaborationId);
 
             LOGGER.info("{}: collaboration{}'s centerScheduler ends finding available Datacenters for {} instanceGroups.", getSimulation().clockStr(), collaborationId, interSchedulerResult.getInstanceGroupNum());
         }
@@ -243,20 +237,12 @@ public class CloudInformationService extends CloudSimEntity {
         int evtTag = getEvtTagByInterSchedulerResult(interSchedulerResult);
         InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(interSchedulerResult.getCollaborationId());
 
-        if (evtTag == CloudSimTag.SCHEDULE_TO_DC_HOST) {
-            interScheduler.clearReplyWaitingDatacenter();
-        }
-
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getScheduledResultMap().entrySet()) {
             Datacenter datacenter = entry.getKey();
             List<InstanceGroup> instanceGroups = entry.getValue();
 
             if (instanceGroups.size() > 0) {
                 send(datacenter, 0, evtTag, instanceGroups);
-
-                if (evtTag == CloudSimTag.SCHEDULE_TO_DC_HOST) {
-                    interScheduler.addReplyWaitingDatacenter(datacenter);
-                }
             }
         }
     }

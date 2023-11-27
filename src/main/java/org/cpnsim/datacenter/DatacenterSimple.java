@@ -641,7 +641,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processScheduleToDcHostResponse(SimEvent evt) {
         Datacenter sourceDc = (Datacenter) evt.getSource();
-        interScheduler.receiveReplyFromDatacenter(sourceDc);
 
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
@@ -650,12 +649,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedInstanceGroups.size());
             }
-        }
-
-        if (interScheduler.isAllReplyReceived()) {
-            LOGGER.info("{}: {}'s all reply from datacenter have been received.", getSimulation().clockStr(), getName());
-
-            startInterScheduling();
         }
     }
 
@@ -900,7 +893,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void sendInterScheduleResult(InterSchedulerResult interSchedulerResult) {
         if (interSchedulerResult.getTarget() == InterSchedulerSimple.MIXED_TARGET) {
-            interScheduler.clearReplyWaitingDatacenter();
             Map<Datacenter, List<InstanceGroup>> scheduledResultMap = interSchedulerResult.getScheduledResultMap();
             for (Map.Entry<Datacenter, List<InstanceGroup>> entry : scheduledResultMap.entrySet()) {
                 Datacenter datacenter = entry.getKey();
@@ -909,7 +901,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 if (datacenter == this) {
                     if (instanceGroups.size() > 0) {
                         send(this, 0, CloudSimTag.SCHEDULE_TO_DC_HOST, instanceGroups);
-                        interScheduler.addReplyWaitingDatacenter(this);
                         LOGGER.info("{}: {} sends {} instance groups to itself.", getSimulation().clockStr(), getName(), instanceGroups.size());
                     }
                 } else {

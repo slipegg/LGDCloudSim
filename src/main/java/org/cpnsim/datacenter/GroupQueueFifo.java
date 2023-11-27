@@ -83,7 +83,8 @@ public class GroupQueueFifo implements GroupQueue {
         return getItems(this.instanceGroups.size());
     }
 
-    private List<InstanceGroup> getItems(int num) {
+    @Override
+    public List<InstanceGroup> getItems(int num) {
         List<InstanceGroup> sendInstanceGroups = new ArrayList<>();
         for (int i = 0; i < num; i++) {
             if (instanceGroups.size() == 0) {

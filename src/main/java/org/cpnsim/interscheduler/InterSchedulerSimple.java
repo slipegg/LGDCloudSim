@@ -62,8 +62,6 @@ public class InterSchedulerSimple implements InterScheduler {
     private Map<Datacenter, String> dcStateSynType = new HashMap<>();
     @Getter
     Map<Datacenter, Object> interScheduleSimpleStateMap = new HashMap<>();
-    @Getter
-    Map<Datacenter, Boolean> repliesWaitingMap = new HashMap<>();
 
     Random random = new Random(1);
 
@@ -152,18 +150,20 @@ public class InterSchedulerSimple implements InterScheduler {
         synDcStateRealTime();
 
         List<InstanceGroup> waitSchedulingInstanceGroups = getWaitSchedulingInstanceGroups();
-
-        scheduleTime = 0.2;
-
+        InterSchedulerResult interSchedulerResult = null;
+        double start = System.currentTimeMillis();
         if (target == DC_TARGET) {
-            return scheduleToDatacenter(waitSchedulingInstanceGroups);
+            interSchedulerResult = scheduleToDatacenter(waitSchedulingInstanceGroups);
         } else if (target == HOST_TARGET) {
-            return scheduleToHost(waitSchedulingInstanceGroups);
+            interSchedulerResult = scheduleToHost(waitSchedulingInstanceGroups);
         } else if (target == MIXED_TARGET) {
-            return scheduleMixed(waitSchedulingInstanceGroups);
+            interSchedulerResult = scheduleMixed(waitSchedulingInstanceGroups);
         } else {
             throw new IllegalStateException("InterSchedulerSimple.schedule: Invalid target of " + target);
         }
+        double end = System.currentTimeMillis();
+        this.scheduleTime = end - start;
+        return interSchedulerResult;
     }
 
     private InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
@@ -228,7 +228,11 @@ public class InterSchedulerSimple implements InterScheduler {
         if (retryInstanceGroupQueue.isEmpty()) {
             return instanceGroupQueue.getBatchItem();
         } else {
-            return retryInstanceGroupQueue.getBatchItem();
+            List<InstanceGroup> instanceGroups = retryInstanceGroupQueue.getBatchItem();
+            if (instanceGroups.size() < instanceGroupQueue.getBatchNum()) {
+                instanceGroups.addAll(instanceGroupQueue.getItems(instanceGroupQueue.getBatchNum() - instanceGroups.size()));
+            }
+            return instanceGroups;
         }
     }
 
@@ -438,26 +442,6 @@ public class InterSchedulerSimple implements InterScheduler {
     @Override
     public int getRetryQueueSize() {
         return retryInstanceGroupQueue.size();
-    }
-
-    @Override
-    public void addReplyWaitingDatacenter(Datacenter datacenter) {
-        repliesWaitingMap.put(datacenter, false);
-    }
-
-    @Override
-    public void receiveReplyFromDatacenter(Datacenter datacenter) {
-        repliesWaitingMap.put(datacenter, true);
-    }
-
-    @Override
-    public boolean isAllReplyReceived() {
-        return repliesWaitingMap.values().stream().allMatch(Boolean::booleanValue);
-    }
-
-    @Override
-    public void clearReplyWaitingDatacenter() {
-        repliesWaitingMap.clear();
     }
 
     //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
