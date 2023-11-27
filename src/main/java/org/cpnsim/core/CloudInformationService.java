@@ -266,7 +266,7 @@ public class CloudInformationService extends CloudSimEntity {
             instanceGroup.addRetryNum();
 
             if (instanceGroup.isFailed()) {
-                instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId());
+                instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId() + "Instance" + instanceGroup.getInstances().get(0).getId() + "expectedHostId:" + instanceGroup.getInstances().get(0).getExpectedScheduleHostId());
 
                 failedUserRequests.add(instanceGroup.getUserRequest());
             } else {
@@ -336,9 +336,9 @@ public class CloudInformationService extends CloudSimEntity {
         if (userRequest.getState() == UserRequest.FAILED) {
             return;
         }
-
-        LOGGER.warn("{}: The UserRequest{} has failed. Reason: {}", getSimulation().clockStr(), userRequest.getId(), userRequest.getFailReason());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{}: The UserRequest{} has failed. Reason: {}", getSimulation().clockStr(), userRequest.getId(), userRequest.getFailReason());
+        }
         markUserRequestFailedAndRecord(userRequest);
 
         releaseBwForFailedUserRequest(userRequest);
