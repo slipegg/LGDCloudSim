@@ -44,10 +44,12 @@ public class RegionDelayManager {
                 // 从第二列开始，因为第一列是区域名称
                 for (int i = 1; i < csvRecord.size(); i++) {
                     String destinationRegion = header[i];
-                    double delay = Double.parseDouble(csvRecord.get(i));
-                    delayMap.put(destinationRegion, delay);
-                    delaySum += delay;
-                    regionCount++;
+                    if (!csvRecord.get(i).equals("")) {
+                        double delay = Double.parseDouble(csvRecord.get(i));
+                        delayMap.put(destinationRegion, delay);
+                        delaySum += delay;
+                        regionCount++;
+                    }
                 }
 
                 regionDelayMap.put(region, delayMap);
