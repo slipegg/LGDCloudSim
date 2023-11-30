@@ -33,7 +33,11 @@ public class NetworkTopologySimple implements NetworkTopology {
     @Override
     public double getDynamicDelay(SimEntity src, SimEntity dst, double time) {
         double standardDelay = getDelay(src, dst);
-        return delayDynamicModel.getDynamicDelay(src.getId(), dst.getId(), standardDelay, time);
+        if(standardDelay == 0){
+            return 0;
+        }else{
+            return delayDynamicModel.getDynamicDelay(src.getId(), dst.getId(), standardDelay, time);
+        }
     }
 
     @Override
