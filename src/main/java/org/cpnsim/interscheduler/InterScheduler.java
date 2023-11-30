@@ -72,4 +72,6 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
     int getNewQueueSize();
 
     int getRetryQueueSize();
+
+    int getTraversalTime();
 }

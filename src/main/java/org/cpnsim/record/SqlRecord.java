@@ -45,4 +45,6 @@ public interface SqlRecord {
     void addInterScheduleTime(double interScheduleTime);
 
     double getInterScheduleTime();
+
+    void recordInterScheduleTime(double time, double costTime, int traversalTime);
 }

@@ -122,4 +122,9 @@ public class SqlRecordNull implements SqlRecord {
     public double getInterScheduleTime() {
         return this.interScheduleTime;
     }
+
+    @Override
+    public void recordInterScheduleTime(double time, double costTime, int traversalTime) {
+
+    }
 }

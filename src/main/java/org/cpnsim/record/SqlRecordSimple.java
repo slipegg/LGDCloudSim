@@ -27,6 +27,7 @@ public class SqlRecordSimple implements SqlRecord {
     private String instanceGroupGraphTableName = null;
     private String instanceTableName = null;
     private String conflictTableName = null;
+    private String interScheduleCostTimeTableName = null;
     private String dbName = null;
     private String dbDir = null;
     @Getter
@@ -61,7 +62,8 @@ public class SqlRecordSimple implements SqlRecord {
         this.instanceGroupTableName = instanceGroupTableName;
         this.instanceGroupGraphTableName = instanceGroupGraphTableName;
         this.instanceTableName = instanceTableName;
-        conflictTableName = "conflict";
+        this.conflictTableName = "conflict";
+        this.interScheduleCostTimeTableName = "interScheduleCostTime";
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -79,6 +81,7 @@ public class SqlRecordSimple implements SqlRecord {
             createGroupGraphTable();
             createInstanceTable();
             createConflictTable();
+            createInterScheduleCostTimeTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -487,6 +490,18 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+
+    private void createInterScheduleCostTimeTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.interScheduleCostTimeTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.interScheduleCostTimeTableName + " " +
+                "(time DOUBLE PRIMARY KEY NOT NULL," +
+                " costTime DOUBLE NOT NULL, " +
+                " traversalTime INT NOT NULL) ";
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+
     public void recordConflict(double time, int sum) {
         int tmpTime = (int) time / 10 * 10;
         try {
@@ -498,6 +513,16 @@ public class SqlRecordSimple implements SqlRecord {
                 sql = "UPDATE " + this.conflictTableName + " SET conflictSum = conflictSum + " + sum + " WHERE time = " + tmpTime + ";";
                 stmt.executeUpdate(sql);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void recordInterScheduleTime(double time, double costTime, int traversalTime) {
+        try {
+            sql = "INSERT INTO " + this.interScheduleCostTimeTableName + " (time, costTime, traversalTime) VALUES (" + time + "," + costTime + "," + traversalTime + ");";
+            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
