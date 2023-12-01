@@ -4,7 +4,9 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 /**
@@ -24,10 +26,10 @@ public class PartitionRangesManager {
      *  For example, if the partition id is 0, and the range is [0, 2], then the partition 0 includes the hosts with id 0, 1, 2
      *  */
     @Getter
-    Map<Integer, int[]> ranges;
+    TreeMap<Integer, int[]> ranges;
 
-    /** An array to store the start and end of the ranges of the partitions in the datacenter.
-     *  for example, if the ranges are [0, 2], [3, 5], [6, 8], then the array is [0, 2, 3, 5, 6, 8]
+    /** An array to store the start of the ranges of the partitions in the datacenter.
+     *  for example, if the ranges are [0, 2], [3, 5], [6, 8], then the array is [0, 3, 6]
      *  The aim of this array is to find the partition id of a host id quickly
      **/
     int[] rangePart;
@@ -40,26 +42,28 @@ public class PartitionRangesManager {
      **/
     int[] rangeId;
 
+    int hostNum = 0;
+
     /**
      * The Logger of the class
      */
     public Logger LOGGER = LoggerFactory.getLogger(PartitionRangesManager.class.getSimpleName());
 
     public PartitionRangesManager() {
-        ranges = new HashMap<>();
+        ranges = new TreeMap<>();
     }
 
     public PartitionRangesManager(Map<Integer, int[]> ranges) {
-        this.ranges = ranges;
-        rangePart = new int[ranges.size() * 2];
+        this.ranges = new TreeMap<>(ranges);
+        rangePart = new int[ranges.size()];
         rangeId = new int[ranges.size()];
         int i = 0;
         for (Map.Entry<Integer, int[]> entry : ranges.entrySet()) {
             int[] range = entry.getValue();
             rangePart[i] = range[0];
-            rangePart[i + 1] = range[1];
-            rangeId[i / 2] = entry.getKey();
-            i += 2;
+            rangeId[i] = entry.getKey();
+            i += 1;
+            hostNum += range[1] - range[0] + 1;
         }
     }
 
@@ -70,15 +74,17 @@ public class PartitionRangesManager {
      * @return the partition id of the host
      */
     public Integer getPartitionId(int hostId) {
-        int index = 0;
-        while (index < rangePart.length) {
-            if (hostId >= rangePart[index] && hostId <= rangePart[index + 1]) {
-                return rangeId[index / 2];
-            }
-            index += 2;
+        if(hostId<rangePart[0] || hostId >= hostNum){
+            LOGGER.error("Host id {} is not in the range of the datacenter,rangePart[0] = {} hostNum = {}", hostId, rangePart[0], hostNum);
+            return -1;
         }
-        LOGGER.error("Host id not found in ranges");
-        return -1;
+        int index = Arrays.binarySearch(rangePart, hostId);
+        if(index>=0){
+            return rangeId[index];
+        }else{
+            index = -index-2;
+            return rangeId[index];
+        }
     }
 
     /**
@@ -96,16 +102,16 @@ public class PartitionRangesManager {
         int size = range / num;
         int remainder = range % num;
         int index = startIndex;
-        rangePart = new int[num * 2];
+        rangePart = new int[num];
         rangeId = new int[num];
+        hostNum = endIndex - startIndex + 1;
         for (int i = 0; i < num; i++) {
             int length = size + (remainder-- > 0 ? 1 : 0);
             int[] a = new int[2];
             a[0] = index;
             a[1] = index + length - 1;
             ranges.put(nextPartitionId, a);
-            rangePart[i * 2] = index;
-            rangePart[i * 2 + 1] = index + length - 1;
+            rangePart[i] = index;
             rangeId[i] = nextPartitionId;
             index += length;
             nextPartitionId++;
@@ -129,7 +135,7 @@ public class PartitionRangesManager {
      * @return the number of the partitions in the datacenter
      */
     public int getPartitionNum() {
-        return rangePart.length / 2;
+        return rangeId.length;
     }
 
     /**
