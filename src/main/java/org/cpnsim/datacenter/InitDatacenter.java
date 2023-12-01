@@ -119,7 +119,7 @@ public class InitDatacenter {
 
     private static int switchTarget(String targetStr) {
         return switch (targetStr) {
-            case "dc" -> InterSchedulerSimple.DC_TARGET;
+            case "dc","datacenter" -> InterSchedulerSimple.DC_TARGET;
             case "host" -> InterSchedulerSimple.HOST_TARGET;
             case "mixed" -> InterSchedulerSimple.MIXED_TARGET;
             default -> throw new IllegalArgumentException("target should be dc, host or mixed");
