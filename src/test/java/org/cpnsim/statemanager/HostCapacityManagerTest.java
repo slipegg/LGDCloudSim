@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class TestHostCapacityManager {
+public class HostCapacityManagerTest {
     @Test
     public void testHostCapacityManager(){
         HostCapacityManager hostCapacityManager = new HostCapacityManager();
@@ -36,6 +36,10 @@ public class TestHostCapacityManager {
         assertArrayEquals(exceptedCapacity, actualCapacity);
         actualCapacity = hostCapacityManager.getHostCapacity(349);
         assertArrayEquals(exceptedCapacity, actualCapacity);
+
+        long[] exceptedCapacitySum = new long[]{100*(100+200+300)+50*400, 100*(100+200+300)+50*400, 100*(100+200+300)+50*400, 100*(100+200+300)+50*400};
+        long[] actualCapacitySum = hostCapacityManager.getHostCapacitySum();
+        assertArrayEquals(exceptedCapacitySum, actualCapacitySum);
 
 
     }
