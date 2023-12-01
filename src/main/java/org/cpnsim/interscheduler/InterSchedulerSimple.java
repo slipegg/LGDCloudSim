@@ -282,12 +282,12 @@ public class InterSchedulerSimple implements InterScheduler {
             if (availableDatacenters.size() == 0) {
                 interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
             } else {
-                Datacenter scheduleResult = scheduleForInstanceGroupAndInstance(instanceGroupToBeScheduled, availableDatacenters);
+                Datacenter scheduledDc = scheduleForInstanceGroupAndInstance(instanceGroupToBeScheduled, availableDatacenters);
 
-                if (scheduleResult == Datacenter.NULL) {
+                if (scheduledDc == Datacenter.NULL) {
                     interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
                 } else {
-                    interSchedulerResult.addDcResult(instanceGroupToBeScheduled, scheduleResult);
+                    interSchedulerResult.addDcResult(instanceGroupToBeScheduled, scheduledDc);
                 }
             }
         }
@@ -306,16 +306,6 @@ public class InterSchedulerSimple implements InterScheduler {
             LOGGER.warning("return dcId = -1 in getDcIdByHostIdInAll");
             throw new RuntimeException("return dcId = -1 in getDcIdByHostIdInAll");
         }
-
-//        int hostStartIdInDc = hostStartIdInAll;
-//        for(int dcIndex = 0; dcIndex < selectedDcId; dcIndex++) {
-//            hostStartIdInDc -= availableDatacenters.get(dcIndex).getStatesManager().getHostNum();
-//        }
-//
-//        for(int i = 0; i < availableDatacenters.size()+1; i++) {
-//            int dcIndex = (dcStartIndex + i) % availableDatacenters.size();
-//            Datacenter dcSelected = availableDatacenters.get(dcIndex);
-//        }
 
         int i = 0;
         for (; i < availableDatacenters.size(); i++) {
