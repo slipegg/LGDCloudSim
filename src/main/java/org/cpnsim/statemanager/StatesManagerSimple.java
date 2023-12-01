@@ -107,6 +107,8 @@ public class StatesManagerSimple implements StatesManager {
 
     private SynGapManager synGapManager;
 
+    private HostCapacityManager hostCapacityManager;
+
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -118,6 +120,7 @@ public class StatesManagerSimple implements StatesManager {
         this.partitionNum = partitionRangesManager.getPartitionNum();
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
+        this.hostCapacityManager = new HostCapacityManager();
         this.totalCpuInUse = 0;
         this.totalRamInUse = 0;
         this.totalStorageInUse = 0;
@@ -129,12 +132,15 @@ public class StatesManagerSimple implements StatesManager {
         this(hostNum, partitionRangesManager, synGap, 128, 256);
     }
 
+    //TODO: initHostStates不需要是有序的，但是这里却要求了hostCapacityManager初始化是有序的，后面需要修改
+    //但是因为现在只在initDatacenter中使用了这个，所以还没什么问题
     @Override
     public StatesManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length) {
         int endId = startId + length - 1;
         for (int i = startId; i <= endId; i++) {
             initSingleHostState(i, cpu, ram, storage, bw);
         }
+        hostCapacityManager.orderlyAddSameCapacityHost(length,new int[]{cpu,ram,storage,bw});
         return this;
     }
 
@@ -251,7 +257,7 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public Object getStateByType(String type) {
         return switch (type) {
-            case "detailed" -> new DetailedDcStateSimple(hostStates);
+            case "detailed" -> new DetailedDcStateSimple(hostStates, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
             case "easySimple" -> simpleState.generate(datacenter);
             case "null" -> null;
             default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
@@ -368,6 +374,11 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public boolean allocate(Instance instance) {
         return allocate(instance.getExpectedScheduleHostId(), instance);
+    }
+
+    @Override
+    public int[] getHostCapacity(int hostId) {
+        return hostCapacityManager.getHostCapacity(hostId);
     }
 
     /**

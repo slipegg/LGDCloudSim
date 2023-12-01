@@ -134,4 +134,6 @@ public interface StatesManager {
     boolean isInLatestSmallSynGap(double time);
 
     boolean allocate(Instance instance);
+
+    int[] getHostCapacity(int hostId);
 }
