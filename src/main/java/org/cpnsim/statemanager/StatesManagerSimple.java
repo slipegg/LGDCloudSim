@@ -257,7 +257,7 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public Object getStateByType(String type) {
         return switch (type) {
-            case "detailed" -> new DetailedDcStateSimple(hostStates, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
+            case "detailed" -> new DetailedDcStateSimple(hostStates,hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
             case "easySimple" -> simpleState.generate(datacenter);
             case "null" -> null;
             default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
