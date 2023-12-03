@@ -613,8 +613,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             statesManager.revertSelftHostState(instances, innerScheduler);
         }
 
-        LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), innerScheduler.getName(), instances.size());
-
+        if(instances.size()>0){
+            LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), innerScheduler.getName(), instances.size());
+        }
         if (failedUserRequests.size() > 0) {
             send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
         }
