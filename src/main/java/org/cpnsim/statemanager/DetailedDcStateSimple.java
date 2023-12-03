@@ -37,10 +37,6 @@ public class DetailedDcStateSimple {
         return hostCapacityManager.getHostCapacity(hostId);
     }
 
-    public long[] getHostCapacitySum(){
-        return hostCapacityManager.getHostCapacitySum();
-    }
-
     public DetailedDcStateSimple allocate(Instance instance, int hostId) {
         hostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
         hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();

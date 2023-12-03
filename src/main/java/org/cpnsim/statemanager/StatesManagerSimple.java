@@ -107,6 +107,7 @@ public class StatesManagerSimple implements StatesManager {
 
     private SynGapManager synGapManager;
 
+    @Getter
     private HostCapacityManager hostCapacityManager;
 
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
@@ -116,7 +117,7 @@ public class StatesManagerSimple implements StatesManager {
         this.synGapManager = new SynGapManager(synGap, partitionRangesManager.getPartitionNum());
         this.maxCpuCapacity = maxCpuCapacity;
         this.maxRamCapacity = maxRamCapacity;
-        this.simpleState = new SimpleStateEasy();
+        this.simpleState = new SimpleStateEasy(this);
         this.partitionNum = partitionRangesManager.getPartitionNum();
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
@@ -258,7 +259,7 @@ public class StatesManagerSimple implements StatesManager {
     public Object getStateByType(String type) {
         return switch (type) {
             case "detailed" -> new DetailedDcStateSimple(hostStates,hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
-            case "easySimple" -> simpleState.generate(datacenter);
+            case "easySimple" -> simpleState.generate();
             case "null" -> null;
             default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
         };

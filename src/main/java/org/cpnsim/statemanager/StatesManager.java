@@ -136,4 +136,6 @@ public interface StatesManager {
     boolean allocate(Instance instance);
 
     int[] getHostCapacity(int hostId);
+
+    HostCapacityManager getHostCapacityManager();
 }
