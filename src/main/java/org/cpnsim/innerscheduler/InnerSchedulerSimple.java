@@ -52,8 +52,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
         this.partitionTraverseList = partitionDelay.entrySet().
                 stream().sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).collect(Collectors.toList());
-        instanceQueue = new InstanceQueueFifo(100);
-        retryInstanceQueue = new InstanceQueueFifo(100);
+        instanceQueue = new InstanceQueueFifo();
+        retryInstanceQueue = new InstanceQueueFifo();
     }
 
     public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
@@ -62,8 +62,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
-        instanceQueue = new InstanceQueueFifo(100);
-        retryInstanceQueue = new InstanceQueueFifo(100);
+        instanceQueue = new InstanceQueueFifo();
+        retryInstanceQueue = new InstanceQueueFifo();
         this.firstPartitionId = firstPartitionId;
         this.partitionNum = partitionNum;
         setId(id);
@@ -115,13 +115,13 @@ public class InnerSchedulerSimple implements InnerScheduler {
 
         List<Instance> instances = getWaitSchedulingInstances();
 
-//        double startTime = System.currentTimeMillis();
+        double startTime = System.currentTimeMillis();
         InnerSchedulerResult innerSchedulerResult = scheduleInstances(instances, synState);
-//        double endTime = System.currentTimeMillis();
+        double endTime = System.currentTimeMillis();
 
         lastScheduleTime = datacenter.getSimulation().clock();
 
-        this.scheduleCostTime = BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
+        this.scheduleCostTime = endTime - startTime;//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
 
         return innerSchedulerResult;
     }

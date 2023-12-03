@@ -36,7 +36,7 @@ public class InstanceQueueFifo implements InstanceQueue {
     }
 
     public InstanceQueueFifo() {
-        this(100000);
+        this(1000);
     }
 
 
