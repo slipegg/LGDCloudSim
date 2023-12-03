@@ -33,6 +33,8 @@ public class FactorySimple implements Factory {
         return switch (type) {
             case "simple", "Simple" ->
                     new InterSchedulerSimple(id, simulation, collaborationId, target, isSupportForward);
+            case "leastRequested" ->
+                    new InterSchedulerLeastRequested(id, simulation, collaborationId, target, isSupportForward);
             case "direct", "Direct" -> new InterSchedulerDirect(id, simulation, collaborationId);
             case "minTCODirect" -> new InterSchedulerMinTCODirect(id, simulation, collaborationId);
             case "consult", "Consult" -> new InterSchedulerConsult(id, simulation, collaborationId);

@@ -121,7 +121,7 @@ public class InterSchedulerSimple implements InterScheduler {
         return instanceGroupAvailableDatacenters;
     }
 
-    private Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenterByNetwork(List<InstanceGroup> instanceGroups) {
+    protected Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenterByNetwork(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         NetworkTopology networkTopology = simulation.getNetworkTopology();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
@@ -154,6 +154,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
         List<InstanceGroup> waitSchedulingInstanceGroups = getWaitSchedulingInstanceGroups();
         InterSchedulerResult interSchedulerResult = null;
+
         traversalTime = 0;
         double start = System.currentTimeMillis();
         if (target == DC_TARGET) {
@@ -166,7 +167,8 @@ public class InterSchedulerSimple implements InterScheduler {
             throw new IllegalStateException("InterSchedulerSimple.schedule: Invalid target of " + target);
         }
         double end = System.currentTimeMillis();
-        this.scheduleTime = end - start;
+
+        this.scheduleTime = Math.max(0.1, end - start);
         return interSchedulerResult;
     }
 
@@ -270,7 +272,7 @@ public class InterSchedulerSimple implements InterScheduler {
         return interSchedulerResult;
     }
 
-    private InterSchedulerResult scheduleToHost(List<InstanceGroup> instanceGroups) {
+    protected InterSchedulerResult scheduleToHost(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, allDatacenters);
 
@@ -295,7 +297,7 @@ public class InterSchedulerSimple implements InterScheduler {
         return interSchedulerResult;
     }
 
-    private Datacenter scheduleForInstanceGroupAndInstance(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
+    protected Datacenter scheduleForInstanceGroupAndInstance(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
 //        int dcStartIndex = random.nextInt(availableDatacenters.size());
         int hostSum = availableDatacenters.stream()
                 .mapToInt(dc -> dc.getStatesManager().getHostNum())
@@ -321,7 +323,7 @@ public class InterSchedulerSimple implements InterScheduler {
         return Datacenter.NULL;
     }
 
-    private int getDcIdByHostIdInAll(int hostIdInAll, List<Datacenter> availableDatacenters) {
+    protected int getDcIdByHostIdInAll(int hostIdInAll, List<Datacenter> availableDatacenters) {
         for (int i = 0; i < availableDatacenters.size(); i++) {
             Datacenter datacenter = availableDatacenters.get(i);
             hostIdInAll -= datacenter.getStatesManager().getHostNum();
