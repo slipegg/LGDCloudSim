@@ -10,6 +10,7 @@ public class FactorySimple implements Factory {
     public InnerScheduler getInnerScheduler(String type, int id, int firstPartitionId, int partitionNum) {
         return switch (type) {
             case "simple", "Simple" -> new InnerSchedulerSimple(id, firstPartitionId, partitionNum);
+            case "leastRequested" -> new InnerSchedulerLeastRequested(id, firstPartitionId, partitionNum);
             case "random" -> new InnerSchedulerRandom(id, firstPartitionId, partitionNum);
             case "partitionRandom" -> new InnerSchedulerPartitionRandom(id, firstPartitionId, partitionNum);
             case "minHostOn" -> new InnerSchedulerMinHostOn(id, firstPartitionId, partitionNum);
