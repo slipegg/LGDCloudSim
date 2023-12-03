@@ -41,7 +41,19 @@ public class HostCapacityManager {
         }
     }
 
-    public long[] getHostCapacitySum() {
-        return hostCapacitySum;
+    public long getCpuCapacitySum() {
+        return hostCapacitySum[0];
+    }
+
+    public long getRamCapacitySum() {
+        return hostCapacitySum[1];
+    }
+
+    public long getStorageCapacitySum() {
+        return hostCapacitySum[2];
+    }
+
+    public long getBwCapacitySum() {
+        return hostCapacitySum[3];
     }
 }
