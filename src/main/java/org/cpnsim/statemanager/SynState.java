@@ -17,6 +17,8 @@ import java.util.TreeMap;
 public interface SynState {
     Logger LOGGER = LoggerFactory.getLogger(SynState.class.getSimpleName());
 
+    HostState getHostState(int hostId);
+
     /** Judging whether this instance is suitable to be placed on the host with hostId according to SynState **/
     boolean isSuitable(int hostId, Instance instance);
 

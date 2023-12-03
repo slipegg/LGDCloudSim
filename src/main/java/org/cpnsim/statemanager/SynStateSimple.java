@@ -104,6 +104,27 @@ public class SynStateSimple implements SynState {
         }
     }
 
+    @Override
+    public HostState getHostState(int hostId){
+        int partitionId = partitionRangesManager.getPartitionId(hostId);
+        if (selfHostState.get(partitionId).containsKey(hostId)) {
+            return new HostState(selfHostState.get(partitionId).get(hostId));
+        }else{
+            int[] hostState;
+            if (predictable) {
+                hostState = getPredictSynState(hostId);
+            } else {
+                hostState = getSynHostState(hostId);
+            }
+
+            if (hostState == null) {
+                return new HostState(nowHostStates[hostId * HostState.STATE_NUM], nowHostStates[hostId * HostState.STATE_NUM + 1], nowHostStates[hostId * HostState.STATE_NUM + 2], nowHostStates[hostId * HostState.STATE_NUM + 3]);
+            } else {
+                return new HostState(hostState);
+            }
+        }
+    }
+
     /**
      * Determine whether this instance is suitable for placement in a hostId host.
      * When looking for the host state, we need to check whether there is relevant host data in selfHostState,
@@ -117,22 +138,25 @@ public class SynStateSimple implements SynState {
      */
     @Override
     public boolean isSuitable(int hostId, Instance instance) {
-        int partitionId = partitionRangesManager.getPartitionId(hostId);
-        int[] hostState;
-        if (selfHostState.get(partitionId).containsKey(hostId)) {
-            hostState = selfHostState.get(partitionId).get(hostId);
-            return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
-        }
-        if (predictable) {
-            hostState = getPredictSynState(hostId);
-        } else {
-            hostState = getSynHostState(hostId);
-        }
-        if (hostState == null) {
-            return nowHostStates[hostId * HostState.STATE_NUM] >= instance.getCpu() && nowHostStates[hostId * HostState.STATE_NUM + 1] >= instance.getRam() && nowHostStates[hostId * HostState.STATE_NUM + 2] >= instance.getStorage() && nowHostStates[hostId * HostState.STATE_NUM + 3] >= instance.getBw();
-        } else {
-            return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
-        }
+//        int partitionId = partitionRangesManager.getPartitionId(hostId);
+//        int[] hostState;
+//        if (selfHostState.get(partitionId).containsKey(hostId)) {
+//            hostState = selfHostState.get(partitionId).get(hostId);
+//            return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
+//        }
+//        if (predictable) {
+//            hostState = getPredictSynState(hostId);
+//        } else {
+//            hostState = getSynHostState(hostId);
+//        }
+//        if (hostState == null) {
+//            return nowHostStates[hostId * HostState.STATE_NUM] >= instance.getCpu() && nowHostStates[hostId * HostState.STATE_NUM + 1] >= instance.getRam() && nowHostStates[hostId * HostState.STATE_NUM + 2] >= instance.getStorage() && nowHostStates[hostId * HostState.STATE_NUM + 3] >= instance.getBw();
+//        } else {
+//            return hostState[0] >= instance.getCpu() && hostState[1] >= instance.getRam() && hostState[2] >= instance.getStorage() && hostState[3] >= instance.getBw();
+//        }
+
+        HostState hostState = getHostState(hostId);
+        return hostState.isSuitable(instance);
     }
 
     @Override
