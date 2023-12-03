@@ -172,7 +172,7 @@ public class InterSchedulerSimple implements InterScheduler {
         return interSchedulerResult;
     }
 
-    private InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
+    protected InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
@@ -256,7 +256,7 @@ public class InterSchedulerSimple implements InterScheduler {
         synBetweenDcState(realTimeSynDcList);
     }
 
-    private InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
+    protected InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
