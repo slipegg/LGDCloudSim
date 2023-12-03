@@ -1,10 +1,10 @@
   Parament Name,Parament
 DcDistribution,"{""1"":{""United States"":1},""2"":{""United States"":1},""3"":{""United States"":1},""4"":{""United Kingdom"":1},""5"":{""United Kingdom"":1},""6"":{""China"":1},""7"":{""China"":1},""8"":{""Japan"":1},""9"":{""Japan"":1},""10"":{""Singapore"":1}}"
-RequestPerNumMin,200
-RequestPerNumMax,200
+RequestPerNumMin,1000
+RequestPerNumMax,1000
 RequestTimeIntervalMin,100
 RequestTimeIntervalMax,100
-RequestTimes,1520
+RequestTimes,304
 RequestGroupNumMin,10
 RequestGroupNumMax,10
 GroupInstanceNumMin,1

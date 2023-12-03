@@ -3,7 +3,7 @@
     {
       "id": 1,
       "centerScheduler": {
-        "type": "simple",
+        "type": "leastRequested",
         "target": "host",
         "dcStateSynInfo": [
           {
