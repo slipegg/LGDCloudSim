@@ -120,7 +120,7 @@ public class SimpleStateSimple implements SimpleState {
     }
 
     @Override
-    public Object generate(Datacenter datacenter) {
+    public Object generate() {
         SimpleStateSimple simpleStateSimple = new SimpleStateSimple(this.maxCpuCapacity, this.maxRamCapacity);
         simpleStateSimple.setCpuAvailableSum(this.cpuAvailableSum);
         simpleStateSimple.setRamAvailableSum(this.ramAvailableSum);

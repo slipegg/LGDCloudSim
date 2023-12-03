@@ -34,5 +34,5 @@ public interface SimpleState {
 
     long getBwAvailableSum();
 
-    Object generate(Datacenter datacenter);
+    Object generate();
 }
