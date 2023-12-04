@@ -643,8 +643,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void processScheduleToDcHostResponse(SimEvent evt) {
-        Datacenter sourceDc = (Datacenter) evt.getSource();
-
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
             handleFailedInterScheduling(failedInstanceGroups);
@@ -875,11 +873,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             handleFailedInterScheduling(interSchedulerResult.getFailedInstanceGroups());
 
-            LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getScheduledResultMap().size());
+            startInterScheduling();
+            LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getInstanceGroupNum());
 
-            if (isScheduleToSelfEmpty(interSchedulerResult)) {
-                startInterScheduling();
-            }
+//            if (isScheduleToSelfEmpty(interSchedulerResult)) {
+//                startInterScheduling();
+//            }
         }
     }
 
