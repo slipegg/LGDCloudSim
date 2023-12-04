@@ -161,7 +161,6 @@ public class CloudInformationService extends CloudSimEntity {
     private void processScheduleToDcHostResponse(SimEvent evt) {
         Datacenter sourceDc = (Datacenter) evt.getSource();
         int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(sourceDc.getId());
-        InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
 
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
