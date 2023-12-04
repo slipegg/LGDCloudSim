@@ -147,6 +147,9 @@ public class UserRequestManagerCsv implements UserRequestManager {
                         break;
                     }
                 }
+                if(belongDatacenterId != -1) {
+                    break;
+                }
             }
             userRequest.setBelongDatacenterId(belongDatacenterId);
             userRequest.setArea(belongArea);
