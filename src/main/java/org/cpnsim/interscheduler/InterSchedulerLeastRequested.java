@@ -214,8 +214,9 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
         for (int i = 0; i < allDatacenters.size(); i++) {
             int dcIndex = (dcStartIndex + i) % allDatacenters.size();
             Datacenter dcSelected = allDatacenters.get(dcIndex);
+            int hostNum = ((DetailedDcStateSimple) interScheduleSimpleStateMap.get(dcSelected)).getHostNum();
 
-            scoreHostInDatacenter(sameInstance, dcSelected, startHostIndexInDc, scoredHostNum, scoredHostsManager);
+            scoreHostInDatacenter(sameInstance, dcSelected, startHostIndexInDc, hostNum - startHostIndexInDc, scoredHostNum, scoredHostsManager);
             if(scoredHostsManager.getScoredHostNum() >= scoredHostNum){
                 break;
             }
@@ -226,9 +227,10 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
         return scoredHostsManager;
     }
 
-    private void scoreHostInDatacenter(Instance instance, Datacenter dc, int startHostIndexInDc, int scoredHostNum, ScoredHostsManager scoredHostsManager) {
+    private void scoreHostInDatacenter(Instance instance, Datacenter dc, int startHostIndexInDc, int length, int scoredHostNum, ScoredHostsManager scoredHostsManager) {
         DetailedDcStateSimple detailedDcStateSimple = (DetailedDcStateSimple) interScheduleSimpleStateMap.get(dc);
-        for (int hostId = startHostIndexInDc; hostId < detailedDcStateSimple.getHostNum(); hostId++) {
+        for(int i = 0, hostId; i< length; i++) {
+            hostId = (startHostIndexInDc + i)%detailedDcStateSimple.getHostNum();
             traversalTime+=1;
             double score = getScoreForHost(instance, hostId, datacenter, detailedDcStateSimple);
             if(score == -1){
@@ -261,26 +263,91 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
 
     private void scheduleSameInstanceGroupsByScoredHosts(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, ScoredHostsManager scoredHostsManager) {
         for (InstanceGroup instanceGroup : sameInstanceGroups) {
-            Instance instance = instanceGroup.getInstances().get(0);
             ScoredHost scoredHost = scoredHostsManager.pollBestScoreHost();
             if(scoredHost == null){
                 interSchedulerResult.addFailedInstanceGroup(instanceGroup);
                 continue;
             }
 
-            Datacenter scheduledDatacenter = scoredHost.getDatacenter();
-            int scheduledHostId = scoredHost.getHostId();
+            markScheduledInstance(interSchedulerResult, scoredHostsManager, instanceGroup, scoredHost);
+        }
+    }
 
-            interSchedulerResult.addDcResult(instanceGroup, scheduledDatacenter);
-            instance.setExpectedScheduleHostId(scheduledHostId);
-            DetailedDcStateSimple detailedDcStateSimple = (DetailedDcStateSimple) (interScheduleSimpleStateMap.get(scheduledDatacenter));
-            detailedDcStateSimple.allocate(instance, scheduledHostId);
-            scoreHostHistoryMap.get(scheduledDatacenter).remove(scheduledHostId);
+    @Override
+    protected InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
+        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
 
-            double score = getScoreForHost(instance, scheduledHostId, scheduledDatacenter, detailedDcStateSimple);
-            if(score!=-1){
-                scoredHostsManager.addScoredHost(scheduledHostId, scheduledDatacenter, score);
+        instanceGroups.sort(new CustomComparator().reversed());
+
+        List<InstanceGroup> sameInstanceGroups = new ArrayList<>();
+        for (InstanceGroup group : instanceGroups) {
+            if (sameInstanceGroups.size() != 0 && !isSameRequestInstanceGroup(sameInstanceGroups.get(0), group)) {
+                scheduleForSameInstanceGroupsMixed(sameInstanceGroups, interSchedulerResult, allDatacenters);
+
+                sameInstanceGroups.clear();
+                sameInstanceGroups.add(group);
+            } else {
+                // 相同的InstanceGroup，加入当前数组
+                sameInstanceGroups.add(group);
             }
+        }
+
+        if (sameInstanceGroups.size() != 0) {
+            scheduleForSameInstanceGroupsMixed(sameInstanceGroups, interSchedulerResult, allDatacenters);
+        }
+
+        return interSchedulerResult;
+    }
+
+    private void scheduleForSameInstanceGroupsMixed(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, List<Datacenter> allDatacenters) {
+        int hostNum = ((DetailedDcStateSimple) interScheduleSimpleStateMap.get(this.datacenter)).getHostNum();
+        int randomStartIndex = random.nextInt(hostNum);
+        int scoredHostNum = Math.min(sameInstanceGroups.size() * scoredHostNumForSameInstanceGroup, hostNum);
+        Instance sameInstance = sameInstanceGroups.get(0).getInstances().get(0);
+        ScoredHostsManager scoredHostsManager = new ScoredHostsManager(scoreHostHistoryMap);
+
+        scoreHostInDatacenter(sameInstance, this.datacenter, randomStartIndex, hostNum, scoredHostNum, scoredHostsManager);
+
+        List<InstanceGroup> forwardInstanceGroups = scheduleSameInstanceGroupsByScoredHostsMix(sameInstanceGroups, interSchedulerResult, scoredHostsManager);
+
+        if(forwardInstanceGroups.size() != 0){
+            allDatacenters.remove(this.datacenter);
+            scheduleForSameInstanceGroupsToDc(forwardInstanceGroups, interSchedulerResult, allDatacenters);
+        }
+    }
+
+    private List<InstanceGroup> scheduleSameInstanceGroupsByScoredHostsMix(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, ScoredHostsManager scoredHostsManager) {
+        List<InstanceGroup> forwardInstanceGroups = new ArrayList<>();
+        for (InstanceGroup instanceGroup : sameInstanceGroups) {
+            ScoredHost scoredHost = scoredHostsManager.pollBestScoreHost();
+            if(scoredHost == null){
+                if(instanceGroup.getForwardDatacenterIdsHistory().size()<3){
+                    forwardInstanceGroups.add(instanceGroup);
+                }else{
+                    interSchedulerResult.addFailedInstanceGroup(instanceGroup);
+                }
+            }else{
+                markScheduledInstance(interSchedulerResult, scoredHostsManager, instanceGroup, scoredHost);
+            }
+        }
+        return forwardInstanceGroups;
+    }
+
+    private void markScheduledInstance(InterSchedulerResult interSchedulerResult, ScoredHostsManager scoredHostsManager, InstanceGroup instanceGroup, ScoredHost scoredHost) {
+        Datacenter scheduledDatacenter = scoredHost.getDatacenter();
+        int scheduledHostId = scoredHost.getHostId();
+        Instance instance = instanceGroup.getInstances().get(0);
+
+        interSchedulerResult.addDcResult(instanceGroup, scheduledDatacenter);
+        instance.setExpectedScheduleHostId(scheduledHostId);
+        DetailedDcStateSimple detailedDcStateSimple = (DetailedDcStateSimple) (interScheduleSimpleStateMap.get(scheduledDatacenter));
+        detailedDcStateSimple.allocate(instance, scheduledHostId);
+        scoreHostHistoryMap.get(scheduledDatacenter).remove(scheduledHostId);
+
+        double score = getScoreForHost(instance, scheduledHostId, scheduledDatacenter, detailedDcStateSimple);
+        if(score!=-1){
+            scoredHostsManager.addScoredHost(scheduledHostId, scheduledDatacenter, score);
         }
     }
 
