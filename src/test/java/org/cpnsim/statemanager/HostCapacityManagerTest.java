@@ -38,7 +38,7 @@ public class HostCapacityManagerTest {
         assertArrayEquals(exceptedCapacity, actualCapacity);
 
         long[] exceptedCapacitySum = new long[]{100*(100+200+300)+50*400, 100*(100+200+300)+50*400, 100*(100+200+300)+50*400, 100*(100+200+300)+50*400};
-        long[] actualCapacitySum = hostCapacityManager.getHostCapacitySum();
+        long[] actualCapacitySum = new long[]{hostCapacityManager.getCpuCapacitySum(), hostCapacityManager.getRamCapacitySum(), hostCapacityManager.getStorageCapacitySum(), hostCapacityManager.getBwCapacitySum()};
         assertArrayEquals(exceptedCapacitySum, actualCapacitySum);
 
 

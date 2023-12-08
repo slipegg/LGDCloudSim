@@ -13,10 +13,7 @@ import org.cpnsim.core.SimulationNull;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterNull;
 import org.cpnsim.request.Instance;
-import org.cpnsim.statemanager.PartitionRangesManager;
-import org.cpnsim.statemanager.StatesManager;
-import org.cpnsim.statemanager.StatesManagerSimple;
-import org.cpnsim.statemanager.SynState;
+import org.cpnsim.statemanager.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -91,6 +88,11 @@ class FakeSynState implements SynState {
         this.checkSuitableHistory = new ArrayList<>();
         this.tmpResourceAllocationHistory = new ArrayList<>();
         this.passSet = null; // force manual initialization
+    }
+
+    @Override
+    public HostState getHostState(int hostId) {
+        return null;
     }
 
     /**
