@@ -120,10 +120,10 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     }
                 }
             }
+          checkVars();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        checkVars();
     }
 
     @Override

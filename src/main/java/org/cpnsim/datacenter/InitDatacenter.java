@@ -48,6 +48,14 @@ public class InitDatacenter {
         InitDatacenter.factory = factory;
         JsonObject jsonObject = readJsonFile(filePath);
 
+        if (jsonObject.containsKey("collaborations")){
+            initMultiDatacenters(jsonObject);
+        }else{
+            initSingleDatacenter(jsonObject);
+        }
+    }
+
+    private static void initMultiDatacenters(JsonObject jsonObject){
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
@@ -79,6 +87,14 @@ public class InitDatacenter {
                 initInterSchedulers(collaborationJson.getJsonArray("datacenters"), collaborationId, collaborationManager);
             }
         }
+    }
+
+    private static void initSingleDatacenter(JsonObject jsonObject){
+        cpnSim.setSingleDatacenterFlag(true);
+        CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
+        int collaborationId = 0;
+        Datacenter datacenter = getDatacenter(jsonObject, collaborationId, false, InterSchedulerSimple.NULL, false);
+        collaborationManager.addDatacenter(datacenter, collaborationId);
     }
 
     private static void initInterSchedulers(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
@@ -222,7 +238,7 @@ public class InitDatacenter {
     }
 
     private static boolean isNeedInterSchedulerForDc(boolean isCenterSchedule, int target, boolean isSupportForward) {
-        return (isCenterSchedule && isSupportForward) || (!isCenterSchedule);
+        return (!cpnSim.isSingleDatacenterFlag())&&((isCenterSchedule && isSupportForward) || (!isCenterSchedule));
     }
 
     private static boolean isNeedInnerSchedule(boolean isCenterSchedule, int target, boolean isSupportForward) {

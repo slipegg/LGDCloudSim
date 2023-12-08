@@ -5,6 +5,8 @@ import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.UserRequest;
 
 public interface NetworkTopology {
+    public static final NetworkTopology NULL = new NetworkTopologyNull();
+
     double getDelay(SimEntity src, SimEntity dst);
 
     NetworkTopology setDelayDynamicModel(DelayDynamicModel delayDynamicModel);

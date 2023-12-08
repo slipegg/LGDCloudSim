@@ -16,7 +16,7 @@ public interface SqlRecord {
 
     void recordUserRequestFinishInfo(UserRequest userRequest);
 
-    void recordInstanceGroupsReceivedInfo(List<InstanceGroup> instanceGroups);
+    void recordInstanceGroupsReceivedInfo(List requests);
 
     void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup);
 

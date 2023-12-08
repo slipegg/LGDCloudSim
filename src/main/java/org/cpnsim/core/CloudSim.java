@@ -50,6 +50,10 @@ public class CloudSim implements Simulation {
     private int simulationAccuracy;
     private double terminationTime = -1;
 
+    @Getter
+    @Setter
+    private boolean singleDatacenterFlag = false;
+
     public CloudSim() {
         clock = 0;
         this.entityList = new ArrayList<>();

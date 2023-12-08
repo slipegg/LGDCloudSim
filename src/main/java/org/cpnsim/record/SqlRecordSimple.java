@@ -122,22 +122,41 @@ public class SqlRecordSimple implements SqlRecord {
     }
 
     @Override
-    public void recordInstanceGroupsReceivedInfo(List<InstanceGroup> instanceGroups) {
-        try {
-            statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum) VALUES (?,?,?,?,?,?);");
-            for (InstanceGroup instanceGroup : instanceGroups) {
-                statement.setInt(1, instanceGroup.getId());
-                statement.setInt(2, instanceGroup.getUserRequest().getId());
-                statement.setInt(3, instanceGroup.getRetryNum());
-                statement.setInt(4, instanceGroup.getReceiveDatacenter().getId());
-                statement.setDouble(5, instanceGroup.getReceivedTime());
-                statement.setInt(6, instanceGroup.getInstances().size());
-                statement.addBatch();
+    public void recordInstanceGroupsReceivedInfo(List requests) {
+        if (requests.size() > 0) {
+            try {
+                if (requests.get(0) instanceof InstanceGroup) {
+                    List<InstanceGroup> instanceGroups = requests;
+                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum) VALUES (?,?,?,?,?,?);");
+                    for (InstanceGroup instanceGroup : instanceGroups) {
+                        addBatchInStatementForRecordInstanceGroupsReceivedInfo(instanceGroup);
+                    }
+                    statement.executeBatch();
+                }
+                if (requests.get(0) instanceof UserRequest) {
+                    List<UserRequest> userRequests = requests;
+                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum) VALUES (?,?,?,?,?,?);");
+                    for (UserRequest userRequest : userRequests) {
+                        for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
+                            addBatchInStatementForRecordInstanceGroupsReceivedInfo(instanceGroup);
+                        }
+                    }
+                    statement.executeBatch();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            statement.executeBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
+    }
+
+    private void addBatchInStatementForRecordInstanceGroupsReceivedInfo(InstanceGroup instanceGroup) throws SQLException {
+        statement.setInt(1, instanceGroup.getId());
+        statement.setInt(2, instanceGroup.getUserRequest().getId());
+        statement.setInt(3, instanceGroup.getRetryNum());
+        statement.setInt(4, instanceGroup.getReceiveDatacenter().getId());
+        statement.setDouble(5, instanceGroup.getReceivedTime());
+        statement.setInt(6, instanceGroup.getInstances().size());
+        statement.addBatch();
     }
 
     @Override

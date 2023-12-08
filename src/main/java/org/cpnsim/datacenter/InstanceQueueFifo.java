@@ -90,15 +90,28 @@ public class InstanceQueueFifo implements InstanceQueue {
         return this;
     }
 
+
     @Override
-    public InstanceQueue add(List instances) {
-        if (instances.size() == 0) {
+    public InstanceQueue add(UserRequest userRequest) {
+        for(InstanceGroup instanceGroup : userRequest.getInstanceGroups()){
+            add(instanceGroup);
+        }
+        return this;
+    }
+
+    @Override
+    public InstanceQueue add(List requests) {
+        if (requests.size() == 0) {
             return this;
-        } else if (instances.get(0) instanceof Instance) {
-            this.instances.addAll(instances);
-        } else if (instances.get(0) instanceof InstanceGroup) {
-            for (Object instanceGroup : instances) {
-                this.instances.addAll(((InstanceGroup) instanceGroup).getInstances());
+        } else if (requests.get(0) instanceof Instance) {
+            this.instances.addAll((List<Instance>)requests);
+        } else if (requests.get(0) instanceof InstanceGroup) {
+            for (InstanceGroup instanceGroup : (List<InstanceGroup>)requests) {
+                this.instances.addAll(instanceGroup.getInstances());
+            }
+        } else if(requests.get(0) instanceof UserRequest){
+            for (UserRequest userRequest : (List<UserRequest>)requests) {
+                add(userRequest);
             }
         }
         return this;

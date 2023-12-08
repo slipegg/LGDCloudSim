@@ -45,11 +45,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private Point2D location;
 
     /**
-     * See {@link GroupQueue}.
-     */
-    private GroupQueue groupQueue;
-
-    /**
      * See {@link InstanceQueue}.
      */
     @Getter
@@ -198,7 +193,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public DatacenterSimple(@NonNull Simulation simulation) {
         super(simulation);
         this.collaborationIds = new HashSet<>();
-        this.groupQueue = new GroupQueueFifo();
         this.instanceQueue = new InstanceQueueFifo();
         this.instanceGroupSendResultMap = new HashMap<>();
         this.innerSchedulerResults = new ArrayList<>();
@@ -837,18 +831,42 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> userRequestsTmp) {
             if (userRequestsTmp.size() == 0) {
                 return;
-            } else if (userRequestsTmp.get(0) instanceof UserRequest) {
-                List<UserRequest> userRequests = (List<UserRequest>) userRequestsTmp;
-                interScheduler.addUserRequests(userRequests);
+            }
 
-                LOGGER.info("{}: {} received {} user request from {}.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), evt.getSource().getName(), interScheduler.getNewQueueSize());
-            } else if (userRequestsTmp.get(0) instanceof InstanceGroup) {
-                List<InstanceGroup> instanceGroups = (List<InstanceGroup>) userRequestsTmp;
-                interScheduler.addInstanceGroups(instanceGroups, false);
-
-                LOGGER.info("{}: {} received {} instanceGroups from {}.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), evt.getSource().getName(), interScheduler.getNewQueueSize());
+            if(getSimulation().isSingleDatacenterFlag()){
+                acceptUserRequestForSingleDatacenter((List<UserRequest>)userRequestsTmp);
+                LOGGER.info("{}: {} received {} userRequests from {}.The size of Instance queue is {}.", getSimulation().clockStr(), getName(), userRequestsTmp.size(), evt.getSource().getName(), instanceQueue.size());
+            }else{
+                acceptUserRequestForMultiDatacenters(userRequestsTmp);
+                LOGGER.info("{}: {} received {} userRequests from {}.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequestsTmp.size(), evt.getSource().getName(), interScheduler.getNewQueueSize());
             }
         }
+    }
+
+    private void acceptUserRequestForSingleDatacenter(List<UserRequest> userRequests){
+        instanceQueue.add(userRequests);
+        userRequests.forEach(userRequest -> {
+            userRequest.getInstanceGroups().forEach(instanceGroup -> {
+                instanceGroup.setReceiveDatacenter(this).setReceivedTime(getSimulation().clock());
+            });
+        });
+
+        getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(userRequests);
+
+        sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
+    }
+
+    private void acceptUserRequestForMultiDatacenters(List<?> userRequestsTmp){
+        if (userRequestsTmp.get(0) instanceof UserRequest) {
+            List<UserRequest> userRequests = (List<UserRequest>) userRequestsTmp;
+
+            interScheduler.addUserRequests(userRequests);
+        } else if (userRequestsTmp.get(0) instanceof InstanceGroup) {
+            List<InstanceGroup> instanceGroups = (List<InstanceGroup>) userRequestsTmp;
+
+            interScheduler.addInstanceGroups(instanceGroups, false);
+        }
+
         if (!isGroupFilterDcBusy) {
             sendNow(this, CloudSimTag.GROUP_FILTER_DC_BEGIN);
             isGroupFilterDcBusy = true;//放在这里可以防止同一时间多次触发
