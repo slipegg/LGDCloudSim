@@ -79,6 +79,11 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
     }
 
     private void scheduleForSameInstanceGroupsToDc(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, List<Datacenter> allDatacenters){
+        if(allDatacenters.isEmpty()){
+            sameInstanceGroups.forEach(interSchedulerResult::addFailedInstanceGroup);
+            return;
+        }
+
         int randomStartIndex = random.nextInt(allDatacenters.size());
         int scoredDcNum = Math.min(sameInstanceGroups.size() * scoredDcNumForSameInstanceGroup, allDatacenters.size());
         InstanceGroup sameInstanceGroup = sameInstanceGroups.get(0);
@@ -200,7 +205,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
     private ScoredHostsManager getScoredHostsManager(Instance sameInstance, int randomStartIndex, List<Datacenter> allDatacenters, int scoredHostNum) {
         int dcStartIndex = getDcIdByHostIdInAll(randomStartIndex, allDatacenters);
         if (dcStartIndex == -1) {
-            LOGGER.warning("return dcId = -1 in getDcIdByHostIdInAll");
+            LOGGER.warn("return dcId = -1 in getDcIdByHostIdInAll");
             throw new RuntimeException("return dcId = -1 in getDcIdByHostIdInAll");
         }
 
@@ -232,7 +237,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
         for(int i = 0, hostId; i< length; i++) {
             hostId = (startHostIndexInDc + i)%detailedDcStateSimple.getHostNum();
             traversalTime+=1;
-            double score = getScoreForHost(instance, hostId, datacenter, detailedDcStateSimple);
+            double score = getScoreForHost(instance, hostId, dc, detailedDcStateSimple);
             if(score == -1){
                 continue;
             }
@@ -301,6 +306,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
     }
 
     private void scheduleForSameInstanceGroupsMixed(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, List<Datacenter> allDatacenters) {
+        List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
         int hostNum = ((DetailedDcStateSimple) interScheduleSimpleStateMap.get(this.datacenter)).getHostNum();
         int randomStartIndex = random.nextInt(hostNum);
         int scoredHostNum = Math.min(sameInstanceGroups.size() * scoredHostNumForSameInstanceGroup, hostNum);
@@ -312,8 +318,16 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
         List<InstanceGroup> forwardInstanceGroups = scheduleSameInstanceGroupsByScoredHostsMix(sameInstanceGroups, interSchedulerResult, scoredHostsManager);
 
         if(forwardInstanceGroups.size() != 0){
-            allDatacenters.remove(this.datacenter);
-            scheduleForSameInstanceGroupsToDc(forwardInstanceGroups, interSchedulerResult, allDatacenters);
+            availableDatacenters.remove(this.datacenter);
+            removeHistoryForwardDatacenter(availableDatacenters, forwardInstanceGroups.get(0));
+            scheduleForSameInstanceGroupsToDc(forwardInstanceGroups, interSchedulerResult, availableDatacenters);
+        }
+    }
+
+    private void removeHistoryForwardDatacenter(List<Datacenter> allDatacenters, InstanceGroup instanceGroup){
+        for(Integer dcId : instanceGroup.getForwardDatacenterIdsHistory()){
+            Datacenter dc = simulation.getCollaborationManager().getDatacenterById(dcId);
+            allDatacenters.remove(dc);
         }
     }
 
@@ -373,7 +387,38 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
                 return result3;
             }
 
-            return instance1.getBw() - instance2.getBw();
+            int result4 = instance1.getBw() - instance2.getBw();
+            if (result4 != 0) {
+                return result4;
+            }
+
+            List<Integer> forwardDatacenterIds1 = group1.getForwardDatacenterIdsHistory();
+            List<Integer> forwardDatacenterIds2 = group2.getForwardDatacenterIdsHistory();
+
+            boolean isForwardSame = forwardDatacenterIds1.contains(forwardDatacenterIds2)&&forwardDatacenterIds2.contains(forwardDatacenterIds1);
+            if(!isForwardSame){
+                return compareListsElementByElement(forwardDatacenterIds1, forwardDatacenterIds2);
+            }
+
+            return 0;
+        }
+
+        private int compareListsElementByElement(List<Integer> list1, List<Integer> list2) {
+            if(list1.size()!=list2.size()){
+                return list1.size()-list2.size();
+            }
+            List<Integer> sortedList1 = new ArrayList<>(list1);
+            List<Integer> sortedList2 = new ArrayList<>(list2);
+            Collections.sort(sortedList1);
+            Collections.sort(sortedList2);
+            // 逐元素比较
+            for (int i = 0; i < sortedList1.size(); i++) {
+                int elementComparison = Integer.compare(sortedList1.get(i), sortedList2.get(i));
+                if (elementComparison != 0) {
+                    return elementComparison;
+                }
+            }
+            return 0; // 所有元素相同
         }
     }
 }

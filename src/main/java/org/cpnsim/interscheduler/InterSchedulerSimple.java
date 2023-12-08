@@ -13,16 +13,17 @@ import org.cpnsim.request.UserRequest;
 import org.cpnsim.statemanager.DetailedDcStateSimple;
 import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.SimpleStateEasyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 public class InterSchedulerSimple implements InterScheduler {
     public static final int NULL = -1;
     public static final int DC_TARGET = 0;
     public static final int HOST_TARGET = 1;
     public static final int MIXED_TARGET = 2;
-    public Logger LOGGER = Logger.getLogger(InterSchedulerSimple.class.getName());
+    public Logger LOGGER = LoggerFactory.getLogger(InterSchedulerSimple.class.getName());
     int target;
     boolean isSupportForward;
     @Getter
@@ -305,7 +306,7 @@ public class InterSchedulerSimple implements InterScheduler {
         int hostStartIdInAll = random.nextInt(hostSum);
         int dcStartIndex = getDcIdByHostIdInAll(hostStartIdInAll, availableDatacenters);
         if (dcStartIndex == -1) {
-            LOGGER.warning("return dcId = -1 in getDcIdByHostIdInAll");
+            LOGGER.warn("return dcId = -1 in getDcIdByHostIdInAll");
             throw new RuntimeException("return dcId = -1 in getDcIdByHostIdInAll");
         }
 
