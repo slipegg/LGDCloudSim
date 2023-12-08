@@ -36,7 +36,7 @@ public class InstanceQueueFifo implements InstanceQueue {
     }
 
     public InstanceQueueFifo() {
-        this(100000);
+        this(1000);
     }
 
 
@@ -86,7 +86,7 @@ public class InstanceQueueFifo implements InstanceQueue {
 
     @Override
     public InstanceQueue add(InstanceGroup instanceGroup) {
-        this.instances.addAll(instanceGroup.getInstanceList());
+        this.instances.addAll(instanceGroup.getInstances());
         return this;
     }
 
@@ -98,7 +98,7 @@ public class InstanceQueueFifo implements InstanceQueue {
             this.instances.addAll(instances);
         } else if (instances.get(0) instanceof InstanceGroup) {
             for (Object instanceGroup : instances) {
-                this.instances.addAll(((InstanceGroup) instanceGroup).getInstanceList());
+                this.instances.addAll(((InstanceGroup) instanceGroup).getInstances());
             }
         }
         return this;

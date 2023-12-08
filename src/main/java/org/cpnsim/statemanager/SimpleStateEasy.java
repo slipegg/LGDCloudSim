@@ -16,12 +16,14 @@ public class SimpleStateEasy implements SimpleState {
     long ramAvailableSum;
     long storageAvailableSum;
     long bwAvailableSum;
+    StatesManager statesManager;
 
-    public SimpleStateEasy() {
+    public SimpleStateEasy(StatesManager statesManager) {
         this.cpuAvailableSum = 0;
         this.ramAvailableSum = 0;
         this.storageAvailableSum = 0;
         this.bwAvailableSum = 0;
+        this.statesManager = statesManager;
     }
 
     @Override
@@ -52,41 +54,12 @@ public class SimpleStateEasy implements SimpleState {
     }
 
     @Override
-    public Object generate(Datacenter datacenter) {
-        long cpuAvailableSum = this.cpuAvailableSum;
-        long ramAvailableSum = this.ramAvailableSum;
-        long storageAvailableSum = this.storageAvailableSum;
-        long bwAvailableSum = this.bwAvailableSum;
-//        InstanceQueue instanceQueue = datacenter.getInstanceQueue();
-//        for (Instance instance : instanceQueue.getAllItem(false)) {
-//            cpuAvailableSum -= instance.getCpu();
-//            ramAvailableSum -= instance.getRam();
-//            storageAvailableSum -= instance.getStorage();
-//            bwAvailableSum -= instance.getBw();
-//        }
-//        List<InnerScheduler> innerSchedulers = datacenter.getInnerSchedulers();
-//        for (InnerScheduler innerScheduler : innerSchedulers) {
-//            InstanceQueue innerInstanceQueue = innerScheduler.getInstanceQueue();
-//            for (Instance instance : innerInstanceQueue.getAllItem(false)) {
-//                cpuAvailableSum -= instance.getCpu();
-//                ramAvailableSum -= instance.getRam();
-//                storageAvailableSum -= instance.getStorage();
-//                bwAvailableSum -= instance.getBw();
-//            }
-//        }
-        List<HostState> simpleHostStates = new ArrayList<>();
-        Set<Integer> simpleHostIds = new HashSet<>();
-        Random random = new Random();
-        int hostNum = datacenter.getStatesManager().getHostNum();
-        int hostId = -1;
-        for (int i = 0; i < 100 && i < hostNum; i++) {
-            hostId = random.nextInt(hostNum);
-            while (simpleHostIds.contains(hostId)) {
-                hostId = (hostId + 1) % hostNum;
-            }
-            simpleHostIds.add(hostId);
-            simpleHostStates.add(datacenter.getStatesManager().getNowHostState(hostId));
-        }
-        return new SimpleStateEasyObject(datacenter.getStatesManager().getHostNum(), cpuAvailableSum, ramAvailableSum, storageAvailableSum, bwAvailableSum, simpleHostStates);
+    public Object generate() {
+        return new SimpleStateEasyObject(statesManager.getHostNum(),
+                cpuAvailableSum,ramAvailableSum,storageAvailableSum,bwAvailableSum,
+                statesManager.getHostCapacityManager().getCpuCapacitySum(),
+                statesManager.getHostCapacityManager().getRamCapacitySum(),
+                statesManager.getHostCapacityManager().getStorageCapacitySum(),
+                statesManager.getHostCapacityManager().getBwCapacitySum());
     }
 }

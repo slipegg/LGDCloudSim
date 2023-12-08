@@ -11,7 +11,6 @@ import org.cpnsim.statemanager.SynState;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,8 +52,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
         this.partitionTraverseList = partitionDelay.entrySet().
                 stream().sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).collect(Collectors.toList());
-        instanceQueue = new InstanceQueueFifo(100);
-        retryInstanceQueue = new InstanceQueueFifo(100);
+        instanceQueue = new InstanceQueueFifo();
+        retryInstanceQueue = new InstanceQueueFifo();
     }
 
     public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
@@ -63,8 +62,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
-        instanceQueue = new InstanceQueueFifo(100);
-        retryInstanceQueue = new InstanceQueueFifo(100);
+        instanceQueue = new InstanceQueueFifo();
+        retryInstanceQueue = new InstanceQueueFifo();
         this.firstPartitionId = firstPartitionId;
         this.partitionNum = partitionNum;
         setId(id);
@@ -111,28 +110,35 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     @Override
-    public Map<Integer, List<Instance>> schedule() {
-        //TODO 域内调度
-        List<Instance> instances;
+    public InnerSchedulerResult schedule() {
+        SynState synState = datacenter.getStatesManager().getSynState(this);
+
+        List<Instance> instances = getWaitSchedulingInstances();
+
+        double startTime = System.currentTimeMillis();
+        InnerSchedulerResult innerSchedulerResult = scheduleInstances(instances, synState);
+        double endTime = System.currentTimeMillis();
+
+        lastScheduleTime = datacenter.getSimulation().clock();
+
+        this.scheduleCostTime = endTime - startTime;//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
+
+        return innerSchedulerResult;
+    }
+
+    private List<Instance> getWaitSchedulingInstances() {
+        List<Instance> instances = new ArrayList<>();
         if (retryInstanceQueue.size() != 0) {
             instances = retryInstanceQueue.getBatchItem(true);
         } else {
             instances = instanceQueue.getBatchItem(true);
-
         }
-        SynState synState = datacenter.getStatesManager().getSynState(this);
-        double startTime = System.currentTimeMillis();
-        Map<Integer, List<Instance>> res = scheduleInstances(instances, synState);
-        double endTime = System.currentTimeMillis();
-        lastScheduleTime = datacenter.getSimulation().clock();
-        this.scheduleCostTime = BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
-        LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", datacenter.getSimulation().clockStr(), datacenter.getName(), getName(), instances.size(), scheduleCostTime);
-        return res;
+        return instances;
     }
 
-    public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
-        //TODO 域内调度
-        Map<Integer, List<Instance>> res = new HashMap<>();
+    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
+
         for (Instance instance : instances) {
             int suitId = -1;
 
@@ -154,11 +160,13 @@ public class InnerSchedulerSimple implements InnerScheduler {
             }
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
+                instance.setExpectedScheduleHostId(suitId);
+                innerSchedulerResult.addScheduledInstance(instance);
+            } else {
+                innerSchedulerResult.addFailedScheduledInstance(instance);
             }
-            res.putIfAbsent(suitId, new ArrayList<>());
-            res.get(suitId).add(instance);
         }
-        return res;
+        return innerSchedulerResult;
     }
 
     @Override

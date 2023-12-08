@@ -3,6 +3,7 @@ package org.cpnsim.statemanager;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,8 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PartitionRangesManagerTest {
     @Test
     void testPartitionRangesManager() {
-        Map<Integer, int[]> ranges = Map.of(0, new int[]{0, 19}, 1, new int[]{20, 39},
-                2, new int[]{40, 59});
+        TreeMap<Integer, int[]> ranges = new TreeMap<>();
+        ranges.put(0, new int[]{0, 19});
+        ranges.put(1, new int[]{20, 39});
+        ranges.put(2, new int[]{40, 59});
         PartitionRangesManager partitionRangesManager = new PartitionRangesManager(ranges);
         int exceptedPartitionId0 = 0;
         int actualPartitionId0 = partitionRangesManager.getPartitionId(5);

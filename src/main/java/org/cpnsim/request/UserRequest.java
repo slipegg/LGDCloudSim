@@ -1,6 +1,6 @@
 package org.cpnsim.request;
 
-import org.cloudsimplus.core.ChangeableId;
+import org.cpnsim.core.ChangeableId;
 
 import java.util.List;
 
@@ -49,11 +49,17 @@ public interface UserRequest extends ChangeableId {
 
     UserRequest addSuccessGroupNum();
 
-    UserRequest setFailReason(String failReason);
+    UserRequest addFailReason(String failReason);
 
     String getFailReason();
 
     UserRequest addAllocatedEdge(InstanceGroupEdge edge);
 
+    UserRequest delAllocatedEdge(InstanceGroupEdge edge);
+
     List<InstanceGroupEdge> getAllocatedEdges();
+
+    String getArea();
+
+    UserRequest setArea(String area);
 }

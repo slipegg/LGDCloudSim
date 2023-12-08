@@ -3,10 +3,10 @@ package org.cpnsim.user;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.cloudsimplus.core.CloudSimEntity;
-import org.cloudsimplus.core.CloudSimTag;
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.core.events.SimEvent;
+import org.cpnsim.core.CloudSimEntity;
+import org.cpnsim.core.CloudSimTag;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.core.events.SimEvent;
 import org.cpnsim.request.UserRequest;
 import org.cpnsim.datacenter.Datacenter;
 import org.slf4j.Logger;
@@ -75,11 +75,12 @@ public class UserSimple extends CloudSimEntity {
             Datacenter datacenter = datacenterMap.get(datacenterId);
             if (datacenter.isCentralizedInterSchedule()) {
                 send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+                LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), getSimulation().getCis().getName());
             } else {
                 send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+                LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
             }
             getSimulation().getSqlRecord().recordUserRequestsSubmitinfo(userRequests);
-            LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
         }
         if (userRequestManager.getNextSendTime() != Double.MAX_VALUE) {
             send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);

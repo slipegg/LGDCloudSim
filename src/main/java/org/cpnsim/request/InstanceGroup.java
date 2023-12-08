@@ -5,9 +5,9 @@ import org.cpnsim.datacenter.Datacenter;
 import java.util.List;
 
 public interface InstanceGroup extends RequestEntity {
-    List<Instance> getInstanceList();
+    List<Instance> getInstances();
 
-    InstanceGroup setInstanceList(List<Instance> instanceList);
+    InstanceGroup setInstances(List<Instance> instanceList);
 
     int getGroupType();
 
@@ -58,4 +58,8 @@ public interface InstanceGroup extends RequestEntity {
     InstanceGroup setFinishTime(double finishedTime);
 
     double getFinishTime();
+
+    InstanceGroup addForwardDatacenterIdHistory(int datacenterId);
+
+    List<Integer> getForwardDatacenterIdsHistory();
 }

@@ -1,7 +1,7 @@
 package org.cpnsim.datacenter;
 
-import org.cloudsimplus.core.CloudSim;
-import org.cloudsimplus.core.Simulation;
+import org.cpnsim.core.CloudSim;
+import org.cpnsim.core.Simulation;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.innerscheduler.InnerSchedulerSimple;
 import org.cpnsim.request.Instance;
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 

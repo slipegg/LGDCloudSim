@@ -11,10 +11,12 @@ import java.util.List;
 public class UserRequestSimple implements UserRequest {
     @Getter
     private int id;
+    private String area;
     private double submitTime;
     private double finishTime;
     private int belongDatacenterId;
     private int state;
+    @Getter
     private String failReason;
     @Getter
     private List<InstanceGroupEdge> allocatedEdges;
@@ -49,7 +51,7 @@ public class UserRequestSimple implements UserRequest {
         this.instanceGroups=instanceGroups;
         for(InstanceGroup instanceGroup:instanceGroups){
             instanceGroup.setUserRequest(this);
-            for(Instance instance:instanceGroup.getInstanceList()){
+            for (Instance instance : instanceGroup.getInstances()) {
                 instance.setInstanceGroup(instanceGroup);
             }
         }
@@ -75,6 +77,22 @@ public class UserRequestSimple implements UserRequest {
     @Override
     public UserRequest addAllocatedEdge(InstanceGroupEdge edge) {
         allocatedEdges.add(edge);
+        return this;
+    }
+
+    @Override
+    public UserRequest delAllocatedEdge(InstanceGroupEdge edge) {
+        allocatedEdges.remove(edge);
+        return this;
+    }
+
+    @Override
+    public UserRequest addFailReason(String failReason) {
+        if (this.failReason.equals("")) {
+            this.failReason = failReason;
+        } else {
+            this.failReason = this.failReason + "-" + failReason;
+        }
         return this;
     }
 

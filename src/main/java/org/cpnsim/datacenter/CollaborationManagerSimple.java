@@ -2,7 +2,7 @@ package org.cpnsim.datacenter;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.cloudsimplus.core.Simulation;
+import org.cpnsim.core.Simulation;
 import org.cpnsim.interscheduler.InterScheduler;
 
 import java.util.*;
@@ -260,6 +260,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
     public Datacenter getDatacenterById(int datacenterId) {
         if (!datacenterIdMap.containsKey(datacenterId)) {
             LOGGER.error("There is no datacenter with id {} in the simulation", datacenterId);
+            return Datacenter.NULL;
         }
         return datacenterIdMap.get(datacenterId);
     }

@@ -1,10 +1,11 @@
 package org.cpnsim.datacenter;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.innerscheduler.InnerSchedulerResult;
 import org.cpnsim.request.Instance;
+import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
 import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.StatesManager;
@@ -33,17 +34,21 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
     Map<Integer, Integer> partitionConflicts = new HashMap<>();
 
     @Override
-    public ResourceAllocateResult selectResourceAllocate(List<InnerScheduleResult> innerScheduleResults) {
-        Map<Integer, List<Instance>> successRes = new HashMap<>();
-        Map<InnerScheduler, List<Instance>> failRes = null;
+    public ResourceAllocateResult selectResourceAllocate(List<InnerSchedulerResult> innerSchedulerResults) {
+        Map<InnerScheduler, List<Instance>> successRes = new HashMap<>();
+        Map<InnerScheduler, List<Instance>> failRes = new HashMap<>();
         Map<Integer, HostState> allocateHostStates = new HashMap<>();
         StatesManager statesManager = datacenter.getStatesManager();
         int conflictSum = 0;
-        for (InnerScheduleResult innerScheduleResult : innerScheduleResults) {
-            Map<Integer, List<Instance>> scheduleRes = innerScheduleResult.getScheduleResult();
-            for (Map.Entry<Integer, List<Instance>> entry : scheduleRes.entrySet()) {
-                int hostId = entry.getKey();
-                List<Instance> instances = entry.getValue();
+
+        for (InnerSchedulerResult innerSchedulerResult : innerSchedulerResults) {
+            successRes.putIfAbsent(innerSchedulerResult.getInnerScheduler(), new ArrayList<>());
+            for (Instance instance : innerSchedulerResult.getScheduledInstances()) {
+                if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                    continue;
+                }
+
+                int hostId = instance.getExpectedScheduleHostId();
                 HostState hostState;
                 if (allocateHostStates.containsKey(hostId)) {
                     hostState = allocateHostStates.get(hostId);
@@ -51,30 +56,21 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
                     hostState = statesManager.getNowHostState(hostId);
                     allocateHostStates.put(hostId, hostState);
                 }
-                for (Instance instance : instances) {
-                    if (instance.getUserRequest().getState() == UserRequest.FAILED) {
-                        continue;
-                    }
-                    if (hostState.isSuitable(instance)) {
-                        hostState.allocate(instance);
-                        successRes.putIfAbsent(hostId, new ArrayList<>());
-                        successRes.get(hostId).add(instance);
-                    } else {
-                        instance.addRetryHostId(hostId);
-                        if (failRes == null) {
-                            failRes = new HashMap<>();
-                        }
-                        failRes.putIfAbsent(innerScheduleResult.getInnerScheduler(), new ArrayList<>());
-                        failRes.get(innerScheduleResult.getInnerScheduler()).add(instance);
 
-                        int partitionId = datacenter.getStatesManager().getPartitionRangesManager().getPartitionId(hostId);
-                        if (partitionConflicts.containsKey(partitionId)) {
-                            partitionConflicts.put(partitionId, partitionConflicts.get(partitionId) + 1);
-                        } else {
-                            partitionConflicts.put(partitionId, 1);
-                        }
-                        conflictSum += 1;
+                if (hostState.isSuitable(instance)) {
+                    hostState.allocate(instance);
+                    successRes.get(innerSchedulerResult.getInnerScheduler()).add(instance);
+                } else {
+                    failRes.putIfAbsent(innerSchedulerResult.getInnerScheduler(), new ArrayList<>());
+                    failRes.get(innerSchedulerResult.getInnerScheduler()).add(instance);
+
+                    int partitionId = datacenter.getStatesManager().getPartitionRangesManager().getPartitionId(hostId);
+                    if (partitionConflicts.containsKey(partitionId)) {
+                        partitionConflicts.put(partitionId, partitionConflicts.get(partitionId) + 1);
+                    } else {
+                        partitionConflicts.put(partitionId, 1);
                     }
+                    conflictSum += 1;
                 }
             }
         }
@@ -82,6 +78,33 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
             getDatacenter().getSimulation().getSqlRecord().recordConflict(getDatacenter().getSimulation().clock(), conflictSum);
         }
         return new ResourceAllocateResult(successRes, failRes);
+    }
+
+    @Override
+    public List<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups) {
+        List<InstanceGroup> failedScheduledInstanceGroups = new ArrayList<>();
+
+        Map<Integer, HostState> hostStatesIfScheduled = new HashMap<>();
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            for (Instance instance : instanceGroup.getInstances()) {
+                HostState hostState;
+                if (hostStatesIfScheduled.containsKey(instance.getExpectedScheduleHostId())) {
+                    hostState = hostStatesIfScheduled.get(instance.getExpectedScheduleHostId());
+                } else {
+                    hostState = getDatacenter().getStatesManager().getNowHostState(instance.getExpectedScheduleHostId());
+                }
+
+                if (hostState.isSuitable(instance)) {
+                    hostState.allocate(instance);
+                    hostStatesIfScheduled.put(instance.getExpectedScheduleHostId(), hostState);
+                } else {
+                    failedScheduledInstanceGroups.add(instanceGroup);
+                    break;
+                }
+            }
+        }
+
+        return failedScheduledInstanceGroups;
     }
 
     @Override

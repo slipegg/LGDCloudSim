@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
-import org.cpnsim.innerscheduler.InnerScheduleResult;
 import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.innerscheduler.InnerSchedulerResult;
 import org.cpnsim.request.Instance;
 
 import java.util.*;
@@ -107,6 +107,9 @@ public class StatesManagerSimple implements StatesManager {
 
     private SynGapManager synGapManager;
 
+    @Getter
+    private HostCapacityManager hostCapacityManager;
+
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -114,10 +117,11 @@ public class StatesManagerSimple implements StatesManager {
         this.synGapManager = new SynGapManager(synGap, partitionRangesManager.getPartitionNum());
         this.maxCpuCapacity = maxCpuCapacity;
         this.maxRamCapacity = maxRamCapacity;
-        this.simpleState = new SimpleStateEasy();
+        this.simpleState = new SimpleStateEasy(this);
         this.partitionNum = partitionRangesManager.getPartitionNum();
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
+        this.hostCapacityManager = new HostCapacityManager();
         this.totalCpuInUse = 0;
         this.totalRamInUse = 0;
         this.totalStorageInUse = 0;
@@ -129,12 +133,15 @@ public class StatesManagerSimple implements StatesManager {
         this(hostNum, partitionRangesManager, synGap, 128, 256);
     }
 
+    //TODO: initHostStates不需要是有序的，但是这里却要求了hostCapacityManager初始化是有序的，后面需要修改
+    //但是因为现在只在initDatacenter中使用了这个，所以还没什么问题
     @Override
     public StatesManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length) {
         int endId = startId + length - 1;
         for (int i = startId; i <= endId; i++) {
             initSingleHostState(i, cpu, ram, storage, bw);
         }
+        hostCapacityManager.orderlyAddSameCapacityHost(length,new int[]{cpu,ram,storage,bw});
         return this;
     }
 
@@ -249,6 +256,16 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
+    public Object getStateByType(String type) {
+        return switch (type) {
+            case "detailed" -> new DetailedDcStateSimple(hostStates,hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
+            case "easySimple" -> simpleState.generate();
+            case "null" -> null;
+            default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
+        };
+    }
+
+    @Override
     public boolean getPredictable() {
         return predictable;
     }
@@ -270,30 +287,29 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public StatesManager revertHostState(InnerScheduleResult innerSchedulerResult) {
+    public StatesManager revertHostState(InnerSchedulerResult innerSchedulerResult) {
         int smallSynGapCount = synGapManager.getSmallSynGapCount();
         InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
         Set<Integer> clearPartitions = new HashSet<>();
-        while(clearPartitions.size()!=partitionNum&&smallSynGapCount>=0){
+        while (clearPartitions.size() != partitionNum && smallSynGapCount >= 0) {
             double time = synGapManager.getSynTime(smallSynGapCount);
-            if(time<innerSchedulerResult.getScheduleTime()){
+            if (time < innerSchedulerResult.getScheduleTime()) {
                 break;
             }
             clearPartitions.add((smallSynGapCount + innerScheduler.getFirstPartitionId()) % partitionNum);
             smallSynGapCount--;
         }
-//        LOGGER.error("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
+//        LOGGER.debugger("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
 
-        for (int hostId : innerSchedulerResult.getScheduleResult().keySet()) {
+        for (Instance instance : innerSchedulerResult.getScheduledInstances()) {
+            int hostId = instance.getExpectedScheduleHostId();
             int partitionId = partitionRangesManager.getPartitionId(hostId);
             if (clearPartitions.contains(partitionId)) {
                 int[] hostState = getLatestSynHostState(hostId);
-                for (Instance instance : innerSchedulerResult.getScheduleResult().get(hostId)) {
-                    hostState[0] -= instance.getCpu();
-                    hostState[1] -= instance.getRam();
-                    hostState[2] -= instance.getStorage();
-                    hostState[3] -= instance.getBw();
-                }
+                hostState[0] += instance.getCpu();
+                hostState[1] += instance.getRam();
+                hostState[2] += instance.getStorage();
+                hostState[3] += instance.getBw();
                 selfHostStateMap.get(innerScheduler).get(partitionId).put(hostId, hostState);
             }
         }
@@ -354,6 +370,16 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public boolean isInLatestSmallSynGap(double time) {
         return time >= synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
+    }
+
+    @Override
+    public boolean allocate(Instance instance) {
+        return allocate(instance.getExpectedScheduleHostId(), instance);
+    }
+
+    @Override
+    public int[] getHostCapacity(int hostId) {
+        return hostCapacityManager.getHostCapacity(hostId);
     }
 
     /**

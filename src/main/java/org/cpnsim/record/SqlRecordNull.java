@@ -57,6 +57,11 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
+    public void recordInstanceGroupsGraph(List<InstanceGroup> instanceGroups) {
+
+    }
+
+    @Override
     public void recordInstanceGroupGraphReleaseInfo(int srcDcId, int dstDcId, double finishTime) {
 
     }
@@ -69,6 +74,11 @@ public class SqlRecordNull implements SqlRecord {
                 instanceNum++;
             }
         }
+    }
+
+    @Override
+    public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
+
     }
 
     @Override
@@ -111,5 +121,10 @@ public class SqlRecordNull implements SqlRecord {
     @Override
     public double getInterScheduleTime() {
         return this.interScheduleTime;
+    }
+
+    @Override
+    public void recordInterScheduleTime(double time, double costTime, int traversalTime) {
+
     }
 }

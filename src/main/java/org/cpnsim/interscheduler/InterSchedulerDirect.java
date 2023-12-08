@@ -1,18 +1,13 @@
 package org.cpnsim.interscheduler;
 
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
-import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
-import org.cpnsim.statemanager.SimpleState;
-import org.cpnsim.statemanager.SimpleStateEasy;
 import org.cpnsim.statemanager.SimpleStateEasyObject;
-import org.cpnsim.statemanager.SimpleStateSimple;
 
 import java.util.*;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public class InterSchedulerDirect extends InterSchedulerSimple {
@@ -108,9 +103,15 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
             List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
 
             // Filter based on access latency
-            Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+            String belongRegion = instanceGroup.getUserRequest().getArea();
+            if (belongRegion == null) {
+                Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
+                belongRegion = belongDatacenter.getRegion();
+            }
+
+            String finalBelongRegion = belongRegion;// To use in lambda expression
             availableDatacenters.removeIf(
-                    datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(belongDatacenter, datacenter));
+                    datacenter -> instanceGroup.getAccessLatency() <= networkTopology.getAccessLatency(instanceGroup.getUserRequest(), datacenter));
 
             // Filter based on the total remaining resources
             availableDatacenters.removeIf(
@@ -224,7 +225,7 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
                 }
             }
         }
-        this.filterSuitableDatacenterCostTime = 0.1; //* instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.scheduleTime = 0.1; //* instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return instanceGroupAvailableDatacenters;
     }
 }

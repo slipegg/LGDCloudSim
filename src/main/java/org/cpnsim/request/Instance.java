@@ -72,4 +72,8 @@ public interface Instance extends RequestEntity {
     Instance addRetryHostId(int hostId);
 
     List<Integer> getRetryHostIds();
+
+    int getExpectedScheduleHostId();
+
+    Instance setExpectedScheduleHostId(int expectedScheduleHostId);
 }

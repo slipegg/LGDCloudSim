@@ -1,13 +1,14 @@
 package org.cpnsim.datacenter;
 
-import org.cloudsimplus.core.SimEntity;
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.core.events.SimEvent;
+import org.cpnsim.core.SimEntity;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.core.events.SimEvent;
 import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
 
+import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Set;
 
@@ -127,6 +128,26 @@ public class DatacenterNull implements Datacenter {
 
     @Override
     public InstanceQueue getInstanceQueue() {
+        return null;
+    }
+
+    @Override
+    public String getRegion() {
+        return null;
+    }
+
+    @Override
+    public Datacenter setRegion(String region) {
+        return null;
+    }
+
+    @Override
+    public Point2D getLocation() {
+        return null;
+    }
+
+    @Override
+    public Datacenter setLocation(double latitude, double longitude) {
         return null;
     }
 

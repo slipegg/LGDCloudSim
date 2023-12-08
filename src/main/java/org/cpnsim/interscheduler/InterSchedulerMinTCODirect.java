@@ -1,13 +1,10 @@
 package org.cpnsim.interscheduler;
 
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
-import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
-import org.cpnsim.statemanager.SimpleState;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +27,8 @@ public class InterSchedulerMinTCODirect extends InterSchedulerSimple {
         }
         double finishTime = System.currentTimeMillis();
         interScheduleByNetworkTopology(instanceGroupAvaiableDatacenters, networkTopology);
-        this.filterSuitableDatacenterCostTime = finishTime - startTime;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
-        getDatacenter().getSimulation().getSqlRecord().addInterScheduleTime(this.filterSuitableDatacenterCostTime);
+        this.scheduleTime = finishTime - startTime;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
+        getDatacenter().getSimulation().getSqlRecord().addInterScheduleTime(this.scheduleTime);
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> datacenters = instanceGroupAvaiableDatacenters.get(instanceGroup);
             Datacenter targetDatacenter = getMinTCODatacenter(datacenters, instanceGroup);

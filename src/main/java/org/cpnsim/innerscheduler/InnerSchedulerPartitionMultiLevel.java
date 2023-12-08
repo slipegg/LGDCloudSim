@@ -14,14 +14,22 @@ public class InnerSchedulerPartitionMultiLevel extends InnerSchedulerSimple {
     }
 
     @Override
-    public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
-        Map<Integer, List<Instance>> res = new HashMap<>();
+    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
+
         for (Instance instance : instances) {
             int suitId = getSuitHostId(synState, instance);
-            res.putIfAbsent(suitId, new ArrayList<>());
-            res.get(suitId).add(instance);
+
+            if (suitId != -1) {
+                synState.allocateTmpResource(suitId, instance);
+                instance.setExpectedScheduleHostId(suitId);
+                innerSchedulerResult.addScheduledInstance(instance);
+            } else {
+                innerSchedulerResult.addFailedScheduledInstance(instance);
+            }
         }
-        return res;
+
+        return innerSchedulerResult;
     }
 
     int getSuitHostId(SynState synState, Instance instance) {

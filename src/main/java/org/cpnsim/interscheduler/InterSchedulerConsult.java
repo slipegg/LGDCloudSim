@@ -1,7 +1,7 @@
 package org.cpnsim.interscheduler;
 
-import org.cloudsimplus.core.Simulation;
-import org.cloudsimplus.network.topologies.NetworkTopology;
+import org.cpnsim.core.Simulation;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
@@ -11,7 +11,6 @@ import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.SimpleStateEasyObject;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class InterSchedulerConsult extends InterSchedulerSimple {
     Random random = new Random();
@@ -120,9 +119,8 @@ public class InterSchedulerConsult extends InterSchedulerSimple {
             List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
 
             // Filter based on access latency
-            Datacenter belongDatacenter = simulation.getCollaborationManager().getDatacenterById(instanceGroup.getUserRequest().getBelongDatacenterId());
             availableDatacenters.removeIf(
-                    datacenter -> instanceGroup.getAccessLatency() < networkTopology.getAcessLatency(belongDatacenter, datacenter));
+                    datacenter -> instanceGroup.getAccessLatency() <= networkTopology.getAccessLatency(instanceGroup.getUserRequest(), datacenter));
 
             // Filter based on the total remaining resources
             availableDatacenters.removeIf(
@@ -228,7 +226,7 @@ public class InterSchedulerConsult extends InterSchedulerSimple {
                 allocatedRecorder.updateResourceAllocated(instanceGroup, selectDatacenters);
             }
         }
-        this.filterSuitableDatacenterCostTime = 0.1 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.scheduleTime = 0.1 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return instanceGroupAvailableDatacenters;
     }
 
@@ -243,7 +241,7 @@ public class InterSchedulerConsult extends InterSchedulerSimple {
             Double score = markScore(instanceGroup, simpleHostStates);
             result.put(instanceGroup, score);
         }
-        this.decideReciveGroupResultCostTime = 0.01 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
+        this.decideReceiveGroupResultCostTime = 0.01 * instanceGroups.size();//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
         return result;
     }
 
@@ -280,13 +278,13 @@ public class InterSchedulerConsult extends InterSchedulerSimple {
 
     private double markScore(InstanceGroup instanceGroup, List<HostState> hostStates) {
         int suitHostNum = 0;
-        for (Instance instance : instanceGroup.getInstanceList()) {
+        for (Instance instance : instanceGroup.getInstances()) {
             for (HostState hostState : hostStates) {
                 if (hostState.isSuitable(instance)) {
                     suitHostNum++;
                 }
             }
         }
-        return suitHostNum / (double) hostStates.size() * instanceGroup.getInstanceList().size();
+        return suitHostNum / (double) hostStates.size() * instanceGroup.getInstances().size();
     }
 }

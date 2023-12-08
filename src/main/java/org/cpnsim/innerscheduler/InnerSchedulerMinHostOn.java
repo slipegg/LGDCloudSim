@@ -3,10 +3,7 @@ package org.cpnsim.innerscheduler;
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.SynState;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class InnerSchedulerMinHostOn extends InnerSchedulerSimple {
     public InnerSchedulerMinHostOn(int id, int firstPartitionId, int partitionNum) {
@@ -14,7 +11,7 @@ public class InnerSchedulerMinHostOn extends InnerSchedulerSimple {
     }
 
     @Override
-    public Map<Integer, List<Instance>> scheduleInstances(List<Instance> instances, SynState synState) {
+    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
 //        int hostNum = datacenter.getStatesManager().getHostNum();
 //        //TODO 域内调度
 //        Map<Integer, List<Instance>> res = new HashMap<>();
