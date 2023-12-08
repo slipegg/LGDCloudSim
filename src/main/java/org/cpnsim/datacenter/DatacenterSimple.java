@@ -678,6 +678,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_OK, null);
             }
 
+            if (source == this) {
+                startInterScheduling();
+            }
+
             markAndRecordInstanceGroups(instanceGroups);
             getSimulation().getSqlRecord().recordInstanceGroupsGraph(instanceGroups);
             getSimulation().getSqlRecord().recordInstancesCreateInfo(instanceGroups);
@@ -873,12 +877,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             handleFailedInterScheduling(interSchedulerResult.getFailedInstanceGroups());
 
-            startInterScheduling();
             LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getInstanceGroupNum());
 
-//            if (isScheduleToSelfEmpty(interSchedulerResult)) {
-//                startInterScheduling();
-//            }
+            if (isScheduleToSelfEmpty(interSchedulerResult)) {
+                startInterScheduling();
+            }
         }
     }
 
