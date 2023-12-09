@@ -171,11 +171,22 @@ public class UserRequestManagerCsv implements UserRequestManager {
         int ramNum = random.nextInt(InstanceRamNumMax - InstanceRamNumMin + 1) + InstanceRamNumMin;
         int storageNum = random.nextInt(InstanceStorageNumMax - InstanceStorageNumMin + 1) + InstanceStorageNumMin;
         int bwNum = random.nextInt(InstanceBwNumMax - InstanceBwNumMin + 1) + InstanceBwNumMin;
-        int lifeTime = random.nextInt(InstanceLifeTimeMax - InstanceLifeTimeMin + 1) + InstanceLifeTimeMin;
+        int lifeTime = generateInstanceLifeTime();
         Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
         int retryTimes = random.nextInt(InstanceRetryTimesMax - InstanceRetryTimesMin + 1) + InstanceRetryTimesMin;
         instance.setRetryMaxNum(retryTimes);
         return instance;
+    }
+
+    private int generateInstanceLifeTime(){
+        if(InstanceLifeTimeMax==-1||InstanceLifeTimeMax==-1){
+            return -1;
+        }
+        int lifeGap = InstanceLifeTimeMax - InstanceLifeTimeMin;
+        int granularity = 10;
+        int lifeSmallGap = lifeGap / granularity;
+
+        return random.nextInt(granularity+1) * lifeSmallGap + InstanceLifeTimeMin;
     }
 
     private InstanceGroup generateAnInstanceGroup() {
