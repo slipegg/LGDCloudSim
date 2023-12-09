@@ -138,4 +138,8 @@ public interface StatesManager {
     int[] getHostCapacity(int hostId);
 
     HostCapacityManager getHostCapacityManager();
+
+    StatesManager adjustScheduleView();
+
+    List<Integer> getInnerSchedulerView(InnerScheduler innerScheduler);
 }

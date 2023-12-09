@@ -110,6 +110,8 @@ public class StatesManagerSimple implements StatesManager {
     @Getter
     private HostCapacityManager hostCapacityManager;
 
+    private Map<InnerScheduler, List<Integer>> innerSchedulerView;
+
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -122,6 +124,7 @@ public class StatesManagerSimple implements StatesManager {
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
         this.hostCapacityManager = new HostCapacityManager();
+        this.innerSchedulerView = new HashMap<>();
         this.totalCpuInUse = 0;
         this.totalRamInUse = 0;
         this.totalStorageInUse = 0;
@@ -380,6 +383,52 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public int[] getHostCapacity(int hostId) {
         return hostCapacityManager.getHostCapacity(hostId);
+    }
+
+    @Override
+    public StatesManager adjustScheduleView() {
+        if(Objects.equals(datacenter.getArchitecture(), "two-level")) {
+            return adjustScheduleViewOfDynamicAvg();
+        }else{
+            return adjustScheduleViewToAll();
+        }
+    }
+
+    private StatesManager adjustScheduleViewOfDynamicAvg(){
+        long cpuAvailableSum = simpleState.getCpuAvailableSum();
+        int innerSchedulerNum = getDatacenter().getInnerSchedulers().size();
+        long averageCpuAvailable = cpuAvailableSum / innerSchedulerNum;
+
+        int startIndex = 0;
+        int innerSchedulerId = 0;
+        long tmpCpuAvailableSum = 0;
+        for(int hostId = 0; hostId<hostNum && innerSchedulerId < innerSchedulerNum-1;hostId++){
+            tmpCpuAvailableSum+=getNowHostState(hostId).getCpu();
+            if(tmpCpuAvailableSum>=averageCpuAvailable){
+                InnerScheduler innerScheduler = getDatacenter().getInnerSchedulers().get(innerSchedulerId);
+                innerSchedulerView.putIfAbsent(innerScheduler, List.of(startIndex, hostId));
+                startIndex = hostId+1;
+                innerSchedulerId++;
+                tmpCpuAvailableSum = 0;
+            }
+        }
+        InnerScheduler innerScheduler = getDatacenter().getInnerSchedulers().get(innerSchedulerId);
+        innerSchedulerView.putIfAbsent(innerScheduler, List.of(startIndex, hostNum-1));
+
+        return this;
+    }
+
+    private StatesManager adjustScheduleViewToAll(){
+        for(InnerScheduler innerScheduler : getDatacenter().getInnerSchedulers()){
+            innerSchedulerView.putIfAbsent(innerScheduler, List.of(0, hostNum-1));
+        }
+
+        return this;
+    }
+
+    @Override
+    public List<Integer> getInnerSchedulerView(InnerScheduler innerScheduler){
+        return innerSchedulerView.get(innerScheduler);
     }
 
     /**

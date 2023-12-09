@@ -87,11 +87,12 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
         scheduleSameInstancesByScoredHosts(sameInstances, scoredHostsManager, innerSchedulerResult, synState);
     }
 
-    private ScoredHostsManager getScoredHostsManager(Instance instance, int randomStartIndex, int scoredHostNum, SynState synState){
+    protected ScoredHostsManager getScoredHostsManager(Instance instance, int randomStartIndex, int scoredHostNum, SynState synState){
         ScoredHostsManager scoredHostsManager = new ScoredHostsManager(new HashMap<>(Map.of(datacenter, scoreHostHistoryMap)));
-        int hostNum = datacenter.getStatesManager().getHostNum();
-        for(int i=0; i<hostNum; i++){
-            int hostId = (randomStartIndex + i) % hostNum;
+        List<Integer> innerSchedulerView = getDatacenter().getStatesManager().getInnerSchedulerView(this);
+        int viewSize = innerSchedulerView.get(1)-innerSchedulerView.get(0)+1;
+        for(int i=0; i<viewSize; i++){
+            int hostId = (randomStartIndex + i) % viewSize + innerSchedulerView.get(0);
             double score = getScoreForHost(instance, hostId, synState);
             if(score==-1){
                 continue;
@@ -106,7 +107,7 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
         return scoredHostsManager;
     }
 
-    private double getScoreForHost(Instance instance, int hostId, SynState synState){
+    protected double getScoreForHost(Instance instance, int hostId, SynState synState){
         HostState hostState = synState.getHostState(hostId);
         if (!hostState.isSuitable(instance)) {
             return -1;
