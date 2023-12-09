@@ -11,6 +11,7 @@ public class FactorySimple implements Factory {
         return switch (type) {
             case "simple", "Simple" -> new InnerSchedulerSimple(id, firstPartitionId, partitionNum);
             case "leastRequested" -> new InnerSchedulerLeastRequested(id, firstPartitionId, partitionNum);
+            case "randomScore" -> new InnerSchedulerRandomScore(id, firstPartitionId, partitionNum);
             case "random" -> new InnerSchedulerRandom(id, firstPartitionId, partitionNum);
             case "partitionRandom" -> new InnerSchedulerPartitionRandom(id, firstPartitionId, partitionNum);
             case "minHostOn" -> new InnerSchedulerMinHostOn(id, firstPartitionId, partitionNum);
