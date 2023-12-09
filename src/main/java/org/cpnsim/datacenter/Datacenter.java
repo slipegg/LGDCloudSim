@@ -74,4 +74,8 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     Point2D getLocation();
 
     Datacenter setLocation(double latitude, double longitude);
+
+    String getArchitecture();
+
+    Datacenter setArchitecture(String architecture);
 }

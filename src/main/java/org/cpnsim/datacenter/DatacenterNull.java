@@ -152,6 +152,16 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
+    public String getArchitecture() {
+        return null;
+    }
+
+    @Override
+    public Datacenter setArchitecture(String architecture) {
+        return null;
+    }
+
+    @Override
     public int compareTo(SimEntity o) {
         return 0;
     }

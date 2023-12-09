@@ -44,6 +44,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Getter
     private Point2D location;
 
+    @Getter
+    @Setter
+    private String architecture;
+
     /**
      * See {@link InstanceQueue}.
      */
@@ -291,6 +295,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
             }
         }
+
+        if(innerSchedulers.size()>0){
+            statesManager.adjustScheduleView();
+        }
     }
 
     /**
@@ -338,6 +346,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         statesManager.synAllState();
         if (statesManager.isSynCostTime()) {
             send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
+        }
+
+        if (Objects.equals(this.architecture, "two-level")) {
+            statesManager.adjustScheduleView();
+            LOGGER.info("{}: {} adjust schedule view, now the view of {} is {}", getSimulation().clockStr(), getName(), innerSchedulers.get(0), statesManager.getInnerSchedulerView(innerSchedulers.get(0)));
         }
     }
 
@@ -847,7 +860,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instanceQueue.add(userRequests);
         userRequests.forEach(userRequest -> {
             userRequest.getInstanceGroups().forEach(instanceGroup -> {
-                instanceGroup.setReceiveDatacenter(this).setReceivedTime(getSimulation().clock());
+                instanceGroup.setReceiveDatacenter(this).setReceivedTime(getSimulation().clock()).setState(UserRequest.SCHEDULING);
             });
         });
 

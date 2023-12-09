@@ -192,6 +192,10 @@ public class InitDatacenter {
 
         addRegionInfo(datacenter, datacenterJson);
 
+        if(datacenterJson.containsKey("architecture")){
+            datacenter.setArchitecture(datacenterJson.getString("architecture"));
+        }
+
         StatesManager statesManager = getStatesManager(datacenterJson, isCenterSchedule, target);
         datacenter.setStatesManager(statesManager);
 
@@ -256,9 +260,12 @@ public class InitDatacenter {
      */
     private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<InnerScheduler> innerSchedulers = new ArrayList<>();
+        int firstPartitionId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
-            int firstPartitionId = schedulerJson.getInt("firstPartitionIndex");
+            if(schedulerJson.containsKey("firstPartitionId")){
+                firstPartitionId = schedulerJson.getInt("firstPartitionId");
+            }
             InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchedulerId++, firstPartitionId, partitionNum);
             innerSchedulers.add(scheduler);
         }
