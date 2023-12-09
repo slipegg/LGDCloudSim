@@ -302,17 +302,22 @@ public class StatesManagerSimple implements StatesManager {
             clearPartitions.add((smallSynGapCount + innerScheduler.getFirstPartitionId()) % partitionNum);
             smallSynGapCount--;
         }
-//        LOGGER.debugger("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
+//        LOGGER.info("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
 
         for (Instance instance : innerSchedulerResult.getScheduledInstances()) {
             int hostId = instance.getExpectedScheduleHostId();
             int partitionId = partitionRangesManager.getPartitionId(hostId);
             if (clearPartitions.contains(partitionId)) {
-                int[] hostState = getLatestSynHostState(hostId);
-                hostState[0] += instance.getCpu();
-                hostState[1] += instance.getRam();
-                hostState[2] += instance.getStorage();
-                hostState[3] += instance.getBw();
+                int[] hostState;
+                if (selfHostStateMap.get(innerScheduler).get(partitionId).containsKey(hostId)){
+                    hostState = selfHostStateMap.get(innerScheduler).get(partitionId).get(hostId);
+                }else{
+                    hostState = getLatestSynHostState(hostId);
+                }
+                hostState[0] -= instance.getCpu();
+                hostState[1] -= instance.getRam();
+                hostState[2] -= instance.getStorage();
+                hostState[3] -= instance.getBw();
                 selfHostStateMap.get(innerScheduler).get(partitionId).put(hostId, hostState);
             }
         }
