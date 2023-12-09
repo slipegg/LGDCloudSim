@@ -230,7 +230,6 @@ public class CloudInformationService extends CloudSimEntity {
 
     private void sendInterScheduleResult(InterSchedulerResult interSchedulerResult) {
         int evtTag = getEvtTagByInterSchedulerResult(interSchedulerResult);
-        InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(interSchedulerResult.getCollaborationId());
 
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getScheduledResultMap().entrySet()) {
             Datacenter datacenter = entry.getKey();
