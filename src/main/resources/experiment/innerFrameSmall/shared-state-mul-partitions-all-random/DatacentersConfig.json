@@ -1,0 +1,166 @@
+{
+  "id": 1,
+  "hostNum": 20000,
+  "partitions": [
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    },
+    {
+      "length": 1000
+    }
+  ],
+  "hostStates": [
+    {
+      "cpu": 128,
+      "ram": 256,
+      "storage": 1600,
+      "bw": 800,
+      "startId": 0,
+      "length": 20000
+    }
+  ],
+  "synchronizationGap": 500,
+  "architecture": "shared-state-mul-partitions-all-random",
+  "innerSchedulers": [
+    {
+      "firstPartitionIndex": 0,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 1,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 2,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 3,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 4,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 5,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 6,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 7,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 8,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 9,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 10,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 11,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 12,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 13,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 14,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 15,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 16,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 17,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 18,
+      "type": "randomScore"
+    },
+    {
+      "firstPartitionIndex": 19,
+      "type": "randomScore"
+    }
+  ],
+  "loadBalancer": {
+    "type": "batch"
+  },
+  "resourceAllocateSelector": {
+    "type": "simple"
+  }
+}
