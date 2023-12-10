@@ -10,7 +10,7 @@ import java.util.*;
 
 public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
     Map<Integer, Double> scoreHostHistoryMap = new HashMap<>();
-    int scoredHostNumForSameInstance = 100;
+    int scoredHostNumForSameInstance = 10;
 
     Random random = new Random();
 
@@ -137,7 +137,6 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
 
             if(scoredHost == null){
                 innerSchedulerResult.addFailedScheduledInstance(instance);
-                LOGGER.error("no host for instance: {}", instance);
             }else{
                 int scheduledHostId = scoredHost.getHostId();
                 instance.setExpectedScheduleHostId(scheduledHostId);
