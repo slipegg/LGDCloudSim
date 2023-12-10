@@ -16,14 +16,15 @@ public class InnerSchedulerRandom extends InnerSchedulerSimple {
     protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
         InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
 
-        int hostNum = datacenter.getStatesManager().getHostNum();
+        List<Integer> innerSchedulerView = datacenter.getStatesManager().getInnerSchedulerView(this);
+        int hostNum = innerSchedulerView.get(1)-innerSchedulerView.get(0)+1;
 
         for (Instance instance : instances) {
             int suitId = -1;
 
             int startHostId = random.nextInt(hostNum);
             for (int i = 0; i < hostNum; i++) {
-                int hostId = (startHostId + i) % hostNum;
+                int hostId = (startHostId + i) % hostNum+innerSchedulerView.get(0);
                 if (synState.isSuitable(hostId, instance)) {
                     suitId = hostId;
                     break;

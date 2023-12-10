@@ -48,7 +48,7 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
 //        }
     @Override
     protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
-        scoreHostHistoryMap.clear();
+        processBeforeSchedule();
         InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
 
         instances.sort(new CustomComparator().reversed());
@@ -70,6 +70,10 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
         }
 
         return innerSchedulerResult;
+    }
+
+    protected void processBeforeSchedule(){
+        scoreHostHistoryMap.clear();
     }
 
     private boolean isSameRequestInstance(Instance instance1, Instance instance2){
@@ -126,9 +130,14 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
 
     private void scheduleSameInstancesByScoredHosts(List<Instance> sameInstances, ScoredHostsManager scoredHostsManager, InnerSchedulerResult innerSchedulerResult, SynState synState){
         for(Instance instance : sameInstances){
-            ScoredHost scoredHost = scoredHostsManager.pollBestScoreHost();
+            ScoredHost scoredHost= scoredHostsManager.pollBestScoreHost();
+            while (scoredHost !=null && synState.isSuitable(scoredHost.getHostId(), instance) && (instance.getRetryHostIds()!=null&&instance.getRetryHostIds().contains(scoredHost.getHostId()))){
+                scoredHost= scoredHostsManager.pollBestScoreHost();
+            }
+
             if(scoredHost == null){
                 innerSchedulerResult.addFailedScheduledInstance(instance);
+                LOGGER.error("no host for instance: {}", instance);
             }else{
                 int scheduledHostId = scoredHost.getHostId();
                 instance.setExpectedScheduleHostId(scheduledHostId);
