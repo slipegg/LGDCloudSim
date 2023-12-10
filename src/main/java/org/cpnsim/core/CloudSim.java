@@ -137,7 +137,7 @@ public class CloudSim implements Simulation {
     @Override
     public double start() {
         if (isSqlRecord) {
-            this.sqlRecord = new SqlRecordSimple();
+            this.sqlRecord = new SqlRecordSimple("cpnSim"+collaborationManager.getDatacenterById(1).getArchitecture()+".db");
         } else {
             this.sqlRecord = new SqlRecordNull();
         }
