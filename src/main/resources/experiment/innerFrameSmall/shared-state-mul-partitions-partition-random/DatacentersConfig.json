@@ -77,83 +77,83 @@
   "architecture": "shared-state-mul-partitions-partition-random",
   "innerSchedulers": [
     {
-      "firstPartitionIndex": 0,
+      "firstPartitionId": 0,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 1,
+      "firstPartitionId": 1,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 2,
+      "firstPartitionId": 2,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 3,
+      "firstPartitionId": 3,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 4,
+      "firstPartitionId": 4,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 5,
+      "firstPartitionId": 5,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 6,
+      "firstPartitionId": 6,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 7,
+      "firstPartitionId": 7,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 8,
+      "firstPartitionId": 8,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 9,
+      "firstPartitionId": 9,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 10,
+      "firstPartitionId": 10,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 11,
+      "firstPartitionId": 11,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 12,
+      "firstPartitionId": 12,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 13,
+      "firstPartitionId": 13,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 14,
+      "firstPartitionId": 14,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 15,
+      "firstPartitionId": 15,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 16,
+      "firstPartitionId": 16,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 17,
+      "firstPartitionId": 17,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 18,
+      "firstPartitionId": 18,
       "type": "randomScoreByPartitionSynOrder"
     },
     {
-      "firstPartitionIndex": 19,
+      "firstPartitionId": 19,
       "type": "randomScoreByPartitionSynOrder"
     }
   ],
