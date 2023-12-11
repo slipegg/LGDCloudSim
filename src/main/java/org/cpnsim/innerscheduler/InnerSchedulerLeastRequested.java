@@ -10,7 +10,9 @@ import java.util.*;
 
 public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
     Map<Integer, Double> scoreHostHistoryMap = new HashMap<>();
-    int scoredHostNumForSameInstance = 10;
+    int scoredHostNumForSameInstance = 100;
+
+    long excludeTimeNanos = 0;
 
     Random random = new Random();
 
@@ -69,6 +71,7 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
             scheduleForSameInstancesToHost(sameInstance, innerSchedulerResult, synState);
         }
 
+        excludeTime = excludeTimeNanos/1_000_000;
         return innerSchedulerResult;
     }
 
@@ -112,7 +115,10 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
     }
 
     protected double getScoreForHost(Instance instance, int hostId, SynState synState){
+        long startTime = System.nanoTime();
         HostState hostState = synState.getHostState(hostId);
+        long endTime  = System.nanoTime();
+        excludeTimeNanos += endTime - startTime;
         if (!hostState.isSuitable(instance)) {
             return -1;
         } else {

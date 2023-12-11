@@ -46,6 +46,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
     @Getter
     double lastScheduleTime = 0;
 
+    double excludeTime = 0;
+
     public InnerSchedulerSimple(Map<Integer, Double> partitionDelay) {
         this.partitionDelay = partitionDelay;
         //对于partitionDelay这个map，按照value从小到大排序，得到partitionTraverseList
@@ -121,8 +123,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
 
         lastScheduleTime = datacenter.getSimulation().clock();
 
-        this.scheduleCostTime = endTime - startTime;//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
-
+        this.scheduleCostTime = endTime - startTime - excludeTime;//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
+//        System.out.println("exclude:" + excludeTime + " scheduleCostTime:" + scheduleCostTime + " instances.size:" + instances.size() + " scheduleCostTime:" + scheduleCostTime);
         return innerSchedulerResult;
     }
 
