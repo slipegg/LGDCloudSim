@@ -1,66 +1,66 @@
 {
   "id": 1,
-  "hostNum": 20000,
+  "hostNum": 40000,
   "partitions": [
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     },
     {
-      "length": 1000
+      "length": 2000
     }
   ],
   "hostStates": [
@@ -70,7 +70,7 @@
       "storage": 1600,
       "bw": 800,
       "startId": 0,
-      "length": 20000
+      "length": 40000
     }
   ],
   "synchronizationGap": 500,

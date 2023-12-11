@@ -1,7 +1,7 @@
   Parament Name,Parament
 DcDistribution,"{""1"":{""United States"":1}}"
-RequestPerNumMin,3040
-RequestPerNumMax,3040
+RequestPerNumMin,6080
+RequestPerNumMax,6080
 RequestTimeIntervalMin,50
 RequestTimeIntervalMax,50
 RequestTimes,400
