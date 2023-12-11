@@ -138,9 +138,7 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
     private void scheduleSameInstancesByScoredHosts(List<Instance> sameInstances, ScoredHostsManager scoredHostsManager, InnerSchedulerResult innerSchedulerResult, SynState synState){
         for(Instance instance : sameInstances){
             ScoredHost scoredHost= scoredHostsManager.pollBestScoreHost();
-            while (scoredHost !=null &&
-                    (!(synState.isSuitable(scoredHost.getHostId(), instance)) ||
-                            (instance.getRetryHostIds()!=null&&instance.getRetryHostIds().contains(scoredHost.getHostId())))){
+            while (scoredHost !=null && (instance.getRetryHostIds()!=null&&instance.getRetryHostIds().contains(scoredHost.getHostId()))){
                 scoredHost= scoredHostsManager.pollBestScoreHost();
             }
 
