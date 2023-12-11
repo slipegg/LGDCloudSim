@@ -124,7 +124,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
         lastScheduleTime = datacenter.getSimulation().clock();
 
         this.scheduleCostTime = endTime - startTime - excludeTime;//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
-//        System.out.println("exclude:" + excludeTime + " scheduleCostTime:" + scheduleCostTime + " instances.size:" + instances.size() + " scheduleCostTime:" + scheduleCostTime);
+
         return innerSchedulerResult;
     }
 

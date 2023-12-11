@@ -11,7 +11,10 @@ public class InnerSchedulerRandomScore extends InnerSchedulerLeastRequested{
 
     @Override
     protected double getScoreForHost(Instance instance, int hostId, SynState synState){
+        long startTime = System.nanoTime();
         HostState hostState = synState.getHostState(hostId);
+        long endTime  = System.nanoTime();
+        excludeTimeNanos += endTime - startTime;
         if (!hostState.isSuitable(instance)) {
             return -1;
         } else {

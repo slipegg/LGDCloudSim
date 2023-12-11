@@ -76,6 +76,7 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
     }
 
     protected void processBeforeSchedule(){
+        excludeTimeNanos = 0;
         scoreHostHistoryMap.clear();
     }
 
