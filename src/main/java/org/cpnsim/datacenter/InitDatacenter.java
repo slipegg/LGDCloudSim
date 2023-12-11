@@ -265,6 +265,8 @@ public class InitDatacenter {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
             if(schedulerJson.containsKey("firstPartitionId")){
                 firstPartitionId = schedulerJson.getInt("firstPartitionId");
+            }else{
+                LOGGER.info("InnerScheduler {} Missing firstPartitionId, defaults to 0", k);
             }
             InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchedulerId++, firstPartitionId, partitionNum);
             innerSchedulers.add(scheduler);
