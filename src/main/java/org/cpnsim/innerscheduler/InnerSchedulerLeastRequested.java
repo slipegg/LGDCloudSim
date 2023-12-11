@@ -57,7 +57,7 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
 
         List<Instance> sameInstance = new ArrayList<>();
         for(Instance instance : instances){
-            if(sameInstance.size()!=0 && !isSameRequestInstance(sameInstance.get(0), instance)){
+            if(!sameInstance.isEmpty() && !isSameRequestInstance(sameInstance.get(0), instance)){
                 scheduleForSameInstancesToHost(sameInstance, innerSchedulerResult, synState);
 
                 sameInstance.clear();
@@ -67,7 +67,7 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
             }
         }
 
-        if(sameInstance.size()>0){
+        if(!sameInstance.isEmpty()){
             scheduleForSameInstancesToHost(sameInstance, innerSchedulerResult, synState);
         }
 
@@ -138,7 +138,9 @@ public class InnerSchedulerLeastRequested extends InnerSchedulerSimple{
     private void scheduleSameInstancesByScoredHosts(List<Instance> sameInstances, ScoredHostsManager scoredHostsManager, InnerSchedulerResult innerSchedulerResult, SynState synState){
         for(Instance instance : sameInstances){
             ScoredHost scoredHost= scoredHostsManager.pollBestScoreHost();
-            while (scoredHost !=null && synState.isSuitable(scoredHost.getHostId(), instance) && (instance.getRetryHostIds()!=null&&instance.getRetryHostIds().contains(scoredHost.getHostId()))){
+            while (scoredHost !=null &&
+                    (!(synState.isSuitable(scoredHost.getHostId(), instance)) ||
+                            (instance.getRetryHostIds()!=null&&instance.getRetryHostIds().contains(scoredHost.getHostId())))){
                 scoredHost= scoredHostsManager.pollBestScoreHost();
             }
 
