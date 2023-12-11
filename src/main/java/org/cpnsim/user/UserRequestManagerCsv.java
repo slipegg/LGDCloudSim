@@ -184,9 +184,9 @@ public class UserRequestManagerCsv implements UserRequestManager {
         }
         int lifeGap = InstanceLifeTimeMax - InstanceLifeTimeMin;
         int granularity = 10;
-        int lifeSmallGap = lifeGap / granularity;
+        int lifeSmallGapNum = lifeGap / granularity;
 
-        return random.nextInt(granularity+1) * lifeSmallGap + InstanceLifeTimeMin;
+        return random.nextInt(lifeSmallGapNum+1) * granularity + InstanceLifeTimeMin;
     }
 
     private InstanceGroup generateAnInstanceGroup() {
