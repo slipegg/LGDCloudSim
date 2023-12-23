@@ -1,7 +1,7 @@
 package org.cpnsim.datacenter;
 
 import org.cpnsim.core.DatacenterEntity;
-import org.cpnsim.innerscheduler.InnerSchedulerResult;
+import org.cpnsim.intrascheduler.IntraSchedulerResult;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 
@@ -21,10 +21,10 @@ public interface ResourceAllocateSelector extends DatacenterEntity {
     /**
      * Select the {@link Instance}s to be placed on the host.
      *
-     * @param innerSchedulerResults the inner schedule results
+     * @param intraSchedulerResults the inner schedule results
      * @return the result of the resource allocation
      */
-    ResourceAllocateResult selectResourceAllocate(List<InnerSchedulerResult> innerSchedulerResults);
+    ResourceAllocateResult selectResourceAllocate(List<IntraSchedulerResult> intraSchedulerResults);
 
     /**
      * Get the number of conflicts when resource allocating.

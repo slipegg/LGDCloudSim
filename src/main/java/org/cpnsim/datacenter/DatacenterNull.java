@@ -3,7 +3,7 @@ package org.cpnsim.datacenter;
 import org.cpnsim.core.SimEntity;
 import org.cpnsim.core.Simulation;
 import org.cpnsim.core.events.SimEvent;
-import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
@@ -72,12 +72,12 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setInnerSchedulers(List<InnerScheduler> innerSchedulers) {
+    public Datacenter setIntraSchedulers(List<IntraScheduler> intraSchedulers) {
         return null;
     }
 
     @Override
-    public List<InnerScheduler> getInnerSchedulers() {
+    public List<IntraScheduler> getIntraSchedulers() {
         return null;
     }
 

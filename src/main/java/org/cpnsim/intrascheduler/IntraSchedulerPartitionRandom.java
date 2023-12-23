@@ -1,20 +1,20 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.SynState;
 
 import java.util.*;
 
-public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
+public class IntraSchedulerPartitionRandom extends IntraSchedulerSimple {
     Random random = new Random();
 
-    public InnerSchedulerPartitionRandom(int id, int firstPartitionId, int partitionNum) {
+    public IntraSchedulerPartitionRandom(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 
     @Override
-    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
-        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
+    protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        IntraSchedulerResult intraSchedulerResult = new IntraSchedulerResult(this, getDatacenter().getSimulation().clock());
 
         for (Instance instance : instances) {
             int suitId = -1;
@@ -42,12 +42,12 @@ public class InnerSchedulerPartitionRandom extends InnerSchedulerSimple {
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
                 instance.setExpectedScheduleHostId(suitId);
-                innerSchedulerResult.addScheduledInstance(instance);
+                intraSchedulerResult.addScheduledInstance(instance);
             } else {
-                innerSchedulerResult.addFailedScheduledInstance(instance);
+                intraSchedulerResult.addFailedScheduledInstance(instance);
             }
         }
 
-        return innerSchedulerResult;
+        return intraSchedulerResult;
     }
 }

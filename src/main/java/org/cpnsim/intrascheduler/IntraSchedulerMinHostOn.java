@@ -1,17 +1,17 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.SynState;
 
 import java.util.List;
 
-public class InnerSchedulerMinHostOn extends InnerSchedulerSimple {
-    public InnerSchedulerMinHostOn(int id, int firstPartitionId, int partitionNum) {
+public class IntraSchedulerMinHostOn extends IntraSchedulerSimple {
+    public IntraSchedulerMinHostOn(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 
     @Override
-    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+    protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
 //        int hostNum = datacenter.getStatesManager().getHostNum();
 //        //TODO 域内调度
 //        Map<Integer, List<Instance>> res = new HashMap<>();

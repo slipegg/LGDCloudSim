@@ -1,22 +1,22 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.SynState;
 
 import java.util.*;
 
-public class InnerSchedulerRandom extends InnerSchedulerSimple {
+public class IntraSchedulerRandom extends IntraSchedulerSimple {
     Random random = new Random();
 
-    public InnerSchedulerRandom(int id, int firstPartitionId, int partitionNum) {
+    public IntraSchedulerRandom(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 
     @Override
-    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
-        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
+    protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        IntraSchedulerResult intraSchedulerResult = new IntraSchedulerResult(this, getDatacenter().getSimulation().clock());
 
-        List<Integer> innerSchedulerView = datacenter.getStatesManager().getInnerSchedulerView(this);
+        List<Integer> innerSchedulerView = datacenter.getStatesManager().getIntraSchedulerView(this);
         int hostNum = innerSchedulerView.get(1)-innerSchedulerView.get(0)+1;
 
         for (Instance instance : instances) {
@@ -34,12 +34,12 @@ public class InnerSchedulerRandom extends InnerSchedulerSimple {
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
                 instance.setExpectedScheduleHostId(suitId);
-                innerSchedulerResult.addScheduledInstance(instance);
+                intraSchedulerResult.addScheduledInstance(instance);
             } else {
-                innerSchedulerResult.addFailedScheduledInstance(instance);
+                intraSchedulerResult.addFailedScheduledInstance(instance);
             }
         }
 
-        return innerSchedulerResult;
+        return intraSchedulerResult;
     }
 }

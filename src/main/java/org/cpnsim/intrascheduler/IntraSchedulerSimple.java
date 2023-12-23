@@ -1,4 +1,4 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,14 +8,12 @@ import org.cpnsim.datacenter.InstanceQueue;
 import org.cpnsim.datacenter.InstanceQueueFifo;
 import org.cpnsim.statemanager.SynState;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class InnerSchedulerSimple implements InnerScheduler {
+public class IntraSchedulerSimple implements IntraScheduler {
     @Getter
     Datacenter datacenter;
     @Getter
@@ -48,7 +46,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
 
     double excludeTime = 0;
 
-    public InnerSchedulerSimple(Map<Integer, Double> partitionDelay) {
+    public IntraSchedulerSimple(Map<Integer, Double> partitionDelay) {
         this.partitionDelay = partitionDelay;
         //对于partitionDelay这个map，按照value从小到大排序，得到partitionTraverseList
         this.partitionTraverseList = partitionDelay.entrySet().
@@ -58,12 +56,12 @@ public class InnerSchedulerSimple implements InnerScheduler {
         retryInstanceQueue = new InstanceQueueFifo();
     }
 
-    public InnerSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
+    public IntraSchedulerSimple(int id, Map<Integer, Double> partitionDelay) {
         this(partitionDelay);
         setId(id);
     }
 
-    public InnerSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
+    public IntraSchedulerSimple(int id, int firstPartitionId, int partitionNum) {
         instanceQueue = new InstanceQueueFifo();
         retryInstanceQueue = new InstanceQueueFifo();
         this.firstPartitionId = firstPartitionId;
@@ -77,7 +75,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     @Override
-    public InnerScheduler addInstance(List<Instance> instances, boolean isRetry) {
+    public IntraScheduler addInstance(List<Instance> instances, boolean isRetry) {
         if (isRetry) {
             retryInstanceQueue.add(instances);
         } else {
@@ -87,7 +85,7 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     @Override
-    public InnerScheduler addInstance(Instance instance, boolean isRetry) {
+    public IntraScheduler addInstance(Instance instance, boolean isRetry) {
         if (isRetry) {
             retryInstanceQueue.add(instance);
         } else {
@@ -112,20 +110,20 @@ public class InnerSchedulerSimple implements InnerScheduler {
     }
 
     @Override
-    public InnerSchedulerResult schedule() {
+    public IntraSchedulerResult schedule() {
         SynState synState = datacenter.getStatesManager().getSynState(this);
 
         List<Instance> instances = getWaitSchedulingInstances();
 
         double startTime = System.currentTimeMillis();
-        InnerSchedulerResult innerSchedulerResult = scheduleInstances(instances, synState);
+        IntraSchedulerResult intraSchedulerResult = scheduleInstances(instances, synState);
         double endTime = System.currentTimeMillis();
 
         lastScheduleTime = datacenter.getSimulation().clock();
 
         this.scheduleCostTime = endTime - startTime - excludeTime;//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
 
-        return innerSchedulerResult;
+        return intraSchedulerResult;
     }
 
     private List<Instance> getWaitSchedulingInstances() {
@@ -138,8 +136,8 @@ public class InnerSchedulerSimple implements InnerScheduler {
         return instances;
     }
 
-    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
-        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
+    protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        IntraSchedulerResult intraSchedulerResult = new IntraSchedulerResult(this, getDatacenter().getSimulation().clock());
 
         for (Instance instance : instances) {
             int suitId = -1;
@@ -163,12 +161,12 @@ public class InnerSchedulerSimple implements InnerScheduler {
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
                 instance.setExpectedScheduleHostId(suitId);
-                innerSchedulerResult.addScheduledInstance(instance);
+                intraSchedulerResult.addScheduledInstance(instance);
             } else {
-                innerSchedulerResult.addFailedScheduledInstance(instance);
+                intraSchedulerResult.addFailedScheduledInstance(instance);
             }
         }
-        return innerSchedulerResult;
+        return intraSchedulerResult;
     }
 
     @Override

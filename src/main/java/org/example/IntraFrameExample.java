@@ -7,31 +7,29 @@ import org.cpnsim.core.FactorySimple;
 import org.cpnsim.core.Simulation;
 import org.cpnsim.datacenter.InitDatacenter;
 import org.cpnsim.network.NetworkTopology;
-import org.cpnsim.network.NetworkTopologySimple;
-import org.cpnsim.network.RandomDelayDynamicModel;
 import org.cpnsim.record.MemoryRecord;
 import org.cpnsim.user.UserRequestManager;
 import org.cpnsim.user.UserRequestManagerCsv;
 import org.cpnsim.user.UserSimple;
 import org.cpnsim.util.Log;
 
-public class InnerFrameExample {
+public class IntraFrameExample {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/innerFrame/generateRequestParameter.csv";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerFrame/two-level/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerFrame/shared-state-one-partition/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerFrame/monolithic/DatacentersConfig.json";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerFrame/shared-state-mul-partitions-all-random/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerFrame/shared-state-mul-partitions-partition-random/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraFrame/generateRequestParameter.csv";
+    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/two-level/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/shared-state-one-partition/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/monolithic/DatacentersConfig.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/shared-state-mul-partitions-all-random/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/shared-state-mul-partitions-partition-random/DatacentersConfig.json";
 
     public static void main(String[] args) {
-        new InnerFrameExample();
+        new IntraFrameExample();
     }
 
-    private InnerFrameExample() {
+    private IntraFrameExample() {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();

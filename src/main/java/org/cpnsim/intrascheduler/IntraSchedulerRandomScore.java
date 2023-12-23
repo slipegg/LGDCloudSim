@@ -1,11 +1,11 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.SynState;
 
-public class InnerSchedulerRandomScore extends InnerSchedulerLeastRequested{
-    public InnerSchedulerRandomScore(int id, int firstPartitionId, int partitionNum) {
+public class IntraSchedulerRandomScore extends IntraSchedulerLeastRequested {
+    public IntraSchedulerRandomScore(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 

@@ -1,8 +1,8 @@
 package org.cpnsim.datacenter;
 
 import org.cpnsim.core.DatacenterEntity;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.request.Instance;
-import org.cpnsim.innerscheduler.InnerScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * An interface to be implemented by each class that represents a load balancer.
  * After the {@link Instance} arrives at the datacenter,
- * it is necessary to allocate each instance to each {@link InnerScheduler} through it.
+ * it is necessary to allocate each instance to each {@link IntraScheduler} through it.
  *
  * @author Jiawen Liu
  * @since CPNSim 1.0
@@ -29,7 +29,7 @@ public interface LoadBalance extends DatacenterEntity {
      * @param instances the instance to be sent to the datacenter
      * @return
      */
-    Set<InnerScheduler> sendInstances(List<Instance> instances);
+    Set<IntraScheduler> sendInstances(List<Instance> instances);
 
     /**
      * Set the load balance cost time.

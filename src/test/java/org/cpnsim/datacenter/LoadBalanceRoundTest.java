@@ -2,8 +2,8 @@ package org.cpnsim.datacenter;
 
 import org.cpnsim.core.CloudSim;
 import org.cpnsim.core.Simulation;
-import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.innerscheduler.InnerSchedulerSimple;
+import org.cpnsim.intrascheduler.IntraScheduler;
+import org.cpnsim.intrascheduler.IntraSchedulerSimple;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceSimple;
 import org.junit.jupiter.api.Test;
@@ -20,13 +20,13 @@ public class LoadBalanceRoundTest {
         Simulation simulation = new CloudSim();
         Datacenter datacenter = new DatacenterSimple(simulation);
 
-        List<InnerScheduler> innerSchedulers = new ArrayList<>();
+        List<IntraScheduler> intraSchedulers = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             Map<Integer, Double> partitionDelay = Map.of(1, 0.0);
-            InnerScheduler innerScheduler = new InnerSchedulerSimple(partitionDelay);
-            innerSchedulers.add(innerScheduler);
+            IntraScheduler intraScheduler = new IntraSchedulerSimple(partitionDelay);
+            intraSchedulers.add(intraScheduler);
         }
-        datacenter.setInnerSchedulers(innerSchedulers);
+        datacenter.setIntraSchedulers(intraSchedulers);
 
         LoadBalance loadBalance = new LoadBalanceRound();
         datacenter.setLoadBalance(loadBalance);

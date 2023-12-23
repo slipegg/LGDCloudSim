@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
-import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.innerscheduler.InnerSchedulerResult;
+import org.cpnsim.intrascheduler.IntraScheduler;
+import org.cpnsim.intrascheduler.IntraSchedulerResult;
 import org.cpnsim.request.Instance;
 
 import java.util.*;
@@ -46,7 +46,7 @@ public class StatesManagerSimple implements StatesManager {
     /**
      * Maintain separate selfHostState for each scheduler
      **/
-    private Map<InnerScheduler, Map<Integer, Map<Integer, int[]>>> selfHostStateMap;
+    private Map<IntraScheduler, Map<Integer, Map<Integer, int[]>>> selfHostStateMap;
 
     /**
      * Number of partition in the datacenter
@@ -110,7 +110,7 @@ public class StatesManagerSimple implements StatesManager {
     @Getter
     private HostCapacityManager hostCapacityManager;
 
-    private Map<InnerScheduler, List<Integer>> innerSchedulerView;
+    private Map<IntraScheduler, List<Integer>> innerSchedulerView;
 
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
@@ -170,7 +170,7 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public SynState getSynState(InnerScheduler scheduler) {
+    public SynState getSynState(IntraScheduler scheduler) {
         Map<Integer, Map<Integer, int[]>> selfHostState;
         int[] partitionIds = partitionRangesManager.getPartitionIds();
 
@@ -185,7 +185,7 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     /**
-     * Synchronize one area for each {@link InnerScheduler}.
+     * Synchronize one area for each {@link IntraScheduler}.
      */
     @Override
     public StatesManager synAllState() {
@@ -202,7 +202,7 @@ public class StatesManagerSimple implements StatesManager {
             }
             partitionSynStateMap.put(synGapManager.getSynTime(latestSmallSynGapCount), new HashMap<>());
         }
-        for (InnerScheduler scheduler : selfHostStateMap.keySet()) {
+        for (IntraScheduler scheduler : selfHostStateMap.keySet()) {
             int clearPartitionId = (latestSmallSynGapCount + scheduler.getFirstPartitionId()) % partitionNum;
             selfHostStateMap.get(scheduler).get(clearPartitionId).clear();
         }
@@ -290,27 +290,27 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public StatesManager revertHostState(InnerSchedulerResult innerSchedulerResult) {
+    public StatesManager revertHostState(IntraSchedulerResult intraSchedulerResult) {
         int smallSynGapCount = synGapManager.getSmallSynGapCount();
-        InnerScheduler innerScheduler = innerSchedulerResult.getInnerScheduler();
+        IntraScheduler intraScheduler = intraSchedulerResult.getIntraScheduler();
         Set<Integer> clearPartitions = new HashSet<>();
         while (clearPartitions.size() != partitionNum && smallSynGapCount >= 0) {
             double time = synGapManager.getSynTime(smallSynGapCount);
-            if (time < innerSchedulerResult.getScheduleTime()) {
+            if (time < intraSchedulerResult.getScheduleTime()) {
                 break;
             }
-            clearPartitions.add((smallSynGapCount + innerScheduler.getFirstPartitionId()) % partitionNum);
+            clearPartitions.add((smallSynGapCount + intraScheduler.getFirstPartitionId()) % partitionNum);
             smallSynGapCount--;
         }
 //        LOGGER.info("{}: revertHostState: clearPartitions: {}", datacenter.getSimulation().clock(), clearPartitions);
 
-        for (Instance instance : innerSchedulerResult.getScheduledInstances()) {
+        for (Instance instance : intraSchedulerResult.getScheduledInstances()) {
             int hostId = instance.getExpectedScheduleHostId();
             int partitionId = partitionRangesManager.getPartitionId(hostId);
             if (clearPartitions.contains(partitionId)) {
                 int[] hostState;
-                if (selfHostStateMap.get(innerScheduler).get(partitionId).containsKey(hostId)){
-                    hostState = selfHostStateMap.get(innerScheduler).get(partitionId).get(hostId);
+                if (selfHostStateMap.get(intraScheduler).get(partitionId).containsKey(hostId)) {
+                    hostState = selfHostStateMap.get(intraScheduler).get(partitionId).get(hostId);
                 }else{
                     hostState = getLatestSynHostState(hostId);
                 }
@@ -318,7 +318,7 @@ public class StatesManagerSimple implements StatesManager {
                 hostState[1] -= instance.getRam();
                 hostState[2] -= instance.getStorage();
                 hostState[3] -= instance.getBw();
-                selfHostStateMap.get(innerScheduler).get(partitionId).put(hostId, hostState);
+                selfHostStateMap.get(intraScheduler).get(partitionId).put(hostId, hostState);
             }
         }
         return this;
@@ -338,8 +338,8 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public StatesManager revertSelftHostState(List<Instance> instances, InnerScheduler innerScheduler) {
-        Map<Integer, Map<Integer, int[]>> selfHostState = selfHostStateMap.get(innerScheduler);
+    public StatesManager revertSelftHostState(List<Instance> instances, IntraScheduler intraScheduler) {
+        Map<Integer, Map<Integer, int[]>> selfHostState = selfHostStateMap.get(intraScheduler);
 //        LOGGER.error("{}: revert self host state:{}", getDatacenter().getSimulation().clockStr(), innerScheduler.getName());
 //        for(Map.Entry<Integer, Map<Integer, int[]>> entry:selfHostState.entrySet()){
 //            LOGGER.error("partitionId:{},hostState.size():{}",entry.getKey(),entry.getValue().size());
@@ -401,7 +401,7 @@ public class StatesManagerSimple implements StatesManager {
 
     private StatesManager adjustScheduleViewOfDynamicAvg(){
         long cpuAvailableSum = simpleState.getCpuAvailableSum();
-        int innerSchedulerNum = getDatacenter().getInnerSchedulers().size();
+        int innerSchedulerNum = getDatacenter().getIntraSchedulers().size();
         long averageCpuAvailable = cpuAvailableSum / innerSchedulerNum;
 
         int startIndex = 0;
@@ -410,30 +410,30 @@ public class StatesManagerSimple implements StatesManager {
         for(int hostId = 0; hostId<hostNum && innerSchedulerId < innerSchedulerNum-1;hostId++){
             tmpCpuAvailableSum+=getNowHostState(hostId).getCpu();
             if(tmpCpuAvailableSum>=averageCpuAvailable){
-                InnerScheduler innerScheduler = getDatacenter().getInnerSchedulers().get(innerSchedulerId);
-                innerSchedulerView.putIfAbsent(innerScheduler, List.of(startIndex, hostId));
+                IntraScheduler intraScheduler = getDatacenter().getIntraSchedulers().get(innerSchedulerId);
+                innerSchedulerView.putIfAbsent(intraScheduler, List.of(startIndex, hostId));
                 startIndex = hostId+1;
                 innerSchedulerId++;
                 tmpCpuAvailableSum = 0;
             }
         }
-        InnerScheduler innerScheduler = getDatacenter().getInnerSchedulers().get(innerSchedulerId);
-        innerSchedulerView.putIfAbsent(innerScheduler, List.of(startIndex, hostNum-1));
+        IntraScheduler intraScheduler = getDatacenter().getIntraSchedulers().get(innerSchedulerId);
+        innerSchedulerView.putIfAbsent(intraScheduler, List.of(startIndex, hostNum - 1));
 
         return this;
     }
 
     private StatesManager adjustScheduleViewToAll(){
-        for(InnerScheduler innerScheduler : getDatacenter().getInnerSchedulers()){
-            innerSchedulerView.putIfAbsent(innerScheduler, List.of(0, hostNum-1));
+        for (IntraScheduler intraScheduler : getDatacenter().getIntraSchedulers()) {
+            innerSchedulerView.putIfAbsent(intraScheduler, List.of(0, hostNum - 1));
         }
 
         return this;
     }
 
     @Override
-    public List<Integer> getInnerSchedulerView(InnerScheduler innerScheduler){
-        return innerSchedulerView.get(innerScheduler);
+    public List<Integer> getIntraSchedulerView(IntraScheduler intraScheduler) {
+        return innerSchedulerView.get(intraScheduler);
     }
 
     /**

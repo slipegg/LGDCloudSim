@@ -1,21 +1,21 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.SynState;
 
 import java.util.*;
 
-public class InnerSchedulerFixedPartitionRandom extends InnerSchedulerSimple {
+public class IntraSchedulerFixedPartitionRandom extends IntraSchedulerSimple {
     Random random = new Random();
 
-    public InnerSchedulerFixedPartitionRandom(int id, int firstPartitionId, int partitionNum) {
+    public IntraSchedulerFixedPartitionRandom(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 
     @Override
-    protected InnerSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
-        InnerSchedulerResult innerSchedulerResult = new InnerSchedulerResult(this, getDatacenter().getSimulation().clock());
-        int partitionNum = datacenter.getInnerSchedulers().size();
+    protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
+        IntraSchedulerResult intraSchedulerResult = new IntraSchedulerResult(this, getDatacenter().getSimulation().clock());
+        int partitionNum = datacenter.getIntraSchedulers().size();
         int hostSum = datacenter.getStatesManager().getHostNum();
         int firstPartitionId = this.id;
         for (Instance instance : instances) {
@@ -45,12 +45,12 @@ public class InnerSchedulerFixedPartitionRandom extends InnerSchedulerSimple {
             if (suitId != -1) {
                 synState.allocateTmpResource(suitId, instance);
                 instance.setExpectedScheduleHostId(suitId);
-                innerSchedulerResult.addScheduledInstance(instance);
+                intraSchedulerResult.addScheduledInstance(instance);
             } else {
-                innerSchedulerResult.addFailedScheduledInstance(instance);
+                intraSchedulerResult.addFailedScheduledInstance(instance);
             }
         }
 
-        return innerSchedulerResult;
+        return intraSchedulerResult;
     }
 }

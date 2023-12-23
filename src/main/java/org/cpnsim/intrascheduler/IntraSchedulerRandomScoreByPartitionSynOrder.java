@@ -1,4 +1,4 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.HostState;
@@ -8,10 +8,10 @@ import org.cpnsim.util.ScoredHostsManager;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InnerSchedulerRandomScoreByPartitionSynOrder extends InnerSchedulerLeastRequested {
+public class IntraSchedulerRandomScoreByPartitionSynOrder extends IntraSchedulerLeastRequested {
     private int synPartitionId;
 
-    public InnerSchedulerRandomScoreByPartitionSynOrder(int id, int firstPartitionId, int partitionNum) {
+    public IntraSchedulerRandomScoreByPartitionSynOrder(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 

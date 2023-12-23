@@ -2,7 +2,7 @@ package org.cpnsim.datacenter;
 
 import org.cpnsim.core.Factory;
 import org.cpnsim.core.Simulation;
-import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.interscheduler.InterSchedulerSimple;
 import org.cpnsim.statemanager.*;
@@ -38,7 +38,7 @@ public class InitDatacenter {
 
     private static int interSchedulerId = 0;
 
-    private static int innerSchedulerId = 0;
+    private static int intraSchedulerId = 0;
 
     /**
      * Initialize datacenters.
@@ -214,8 +214,8 @@ public class InitDatacenter {
             LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
             datacenter.setLoadBalance(loadBalance);
 
-            List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
-            datacenter.setInnerSchedulers(innerSchedulers);
+            List<IntraScheduler> intraSchedulers = getIntraSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
+            datacenter.setIntraSchedulers(intraSchedulers);
         }
 
         JsonObject resourceAllocateSelectorJson = datacenterJson.getJsonObject("resourceAllocateSelector");
@@ -256,10 +256,10 @@ public class InitDatacenter {
      *
      * @param datacenterJson a {@link JsonObject} object
      * @param partitionNum   the number of partitions
-     * @return a list of {@link InnerScheduler} objects
+     * @return a list of {@link IntraScheduler} objects
      */
-    private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
-        List<InnerScheduler> innerSchedulers = new ArrayList<>();
+    private static List<IntraScheduler> getIntraSchedulers(JsonObject datacenterJson, int partitionNum) {
+        List<IntraScheduler> intraSchedulers = new ArrayList<>();
         int firstPartitionId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
@@ -268,10 +268,10 @@ public class InitDatacenter {
             }else{
                 LOGGER.info("InnerScheduler {} Missing firstPartitionId, defaults to 0", k);
             }
-            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchedulerId++, firstPartitionId, partitionNum);
-            innerSchedulers.add(scheduler);
+            IntraScheduler scheduler = factory.getIntraScheduler(schedulerJson.getString("type"), intraSchedulerId++, firstPartitionId, partitionNum);
+            intraSchedulers.add(scheduler);
         }
-        return innerSchedulers;
+        return intraSchedulers;
     }
 
     /**
@@ -288,7 +288,7 @@ public class InitDatacenter {
         } else {
             synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
         }
-//        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, innerSchedulers);
+//        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, intraSchedulers);
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
         StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
 

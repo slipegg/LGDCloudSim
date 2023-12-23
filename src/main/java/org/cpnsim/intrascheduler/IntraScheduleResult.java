@@ -1,4 +1,4 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,10 +7,10 @@ import org.cpnsim.request.Instance;
 import java.util.List;
 import java.util.Map;
 
-public class InnerScheduleResult {
+public class IntraScheduleResult {
     @Getter
     @Setter
-    private InnerScheduler innerScheduler;
+    private IntraScheduler intraScheduler;
     @Getter
     @Setter
     Map<Integer, List<Instance>> scheduleResult;
@@ -18,7 +18,7 @@ public class InnerScheduleResult {
     @Setter
     double scheduleTime;
 
-    public InnerScheduleResult(InnerScheduler innerScheduler) {
-        this.innerScheduler = innerScheduler;
+    public IntraScheduleResult(IntraScheduler intraScheduler) {
+        this.intraScheduler = intraScheduler;
     }
 }

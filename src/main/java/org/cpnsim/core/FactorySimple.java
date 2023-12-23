@@ -1,24 +1,25 @@
 package org.cpnsim.core;
 
 import org.cpnsim.datacenter.*;
-import org.cpnsim.innerscheduler.*;
+import org.cpnsim.intrascheduler.*;
 import org.cpnsim.interscheduler.*;
 import org.cpnsim.statemanager.PredictionManager;
 import org.cpnsim.statemanager.PredictionManagerSimple;
 
 public class FactorySimple implements Factory {
-    public InnerScheduler getInnerScheduler(String type, int id, int firstPartitionId, int partitionNum) {
+    public IntraScheduler getIntraScheduler(String type, int id, int firstPartitionId, int partitionNum) {
         return switch (type) {
-            case "simple", "Simple" -> new InnerSchedulerSimple(id, firstPartitionId, partitionNum);
-            case "leastRequested" -> new InnerSchedulerLeastRequested(id, firstPartitionId, partitionNum);
-            case "randomScore" -> new InnerSchedulerRandomScore(id, firstPartitionId, partitionNum);
-            case "randomScoreByPartitionSynOrder" -> new InnerSchedulerRandomScoreByPartitionSynOrder(id, firstPartitionId, partitionNum);
-            case "random" -> new InnerSchedulerRandom(id, firstPartitionId, partitionNum);
-            case "partitionRandom" -> new InnerSchedulerPartitionRandom(id, firstPartitionId, partitionNum);
-            case "minHostOn" -> new InnerSchedulerMinHostOn(id, firstPartitionId, partitionNum);
-            case "FirstFit" -> new InnerSchedulerFirstFit(id, firstPartitionId, partitionNum);
-            case "multiLevel" -> new InnerSchedulerPartitionMultiLevel(id, firstPartitionId, partitionNum);
-            case "fixedPartitionRandom" -> new InnerSchedulerFixedPartitionRandom(id, firstPartitionId, partitionNum);
+            case "simple", "Simple" -> new IntraSchedulerSimple(id, firstPartitionId, partitionNum);
+            case "leastRequested" -> new IntraSchedulerLeastRequested(id, firstPartitionId, partitionNum);
+            case "randomScore" -> new IntraSchedulerRandomScore(id, firstPartitionId, partitionNum);
+            case "randomScoreByPartitionSynOrder" ->
+                    new IntraSchedulerRandomScoreByPartitionSynOrder(id, firstPartitionId, partitionNum);
+            case "random" -> new IntraSchedulerRandom(id, firstPartitionId, partitionNum);
+            case "partitionRandom" -> new IntraSchedulerPartitionRandom(id, firstPartitionId, partitionNum);
+            case "minHostOn" -> new IntraSchedulerMinHostOn(id, firstPartitionId, partitionNum);
+            case "FirstFit" -> new IntraSchedulerFirstFit(id, firstPartitionId, partitionNum);
+            case "multiLevel" -> new IntraSchedulerPartitionMultiLevel(id, firstPartitionId, partitionNum);
+            case "fixedPartitionRandom" -> new IntraSchedulerFixedPartitionRandom(id, firstPartitionId, partitionNum);
             default -> null;
         };
     }
