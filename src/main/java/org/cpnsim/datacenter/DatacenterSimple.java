@@ -309,9 +309,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         switch (evt.getTag()) {
             case CloudSimTag.SYN_STATE_IN_DC -> processSynStateInDc();
             case CloudSimTag.SYN_STATE_BETWEEN_DC -> processSynStateBetweenDc(evt);
-            case CloudSimTag.USER_REQUEST_SEND, CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD -> processUserRequestsSend(evt);
-            case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin();
-            case CloudSimTag.GROUP_FILTER_DC_END -> processGroupFilterDcEnd(evt);
+            case CloudSimTag.USER_REQUEST_SEND -> processUserRequestsSend(evt);
+            case CloudSimTag.INTER_SCHEDULE_BEGIN -> processInterScheduleBegin();
+            case CloudSimTag.INTER_SCHEDULE_END -> processInterScheduleEnd(evt);
             case CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD -> processScheduleToDcNoForward(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST -> processScheduleToDcHost(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
@@ -881,7 +881,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
 
         if (!isGroupFilterDcBusy) {
-            sendNow(this, CloudSimTag.GROUP_FILTER_DC_BEGIN);
+            sendNow(this, CloudSimTag.INTER_SCHEDULE_BEGIN);
             isGroupFilterDcBusy = true;//放在这里可以防止同一时间多次触发
         }
     }
@@ -890,10 +890,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * Assign a datacenter to InstanceGroup, but at this point, the results were not sent out.
      * It will send an GROUP_FILTER_DC_END evt to call {!link #processGroupAssignDcEnd(SimEvent)} after the {@link InterScheduler#getScheduleTime}
      */
-    private void processGroupFilterDcBegin() {
+    private void processInterScheduleBegin() {
         InterSchedulerResult interSchedulerResult = interScheduler.schedule();
         double filterSuitableDatacenterCostTime = interScheduler.getScheduleTime();
-        send(this, filterSuitableDatacenterCostTime, CloudSimTag.GROUP_FILTER_DC_END, interSchedulerResult);
+        send(this, filterSuitableDatacenterCostTime, CloudSimTag.INTER_SCHEDULE_END, interSchedulerResult);
         LOGGER.info("{}: {} starts inter scheduling.It costs {}ms.", getSimulation().clockStr(), getName(), filterSuitableDatacenterCostTime);
     }
 
@@ -902,7 +902,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      *
      * @param evt The data can be a Map of InstanceGroup and List of Datacenter.It is the result of {!link #processGroupFilterDcBegin()}.
      */
-    private void processGroupFilterDcEnd(final SimEvent evt) {
+    private void processInterScheduleEnd(final SimEvent evt) {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             sendInterScheduleResult(interSchedulerResult);
 
@@ -925,7 +925,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (interScheduler.isQueuesEmpty()) {
             isGroupFilterDcBusy = false;
         } else {
-            send(this, 0, CloudSimTag.GROUP_FILTER_DC_BEGIN, null);
+            send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, null);
         }
     }
 
