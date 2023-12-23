@@ -316,8 +316,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
             case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);//负载均衡花费时间，不形成瓶颈
-            case CloudSimTag.INNER_SCHEDULE_BEGIN -> processInnerScheduleBegin(evt);
-            case CloudSimTag.INNER_SCHEDULE_END -> processInnerScheduleEnd(evt);
+            case CloudSimTag.INTRA_SCHEDULE_BEGIN -> processInnerScheduleBegin(evt);
+            case CloudSimTag.INTRA_SCHEDULE_END -> processInnerScheduleEnd(evt);
             case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
             case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
             default ->
@@ -571,7 +571,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (intraScheduler.isQueuesEmpty()) {
             isIntraSchedulerBusy.put(intraScheduler, false);
         } else if (!intraScheduler.isQueuesEmpty()) {
-            send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, intraScheduler);
+            send(this, 0, CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
         }
     }
 
@@ -589,7 +589,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             LOGGER.info("{}: {}'s {} starts scheduling {} instances,cost {} ms", getSimulation().clockStr(), this.getName(), intraScheduler.getName(), innerScheduleResult.getInstanceNum(), costTime);
 
-            send(this, costTime, CloudSimTag.INNER_SCHEDULE_END, innerScheduleResult);
+            send(this, costTime, CloudSimTag.INTRA_SCHEDULE_END, innerScheduleResult);
         }
     }
 
@@ -641,7 +641,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
             for (IntraScheduler intraScheduler : sentIntraScheduler) {
                 if (!isIntraSchedulerBusy.containsKey(intraScheduler) || !isIntraSchedulerBusy.get(intraScheduler)) {
-                    send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.INNER_SCHEDULE_BEGIN, intraScheduler);
+                    send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
                     isIntraSchedulerBusy.put(intraScheduler, true);
                 }
             }
