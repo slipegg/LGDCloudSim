@@ -15,34 +15,34 @@ public class InnerSchedulerRandomScoreByPartitionSynOrder extends InnerScheduler
         super(id, firstPartitionId, partitionNum);
     }
 
-    @Override
-    protected ScoredHostsManager getScoredHostsManager(Instance instance, int randomStartIndex, int scoredHostNum, SynState synState) {
-        ScoredHostsManager scoredHostsManager = new ScoredHostsManager(new HashMap<>(Map.of(datacenter, scoreHostHistoryMap)));
-
-        for (int p = 0; p < partitionNum; p++) {
-            int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + partitionNum - p) % partitionNum);
-            int startHostId = random.nextInt(range[1] - range[0] + 1);
-            int rangeLength = range[1] - range[0] + 1;
-            for (int i = 0; i < rangeLength; i++) {
-                int hostId = (startHostId + i) % rangeLength + range[0];
-                double score = getScoreForHost(instance, hostId, synState);
-                if (score == -1) {
-                    continue;
-                }
-
-                scoredHostsManager.addScoredHost(hostId, datacenter, score);
-
-                if (scoredHostsManager.getScoredHostNum() >= scoredHostNum) {
-                    break;
-                }
-            }
-            if (scoredHostsManager.getScoredHostNum() >= scoredHostNum) {
-                break;
-            }
-        }
-
-        return scoredHostsManager;
-    }
+//    @Override
+//    protected ScoredHostsManager getScoredHostsManager(Instance instance, int randomStartIndex, int scoredHostNum, SynState synState) {
+//        ScoredHostsManager scoredHostsManager = new ScoredHostsManager(new HashMap<>(Map.of(datacenter, scoreHostHistoryMap)));
+//
+//        for (int p = 0; p < partitionNum; p++) {
+//            int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + partitionNum - p) % partitionNum);
+//            int startHostId = random.nextInt(range[1] - range[0] + 1);
+//            int rangeLength = range[1] - range[0] + 1;
+//            for (int i = 0; i < rangeLength; i++) {
+//                int hostId = (startHostId + i) % rangeLength + range[0];
+//                double score = getScoreForHost(instance, hostId, synState);
+//                if (score == -1) {
+//                    continue;
+//                }
+//
+//                scoredHostsManager.addScoredHost(hostId, datacenter, score);
+//
+//                if (scoredHostsManager.getScoredHostNum() >= scoredHostNum) {
+//                    break;
+//                }
+//            }
+//            if (scoredHostsManager.getScoredHostNum() >= scoredHostNum) {
+//                break;
+//            }
+//        }
+//
+//        return scoredHostsManager;
+//    }
 
     @Override
     protected void processBeforeSchedule(){
