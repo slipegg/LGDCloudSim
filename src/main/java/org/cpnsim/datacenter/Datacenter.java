@@ -43,13 +43,15 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Get the {@link LoadBalance}. **/
     LoadBalance getLoadBalance();
 
-    /** Set the {@link ResourceAllocateSelector}. **/
-    Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector);
+    /**
+     * Set the {@link ConflictHandler}.
+     **/
+    Datacenter setConflictHandler(ConflictHandler conflictHandler);
 
     /**
-     * Get the {@link ResourceAllocateSelector}.
+     * Get the {@link ConflictHandler}.
      **/
-    ResourceAllocateSelector getResourceAllocateSelector();
+    ConflictHandler getConflictHandler();
 
     /**
      * Set the {@link StatesManager}.

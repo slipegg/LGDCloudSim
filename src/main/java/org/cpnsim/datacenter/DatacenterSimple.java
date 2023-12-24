@@ -85,10 +85,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private LoadBalance loadBalance;
 
     /**
-     * See {@link ResourceAllocateSelector}.
+     * See {@link ConflictHandler}.
      */
     @Getter
-    private ResourceAllocateSelector resourceAllocateSelector;
+    private ConflictHandler conflictHandler;
 
     /**
      * The unit price of cpu resources,See {@link DatacenterPrice}.
@@ -239,10 +239,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return this;
     }
 
-    @Override
-    public Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector) {
-        this.resourceAllocateSelector = resourceAllocateSelector;
-        resourceAllocateSelector.setDatacenter(this);
+    public Datacenter setConflictHandler(ConflictHandler conflictHandler) {
+        this.conflictHandler = conflictHandler;
+        conflictHandler.setDatacenter(this);
         return this;
     }
 
@@ -460,13 +459,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     /**
-     * Place instances on the host based on the results of the {@link IntraScheduler} and the strategy of the {@link ResourceAllocateSelector}.
+     * Place instances on the host based on the results of the {@link IntraScheduler} and the strategy of the {@link ConflictHandler}.
      *
      * @param evt
      */
     private void processPreAllocateResource(SimEvent evt) {
         LOGGER.info("{}: {}'s all intraScheduler results have been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
-        ResourceAllocateResult allocateResult = resourceAllocateSelector.selectResourceAllocate(this.intraSchedulerResults);
+        ConflictHandlerResult allocateResult = conflictHandler.filterConflictedInstance(this.intraSchedulerResults);
 
         Map<IntraScheduler, List<Instance>> failedAllocatedRes = allocateResource(allocateResult.getSuccessRes());
 
@@ -667,7 +666,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<InstanceGroup> failedInstanceGroups = allocateBwForInstanceGroups(instanceGroups);
             instanceGroups.removeAll(failedInstanceGroups);
 
-            List<InstanceGroup> conflictedInstanceGroup = resourceAllocateSelector.filterConflictedInstanceGroup(instanceGroups);
+            List<InstanceGroup> conflictedInstanceGroup = conflictHandler.filterConflictedInstanceGroup(instanceGroups);
             instanceGroups.removeAll(conflictedInstanceGroup);
             failedInstanceGroups.addAll(conflictedInstanceGroup);
             revertBwForInstanceGroups(conflictedInstanceGroup);

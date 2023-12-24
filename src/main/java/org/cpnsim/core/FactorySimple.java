@@ -56,9 +56,9 @@ public class FactorySimple implements Factory {
     }
 
     @Override
-    public ResourceAllocateSelector getResourceAllocateSelector(String type) {
+    public ConflictHandler getResourceAllocateSelector(String type) {
         return switch (type) {
-            case "simple", "Simple" -> new ResourceAllocateSelectorSimple();
+            case "simple", "Simple" -> new ConflictHandlerSimple();
             default -> null;
         };
     }

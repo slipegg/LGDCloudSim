@@ -1,7 +1,7 @@
 package org.cpnsim.core;
 
 import org.cpnsim.datacenter.LoadBalance;
-import org.cpnsim.datacenter.ResourceAllocateSelector;
+import org.cpnsim.datacenter.ConflictHandler;
 import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.statemanager.PredictionManager;
@@ -15,5 +15,5 @@ public interface Factory {
 
     LoadBalance getLoadBalance(String type);
 
-    ResourceAllocateSelector getResourceAllocateSelector(String type);
+    ConflictHandler getResourceAllocateSelector(String type);
 }

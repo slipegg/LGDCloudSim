@@ -176,7 +176,7 @@ public class CloudSim implements Simulation {
             double dcCost = datacenter.getAllCost();
             System.out.printf("%s's TCO = %f\n", datacenter.getName(), dcCost);
             allCost += dcCost;
-            Map<Integer, Integer> partitionConflicts = datacenter.getResourceAllocateSelector().getPartitionConflicts();
+            Map<Integer, Integer> partitionConflicts = datacenter.getConflictHandler().getPartitionConflicts();
             int conflictSum = 0;
             for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
                 System.out.printf("%s's Partition%d has %d conflicts.\n", datacenter.getName(), entry.getKey(), entry.getValue());

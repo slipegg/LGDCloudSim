@@ -17,14 +17,14 @@ import java.util.Map;
  * @author Jiawen Liu
  * @since CPNSim 1.0
  */
-public interface ResourceAllocateSelector extends DatacenterEntity {
+public interface ConflictHandler extends DatacenterEntity {
     /**
      * Select the {@link Instance}s to be placed on the host.
      *
      * @param intraSchedulerResults the inner schedule results
      * @return the result of the resource allocation
      */
-    ResourceAllocateResult selectResourceAllocate(List<IntraSchedulerResult> intraSchedulerResults);
+    ConflictHandlerResult filterConflictedInstance(List<IntraSchedulerResult> intraSchedulerResults);
 
     /**
      * Get the number of conflicts when resource allocating.

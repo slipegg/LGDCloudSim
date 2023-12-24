@@ -219,8 +219,8 @@ public class InitDatacenter {
         }
 
         JsonObject resourceAllocateSelectorJson = datacenterJson.getJsonObject("resourceAllocateSelector");
-        ResourceAllocateSelector resourceAllocateSelector = factory.getResourceAllocateSelector(resourceAllocateSelectorJson.getString("type"));
-        datacenter.setResourceAllocateSelector(resourceAllocateSelector);
+        ConflictHandler conflictHandler = factory.getResourceAllocateSelector(resourceAllocateSelectorJson.getString("type"));
+        datacenter.setConflictHandler(conflictHandler);
 
         JsonObject unitPriceJson = datacenterJson.getJsonObject("resourceUnitPrice");
         setDatacenterResourceUnitPrice(datacenter, unitPriceJson);

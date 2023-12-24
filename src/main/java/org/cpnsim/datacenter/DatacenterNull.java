@@ -92,12 +92,12 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector) {
+    public Datacenter setConflictHandler(ConflictHandler conflictHandler) {
         return null;
     }
 
     @Override
-    public ResourceAllocateSelector getResourceAllocateSelector() {
+    public ConflictHandler getConflictHandler() {
         return null;
     }
 
