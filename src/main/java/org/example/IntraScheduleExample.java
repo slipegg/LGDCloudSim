@@ -14,7 +14,7 @@ import org.cpnsim.user.UserRequestManager;
 import org.cpnsim.user.UserRequestManagerCsv;
 import org.cpnsim.user.UserSimple;
 
-public class InnerScheduleExample {
+public class IntraScheduleExample {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
@@ -22,19 +22,19 @@ public class InnerScheduleExample {
     String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
-    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/experiment1/DatacentersCenter-1Scheduler-500SynGap.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/experiment1/DatacentersShareState-20Schedulers-500SynGap.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/experiment1/DatacentersSynState-20Schedulers-Random-500SynGap.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/experiment1/DatacentersShareState-fixPartitionRandom-20Schedulers-500SynGap.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/experiment1/DatacentersSynState-20Schedulers-500SynGap.json";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/innerScheduleExperiment/experiment2/DatacentersSynState-128Schedulers-Random.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/innerScheduleExperiment/generateRequestParament.csv";
+    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment1/DatacentersCenter-1Scheduler-500SynGap.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment1/DatacentersShareState-20Schedulers-500SynGap.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment1/DatacentersSynState-20Schedulers-Random-500SynGap.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment1/DatacentersShareState-fixPartitionRandom-20Schedulers-500SynGap.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment1/DatacentersSynState-20Schedulers-500SynGap.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment2/DatacentersSynState-128Schedulers-Random.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraScheduleExperiment/generateRequestParament.csv";
 
     public static void main(String[] args) {
-        new InnerScheduleExample();
+        new IntraScheduleExample();
     }
 
-    private InnerScheduleExample() {
+    private IntraScheduleExample() {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.OFF);
         cpnSim = new CloudSim();

@@ -123,7 +123,7 @@ public interface CollaborationManager {
 
     CollaborationManager addCenterScheduler(InterScheduler centerScheduler);
 
-    Map<Integer, GroupQueue> getCollaborationGroupQueueMap();
+    Map<Integer, InstanceGroupQueue> getCollaborationGroupQueueMap();
 
     Map<Integer, InterScheduler> getCollaborationCenterSchedulerMap();
 

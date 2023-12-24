@@ -1,4 +1,4 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import lombok.Getter;
 import org.cpnsim.request.Instance;
@@ -6,9 +6,9 @@ import org.cpnsim.request.Instance;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InnerSchedulerResult {
+public class IntraSchedulerResult {
     @Getter
-    private InnerScheduler innerScheduler;
+    private IntraScheduler intraScheduler;
 
     @Getter
     private List<Instance> scheduledInstances;
@@ -19,8 +19,8 @@ public class InnerSchedulerResult {
     @Getter
     private List<Instance> failedInstances;
 
-    public InnerSchedulerResult(InnerScheduler innerScheduler, double scheduleTime) {
-        this.innerScheduler = innerScheduler;
+    public IntraSchedulerResult(IntraScheduler intraScheduler, double scheduleTime) {
+        this.intraScheduler = intraScheduler;
         this.scheduleTime = scheduleTime;
         this.scheduledInstances = new ArrayList<>();
         this.failedInstances = new ArrayList<>();

@@ -102,8 +102,8 @@ public class CloudInformationService extends CloudSimEntity {
             case CloudSimTag.USER_REQUEST_FAIL -> processUserRequestFail(evt);
             case CloudSimTag.CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestSend(evt);
-            case CloudSimTag.GROUP_FILTER_DC_BEGIN -> processGroupFilterDcBegin(evt);
-            case CloudSimTag.GROUP_FILTER_DC_END -> processGroupFilterDcEnd(evt);
+            case CloudSimTag.INTER_SCHEDULE_BEGIN -> processGroupFilterDcBegin(evt);
+            case CloudSimTag.INTER_SCHEDULE_END -> processGroupFilterDcEnd(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
         }
@@ -153,7 +153,7 @@ public class CloudInformationService extends CloudSimEntity {
             if (!collaborationManager.getCenterSchedulerBusyMap().containsKey(collaborationId) ||
                     (!collaborationManager.getCenterSchedulerBusyMap().get(collaborationId) && !collaborationManager.getCollaborationCenterSchedulerMap().get(collaborationId).isQueuesEmpty())) {
                 collaborationManager.getCenterSchedulerBusyMap().put(collaborationId, true);
-                send(this, 0, CloudSimTag.GROUP_FILTER_DC_BEGIN, collaborationId);
+                send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, collaborationId);
             }
         }
     }
@@ -173,7 +173,7 @@ public class CloudInformationService extends CloudSimEntity {
         if (interScheduler.isQueuesEmpty()) {
             getSimulation().getCollaborationManager().getCenterSchedulerBusyMap().put(collaborationId, false);
         } else {
-            send(this, 0, CloudSimTag.GROUP_FILTER_DC_BEGIN, collaborationId);
+            send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, collaborationId);
         }
     }
 
@@ -185,7 +185,7 @@ public class CloudInformationService extends CloudSimEntity {
             InterSchedulerResult interSchedulerResult = interScheduler.schedule();
 
             double scheduleTime = interScheduler.getScheduleTime();
-            send(this, scheduleTime, CloudSimTag.GROUP_FILTER_DC_END, interSchedulerResult);
+            send(this, scheduleTime, CloudSimTag.INTER_SCHEDULE_END, interSchedulerResult);
             getSimulation().getSqlRecord().recordInterScheduleTime(getSimulation().clock(),scheduleTime, interScheduler.getTraversalTime());
             LOGGER.info("{}: collaboration{}'s centerScheduler starts scheduling.It will cost {}ms", getSimulation().clockStr(), collaborationId, scheduleTime);
         }
@@ -244,7 +244,7 @@ public class CloudInformationService extends CloudSimEntity {
     private int getEvtTagByInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
         if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET) {
             if (interSchedulerResult.getIsSupportForward()) {
-                return CloudSimTag.SCHEDULE_TO_DC_AND_FORWARD;
+                return CloudSimTag.USER_REQUEST_SEND;
             } else {
                 return CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD;
             }

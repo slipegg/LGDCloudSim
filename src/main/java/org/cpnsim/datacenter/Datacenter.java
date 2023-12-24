@@ -1,7 +1,7 @@
 package org.cpnsim.datacenter;
 
 import org.cpnsim.core.SimEntity;
-import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.StatesManager;
@@ -29,11 +29,13 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Set the {@link InterScheduler}. **/
     Datacenter setInterScheduler(InterScheduler interScheduler);
 
-    /** Set the {@link InnerScheduler}. **/
-    Datacenter setInnerSchedulers(List<InnerScheduler> innerSchedulers);
+    /**
+     * Set the {@link IntraScheduler}.
+     **/
+    Datacenter setIntraSchedulers(List<IntraScheduler> intraSchedulers);
 
     /** Get the {@link InterScheduler}. **/
-    List<InnerScheduler> getInnerSchedulers();
+    List<IntraScheduler> getIntraSchedulers();
 
     /** Set the {@link LoadBalance}. **/
     Datacenter setLoadBalance(LoadBalance loadBalance);
@@ -41,13 +43,15 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Get the {@link LoadBalance}. **/
     LoadBalance getLoadBalance();
 
-    /** Set the {@link ResourceAllocateSelector}. **/
-    Datacenter setResourceAllocateSelector(ResourceAllocateSelector resourceAllocateSelector);
+    /**
+     * Set the {@link ConflictHandler}.
+     **/
+    Datacenter setConflictHandler(ConflictHandler conflictHandler);
 
     /**
-     * Get the {@link ResourceAllocateSelector}.
+     * Get the {@link ConflictHandler}.
      **/
-    ResourceAllocateSelector getResourceAllocateSelector();
+    ConflictHandler getConflictHandler();
 
     /**
      * Set the {@link StatesManager}.

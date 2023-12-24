@@ -2,12 +2,7 @@ package org.cpnsim.statemanager;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.cpnsim.datacenter.Datacenter;
-import org.cpnsim.datacenter.InstanceQueue;
-import org.cpnsim.innerscheduler.InnerScheduler;
 import org.cpnsim.request.Instance;
-
-import java.util.*;
 
 @Getter
 @Setter

@@ -1,4 +1,4 @@
-package org.cpnsim.innerscheduler;
+package org.cpnsim.intrascheduler;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,9 +22,9 @@ import lombok.NonNull;
 import lombok.Setter;
 
 /**
- * Base test for all implementations of {@link InnerScheduler}
+ * Base test for all implementations of {@link IntraScheduler}
  */
-public abstract class InnerSchedulerTestBase<T extends InnerScheduler> {
+public abstract class IntraSchedulerTestBase<T extends IntraScheduler> {
     private T scheduler;
 
     private Simulation sim;
@@ -40,7 +40,7 @@ public abstract class InnerSchedulerTestBase<T extends InnerScheduler> {
         // create a FakeDatacenter with a FakeSimulation
         sim = new FakeSimulation();
         dc = new FakeDatacenter(sim);
-        dc.setInnerSchedulers(List.of(scheduler));
+        dc.setIntraSchedulers(List.of(scheduler));
         // create a StatesManager of 4 hosts and link it with the FakeDatacenter.
         // synGap is set to Double.POSITIVE_INFINITY, so sync is disabled.
         // test for synchronization can be added later.
@@ -119,7 +119,7 @@ class FakeDatacenter extends DatacenterNull {
     Simulation simulation;
 
     @Getter
-    List<InnerScheduler> innerSchedulers;
+    List<IntraScheduler> intraSchedulers;
 
     @Getter
     StatesManager statesManager;
@@ -128,11 +128,10 @@ class FakeDatacenter extends DatacenterNull {
         this.simulation = simulation;
     }
 
-    @Override
-    public Datacenter setInnerSchedulers(List<InnerScheduler> innerSchedulers) {
-        this.innerSchedulers = innerSchedulers;
-        for (InnerScheduler innerScheduler : innerSchedulers) {
-            innerScheduler.setDatacenter(this);
+    public Datacenter setIntraSchedulers(List<IntraScheduler> intraSchedulers) {
+        this.intraSchedulers = intraSchedulers;
+        for (IntraScheduler intraScheduler : intraSchedulers) {
+            intraScheduler.setDatacenter(this);
         }
         return this;
     }

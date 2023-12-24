@@ -11,12 +11,12 @@ import java.util.List;
 
 /**
  * A class to represent a instanceGroup queue with first in first out.
- * This class implements the interface {@link GroupQueue}.
+ * This class implements the interface {@link InstanceGroupQueue}.
  *
  * @author Jiawen Liu
  * @since CPNSim 1.0
  */
-public class GroupQueueFifo implements GroupQueue {
+public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     /**
      * the list of instanceGroups in the queue.
      **/
@@ -29,13 +29,13 @@ public class GroupQueueFifo implements GroupQueue {
     @Setter
     private int batchNum;
 
-    public GroupQueueFifo() {
+    public InstanceGroupQueueFifo() {
         instanceGroups = new LinkedList<>();
         batchNum = 10000;
     }
 
     @Override
-    public GroupQueue add(List<?> userRequestsOrInstanceGroups) {
+    public InstanceGroupQueue add(List<?> userRequestsOrInstanceGroups) {
         if (userRequestsOrInstanceGroups.size() != 0) {
             if (userRequestsOrInstanceGroups.get(0) instanceof UserRequest) {
                 for (UserRequest userRequest : (List<UserRequest>) userRequestsOrInstanceGroups) {
@@ -53,7 +53,7 @@ public class GroupQueueFifo implements GroupQueue {
     }
 
     @Override
-    public GroupQueue add(UserRequest userRequest) {//先到先服务在到来时不需要排队
+    public InstanceGroupQueue add(UserRequest userRequest) {//先到先服务在到来时不需要排队
         if (userRequest.getState() == UserRequest.FAILED) {
             return this;
         }
@@ -64,7 +64,7 @@ public class GroupQueueFifo implements GroupQueue {
     }
 
     @Override
-    public GroupQueue add(InstanceGroup instanceGroup) {
+    public InstanceGroupQueue add(InstanceGroup instanceGroup) {
         if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
             return this;
         }

@@ -1,9 +1,8 @@
 package org.cpnsim.datacenter;
 
 import lombok.Getter;
-import org.cpnsim.innerscheduler.InnerScheduleResult;
-import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.innerscheduler.InnerSchedulerResult;
+import org.cpnsim.intrascheduler.IntraScheduler;
+import org.cpnsim.intrascheduler.IntraSchedulerResult;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
@@ -15,12 +14,12 @@ import java.util.*;
 /**
  * A class to represent a resource allocate selector with simple strategy.
  * It will check in the order of the results to see if there are still resources available to allocate the instance
- * This class implements the interface {@link ResourceAllocateSelector}.
+ * This class implements the interface {@link ConflictHandler}.
  *
  * @author Jiawen Liu
  * @since CPNSim 1.0
  */
-public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector {
+public class ConflictHandlerSimple implements ConflictHandler {
     /**
      * the datacenter.
      **/
@@ -34,16 +33,16 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
     Map<Integer, Integer> partitionConflicts = new HashMap<>();
 
     @Override
-    public ResourceAllocateResult selectResourceAllocate(List<InnerSchedulerResult> innerSchedulerResults) {
-        Map<InnerScheduler, List<Instance>> successRes = new HashMap<>();
-        Map<InnerScheduler, List<Instance>> failRes = new HashMap<>();
+    public ConflictHandlerResult filterConflictedInstance(List<IntraSchedulerResult> intraSchedulerResults) {
+        Map<IntraScheduler, List<Instance>> successRes = new HashMap<>();
+        Map<IntraScheduler, List<Instance>> failRes = new HashMap<>();
         Map<Integer, HostState> allocateHostStates = new HashMap<>();
         StatesManager statesManager = datacenter.getStatesManager();
         int conflictSum = 0;
 
-        for (InnerSchedulerResult innerSchedulerResult : innerSchedulerResults) {
-            successRes.putIfAbsent(innerSchedulerResult.getInnerScheduler(), new ArrayList<>());
-            for (Instance instance : innerSchedulerResult.getScheduledInstances()) {
+        for (IntraSchedulerResult intraSchedulerResult : intraSchedulerResults) {
+            successRes.putIfAbsent(intraSchedulerResult.getIntraScheduler(), new ArrayList<>());
+            for (Instance instance : intraSchedulerResult.getScheduledInstances()) {
                 if (instance.getUserRequest().getState() == UserRequest.FAILED) {
                     continue;
                 }
@@ -59,10 +58,10 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
 
                 if (hostState.isSuitable(instance)) {
                     hostState.allocate(instance);
-                    successRes.get(innerSchedulerResult.getInnerScheduler()).add(instance);
+                    successRes.get(intraSchedulerResult.getIntraScheduler()).add(instance);
                 } else {
-                    failRes.putIfAbsent(innerSchedulerResult.getInnerScheduler(), new ArrayList<>());
-                    failRes.get(innerSchedulerResult.getInnerScheduler()).add(instance);
+                    failRes.putIfAbsent(intraSchedulerResult.getIntraScheduler(), new ArrayList<>());
+                    failRes.get(intraSchedulerResult.getIntraScheduler()).add(instance);
 
                     int partitionId = datacenter.getStatesManager().getPartitionRangesManager().getPartitionId(hostId);
                     if (partitionConflicts.containsKey(partitionId)) {
@@ -77,7 +76,7 @@ public class ResourceAllocateSelectorSimple implements ResourceAllocateSelector 
         if (conflictSum != 0) {
             getDatacenter().getSimulation().getSqlRecord().recordConflict(getDatacenter().getSimulation().clock(), conflictSum);
         }
-        return new ResourceAllocateResult(successRes, failRes);
+        return new ConflictHandlerResult(successRes, failRes);
     }
 
     @Override

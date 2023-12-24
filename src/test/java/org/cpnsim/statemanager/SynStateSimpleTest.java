@@ -1,14 +1,6 @@
 package org.cpnsim.statemanager;
 
-import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.innerscheduler.InnerSchedulerSimple;
-import org.cpnsim.request.Instance;
-import org.cpnsim.request.InstanceSimple;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
 

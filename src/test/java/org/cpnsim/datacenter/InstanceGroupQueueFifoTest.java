@@ -10,12 +10,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class GroupQueueFifoTest {
+public class InstanceGroupQueueFifoTest {
     @Test
     public void testGroupQueueFifo() {
         UserRequest userRequest = new UserRequestSimple(0);
         userRequest.setState(UserRequest.WAITING);
-        GroupQueueFifo groupQueueFifoTest = new GroupQueueFifo();
+        InstanceGroupQueueFifo groupQueueFifoTest = new InstanceGroupQueueFifo();
         InstanceGroup instanceGroup0 = new InstanceGroupSimple(0);
         instanceGroup0.setUserRequest(userRequest);
         InstanceGroup instanceGroup1 = new InstanceGroupSimple(1);

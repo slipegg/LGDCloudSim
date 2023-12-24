@@ -1,7 +1,7 @@
 package org.cpnsim.statemanager;
 
 import lombok.Getter;
-import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.request.Instance;
 
 import java.util.*;
@@ -79,7 +79,7 @@ public class SynStateSimple implements SynState {
     SynGapManager synGapManager;
 
     public SynStateSimple(Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState, int[] nowHostStates,
-                          PartitionRangesManager partitionRangesManager, Map<Integer, Map<Integer, int[]>> selfHostState, InnerScheduler scheduler,
+                          PartitionRangesManager partitionRangesManager, Map<Integer, Map<Integer, int[]>> selfHostState, IntraScheduler scheduler,
                           PredictionManager predictionManager, SynGapManager synGapManager, int predictRecordNum, boolean predictable) {
         this.synState = synState;
         this.nowHostStates = nowHostStates;
