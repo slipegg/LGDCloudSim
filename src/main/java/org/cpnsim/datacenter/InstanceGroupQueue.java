@@ -11,27 +11,27 @@ import java.util.List;
  * @author Jiawen Liu
  * @since CPNSim 1.0
  */
-public interface GroupQueue {
+public interface InstanceGroupQueue {
     /**
      * Add a list of userRequests to the queue.
      *
      * @param userRequests the list of userRequests to be added to the queue
      */
-    GroupQueue add(List<?> userRequestsOrInstanceGroups);
+    InstanceGroupQueue add(List<?> userRequestsOrInstanceGroups);
 
     /**
      * Add a userRequest to the queue.
      *
      * @param userRequest the userRequest to be added to the queue
      */
-    GroupQueue add(UserRequest userRequest);
+    InstanceGroupQueue add(UserRequest userRequest);
 
     /**
      * Add a instanceGroup to the queue.
      *
      * @param instanceGroup the instanceGroup to be added to the queue
      */
-    GroupQueue add(InstanceGroup instanceGroup);
+    InstanceGroupQueue add(InstanceGroup instanceGroup);
 
     /**
      * Get a batch of groupInstances from the queue.
@@ -58,7 +58,7 @@ public interface GroupQueue {
     /**
      * Set the number of instanceGroups to be sent in a batch.
      */
-    GroupQueue setBatchNum(int batchNum);
+    InstanceGroupQueue setBatchNum(int batchNum);
 
     boolean isEmpty();
 }
