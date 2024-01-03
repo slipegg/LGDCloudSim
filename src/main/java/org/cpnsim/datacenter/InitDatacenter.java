@@ -40,6 +40,8 @@ public class InitDatacenter {
 
     private static int intraSchedulerId = 0;
 
+    private static int datacenterId = 1;
+
     /**
      * Initialize datacenters.
      **/
@@ -184,7 +186,14 @@ public class InitDatacenter {
      * @return a {@link StatesManager} object
      */
     private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule, int target, boolean isSupportForward) {
-        int id = datacenterJson.getInt("id");
+        int id = -1;
+        if (datacenterJson.containsKey("id")){
+             id = datacenterJson.getInt("id");
+             datacenterId = id;
+        }else{
+            id = datacenterId++;
+        }
+
         if (id == 0) {
             throw new IllegalArgumentException("0 is the id of CIS,Datacenter id should not be 0");
         }
