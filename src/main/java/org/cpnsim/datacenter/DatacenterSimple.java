@@ -46,7 +46,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     @Getter
     @Setter
-    private String architecture;
+    private String architecture = "";
 
     /**
      * See {@link InstanceQueue}.
