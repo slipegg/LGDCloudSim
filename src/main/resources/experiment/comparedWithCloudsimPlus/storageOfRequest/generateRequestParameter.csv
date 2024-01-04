@@ -1,7 +1,7 @@
 Parament Name,Parament
-FromDcPercent,"[1]"
-RequestPerNumMin,1000
-RequestPerNumMax,1000
+DcDistribution,"{""1"":{""United States"":1}}"
+RequestPerNumMin,1000000
+RequestPerNumMax,1000000
 RequestTimeIntervalMin,500
 RequestTimeIntervalMax,500
 RequestTimes,1
