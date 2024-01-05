@@ -75,7 +75,7 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
                     if (lifeTimeMean == -1) {
                         lifeTime = -1;
                     } else {
-                        lifeTime = (((int) (random.nextGaussian()) / 10 * 10 * lifeTimeStd + lifeTimeMean));
+                        lifeTime = Math.min(1, (((int) (random.nextGaussian()) / 10 * 10 * lifeTimeStd + lifeTimeMean)));
                     }
                     Instance instance = new InstanceSimple(UserRequestManagerGoogleTrace.instanceId++, (int) (instanceGoogleTrace.cpu * maxCpuCapacity), (int) (instanceGoogleTrace.ram * maxRamCapacity), storageCapacity, bwCapacity, lifeTime);
                     instances.add(instance);
@@ -83,7 +83,7 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
                 InstanceGroup instanceGroup = new InstanceGroupSimple(UserRequestManagerGoogleTrace.instanceGroupId++, instances);
                 double accessLatencyFlag = random.nextDouble();
                 if (accessLatencyFlag <= accessLatencyPercentage) {
-                    double accessLatency = random.nextGaussian() * accessLatencyStd + accessLatencyMean;
+                    double accessLatency = Math.min(0, random.nextGaussian() * accessLatencyStd + accessLatencyMean);
                     instanceGroup.setAccessLatency(accessLatency);
                 }
                 instanceGroups.add(instanceGroup);
@@ -108,9 +108,9 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
                 int j = (isEdgeDirected) ? 0 : i + 1;
                 for (; j < instanceGroups.size(); j++) {
                     if (random.nextDouble() < edgePercentage && j != i) {
-                        double bw = random.nextGaussian() * edgeBwStd + edgeBwMean;
+                        double bw = Math.min(0, random.nextGaussian() * edgeBwStd + edgeBwMean);
                         bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                        double delay = random.nextGaussian() * edgeDelayStd + edgeDelayMean;
+                        double delay = Math.min(0, random.nextGaussian() * edgeDelayStd + edgeDelayMean);
                         instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), delay, bw);
                     }
                 }
