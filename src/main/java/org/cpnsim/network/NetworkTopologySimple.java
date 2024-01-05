@@ -31,7 +31,11 @@ public class NetworkTopologySimple implements NetworkTopology {
             return regionDelayManager.getAverageDelay();
         }
         if (src instanceof Datacenter srcDc && dst instanceof Datacenter dstDc) {
-            return regionDelayManager.getDelay(srcDc.getRegion(), dstDc.getRegion());
+            double delay = regionDelayManager.getDelay(srcDc.getRegion(), dstDc.getRegion());
+            if (src == dst) {
+                delay -= 20;
+            }
+            return delay;
         }
         return 0;
     }
