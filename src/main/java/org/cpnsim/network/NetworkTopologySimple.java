@@ -19,6 +19,12 @@ public class NetworkTopologySimple implements NetworkTopology {
         this.dcBwManager = new DcBwManager(dcBwFileName);
     }
 
+    public NetworkTopologySimple(String regionDelayFileName, String areaDelayFileName, String dcBwFileName, boolean isDirected) {
+        this.regionDelayManager = new RegionDelayManager(regionDelayFileName);
+        this.areaDelayManager = new AreaDelayManager(areaDelayFileName, regionDelayManager);
+        this.dcBwManager = new DcBwManager(dcBwFileName, isDirected);
+    }
+
     @Override
     public double getDelay(SimEntity src, SimEntity dst) {
         if (src instanceof CloudInformationService || dst instanceof CloudInformationService) {
@@ -36,7 +42,11 @@ public class NetworkTopologySimple implements NetworkTopology {
         if(standardDelay == 0){
             return 0;
         }else{
-            return delayDynamicModel.getDynamicDelay(src.getId(), dst.getId(), standardDelay, time);
+            if (delayDynamicModel == null) {
+                return standardDelay;
+            } else {
+                return delayDynamicModel.getDynamicDelay(src.getId(), dst.getId(), standardDelay, time);
+            }
         }
     }
 
