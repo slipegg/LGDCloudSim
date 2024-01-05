@@ -9,42 +9,42 @@
         "dcStateSynInfo": [
           {
             "dcId": 1,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           },
           {
             "dcId": 2,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           },
           {
             "dcId": 3,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           },
           {
             "dcId": 4,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           },
           {
             "dcId": 5,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           },
           {
             "dcId": 6,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           },
           {
             "dcId": 7,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           },
           {
             "dcId": 8,
-            "synInterval": 0,
+            "synInterval": 5000,
             "synStateType": "easySimple"
           }
         ]
@@ -161,7 +161,7 @@
               "ram": 1667
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -272,7 +272,7 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -397,7 +397,7 @@
               "ram": 3334
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -508,7 +508,7 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -633,7 +633,7 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -744,7 +744,7 @@
               "ram": 3334
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -890,7 +890,7 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
@@ -1005,7 +1005,7 @@
               "ram": 3334
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
