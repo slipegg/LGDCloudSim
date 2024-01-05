@@ -5,13 +5,15 @@ import lombok.Setter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.math3.analysis.function.Max;
 import org.cpnsim.request.*;
+import org.cpnsim.util.GoogleTraceRequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class UserRequestManagerGoogleTrace implements UserRequestManager {
@@ -68,24 +70,54 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
                 Map<Integer, InstanceGoogleTrace> instanceGoogleTraceMap = entry.getValue();
                 List<Instance> instances = new ArrayList<>();
                 for (Map.Entry<Integer, InstanceGoogleTrace> entry1 : instanceGoogleTraceMap.entrySet()) {
-                    Integer instanceIndex = entry1.getKey();
                     InstanceGoogleTrace instanceGoogleTrace = entry1.getValue();
-                    int lifeTime = (Math.max((int) (random.nextGaussian() * lifeTimeStd + lifeTimeMean), 5000));
+                    int lifeTime;
+                    if (lifeTimeMean == -1) {
+                        lifeTime = -1;
+                    } else {
+                        lifeTime = (((int) (random.nextGaussian()) / 10 * 10 * lifeTimeStd + lifeTimeMean));
+                    }
                     Instance instance = new InstanceSimple(UserRequestManagerGoogleTrace.instanceId++, (int) (instanceGoogleTrace.cpu * maxCpuCapacity), (int) (instanceGoogleTrace.ram * maxRamCapacity), storageCapacity, bwCapacity, lifeTime);
                     instances.add(instance);
                 }
                 InstanceGroup instanceGroup = new InstanceGroupSimple(UserRequestManagerGoogleTrace.instanceGroupId++, instances);
                 double accessLatencyFlag = random.nextDouble();
                 if (accessLatencyFlag <= accessLatencyPercentage) {
-                    instanceGroup.setAccessLatency(0);
+                    double accessLatency = random.nextGaussian() * accessLatencyStd + accessLatencyMean;
+                    instanceGroup.setAccessLatency(accessLatency);
                 }
                 instanceGroups.add(instanceGroup);
             }
-            UserRequest userRequest = new UserRequestSimple(UserRequestManagerGoogleTrace.userRequestId++, instanceGroups, new InstanceGroupGraphSimple(false));
-            userRequest.setSubmitTime(submitTime);
+            InstanceGroupGraph instanceGroupGraph;
+            if (edgePercentage != 0) {
+                instanceGroupGraph = generateAnInstanceGroupGraph(instanceGroups);
+            } else {
+                instanceGroupGraph = new InstanceGroupGraphSimple(false);
+            }
+            UserRequest userRequest = new UserRequestSimple(UserRequestManagerGoogleTrace.userRequestId++, instanceGroups, instanceGroupGraph);
+            userRequest.setSubmitTime(submitTime + lastSubmitTimeMap.get(datacenterId));
             userRequest.setBelongDatacenterId(datacenterId);
+            userRequest.setArea(googleTraceRequestFiles.get(datacenterId).getArea());
             return userRequest;
         }
+
+        private InstanceGroupGraph generateAnInstanceGroupGraph(List<InstanceGroup> instanceGroups) {
+            InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
+            instanceGroupGraph.setDirected(isEdgeDirected);
+            for (int i = 0; i < instanceGroups.size(); i++) {
+                int j = (isEdgeDirected) ? 0 : i + 1;
+                for (; j < instanceGroups.size(); j++) {
+                    if (random.nextDouble() < edgePercentage && j != i) {
+                        double bw = random.nextGaussian() * edgeBwStd + edgeBwMean;
+                        bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                        double delay = random.nextGaussian() * edgeDelayStd + edgeDelayMean;
+                        instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), delay, bw);
+                    }
+                }
+            }
+            return instanceGroupGraph;
+        }
+
     }
 
     private Logger LOGGER = LoggerFactory.getLogger(UserRequestManagerGoogleTrace.class.getSimpleName());
@@ -97,41 +129,87 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
     int lifeTimeMean;
     int lifeTimeStd;
     double accessLatencyPercentage;
+    double accessLatencyMean;
+    double accessLatencyStd;
+    boolean isEdgeDirected;
+    double edgePercentage;
+    double edgeDelayMean;
+    double edgeDelayStd;
+    double edgeBwMean;
+    double edgeBwStd;
     CSVFormat csvFormat;
-    Map<String, Integer> datacenterFileMap;
+    Map<Integer, GoogleTraceRequestFile> googleTraceRequestFiles;
     Map<Integer, CSVRecord> csvRecordMap = new HashMap<>();
     Map<Integer, Iterator<CSVRecord>> csvIteratorMap = new HashMap<>();
     Map<Integer, List<UserRequest>> latestUserRequestMap = new HashMap<>();
+    Map<Integer, Integer> rowMap = new HashMap<>();
+    Map<Integer, Double> lastSubmitTimeMap = new HashMap<>();
 
-    public UserRequestManagerGoogleTrace(Map<String, Integer> datacenterFileMap, int maxCpuCapacity, int maxRamCapacity, int storageCapacity, int bwCapacity, int lifeTimeMean, int lifeTimeStd, double accessLatencyPercentage) {
+    public UserRequestManagerGoogleTrace(Map<Integer, GoogleTraceRequestFile> googleTraceRequestFiles, int maxCpuCapacity, int maxRamCapacity, int storageCapacity, int bwCapacity, int lifeTimeMean, int lifeTimeStd) {
         this.maxCpuCapacity = maxCpuCapacity;
         this.maxRamCapacity = maxRamCapacity;
         this.storageCapacity = storageCapacity;
         this.bwCapacity = bwCapacity;
-        this.datacenterFileMap = datacenterFileMap;
+        this.googleTraceRequestFiles = googleTraceRequestFiles;
+        this.lifeTimeMean = lifeTimeMean;
+        this.lifeTimeStd = lifeTimeStd;
+        this.accessLatencyPercentage = 0;
+        this.edgePercentage = 0;
+        this.csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
+        initCsvRecordMap();
+    }
+
+    public UserRequestManagerGoogleTrace(Map<Integer, GoogleTraceRequestFile> googleTraceRequestFiles, int maxCpuCapacity, int maxRamCapacity, int storageCapacity, int bwCapacity, int lifeTimeMean, int lifeTimeStd,
+                                         double accessLatencyPercentage, double accessLatencyMean, double accessLatencyStd,
+                                         boolean isEdgeDirected, double edgePercentage, double edgeDelayMean, double edgeDelayStd, double edgeBwMean, double edgeBwStd) {
+        this.maxCpuCapacity = maxCpuCapacity;
+        this.maxRamCapacity = maxRamCapacity;
+        this.storageCapacity = storageCapacity;
+        this.bwCapacity = bwCapacity;
+        this.googleTraceRequestFiles = googleTraceRequestFiles;
         this.lifeTimeMean = lifeTimeMean;
         this.lifeTimeStd = lifeTimeStd;
         this.accessLatencyPercentage = accessLatencyPercentage;
+        this.accessLatencyMean = accessLatencyMean;
+        this.accessLatencyStd = accessLatencyStd;
+        this.isEdgeDirected = isEdgeDirected;
+        this.edgePercentage = edgePercentage;
+        this.edgeDelayMean = edgeDelayMean;
+        this.edgeDelayStd = edgeDelayStd;
+        this.edgeBwMean = edgeBwMean;
+        this.edgeBwStd = edgeBwStd;
         this.csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
-        for (Map.Entry<String, Integer> entry : datacenterFileMap.entrySet()) {
-            String fileName = entry.getKey();
-            Integer datacenterId = entry.getValue();
-            File csvFile = new File(fileName);
-            try {
-                CSVParser csvParser = new CSVParser(new FileReader(csvFile), csvFormat);
-                Iterator<CSVRecord> csvIterator = csvParser.iterator();
-                csvIteratorMap.put(datacenterId, csvIterator);
+        initCsvRecordMap();
+    }
 
-                Iterator<CSVRecord> csvIteratorNext = csvParser.iterator();
-                if (csvIteratorNext.hasNext()) {
-                    csvRecordMap.put(datacenterId, csvIteratorNext.next());
-                } else {
-                    csvRecordMap.put(datacenterId, null);
-                }
-                generateUserRequests(datacenterId);
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void initCsvRecordMap() {
+        for (Map.Entry<Integer, GoogleTraceRequestFile> googleTraceRequestFile : googleTraceRequestFiles.entrySet()) {
+            Integer belongDatacenterId = googleTraceRequestFile.getKey();
+            rowMap.put(belongDatacenterId, 0);
+            lastSubmitTimeMap.put(belongDatacenterId, 0.0);
+            initCsvRecordMap(belongDatacenterId);
+            generateUserRequests(belongDatacenterId);
+        }
+    }
+
+    private void initCsvRecordMap(Integer belongDatacenterId) {
+        GoogleTraceRequestFile googleTraceRequestFile = googleTraceRequestFiles.get(belongDatacenterId);
+        String filePath = googleTraceRequestFile.getFilePath();
+        File csvFile = new File(filePath);
+
+        try {
+            CSVParser csvParser = new CSVParser(new FileReader(csvFile), csvFormat);
+            Iterator<CSVRecord> csvIterator = csvParser.iterator();
+            csvIteratorMap.put(belongDatacenterId, csvIterator);
+
+            Iterator<CSVRecord> csvIteratorNext = csvParser.iterator();
+            if (csvIteratorNext.hasNext()) {
+                csvRecordMap.put(belongDatacenterId, csvIteratorNext.next());
+            } else {
+                csvRecordMap.put(belongDatacenterId, null);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -141,21 +219,30 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
         while (csvRecordMap.get(datacenterId) != null) {
             CSVRecord csvRecord = csvRecordMap.get(datacenterId);
             userRequestGoogleTrace.addRecord(csvRecord);
-            if (csvIterator.hasNext()) {
-                CSVRecord csvRecordNext = csvIterator.next();
-                csvRecordMap.put(datacenterId, csvRecordNext);
-                if (!Objects.equals(csvRecordNext.get(1), csvRecord.get(1))) {
-                    UserRequest googleUserRequest = addUserRequestToMap(datacenterId, userRequestGoogleTrace);
-                    double nextRequestSubmitTime = Double.parseDouble(csvRecordNext.get(0));
-                    if (nextRequestSubmitTime == googleUserRequest.getSubmitTime()) {
-                        userRequestGoogleTrace = new UserRequestGoogleTrace();
-                    } else {
-                        break;
-                    }
-                }
-            } else {
+            rowMap.put(datacenterId, rowMap.get(datacenterId) + 1);
+            if (rowMap.get(datacenterId) > googleTraceRequestFiles.get(datacenterId).getRowNum()) {
                 addUserRequestToMap(datacenterId, userRequestGoogleTrace);
                 csvRecordMap.put(datacenterId, null);
+                break;
+            } else {
+                if (csvIterator.hasNext()) {
+                    CSVRecord csvRecordNext = csvIterator.next();
+                    csvRecordMap.put(datacenterId, csvRecordNext);
+                    if (!Objects.equals(csvRecordNext.get(1), csvRecord.get(1))) {
+                        UserRequest googleUserRequest = addUserRequestToMap(datacenterId, userRequestGoogleTrace);
+                        double nextRequestSubmitTime = Double.parseDouble(csvRecordNext.get(0)) + lastSubmitTimeMap.get(datacenterId);
+                        if (nextRequestSubmitTime == googleUserRequest.getSubmitTime()) {
+                            userRequestGoogleTrace = new UserRequestGoogleTrace();
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    UserRequest googleUserRequest = addUserRequestToMap(datacenterId, userRequestGoogleTrace);
+                    initCsvRecordMap(datacenterId);
+                    lastSubmitTimeMap.put(datacenterId, googleUserRequest.getSubmitTime());
+                    break;
+                }
             }
         }
     }
