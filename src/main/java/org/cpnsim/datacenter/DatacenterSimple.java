@@ -294,7 +294,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
 
-        if (intraSchedulers.size() > 0) {
+        if (intraSchedulers != null && !intraSchedulers.isEmpty()) {
             statesManager.adjustScheduleView();
         }
     }
