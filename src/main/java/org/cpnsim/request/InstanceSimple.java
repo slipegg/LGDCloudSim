@@ -40,7 +40,7 @@ public class InstanceSimple implements Instance {
 
         this.lifeTime = -1;
         this.destHost = -1;
-        this.retryMaxNum = 3;
+        this.retryMaxNum = 0;
 
         this.host = -1;
         this.expectedScheduleHostId = -1;

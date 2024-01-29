@@ -37,7 +37,7 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.instances = new ArrayList<>();
         this.groupType = 0;
         this.retryNum = 0;
-        this.retryMaxNum = 3;
+        this.retryMaxNum = 0;
         this.state = UserRequest.WAITING;
         this.accessLatency = Double.MAX_VALUE;
         this.receiveDatacenter = Datacenter.NULL;
