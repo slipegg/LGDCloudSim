@@ -36,14 +36,9 @@ public interface InstanceGroupQueue {
     /**
      * Get a batch of groupInstances from the queue.
      */
-    List<InstanceGroup> getBatchItem();
+    QueueResult<InstanceGroup> getBatchItem(double nowTime);
 
-    List<InstanceGroup> getItems(int num);
-
-    /**
-     * Get all groupInstances from the queue.
-     */
-    List<InstanceGroup> getAllItem();
+    QueueResult<InstanceGroup> getItems(int num, double nowTime);
 
     /**
      * Get the size of the queue.

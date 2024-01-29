@@ -1,10 +1,13 @@
 package org.cpnsim.intrascheduler;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.cpnsim.request.Instance;
+import org.cpnsim.request.UserRequest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class IntraSchedulerResult {
     @Getter
@@ -18,6 +21,10 @@ public class IntraSchedulerResult {
 
     @Getter
     private List<Instance> failedInstances;
+
+    @Getter
+    @Setter
+    private Set<UserRequest> outDatedUserRequests;
 
     public IntraSchedulerResult(IntraScheduler intraScheduler, double scheduleTime) {
         this.intraScheduler = intraScheduler;
@@ -43,6 +50,6 @@ public class IntraSchedulerResult {
     }
 
     public boolean isFailedInstancesEmpty() {
-        return failedInstances.isEmpty();
+        return failedInstances.isEmpty() && outDatedUserRequests.isEmpty();
     }
 }

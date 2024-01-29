@@ -476,7 +476,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<Instance> failedInstances = entry.getValue();
 
             if (!failedInstances.isEmpty()) {
-                innerScheduleFailed(failedInstances, intraScheduler, true);
+                intraScheduleFailed(failedInstances, intraScheduler, true);
             }
         }
 
@@ -550,7 +550,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
 
             if (!intraSchedulerResult.isFailedInstancesEmpty()) {
-                innerScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false);
+                intraScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false, intraSchedulerResult.getOutDatedUserRequests());
             }
             intraSchedulerResults.add(intraSchedulerResult);
             if (!intraSchedulerResult.isScheduledInstancesEmpty()) {
@@ -592,9 +592,17 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void innerScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState) {
+    private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState) {
+        Set<UserRequest> outDatedUserRequests = new HashSet<>();
+        intraScheduleFailed(instances, intraScheduler, isNeedRevertSelfHostState, outDatedUserRequests);
+    }
+
+    private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
         Iterator<Instance> instanceIterator = instances.iterator();
-        Set<UserRequest> failedUserRequests = new HashSet<>();
+        Set<UserRequest> failedUserRequests = outDatedUserRequests;
+        for (UserRequest userRequest : outDatedUserRequests) {
+            userRequest.addFailReason("outDated");
+        }
 
         while (instanceIterator.hasNext()) {
             Instance instance = instanceIterator.next();
@@ -632,7 +640,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param evt
      */
     private void processLoadBalanceSend(SimEvent evt) {
-        List<Instance> instances = instanceQueue.getAllItem(true);
+        List<Instance> instances = instanceQueue.getAllItem();
         if (instances.size() != 0) {
             Set<IntraScheduler> sentIntraScheduler = loadBalance.sendInstances(instances);
             if (instanceQueue.size() > 0) {
@@ -904,7 +912,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             sendInterScheduleResult(interSchedulerResult);
 
-            handleFailedInterScheduling(interSchedulerResult.getFailedInstanceGroups());
+            handleFailedInterScheduling(interSchedulerResult.getFailedInstanceGroups(), interSchedulerResult.getOutDatedUserRequests());
 
             LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getInstanceGroupNum());
 
@@ -954,9 +962,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instanceGroups.forEach(instanceGroup -> instanceGroup.addForwardDatacenterIdHistory(getId()));
     }
 
-    private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups) {
+    private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups, Set<UserRequest> outDatedUserRequests) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
-        Set<UserRequest> failedUserRequests = new HashSet<>();
+        Set<UserRequest> failedUserRequests = outDatedUserRequests;
+
+        for (UserRequest userRequest : outDatedUserRequests) {
+            userRequest.addFailReason("outDated");
+        }
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {
             //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
@@ -979,6 +991,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
         }
+    }
+
+    private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups) {
+        Set<UserRequest> outDatedUserRequests = new HashSet<>();
+        handleFailedInterScheduling(failedInstanceGroups, outDatedUserRequests);
     }
 
     @Override

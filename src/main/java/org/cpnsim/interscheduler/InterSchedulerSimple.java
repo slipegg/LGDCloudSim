@@ -3,6 +3,7 @@ package org.cpnsim.interscheduler;
 import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.core.Simulation;
+import org.cpnsim.datacenter.QueueResult;
 import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.InstanceGroupQueue;
@@ -153,7 +154,8 @@ public class InterSchedulerSimple implements InterScheduler {
     public InterSchedulerResult schedule() {
         synDcStateRealTime();
 
-        List<InstanceGroup> waitSchedulingInstanceGroups = getWaitSchedulingInstanceGroups();
+        QueueResult<InstanceGroup> queueResult = getWaitSchedulingInstanceGroups();
+        List<InstanceGroup> waitSchedulingInstanceGroups = queueResult.getWaitScheduledItems();
         InterSchedulerResult interSchedulerResult = null;
 
         traversalTime = 0;
@@ -170,6 +172,7 @@ public class InterSchedulerSimple implements InterScheduler {
         double end = System.currentTimeMillis();
 
         this.scheduleTime = Math.max(0.1, end - start);
+        interSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
         return interSchedulerResult;
     }
 
@@ -231,15 +234,19 @@ public class InterSchedulerSimple implements InterScheduler {
         return availableDatacenters.get(dcSelectedIndex);
     }
 
-    private List<InstanceGroup> getWaitSchedulingInstanceGroups() {
+    private QueueResult<InstanceGroup> getWaitSchedulingInstanceGroups() {
+        double nowTime = getSimulation().clock();
         if (retryInstanceGroupQueue.isEmpty()) {
-            return instanceGroupQueue.getBatchItem();
+            return instanceGroupQueue.getBatchItem(nowTime);
         } else {
-            List<InstanceGroup> instanceGroups = retryInstanceGroupQueue.getBatchItem();
-            if (instanceGroups.size() < instanceGroupQueue.getBatchNum()) {
-                instanceGroups.addAll(instanceGroupQueue.getItems(instanceGroupQueue.getBatchNum() - instanceGroups.size()));
+            QueueResult<InstanceGroup> queueResult = retryInstanceGroupQueue.getBatchItem(nowTime);
+
+            if (queueResult.getWaitScheduledItemsSize() < instanceGroupQueue.getBatchNum()) {
+                int itemNum = instanceGroupQueue.getBatchNum() - queueResult.getWaitScheduledItemsSize();
+                QueueResult<InstanceGroup> queueResultTmp = instanceGroupQueue.getItems(itemNum, nowTime);
+                queueResult.add(queueResultTmp);
             }
-            return instanceGroups;
+            return queueResult;
         }
     }
 

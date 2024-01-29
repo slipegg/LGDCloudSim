@@ -2,13 +2,13 @@ package org.cpnsim.intrascheduler;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cpnsim.datacenter.QueueResult;
 import org.cpnsim.request.Instance;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.InstanceQueue;
 import org.cpnsim.datacenter.InstanceQueueFifo;
 import org.cpnsim.statemanager.SynState;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -113,27 +113,34 @@ public class IntraSchedulerSimple implements IntraScheduler {
     public IntraSchedulerResult schedule() {
         SynState synState = datacenter.getStatesManager().getSynState(this);
 
-        List<Instance> instances = getWaitSchedulingInstances();
+        QueueResult<Instance> queueResult = getWaitSchedulingInstances();
 
         double startTime = System.currentTimeMillis();
-        IntraSchedulerResult intraSchedulerResult = scheduleInstances(instances, synState);
+        IntraSchedulerResult intraSchedulerResult = scheduleInstances(queueResult.getWaitScheduledItems(), synState);
         double endTime = System.currentTimeMillis();
 
         lastScheduleTime = datacenter.getSimulation().clock();
 
         this.scheduleCostTime = Math.max(0, (endTime - startTime) - excludeTime);//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
 
+        intraSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
         return intraSchedulerResult;
     }
 
-    private List<Instance> getWaitSchedulingInstances() {
-        List<Instance> instances = new ArrayList<>();
-        if (retryInstanceQueue.size() != 0) {
-            instances = retryInstanceQueue.getBatchItem(true);
+    private QueueResult<Instance> getWaitSchedulingInstances() {
+        double nowTime = getDatacenter().getSimulation().clock();
+        if (retryInstanceQueue.isEmpty()) {
+            return instanceQueue.getBatchItem(nowTime);
         } else {
-            instances = instanceQueue.getBatchItem(true);
+            QueueResult<Instance> queueResult = retryInstanceQueue.getBatchItem(nowTime);
+
+            if (queueResult.getWaitScheduledItemsSize() < instanceQueue.getBatchNum()) {
+                int itemNum = instanceQueue.getBatchNum() - queueResult.getWaitScheduledItemsSize();
+                QueueResult<Instance> queueResultTmp = instanceQueue.getItems(itemNum, nowTime);
+                queueResult.add(queueResultTmp);
+            }
+            return queueResult;
         }
-        return instances;
     }
 
     protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {

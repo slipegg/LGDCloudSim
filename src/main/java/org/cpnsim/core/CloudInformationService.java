@@ -201,7 +201,7 @@ public class CloudInformationService extends CloudSimEntity {
 
             sendInterScheduleResult(interSchedulerResult);
 
-            handleFailedInterScheduling(interSchedulerResult.getCollaborationId(), interSchedulerResult.getFailedInstanceGroups());
+            handleFailedInterScheduling(interSchedulerResult.getCollaborationId(), interSchedulerResult.getFailedInstanceGroups(), interSchedulerResult.getOutDatedUserRequests());
 
 //            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET
 //                    || interSchedulerResult.isScheduledInstanceGroupsEmpty()) {
@@ -255,9 +255,17 @@ public class CloudInformationService extends CloudSimEntity {
         }
     }
 
+
     private void handleFailedInterScheduling(int collaborationId, List<InstanceGroup> failedInstanceGroups) {
+        handleFailedInterScheduling(collaborationId, failedInstanceGroups, new HashSet<>());
+    }
+
+    private void handleFailedInterScheduling(int collaborationId, List<InstanceGroup> failedInstanceGroups, Set<UserRequest> outDatedUserRequests) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
-        Set<UserRequest> failedUserRequests = new HashSet<>();
+        Set<UserRequest> failedUserRequests = outDatedUserRequests;
+        for (UserRequest userRequest : outDatedUserRequests) {
+            userRequest.addFailReason("outDated");
+        }
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {
             //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度

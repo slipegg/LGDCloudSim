@@ -33,7 +33,7 @@ public class InstanceQueueFifoTest {
 
         assertEquals(5, instanceQueueFifoTest.size());
         instanceQueueFifoTest.setBatchNum(2);
-        assertEquals(2, instanceQueueFifoTest.getBatchItem(true).size());
-        assertEquals(3, instanceQueueFifoTest.getAllItem(true).size());
+        assertEquals(2, instanceQueueFifoTest.getBatchItem(-1).getWaitScheduledItems().size());
+        assertEquals(3, instanceQueueFifoTest.getAllItem().size());
     }
 }

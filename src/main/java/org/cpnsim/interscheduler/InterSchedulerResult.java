@@ -4,11 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.UserRequest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -19,6 +17,7 @@ public class InterSchedulerResult {
     private Map<Datacenter, List<InstanceGroup>> scheduledResultMap;//TODO 后续需要改为Set以加速isContained
     private List<InstanceGroup> failedInstanceGroups;
     private int instanceGroupNum;
+    private Set<UserRequest> outDatedUserRequests;
 
     public InterSchedulerResult(int collaborationId, int target, Boolean isSupportForward, List<Datacenter> allDatacenters) {
         this.collaborationId = collaborationId;
@@ -26,7 +25,6 @@ public class InterSchedulerResult {
         this.isSupportForward = isSupportForward;
         this.failedInstanceGroups = new ArrayList<>();
         initDcResultMap(allDatacenters);
-
     }
 
     public InterSchedulerResult(int collaborationId, int target, List<Datacenter> allDatacenters) {

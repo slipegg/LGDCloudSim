@@ -42,6 +42,7 @@ public interface Simulation {
 
     CollaborationManager getCollaborationManager();
 
+    // TODO 设置成精度值，而不是保留的位数，以支持像10ms这样的精度
     int getSimulationAccuracy();
 
     //设置模拟的时间精度，即到小数点后几位，默认是2位，即0.01ms

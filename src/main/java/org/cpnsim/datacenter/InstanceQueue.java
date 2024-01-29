@@ -21,12 +21,14 @@ public interface InstanceQueue {
     /**
      * Get a batch of instances from the queue.
      */
-    List<Instance> getBatchItem(boolean isDelete);
+    QueueResult<Instance> getBatchItem(double nowTime);
 
     /**
      * Get all instances from the queue.
      */
-    List<Instance> getAllItem(boolean isDelete);
+    List<Instance> getAllItem();
+
+    QueueResult<Instance> getItems(int num, double nowTime);
 
     /**
      * Add a list of instances to the queue.
@@ -60,4 +62,6 @@ public interface InstanceQueue {
      * Set the number of instances to be sent in a batch.
      */
     InstanceQueue setBatchNum(int batchNum);
+
+    boolean isEmpty();
 }

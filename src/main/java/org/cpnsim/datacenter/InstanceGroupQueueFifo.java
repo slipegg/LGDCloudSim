@@ -2,12 +2,12 @@ package org.cpnsim.datacenter;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A class to represent a instanceGroup queue with first in first out.
@@ -30,8 +30,8 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     private int batchNum;
 
     public InstanceGroupQueueFifo() {
-        instanceGroups = new LinkedList<>();
-        batchNum = 10000;
+        this.instanceGroups = new LinkedList<>();
+        this.batchNum = 10000;
     }
 
     @Override
@@ -74,29 +74,32 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     }
 
     @Override
-    public List<InstanceGroup> getBatchItem() {
-        return getItems(batchNum);
+    public QueueResult<InstanceGroup> getBatchItem(double nowTime) {
+        return getItems(batchNum, nowTime);
     }
 
     @Override
-    public List<InstanceGroup> getAllItem() {
-        return getItems(this.instanceGroups.size());
-    }
-
-    @Override
-    public List<InstanceGroup> getItems(int num) {
+    public QueueResult<InstanceGroup> getItems(int num, double nowTime) {
         List<InstanceGroup> sendInstanceGroups = new ArrayList<>();
+        Set<UserRequest> failedUserRequests = new HashSet<>();
+
         for (int i = 0; i < num; i++) {
-            if (instanceGroups.size() == 0) {
+            if (instanceGroups.isEmpty()) {
                 break;
             }
-            if (instanceGroups.get(0).getUserRequest().getState() == UserRequest.FAILED) {
+            UserRequest userRequest = instanceGroups.get(0).getUserRequest();
+            if (userRequest.getState() == UserRequest.FAILED) {
+                instanceGroups.remove(0);
+                continue;
+            }
+            if (userRequest.getScheduleDelayLimit() > 0 && nowTime - userRequest.getSubmitTime() > userRequest.getScheduleDelayLimit()) {
+                failedUserRequests.add(userRequest);
                 instanceGroups.remove(0);
                 continue;
             }
             sendInstanceGroups.add(instanceGroups.remove(0));
         }
-        return sendInstanceGroups;
+        return new QueueResult(sendInstanceGroups, failedUserRequests);
     }
 
     @Override
@@ -106,7 +109,7 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
 
     @Override
     public boolean isEmpty() {
-        return instanceGroups.size() == 0;
+        return instanceGroups.isEmpty();
     }
 
 }
