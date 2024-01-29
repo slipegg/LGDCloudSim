@@ -17,7 +17,6 @@
     }
   ],
   "synchronizationGap": 0,
-  "architecture": "monolithic",
   "innerSchedulers": [
     {
       "type": "FirstFit"

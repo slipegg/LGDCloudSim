@@ -1,9 +1,9 @@
 {
   "id": 1,
-  "hostNum": 5000000,
+  "hostNum": 100000,
   "partitions": [
     {
-      "length": 5000000
+      "length": 100000
     }
   ],
   "hostStates": [
@@ -13,7 +13,7 @@
       "storage": 10,
       "bw": 10,
       "startId": 0,
-      "length": 5000000
+      "length": 100000
     }
   ],
   "synchronizationGap": 0,
