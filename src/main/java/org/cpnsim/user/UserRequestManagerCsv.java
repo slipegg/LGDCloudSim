@@ -25,6 +25,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int RequestTimeIntervalMin = -2;
     private int RequestTimeIntervalMax = -2;
     private int RequestTimes = -2;
+    private double ScheduleDelayLimitMin = -2;
+    private double ScheduleDelayLimitMax = -2;
     private int RequestGroupNumMin = -2;
     private int RequestGroupNumMax = -2;
     private int GroupInstanceNumMin = -2;
@@ -85,6 +87,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "RequestTimeIntervalMin" -> this.RequestTimeIntervalMin = Integer.parseInt(csvRecord.get(1));
                     case "RequestTimeIntervalMax" -> this.RequestTimeIntervalMax = Integer.parseInt(csvRecord.get(1));
                     case "RequestTimes" -> this.RequestTimes = Integer.parseInt(csvRecord.get(1));
+                    case "ScheduleDelayLimitMin" -> this.ScheduleDelayLimitMin = Double.parseDouble(csvRecord.get(1));
+                    case "ScheduleDelayLimitMax" -> this.ScheduleDelayLimitMax = Double.parseDouble(csvRecord.get(1));
                     case "RequestGroupNumMin" -> this.RequestGroupNumMin = Integer.parseInt(csvRecord.get(1));
                     case "RequestGroupNumMax" -> this.RequestGroupNumMax = Integer.parseInt(csvRecord.get(1));
                     case "GroupInstanceNumMin" -> this.GroupInstanceNumMin = Integer.parseInt(csvRecord.get(1));
@@ -154,6 +158,8 @@ public class UserRequestManagerCsv implements UserRequestManager {
             userRequest.setBelongDatacenterId(belongDatacenterId);
             userRequest.setArea(belongArea);
             userRequest.setSubmitTime(nextSendTime);
+            double scheduleDelayLimit = random.nextDouble() * (ScheduleDelayLimitMax - ScheduleDelayLimitMin) + ScheduleDelayLimitMin;
+            userRequest.setScheduleDelayLimit(scheduleDelayLimit);
             userRequests.add(userRequest);
             if (!userRequestsMap.containsKey(belongDatacenterId)) {
                 userRequestsMap.put(belongDatacenterId, new ArrayList<>());
@@ -316,6 +322,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
         }
         if (RequestTimes == -2) {
             uninitializedVars.add("RequestTimes");
+        }
+        if (ScheduleDelayLimitMin == -2) {
+            uninitializedVars.add("ScheduleDelayLimitMin");
+        }
+        if (ScheduleDelayLimitMax == -2) {
+            uninitializedVars.add("ScheduleDelayLimitMax");
         }
         if (RequestGroupNumMin == -2) {
             uninitializedVars.add("RequestGroupNumMin");

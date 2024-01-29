@@ -62,4 +62,8 @@ public interface UserRequest extends ChangeableId {
     String getArea();
 
     UserRequest setArea(String area);
+
+    double getScheduleDelayLimit();
+
+    UserRequest setScheduleDelayLimit(double scheduleDelayLimit);
 }

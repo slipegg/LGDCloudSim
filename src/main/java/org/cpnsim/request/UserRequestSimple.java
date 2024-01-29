@@ -25,6 +25,9 @@ public class UserRequestSimple implements UserRequest {
     private List<InstanceGroup> instanceGroups;
     @Getter
     private InstanceGroupGraph instanceGroupGraph;
+    @Getter
+    @Setter
+    private double scheduleDelayLimit;
 
     public UserRequestSimple(int id) {
         this.id = id;
