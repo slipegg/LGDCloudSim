@@ -23,7 +23,7 @@ public class UnitPriceConfiguration {
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParament.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameter.csv";
 
     public static void main(String[] args) {
         new UnitPriceConfiguration();

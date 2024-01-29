@@ -24,7 +24,7 @@ public class InterScheduleExample {
     String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interScheduleExperiment/DatacentersConfig.json";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interScheduleExperiment/DatacentersConfigDistributeDirect.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/interScheduleExperiment/generateRequestParament.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/interScheduleExperiment/generateRequestParameter.csv";
 
     public static void main(String[] args) {
         new InterScheduleExample();
