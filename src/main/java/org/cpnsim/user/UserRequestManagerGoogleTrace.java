@@ -75,15 +75,17 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
                     if (lifeTimeMean == -1) {
                         lifeTime = -1;
                     } else {
-                        lifeTime = Math.min(1, (((int) (random.nextGaussian()) / 10 * 10 * lifeTimeStd + lifeTimeMean)));
+                        lifeTime = Math.max(1, (((int) (random.nextGaussian()) / 10 * 10 * lifeTimeStd + lifeTimeMean)));
                     }
                     Instance instance = new InstanceSimple(UserRequestManagerGoogleTrace.instanceId++, (int) (instanceGoogleTrace.cpu * maxCpuCapacity), (int) (instanceGoogleTrace.ram * maxRamCapacity), storageCapacity, bwCapacity, lifeTime);
+                    instance.setRetryMaxNum(instanceRetryTimes);
                     instances.add(instance);
                 }
                 InstanceGroup instanceGroup = new InstanceGroupSimple(UserRequestManagerGoogleTrace.instanceGroupId++, instances);
+                instanceGroup.setRetryMaxNum(instanceGroupRetryTimes);
                 double accessLatencyFlag = random.nextDouble();
                 if (accessLatencyFlag <= accessLatencyPercentage) {
-                    double accessLatency = Math.min(0, random.nextGaussian() * accessLatencyStd + accessLatencyMean);
+                    double accessLatency = Math.max(0, random.nextGaussian() * accessLatencyStd + accessLatencyMean);
                     instanceGroup.setAccessLatency(accessLatency);
                 }
                 instanceGroups.add(instanceGroup);
@@ -108,9 +110,9 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
                 int j = (isEdgeDirected) ? 0 : i + 1;
                 for (; j < instanceGroups.size(); j++) {
                     if (random.nextDouble() < edgePercentage && j != i) {
-                        double bw = Math.min(0, random.nextGaussian() * edgeBwStd + edgeBwMean);
+                        double bw = Math.max(0, random.nextGaussian() * edgeBwStd + edgeBwMean);
                         bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                        double delay = Math.min(0, random.nextGaussian() * edgeDelayStd + edgeDelayMean);
+                        double delay = Math.max(0, random.nextGaussian() * edgeDelayStd + edgeDelayMean);
                         instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), delay, bw);
                     }
                 }
@@ -128,6 +130,8 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
     int bwCapacity;
     int lifeTimeMean;
     int lifeTimeStd;
+    int instanceGroupRetryTimes;
+    int instanceRetryTimes;
     double accessLatencyPercentage;
     double accessLatencyMean;
     double accessLatencyStd;
@@ -145,7 +149,7 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
     Map<Integer, Integer> rowMap = new HashMap<>();
     Map<Integer, Double> lastSubmitTimeMap = new HashMap<>();
 
-    public UserRequestManagerGoogleTrace(Map<Integer, GoogleTraceRequestFile> googleTraceRequestFiles, int maxCpuCapacity, int maxRamCapacity, int storageCapacity, int bwCapacity, int lifeTimeMean, int lifeTimeStd) {
+    public UserRequestManagerGoogleTrace(Map<Integer, GoogleTraceRequestFile> googleTraceRequestFiles, int maxCpuCapacity, int maxRamCapacity, int storageCapacity, int bwCapacity, int lifeTimeMean, int lifeTimeStd, int instanceGroupRetryTimes, int instanceRetryTimes) {
         this.maxCpuCapacity = maxCpuCapacity;
         this.maxRamCapacity = maxRamCapacity;
         this.storageCapacity = storageCapacity;
@@ -153,13 +157,15 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
         this.googleTraceRequestFiles = googleTraceRequestFiles;
         this.lifeTimeMean = lifeTimeMean;
         this.lifeTimeStd = lifeTimeStd;
+        this.instanceGroupRetryTimes = instanceGroupRetryTimes;
+        this.instanceRetryTimes = instanceRetryTimes;
         this.accessLatencyPercentage = 0;
         this.edgePercentage = 0;
         this.csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
         initCsvRecordMap();
     }
 
-    public UserRequestManagerGoogleTrace(Map<Integer, GoogleTraceRequestFile> googleTraceRequestFiles, int maxCpuCapacity, int maxRamCapacity, int storageCapacity, int bwCapacity, int lifeTimeMean, int lifeTimeStd,
+    public UserRequestManagerGoogleTrace(Map<Integer, GoogleTraceRequestFile> googleTraceRequestFiles, int maxCpuCapacity, int maxRamCapacity, int storageCapacity, int bwCapacity, int lifeTimeMean, int lifeTimeStd, int instanceGroupRetryTimes, int instanceRetryTimes,
                                          double accessLatencyPercentage, double accessLatencyMean, double accessLatencyStd,
                                          boolean isEdgeDirected, double edgePercentage, double edgeDelayMean, double edgeDelayStd, double edgeBwMean, double edgeBwStd) {
         this.maxCpuCapacity = maxCpuCapacity;
@@ -169,6 +175,8 @@ public class UserRequestManagerGoogleTrace implements UserRequestManager {
         this.googleTraceRequestFiles = googleTraceRequestFiles;
         this.lifeTimeMean = lifeTimeMean;
         this.lifeTimeStd = lifeTimeStd;
+        this.instanceGroupRetryTimes = instanceGroupRetryTimes;
+        this.instanceRetryTimes = instanceRetryTimes;
         this.accessLatencyPercentage = accessLatencyPercentage;
         this.accessLatencyMean = accessLatencyMean;
         this.accessLatencyStd = accessLatencyStd;
