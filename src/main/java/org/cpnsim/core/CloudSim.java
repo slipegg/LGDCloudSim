@@ -54,6 +54,10 @@ public class CloudSim implements Simulation {
     @Setter
     private boolean singleDatacenterFlag = false;
 
+    @Getter
+    @Setter
+    private String dbName;
+
     public CloudSim() {
         clock = 0;
         this.entityList = new ArrayList<>();
@@ -137,7 +141,11 @@ public class CloudSim implements Simulation {
     @Override
     public double start() {
         if (isSqlRecord) {
-            this.sqlRecord = new SqlRecordSimple("cpnSim"+collaborationManager.getDatacenterById(1).getArchitecture()+".db");
+            if(getDbName()==null || getDbName().isEmpty()){
+                this.sqlRecord = new SqlRecordSimple("cpnSim"+collaborationManager.getDatacenterById(1).getArchitecture()+".db");
+            }else{
+                this.sqlRecord = new SqlRecordSimple(getDbName());
+            }
         } else {
             this.sqlRecord = new SqlRecordNull();
         }

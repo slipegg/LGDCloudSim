@@ -63,4 +63,8 @@ public interface Simulation {
     boolean isSingleDatacenterFlag();
 
     Simulation setSingleDatacenterFlag(boolean isSingleDatacenter);
+
+    Simulation setDbName(String dbName);
+
+    String getDbName();
 }

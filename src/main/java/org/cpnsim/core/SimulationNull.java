@@ -134,4 +134,14 @@ public class SimulationNull implements Simulation {
     public Simulation setSingleDatacenterFlag(boolean isSingleDatacenter) {
         return  this;
     }
+
+    @Override
+    public Simulation setDbName(String dbName) {
+        return null;
+    }
+
+    @Override
+    public String getDbName() {
+        return null;
+    }
 }
