@@ -37,7 +37,7 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
-    public void recordInstanceGroupsReceivedInfo(List<InstanceGroup> instanceGroups) {
+    public void recordInstanceGroupsReceivedInfo(List instanceGroups) {
 
     }
 

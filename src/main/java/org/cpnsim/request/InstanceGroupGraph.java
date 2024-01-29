@@ -31,4 +31,7 @@ public interface InstanceGroupGraph extends RequestEntity{
 
     double getBw(InstanceGroup src, InstanceGroup dst);
 
+    boolean isEmpty();
+
+    boolean isEdgeLinked(InstanceGroup instanceGroup);
 }

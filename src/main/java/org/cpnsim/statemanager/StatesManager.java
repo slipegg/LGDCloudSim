@@ -2,8 +2,8 @@ package org.cpnsim.statemanager;
 
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.DatacenterPowerOnRecord;
-import org.cpnsim.innerscheduler.InnerScheduler;
-import org.cpnsim.innerscheduler.InnerSchedulerResult;
+import org.cpnsim.intrascheduler.IntraScheduler;
+import org.cpnsim.intrascheduler.IntraSchedulerResult;
 import org.cpnsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,10 @@ public interface StatesManager {
     /** Init the states of the datacenter. */
     StatesManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length);
 
-    /** get the state for {@link InnerScheduler} */
-    SynState getSynState(InnerScheduler innerScheduler);
+    /**
+     * get the state for {@link IntraScheduler}
+     */
+    SynState getSynState(IntraScheduler intraScheduler);
 
     /** Synchronize the states of the datacenter. */
     StatesManager synAllState();
@@ -95,13 +97,13 @@ public interface StatesManager {
 
     /**
      * Revert the host state according to the schedule result.
-     * If the InnerScheduler synchronizes a certain partition during the period InnerScheduleBegin~InnerScheduleEnd,
+     * If the IntraScheduler synchronizes a certain partition during the period InnerScheduleBegin~InnerScheduleEnd,
      * it will clear all the selfHostStates in this area, and the scheduler actually thinks that it has successfully scheduled itself,
-     * so we need to use the InnerScheduler's The scheduling result restores selfHostState.
+     * so we need to use the IntraScheduler's The scheduling result restores selfHostState.
      */
-    StatesManager revertHostState(InnerSchedulerResult innerSchedulerResult);
+    StatesManager revertHostState(IntraSchedulerResult intraSchedulerResult);
 
-    StatesManager revertSelftHostState(List<Instance> instances, InnerScheduler innerScheduler);
+    StatesManager revertSelftHostState(List<Instance> instances, IntraScheduler intraScheduler);
 
     /**
      * Set the record data num for predicting.
@@ -138,4 +140,8 @@ public interface StatesManager {
     int[] getHostCapacity(int hostId);
 
     HostCapacityManager getHostCapacityManager();
+
+    StatesManager adjustScheduleView();
+
+    List<Integer> getIntraSchedulerView(IntraScheduler intraScheduler);
 }

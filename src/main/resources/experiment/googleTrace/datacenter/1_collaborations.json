@@ -2,13 +2,57 @@
   "collaborations": [
     {
       "id": 0,
+      "centerScheduler": {
+        "type": "leastRequested",
+        "target": "dc",
+        "isSupportForward": false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 5,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 6,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 7,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 8,
+            "synInterval": 5000,
+            "synStateType": "easySimple"
+          }
+        ]
+      },
       "datacenters": [
         {
           "id": 1,
-          "location": [
-            93.6250,
-            41.5868
-          ],
+          "region": "us-east1",
           "resourceUnitPrice": {
             "cpu": 8.7808E-06,
             "ram": 1.1769E-06,
@@ -117,34 +161,23 @@
               "ram": 1667
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
-              "type": "simple"
+              "type": "leastRequested"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
-          },
-          "prediction": {
-            "type": "simple"
-          },
-          "isPredict": false
+          }
         },
         {
           "id": 2,
-          "location": [
-            118.2437,
-            34.0522
-          ],
+          "region": "northamerica-northeast1",
           "resourceUnitPrice": {
             "cpu": 1.0547E-05,
             "ram": 1.4136E-06,
@@ -239,34 +272,23 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
-          },
-          "prediction": {
-            "type": "simple"
-          },
-          "isPredict": false
+          }
         },
         {
           "id": 3,
-          "location": [
-            114.1694,
-            22.3193
-          ],
+          "region": "us-west1",
           "resourceUnitPrice": {
             "cpu": 1.2286E-05,
             "ram": 1.6467E-06,
@@ -375,34 +397,23 @@
               "ram": 3334
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
-          },
-          "prediction": {
-            "type": "simple"
-          },
-          "isPredict": false
+          }
         },
         {
           "id": 4,
-          "location": [
-            139.6917,
-            35.6895
-          ],
+          "region": "europe-west1",
           "resourceUnitPrice": {
             "cpu": 1.1283E-05,
             "ram": 1.5053E-06,
@@ -497,34 +508,23 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
-          },
-          "prediction": {
-            "type": "simple"
-          },
-          "isPredict": false
+          }
         },
         {
           "id": 5,
-          "location": [
-            -0.1278,
-            51.5074
-          ],
+          "region": "europe-west2",
           "resourceUnitPrice": {
             "cpu": 1.1314E-05,
             "ram": 1.5161E-06,
@@ -633,34 +633,23 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
-          },
-          "prediction": {
-            "type": "simple"
-          },
-          "isPredict": false
+          }
         },
         {
           "id": 6,
-          "location": [
-            25.7482,
-            61.9241
-          ],
+          "region": "asia-east1",
           "resourceUnitPrice": {
             "cpu": 9.6683E-06,
             "ram": 1.2956E-06,
@@ -755,34 +744,23 @@
               "ram": 3334
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
-          },
-          "prediction": {
-            "type": "simple"
-          },
-          "isPredict": false
+          }
         },
         {
           "id": 7,
-          "location": [
-            46.6333,
-            23.5505
-          ],
+          "region": "asia-east1",
           "resourceUnitPrice": {
             "cpu": 1.3939E-05,
             "ram": 1.8681E-06,
@@ -912,19 +890,15 @@
               "ram": 6669
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
@@ -936,10 +910,7 @@
         },
         {
           "id": 8,
-          "location": [
-            151.2093,
-            33.8688
-          ],
+          "region": "asia-northeast1",
           "resourceUnitPrice": {
             "cpu": 1.2460E-05,
             "ram": 1.8681E-06,
@@ -1034,27 +1005,19 @@
               "ram": 3334
             }
           ],
-          "synchronizationGap": 0,
+          "synchronizationGap": 500,
           "innerSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
             }
           ],
-          "interScheduler": {
-            "type": "minTCODirect",
-            "isDirectSend": true
-          },
           "loadBalancer": {
-            "type": "round"
+            "type": "batch"
           },
           "resourceAllocateSelector": {
             "type": "simple"
-          },
-          "prediction": {
-            "type": "simple"
-          },
-          "isPredict": false
+          }
         }
       ]
     }

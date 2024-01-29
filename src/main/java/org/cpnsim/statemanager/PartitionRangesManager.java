@@ -1,18 +1,18 @@
 package org.cpnsim.statemanager;
 
 import lombok.Getter;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.Map;
 
 /**
  * A class to manage the partition ranges in the datacenter.
  * Note that the partition here refers to the logical partition,
- * mainly for the convenience of the {@link org.cpnsim.innerscheduler.InnerScheduler}
+ * mainly for the convenience of the {@link IntraScheduler}
  * to synchronize the state of the hosts in the region on a regional basis
  *
  * @author Jiawen Liu

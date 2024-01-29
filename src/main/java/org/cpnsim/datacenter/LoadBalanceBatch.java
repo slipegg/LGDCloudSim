@@ -2,10 +2,9 @@ package org.cpnsim.datacenter;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.request.Instance;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,8 +37,8 @@ public class LoadBalanceBatch implements LoadBalance {
     int lastInnerSchedulerId = 0;
 
     @Override
-    public Set<InnerScheduler> sendInstances(List<Instance> instances) {
-        Set<InnerScheduler> sentInnerSchedulers = new HashSet<>();
+    public Set<IntraScheduler> sendInstances(List<Instance> instances) {
+        Set<IntraScheduler> sentIntraSchedulers = new HashSet<>();
         int batchSize = 100;
         int size = instances.size();
         int startIndex = 0;
@@ -47,17 +46,17 @@ public class LoadBalanceBatch implements LoadBalance {
         while (endIndex < size) {
             endIndex = Math.min(startIndex + batchSize, size);
             List<Instance> batchInstances = instances.subList(startIndex, endIndex);
-            InnerScheduler innerScheduler = datacenter.getInnerSchedulers().get(lastInnerSchedulerId);
-            lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getInnerSchedulers().size();
-            innerScheduler.addInstance(batchInstances, false);
-            sentInnerSchedulers.add(innerScheduler);
+            IntraScheduler intraScheduler = datacenter.getIntraSchedulers().get(lastInnerSchedulerId);
+            lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getIntraSchedulers().size();
+            intraScheduler.addInstance(batchInstances, false);
+            sentIntraSchedulers.add(intraScheduler);
             startIndex = endIndex;
         }
 
-        LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {} innerSchedulers,On average, each scheduler receives around {} instances",
+        LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {} intraScheduler,On average, each scheduler receives around {} instances",
                 datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(),
-                sentInnerSchedulers.size(), instances.size() / sentInnerSchedulers.size());
-        return sentInnerSchedulers;
+                sentIntraSchedulers.size(), instances.size() / sentIntraSchedulers.size());
+        return sentIntraSchedulers;
     }
 
     @Override

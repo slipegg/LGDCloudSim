@@ -41,7 +41,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
     private Simulation cloudSim;
 
     @Getter
-    private Map<Integer, GroupQueue> collaborationGroupQueueMap = new HashMap<>();
+    private Map<Integer, InstanceGroupQueue> collaborationGroupQueueMap = new HashMap<>();
 
     @Getter
     private Map<Integer, InterScheduler> collaborationCenterSchedulerMap = new HashMap<>();
@@ -250,7 +250,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
     @Override
     public CollaborationManager addCenterScheduler(InterScheduler centerScheduler) {
         int collaborationId = centerScheduler.getCollaborationId();
-        collaborationGroupQueueMap.put(collaborationId, new GroupQueueFifo());
+        collaborationGroupQueueMap.put(collaborationId, new InstanceGroupQueueFifo());
         collaborationCenterSchedulerMap.put(collaborationId, centerScheduler);
         centerSchedulerBusyMap.put(collaborationId, false);
         return this;

@@ -19,10 +19,9 @@ public class CloudSimTag {
     public static final int DC_LIST_REQUEST = BASE + 2;
     public static final int USER_REQUEST_SEND = BASE + 3;//需要dc处理接收到的用户请求
     public static final int NEED_SEND_USER_REQUEST = BASE + 4;//USER发送用户请求给dc
-    public static final int GROUP_FILTER_DC_BEGIN = BASE + 5;//USER发送用户请求,需要比USER_REQUEST_SEND小
-    public static final int GROUP_FILTER_DC_END = GROUP_FILTER_DC_BEGIN + 1;//USER发送用户请求,需要比USER_REQUEST_SEND小
-    public static final int SCHEDULE_TO_DC_AND_FORWARD = GROUP_FILTER_DC_END + 1;
-    public static final int SCHEDULE_TO_DC_NO_FORWARD = SCHEDULE_TO_DC_AND_FORWARD + 1;
+    public static final int INTER_SCHEDULE_BEGIN = BASE + 5;//USER发送用户请求,需要比USER_REQUEST_SEND小
+    public static final int INTER_SCHEDULE_END = INTER_SCHEDULE_BEGIN + 1;//USER发送用户请求,需要比USER_REQUEST_SEND小
+    public static final int SCHEDULE_TO_DC_NO_FORWARD = INTER_SCHEDULE_END + 1;
     public static final int SCHEDULE_TO_DC_HOST = SCHEDULE_TO_DC_NO_FORWARD + 1;
     public static final int SCHEDULE_TO_DC_HOST_OK = SCHEDULE_TO_DC_HOST + 1;
     public static final int SCHEDULE_TO_DC_HOST_CONFLICTED = SCHEDULE_TO_DC_HOST_OK + 1;
@@ -32,10 +31,10 @@ public class CloudSimTag {
     // 实现的方法是设置动态网络在同一时刻的两地是相同的延迟，然后通过设置tag的优先级再来实现RESPOND_DC_REVIVE_GROUP_EMPLOY抢先处理
     public static final int RESPOND_SIMPLE_STATE = ASK_SIMPLE_STATE + 1;
     public static final int LOAD_BALANCE_SEND = RESPOND_SIMPLE_STATE + 1;
-    public static final int INNER_SCHEDULE_END = LOAD_BALANCE_SEND + 1;
-    public static final int ALLOCATE_RESOURCE = INNER_SCHEDULE_END + 1;
+    public static final int INTRA_SCHEDULE_END = LOAD_BALANCE_SEND + 1;
+    public static final int ALLOCATE_RESOURCE = INTRA_SCHEDULE_END + 1;
     public static final int PRE_ALLOCATE_RESOURCE = ALLOCATE_RESOURCE + 1;//需要在ALLOCATE_RESOURCE之后
-    public static final int INNER_SCHEDULE_BEGIN = PRE_ALLOCATE_RESOURCE + 1;//需要在ALLOCATE_RESOURCE之后,因为单调器在决策开始和结束期间不应该有资源在变化
+    public static final int INTRA_SCHEDULE_BEGIN = PRE_ALLOCATE_RESOURCE + 1;//需要在ALLOCATE_RESOURCE之后,因为单调器在决策开始和结束期间不应该有资源在变化
 
     public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, PRE_ALLOCATE_RESOURCE);
 
@@ -47,7 +46,6 @@ public class CloudSimTag {
             case SYN_STATE_IN_DC -> "SYN_STATE_IN_DC";
             case SYN_STATE_BETWEEN_DC -> "SYN_STATE_BETWEEN_DC";
             case NEED_SYN_STATE_BETWEEN_DC -> "NEED_SYN_STATE_BETWEEN_DC";
-            case SCHEDULE_TO_DC_AND_FORWARD -> "SCHEDULE_TO_DC_AND_FORWARD";
             case SCHEDULE_TO_DC_NO_FORWARD -> "SCHEDULE_TO_DC_NO_FORWARD";
             case SCHEDULE_TO_DC_HOST -> "SCHEDULE_TO_DC_HOST";
             case SCHEDULE_TO_DC_HOST_OK -> "SCHEDULE_TO_DC_HOST_OK";
@@ -57,13 +55,13 @@ public class CloudSimTag {
             case DC_LIST_REQUEST -> "DC_LIST_REQUEST";
             case USER_REQUEST_SEND -> "USER_REQUEST_SEND";
             case NEED_SEND_USER_REQUEST -> "NEED_SEND_USER_REQUEST";
-            case GROUP_FILTER_DC_BEGIN -> "GROUP_FILTER_DC_BEGIN";
+            case INTER_SCHEDULE_BEGIN -> "GROUP_FILTER_DC_BEGIN";
             case ASK_SIMPLE_STATE -> "ASK_SIMPLE_STATE";
             case RESPOND_SIMPLE_STATE -> "RESPOND_SIMPLE_STATE";
-            case GROUP_FILTER_DC_END -> "GROUP_FILTER_DC_END";
+            case INTER_SCHEDULE_END -> "GROUP_FILTER_DC_END";
             case LOAD_BALANCE_SEND -> "LOAD_BALANCE_SEND";
-            case INNER_SCHEDULE_BEGIN -> "INNER_SCHEDULE_BEGIN";
-            case INNER_SCHEDULE_END -> "INNER_SCHEDULE_END";
+            case INTRA_SCHEDULE_BEGIN -> "INTRA_SCHEDULE_BEGIN";
+            case INTRA_SCHEDULE_END -> "INTRA_SCHEDULE_END";
             case PRE_ALLOCATE_RESOURCE -> "PRE_ALLOCATE_RESOURCE";
             case ALLOCATE_RESOURCE -> "ALLOCATE_RESOURCE";
             case END_INSTANCE_RUN -> "END_INSTANCE_RUN";

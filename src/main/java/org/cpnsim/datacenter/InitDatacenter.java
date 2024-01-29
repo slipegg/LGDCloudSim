@@ -2,7 +2,7 @@ package org.cpnsim.datacenter;
 
 import org.cpnsim.core.Factory;
 import org.cpnsim.core.Simulation;
-import org.cpnsim.innerscheduler.InnerScheduler;
+import org.cpnsim.intrascheduler.IntraScheduler;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.interscheduler.InterSchedulerSimple;
 import org.cpnsim.statemanager.*;
@@ -38,7 +38,9 @@ public class InitDatacenter {
 
     private static int interSchedulerId = 0;
 
-    private static int innerSchedulerId = 0;
+    private static int intraSchedulerId = 0;
+
+    private static int datacenterId = 1;
 
     /**
      * Initialize datacenters.
@@ -48,6 +50,14 @@ public class InitDatacenter {
         InitDatacenter.factory = factory;
         JsonObject jsonObject = readJsonFile(filePath);
 
+        if (jsonObject.containsKey("collaborations")){
+            initMultiDatacenters(jsonObject);
+        }else{
+            initSingleDatacenter(jsonObject);
+        }
+    }
+
+    private static void initMultiDatacenters(JsonObject jsonObject){
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
@@ -79,6 +89,14 @@ public class InitDatacenter {
                 initInterSchedulers(collaborationJson.getJsonArray("datacenters"), collaborationId, collaborationManager);
             }
         }
+    }
+
+    private static void initSingleDatacenter(JsonObject jsonObject){
+        cpnSim.setSingleDatacenterFlag(true);
+        CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
+        int collaborationId = 0;
+        Datacenter datacenter = getDatacenter(jsonObject, collaborationId, false, InterSchedulerSimple.NULL, false);
+        collaborationManager.addDatacenter(datacenter, collaborationId);
     }
 
     private static void initInterSchedulers(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
@@ -168,13 +186,24 @@ public class InitDatacenter {
      * @return a {@link StatesManager} object
      */
     private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule, int target, boolean isSupportForward) {
-        int id = datacenterJson.getInt("id");
+        int id = -1;
+        if (datacenterJson.containsKey("id")){
+             id = datacenterJson.getInt("id");
+             datacenterId = id;
+        }else{
+            id = datacenterId++;
+        }
+
         if (id == 0) {
             throw new IllegalArgumentException("0 is the id of CIS,Datacenter id should not be 0");
         }
         Datacenter datacenter = new DatacenterSimple(cpnSim, id);
 
         addRegionInfo(datacenter, datacenterJson);
+
+        if(datacenterJson.containsKey("architecture")){
+            datacenter.setArchitecture(datacenterJson.getString("architecture"));
+        }
 
         StatesManager statesManager = getStatesManager(datacenterJson, isCenterSchedule, target);
         datacenter.setStatesManager(statesManager);
@@ -194,13 +223,13 @@ public class InitDatacenter {
             LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
             datacenter.setLoadBalance(loadBalance);
 
-            List<InnerScheduler> innerSchedulers = getInnerSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
-            datacenter.setInnerSchedulers(innerSchedulers);
+            List<IntraScheduler> intraSchedulers = getIntraSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
+            datacenter.setIntraSchedulers(intraSchedulers);
         }
 
         JsonObject resourceAllocateSelectorJson = datacenterJson.getJsonObject("resourceAllocateSelector");
-        ResourceAllocateSelector resourceAllocateSelector = factory.getResourceAllocateSelector(resourceAllocateSelectorJson.getString("type"));
-        datacenter.setResourceAllocateSelector(resourceAllocateSelector);
+        ConflictHandler conflictHandler = factory.getResourceAllocateSelector(resourceAllocateSelectorJson.getString("type"));
+        datacenter.setConflictHandler(conflictHandler);
 
         JsonObject unitPriceJson = datacenterJson.getJsonObject("resourceUnitPrice");
         setDatacenterResourceUnitPrice(datacenter, unitPriceJson);
@@ -222,7 +251,7 @@ public class InitDatacenter {
     }
 
     private static boolean isNeedInterSchedulerForDc(boolean isCenterSchedule, int target, boolean isSupportForward) {
-        return (isCenterSchedule && isSupportForward) || (!isCenterSchedule);
+        return (!cpnSim.isSingleDatacenterFlag())&&((isCenterSchedule && isSupportForward) || (!isCenterSchedule));
     }
 
     private static boolean isNeedInnerSchedule(boolean isCenterSchedule, int target, boolean isSupportForward) {
@@ -236,17 +265,22 @@ public class InitDatacenter {
      *
      * @param datacenterJson a {@link JsonObject} object
      * @param partitionNum   the number of partitions
-     * @return a list of {@link InnerScheduler} objects
+     * @return a list of {@link IntraScheduler} objects
      */
-    private static List<InnerScheduler> getInnerSchedulers(JsonObject datacenterJson, int partitionNum) {
-        List<InnerScheduler> innerSchedulers = new ArrayList<>();
+    private static List<IntraScheduler> getIntraSchedulers(JsonObject datacenterJson, int partitionNum) {
+        List<IntraScheduler> intraSchedulers = new ArrayList<>();
+        int firstPartitionId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
-            int firstPartitionId = schedulerJson.getInt("firstPartitionIndex");
-            InnerScheduler scheduler = factory.getInnerScheduler(schedulerJson.getString("type"), innerSchedulerId++, firstPartitionId, partitionNum);
-            innerSchedulers.add(scheduler);
+            if(schedulerJson.containsKey("firstPartitionId")){
+                firstPartitionId = schedulerJson.getInt("firstPartitionId");
+            }else{
+                LOGGER.info("InnerScheduler {} Missing firstPartitionId, defaults to 0", k);
+            }
+            IntraScheduler scheduler = factory.getIntraScheduler(schedulerJson.getString("type"), intraSchedulerId++, firstPartitionId, partitionNum);
+            intraSchedulers.add(scheduler);
         }
-        return innerSchedulers;
+        return intraSchedulers;
     }
 
     /**
@@ -263,7 +297,7 @@ public class InitDatacenter {
         } else {
             synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
         }
-//        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, innerSchedulers);
+//        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, intraSchedulers);
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
         StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
 

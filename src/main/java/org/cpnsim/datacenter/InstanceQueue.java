@@ -2,6 +2,7 @@ package org.cpnsim.datacenter;
 
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.UserRequest;
 
 import java.util.List;
 
@@ -41,12 +42,14 @@ public interface InstanceQueue {
      */
     InstanceQueue add(InstanceGroup instanceGroup);
 
+    InstanceQueue add(UserRequest userRequest);
+
     /**
      * Add a list of instances to the queue.
      *
-     * @param instances the list of instances to be added to the queue
+     * @param requests the list of instances to be added to the queue
      */
-    InstanceQueue add(List instances);
+    InstanceQueue add(List requests);
 
     /**
      * Get the number of instances to be sent in a batch.

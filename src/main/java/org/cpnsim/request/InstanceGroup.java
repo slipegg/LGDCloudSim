@@ -62,4 +62,6 @@ public interface InstanceGroup extends RequestEntity {
     InstanceGroup addForwardDatacenterIdHistory(int datacenterId);
 
     List<Integer> getForwardDatacenterIdsHistory();
+
+    boolean isNetworkLimited();
 }

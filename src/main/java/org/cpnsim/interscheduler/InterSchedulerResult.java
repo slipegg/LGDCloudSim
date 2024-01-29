@@ -16,7 +16,7 @@ public class InterSchedulerResult {
     private int collaborationId;//给集中调度器用的
     private int target;
     private Boolean isSupportForward;
-    private Map<Datacenter, List<InstanceGroup>> scheduledResultMap;
+    private Map<Datacenter, List<InstanceGroup>> scheduledResultMap;//TODO 后续需要改为Set以加速isContained
     private List<InstanceGroup> failedInstanceGroups;
     private int instanceGroupNum;
 
@@ -53,5 +53,14 @@ public class InterSchedulerResult {
     public boolean isScheduledInstanceGroupsEmpty() {
         int sum = scheduledResultMap.values().stream().mapToInt(List::size).sum();
         return sum == 0;
+    }
+
+    public Datacenter getScheduledDatacenter(InstanceGroup instanceGroup) {
+        for (Map.Entry<Datacenter, List<InstanceGroup>> scheduledResult : scheduledResultMap.entrySet()) {
+            if (scheduledResult.getValue().contains(instanceGroup)) {
+                return scheduledResult.getKey();
+            }
+        }
+        return Datacenter.NULL;
     }
 }

@@ -108,6 +108,25 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph {
     }
 
     @Override
+    public boolean isEmpty() {
+        return graph.isEmpty();
+    }
+
+    @Override
+    public boolean isEdgeLinked(InstanceGroup instanceGroup) {
+        if (graph.isEmpty()) {
+            return false;
+        } else {
+            for (InstanceGroupEdge instanceGroupEdge : graph) {
+                if (instanceGroupEdge.getSrc() == instanceGroup || instanceGroupEdge.getDst() == instanceGroup) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    @Override
     public void setId(int id) {
         this.id = id;
     }

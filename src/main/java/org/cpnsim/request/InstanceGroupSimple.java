@@ -106,6 +106,11 @@ public class InstanceGroupSimple implements InstanceGroup{
     }
 
     @Override
+    public boolean isNetworkLimited() {
+        return this.accessLatency != Double.MAX_VALUE || getUserRequest().getInstanceGroupGraph().isEdgeLinked(this);
+    }
+
+    @Override
     public void setId(int id) {
         this.id = id;
     }

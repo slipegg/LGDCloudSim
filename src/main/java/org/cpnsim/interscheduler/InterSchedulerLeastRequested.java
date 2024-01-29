@@ -2,8 +2,10 @@ package org.cpnsim.interscheduler;
 
 import org.cpnsim.core.Simulation;
 import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
+import org.cpnsim.request.InstanceGroupGraph;
 import org.cpnsim.statemanager.DetailedDcStateSimple;
 import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.SimpleStateEasyObject;
@@ -26,7 +28,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
 
     @Override
     protected InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
-        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
+        final List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
 
 //        long allDatacentersAvailableCpuSum = allDatacenters.stream()
@@ -78,19 +80,75 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
         return Datacenter.NULL;
     }
 
-    private void scheduleForSameInstanceGroupsToDc(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, List<Datacenter> allDatacenters){
-        if(allDatacenters.isEmpty()){
+    private void scheduleForSameInstanceGroupsToDc(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, List<Datacenter> availableDatacenters) {
+        if (sameInstanceGroups.get(0).isNetworkLimited()) {
+            availableDatacenters = getAvailableDatacenterByNetworkLimit(sameInstanceGroups.get(0), availableDatacenters, interSchedulerResult);
+        }
+        if (availableDatacenters.isEmpty()) {
             sameInstanceGroups.forEach(interSchedulerResult::addFailedInstanceGroup);
             return;
         }
 
-        int randomStartIndex = random.nextInt(allDatacenters.size());
-        int scoredDcNum = Math.min(sameInstanceGroups.size() * scoredDcNumForSameInstanceGroup, allDatacenters.size());
+        int randomStartIndex = random.nextInt(availableDatacenters.size());
+        int scoredDcNum = Math.min(sameInstanceGroups.size() * scoredDcNumForSameInstanceGroup, availableDatacenters.size());
         InstanceGroup sameInstanceGroup = sameInstanceGroups.get(0);
 
-        ScoredDatacentersManager scoredDatacentersManager = getScoredDatacenters(sameInstanceGroup, randomStartIndex, allDatacenters, scoredDcNum);
+        ScoredDatacentersManager scoredDatacentersManager = getScoredDatacenters(sameInstanceGroup, randomStartIndex, availableDatacenters, scoredDcNum);
 
         scheduleSameInstanceGroupByScoredDcs(sameInstanceGroups, interSchedulerResult, scoredDatacentersManager);
+    }
+
+    private List<Datacenter> getAvailableDatacenterByNetworkLimit(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, InterSchedulerResult interSchedulerResult) {
+        List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
+        filterAvailableDatacenterByAccessLatency(instanceGroup, availableDatacenters);
+        filterAvailableDatacenterByEdgeDelayLimit(instanceGroup, availableDatacenters, interSchedulerResult);
+        filterAvailableDatacenterByEdgeBwLimit(instanceGroup, availableDatacenters, interSchedulerResult);
+        return availableDatacenters;
+    }
+
+    private void filterAvailableDatacenterByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
+        availableDatacenters.removeIf(dc -> networkTopology.getAccessLatency(instanceGroup.getUserRequest(), dc) > instanceGroup.getAccessLatency());
+    }
+
+    private void filterAvailableDatacenterByEdgeDelayLimit(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters, InterSchedulerResult interSchedulerResult) {
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
+        for (InstanceGroup dstInstanceGroup : instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup)) {
+            Datacenter scheduledDatacenter = getPossibleScheduledDatacenter(dstInstanceGroup, interSchedulerResult);
+            if (scheduledDatacenter != Datacenter.NULL) {
+                availableDatacenters.removeIf(dc -> networkTopology.getDelay(dc, scheduledDatacenter) > instanceGroup.getUserRequest().getInstanceGroupGraph().getDelay(instanceGroup, dstInstanceGroup));
+            }
+        }
+        for (InstanceGroup srcInstanceGroup : instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup)) {
+            Datacenter scheduledDatacenter = getPossibleScheduledDatacenter(srcInstanceGroup, interSchedulerResult);
+            if (scheduledDatacenter != Datacenter.NULL) {
+                availableDatacenters.removeIf(dc -> networkTopology.getDelay(dc, scheduledDatacenter) > instanceGroup.getUserRequest().getInstanceGroupGraph().getDelay(srcInstanceGroup, instanceGroup));
+            }
+        }
+    }
+
+    private void filterAvailableDatacenterByEdgeBwLimit(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters, InterSchedulerResult interSchedulerResult) {
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
+        for (InstanceGroup dstInstanceGroup : instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup)) {
+            Datacenter scheduledDatacenter = getPossibleScheduledDatacenter(dstInstanceGroup, interSchedulerResult);
+            if (scheduledDatacenter != Datacenter.NULL) {
+                availableDatacenters.removeIf(dc -> networkTopology.getBw(dc, scheduledDatacenter) < instanceGroup.getUserRequest().getInstanceGroupGraph().getBw(instanceGroup, dstInstanceGroup));
+            }
+        }
+        for (InstanceGroup srcInstanceGroup : instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup)) {
+            Datacenter scheduledDatacenter = getPossibleScheduledDatacenter(srcInstanceGroup, interSchedulerResult);
+            if (scheduledDatacenter != Datacenter.NULL) {
+                availableDatacenters.removeIf(dc -> networkTopology.getBw(dc, scheduledDatacenter) < instanceGroup.getUserRequest().getInstanceGroupGraph().getBw(srcInstanceGroup, instanceGroup));
+            }
+        }
+    }
+
+    private Datacenter getPossibleScheduledDatacenter(InstanceGroup instanceGroup, InterSchedulerResult interSchedulerResult) {
+        if (instanceGroup.getReceiveDatacenter() != Datacenter.NULL) {
+            return instanceGroup.getReceiveDatacenter();
+        } else {
+            return interSchedulerResult.getScheduledDatacenter(instanceGroup);
+        }
     }
 
     private ScoredDatacentersManager getScoredDatacenters(InstanceGroup sameInstanceGroup, int randomStartIndex, List<Datacenter> allDatacenters, int scoredDcNum){
@@ -187,9 +245,13 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
     }
 
     private boolean isSameRequestInstanceGroup(InstanceGroup group1, InstanceGroup group2) {
-        Instance instance1 = group1.getInstances().get(0);
-        Instance instance2 = group2.getInstances().get(0);
-        return instance1.getCpu() == instance2.getCpu() && instance1.getRam() == instance2.getRam() && instance1.getStorage() == instance2.getStorage() && instance1.getBw() == instance2.getBw();
+        if (group1.isNetworkLimited() || group2.isNetworkLimited()) {
+            return false;
+        } else {
+            Instance instance1 = group1.getInstances().get(0);
+            Instance instance2 = group2.getInstances().get(0);
+            return instance1.getCpu() == instance2.getCpu() && instance1.getRam() == instance2.getRam() && instance1.getStorage() == instance2.getStorage() && instance1.getBw() == instance2.getBw();
+        }
     }
 
     private void scheduleForSameInstanceGroupsToHost(List<InstanceGroup> sameInstanceGroups, InterSchedulerResult interSchedulerResult, List<Datacenter> allDatacenters, int allDatacentersHostLength) {

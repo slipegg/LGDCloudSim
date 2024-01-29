@@ -12,7 +12,7 @@
 //import static org.junit.jupiter.api.Assertions.assertEquals;
 //
 //public class UserRequestManagerCsvTest {
-//    UserRequestManagerCsv userRequestManager = new UserRequestManagerCsv("src/test/resources/generateRequestParament.csv");
+//    UserRequestManagerCsv userRequestManager = new UserRequestManagerCsv("src/test/resources/generateRequestParameter.csv");
 //    private static Field[] fields;
 //
 //    @BeforeAll

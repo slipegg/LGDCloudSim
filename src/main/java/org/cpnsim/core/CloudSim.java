@@ -50,6 +50,10 @@ public class CloudSim implements Simulation {
     private int simulationAccuracy;
     private double terminationTime = -1;
 
+    @Getter
+    @Setter
+    private boolean singleDatacenterFlag = false;
+
     public CloudSim() {
         clock = 0;
         this.entityList = new ArrayList<>();
@@ -133,7 +137,7 @@ public class CloudSim implements Simulation {
     @Override
     public double start() {
         if (isSqlRecord) {
-            this.sqlRecord = new SqlRecordSimple();
+            this.sqlRecord = new SqlRecordSimple("cpnSim"+collaborationManager.getDatacenterById(1).getArchitecture()+".db");
         } else {
             this.sqlRecord = new SqlRecordNull();
         }
@@ -172,7 +176,7 @@ public class CloudSim implements Simulation {
             double dcCost = datacenter.getAllCost();
             System.out.printf("%s's TCO = %f\n", datacenter.getName(), dcCost);
             allCost += dcCost;
-            Map<Integer, Integer> partitionConflicts = datacenter.getResourceAllocateSelector().getPartitionConflicts();
+            Map<Integer, Integer> partitionConflicts = datacenter.getConflictHandler().getPartitionConflicts();
             int conflictSum = 0;
             for (Map.Entry<Integer, Integer> entry : partitionConflicts.entrySet()) {
                 System.out.printf("%s's Partition%d has %d conflicts.\n", datacenter.getName(), entry.getKey(), entry.getValue());

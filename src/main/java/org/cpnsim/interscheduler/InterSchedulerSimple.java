@@ -5,8 +5,8 @@ import lombok.Setter;
 import org.cpnsim.core.Simulation;
 import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
-import org.cpnsim.datacenter.GroupQueue;
-import org.cpnsim.datacenter.GroupQueueFifo;
+import org.cpnsim.datacenter.InstanceGroupQueue;
+import org.cpnsim.datacenter.InstanceGroupQueueFifo;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
@@ -50,10 +50,10 @@ public class InterSchedulerSimple implements InterScheduler {
     boolean directedSend = false;
 
     @Getter
-    GroupQueue instanceGroupQueue = new GroupQueueFifo();
+    InstanceGroupQueue instanceGroupQueue = new InstanceGroupQueueFifo();
 
     @Getter
-    GroupQueue retryInstanceGroupQueue = new GroupQueueFifo();
+    InstanceGroupQueue retryInstanceGroupQueue = new InstanceGroupQueueFifo();
 
     @Getter
     @Setter

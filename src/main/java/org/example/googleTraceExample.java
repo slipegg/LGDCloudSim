@@ -5,6 +5,8 @@ import org.cpnsim.core.CloudSim;
 import org.cpnsim.core.Factory;
 import org.cpnsim.core.FactorySimple;
 import org.cpnsim.core.Simulation;
+import org.cpnsim.network.RandomDelayDynamicModel;
+import org.cpnsim.util.GoogleTraceRequestFile;
 import org.cpnsim.util.Log;
 import org.cpnsim.datacenter.InitDatacenter;
 import org.cpnsim.network.NetworkTopology;
@@ -14,7 +16,9 @@ import org.cpnsim.user.UserRequestManager;
 import org.cpnsim.user.UserRequestManagerGoogleTrace;
 import org.cpnsim.user.UserSimple;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class googleTraceExample {
@@ -26,24 +30,32 @@ public class googleTraceExample {
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/googleTrace/datacenter/1_collaborations.json";
-    Map<String, Integer> GOOGLE_TRACE_REQUEST_FILE_DC_MAP = new HashMap<>() {{
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", 1);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_b_user_requests.csv", 2);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_c_user_requests.csv", 3);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_d_user_requests.csv", 4);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_e_user_requests.csv", 5);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_f_user_requests.csv", 6);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_g_user_requests.csv", 7);
-        put("./src/main/resources/experiment/googleTrace/userRequest/2019_h_user_requests.csv", 8);
+    Map<Integer, GoogleTraceRequestFile> GOOGLE_TRACE_REQUEST_FILE_DC_MAP = new HashMap<>() {{
+        put(1, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", "United States", 50000));
+        put(2, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_b_user_requests.csv", "United States", 50000));
+        put(3, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_c_user_requests.csv", "United States", 50000));
+        put(4, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_d_user_requests.csv", "United Kingdom", 50000));
+        put(5, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_e_user_requests.csv", "United Kingdom", 50000));
+        put(6, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_f_user_requests.csv", "China", 50000));
+        put(7, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_g_user_requests.csv", "China", 50000));
+        put(8, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_h_user_requests.csv", "China", 50000));
     }};
 
     int MAX_CPU_CAPACITY = 10000;
     int MAX_RAM_CAPACITY = 10000;
     int STORAGE_CAPACITY = 100;
     int BW_CAPACITY = 100;
-    int LIFE_TIME_MEAN = 1200000;
-    int LIFE_TIME_STD = 300000;
-    double ACCESS_LATENCY_PERCENTAGE = 0.3;
+    int LIFE_TIME_MEAN = -1;
+    int LIFE_TIME_STD = 0;
+    double ACCESS_LATENCY_PERCENTAGE = 0.0;
+    double ACCESS_LATENCY_MEAN = 40;
+    double ACCESS_LATENCY_STD = 5;
+    boolean IS_EDGE_DIRECTED = false;
+    double EDGE_PERCENTAGE = 0.0;
+    double EDGE_DELAY_MEAN = 40;
+    double EDGE_DELAY_STD = 5;
+    double EDGE_BW_MEAN = 100;
+    double EDGE_BW_STD = 50;
 
     public static void main(String[] args) {
         new googleTraceExample();
@@ -53,7 +65,7 @@ public class googleTraceExample {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
-        cpnSim.setIsSqlRecord(false);
+        cpnSim.setIsSqlRecord(true);
         factory = new FactorySimple();
         initUser();
         initDatacenters();
@@ -71,17 +83,18 @@ public class googleTraceExample {
     }
 
     private void initUser() {
-        userRequestManager = new UserRequestManagerGoogleTrace(GOOGLE_TRACE_REQUEST_FILE_DC_MAP, MAX_CPU_CAPACITY, MAX_RAM_CAPACITY, STORAGE_CAPACITY, BW_CAPACITY, LIFE_TIME_MEAN, LIFE_TIME_STD, ACCESS_LATENCY_PERCENTAGE);
+        userRequestManager = new UserRequestManagerGoogleTrace(GOOGLE_TRACE_REQUEST_FILE_DC_MAP, MAX_CPU_CAPACITY, MAX_RAM_CAPACITY, STORAGE_CAPACITY, BW_CAPACITY, LIFE_TIME_MEAN, LIFE_TIME_STD,
+                ACCESS_LATENCY_PERCENTAGE, ACCESS_LATENCY_MEAN, ACCESS_LATENCY_STD, IS_EDGE_DIRECTED, EDGE_PERCENTAGE, EDGE_DELAY_MEAN, EDGE_DELAY_STD, EDGE_BW_MEAN, EDGE_BW_STD);
         user = new UserSimple(cpnSim, userRequestManager);
     }
 
     private void initDatacenters() {
         InitDatacenter.initDatacenters(cpnSim, factory, DATACENTER_CONFIG_FILE);
-        cpnSim.getCollaborationManager().setChangeCollaborationSynTime(3000);
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
+        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE, false);
+        networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
         cpnSim.setNetworkTopology(networkTopology);
     }
 }
