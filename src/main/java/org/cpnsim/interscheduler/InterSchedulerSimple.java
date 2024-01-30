@@ -203,15 +203,11 @@ public class InterSchedulerSimple implements InterScheduler {
 
     private Datacenter scheduleMixedInstanceGroup(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
         if (availableDatacenters.contains(datacenter)) {
-            if (random.nextDouble() < 0.1) {//暂时性测试用
-                availableDatacenters.remove(datacenter);
+            boolean isScheduleToSelfSuccess = scheduleHostInDcForInstanceGroup(instanceGroup, datacenter);
+            if (isScheduleToSelfSuccess) {
+                return datacenter;
             } else {
-                boolean isScheduleToSelfSuccess = scheduleHostInDcForInstanceGroup(instanceGroup, datacenter);
-                if (isScheduleToSelfSuccess) {
-                    return datacenter;
-                } else {
-                    availableDatacenters.remove(datacenter);
-                }
+                availableDatacenters.remove(datacenter);
             }
         }
 
