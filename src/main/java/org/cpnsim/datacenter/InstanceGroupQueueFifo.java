@@ -31,7 +31,7 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
 
     public InstanceGroupQueueFifo() {
         this.instanceGroups = new LinkedList<>();
-        this.batchNum = 10000;
+        this.batchNum = 1000;
     }
 
     @Override
