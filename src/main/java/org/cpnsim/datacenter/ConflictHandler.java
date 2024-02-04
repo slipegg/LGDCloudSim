@@ -31,5 +31,5 @@ public interface ConflictHandler extends DatacenterEntity {
      */
     Map<Integer, Integer> getPartitionConflicts();
 
-    List<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups);
+    FailedOutdatedResult<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups);
 }

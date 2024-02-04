@@ -28,6 +28,10 @@ public class InstanceQueueFifo implements InstanceQueue {
     @Setter
     private int batchNum;
 
+    @Getter
+    @Setter
+    boolean checkOutdatedFlag = false;
+
     public InstanceQueueFifo(int batchNum) {
         instances = new LinkedList<>();
         this.batchNum = batchNum;
@@ -70,7 +74,8 @@ public class InstanceQueueFifo implements InstanceQueue {
                 this.instances.remove(0);
                 continue;
             }
-            if (userRequest.getScheduleDelayLimit() > 0 && nowTime - userRequest.getSubmitTime() > userRequest.getScheduleDelayLimit()) {
+
+            if (checkOutdatedFlag && userRequest.getScheduleDelayLimit() > 0 && nowTime - userRequest.getSubmitTime() > userRequest.getScheduleDelayLimit()) {
                 failedUserRequests.add(userRequest);
                 this.instances.remove(0);
                 continue;

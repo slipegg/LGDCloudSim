@@ -12,6 +12,7 @@ import lombok.NonNull;
 import org.cpnsim.core.events.SimEvent;
 import org.cpnsim.datacenter.CollaborationManager;
 import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.datacenter.FailedOutdatedResult;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.interscheduler.InterSchedulerResult;
 import org.cpnsim.interscheduler.InterSchedulerSimple;
@@ -163,8 +164,8 @@ public class CloudInformationService extends CloudSimEntity {
         int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(sourceDc.getId());
 
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
-            List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
-            handleFailedInterScheduling(collaborationId, failedInstanceGroups);
+            FailedOutdatedResult<InstanceGroup> failedOutdatedResult = (FailedOutdatedResult<InstanceGroup>) evt.getData();
+            handleFailedInterScheduling(collaborationId, failedOutdatedResult.getFailRes(), failedOutdatedResult.getOutdatedRequests());
         }
     }
 

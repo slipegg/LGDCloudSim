@@ -34,16 +34,23 @@ public class ConflictHandlerSimple implements ConflictHandler {
 
     @Override
     public ConflictHandlerResult filterConflictedInstance(List<IntraSchedulerResult> intraSchedulerResults) {
-        Map<IntraScheduler, List<Instance>> successRes = new HashMap<>();
-        Map<IntraScheduler, List<Instance>> failRes = new HashMap<>();
+        ConflictHandlerResult conflictHandlerResult = new ConflictHandlerResult();
         Map<Integer, HostState> allocateHostStates = new HashMap<>();
         StatesManager statesManager = datacenter.getStatesManager();
         int conflictSum = 0;
+        double nowTime = datacenter.getSimulation().clock();
 
         for (IntraSchedulerResult intraSchedulerResult : intraSchedulerResults) {
-            successRes.putIfAbsent(intraSchedulerResult.getIntraScheduler(), new ArrayList<>());
+            List<Instance> successRes = new ArrayList<>();
+            List<Instance> failRes = new ArrayList<>();
+            Set<UserRequest> outdatedRequests = new HashSet<>();
             for (Instance instance : intraSchedulerResult.getScheduledInstances()) {
                 if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                    continue;
+                }
+
+                if (instance.getUserRequest().getScheduleDelayLimit() > 0 && nowTime - instance.getUserRequest().getSubmitTime() > instance.getUserRequest().getScheduleDelayLimit()) {
+                    outdatedRequests.add(instance.getUserRequest());
                     continue;
                 }
 
@@ -58,10 +65,9 @@ public class ConflictHandlerSimple implements ConflictHandler {
 
                 if (hostState.isSuitable(instance)) {
                     hostState.allocate(instance);
-                    successRes.get(intraSchedulerResult.getIntraScheduler()).add(instance);
+                    successRes.add(instance);
                 } else {
-                    failRes.putIfAbsent(intraSchedulerResult.getIntraScheduler(), new ArrayList<>());
-                    failRes.get(intraSchedulerResult.getIntraScheduler()).add(instance);
+                    failRes.add(instance);
 
                     int partitionId = datacenter.getStatesManager().getPartitionRangesManager().getPartitionId(hostId);
                     if (partitionConflicts.containsKey(partitionId)) {
@@ -72,20 +78,33 @@ public class ConflictHandlerSimple implements ConflictHandler {
                     conflictSum += 1;
                 }
             }
+            conflictHandlerResult.addSuccessRes(intraSchedulerResult.getIntraScheduler(), successRes);
+            conflictHandlerResult.addFailRes(intraSchedulerResult.getIntraScheduler(), failRes, outdatedRequests);
         }
         if (conflictSum != 0) {
             getDatacenter().getSimulation().getSqlRecord().recordConflict(getDatacenter().getSimulation().clock(), conflictSum);
         }
-        return new ConflictHandlerResult(successRes, failRes);
+        return conflictHandlerResult;
     }
 
     @Override
-    public List<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups) {
+    public FailedOutdatedResult<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups) {
         List<InstanceGroup> failedScheduledInstanceGroups = new ArrayList<>();
+        Set<UserRequest> outdatedRequests = new HashSet<>();
+        double nowTime = getDatacenter().getSimulation().clock();
 
         Map<Integer, HostState> hostStatesIfScheduled = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             for (Instance instance : instanceGroup.getInstances()) {
+                if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                    continue;
+                }
+
+                if (instance.getUserRequest().getScheduleDelayLimit() > 0 && nowTime - instance.getUserRequest().getSubmitTime() > instance.getUserRequest().getScheduleDelayLimit()) {
+                    outdatedRequests.add(instance.getUserRequest());
+                    continue;
+                }
+
                 HostState hostState;
                 if (hostStatesIfScheduled.containsKey(instance.getExpectedScheduleHostId())) {
                     hostState = hostStatesIfScheduled.get(instance.getExpectedScheduleHostId());
@@ -103,7 +122,7 @@ public class ConflictHandlerSimple implements ConflictHandler {
             }
         }
 
-        return failedScheduledInstanceGroups;
+        return new FailedOutdatedResult<InstanceGroup>(failedScheduledInstanceGroups, outdatedRequests);
     }
 
     @Override

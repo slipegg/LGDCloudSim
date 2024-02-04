@@ -56,4 +56,8 @@ public interface InstanceGroupQueue {
     InstanceGroupQueue setBatchNum(int batchNum);
 
     boolean isEmpty();
+
+    InstanceGroupQueue setCheckOutdatedFlag(boolean checkOutdatedFlag);
+
+    boolean isCheckOutdatedFlag();
 }

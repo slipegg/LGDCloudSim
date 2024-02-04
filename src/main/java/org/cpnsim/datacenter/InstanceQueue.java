@@ -64,4 +64,8 @@ public interface InstanceQueue {
     InstanceQueue setBatchNum(int batchNum);
 
     boolean isEmpty();
+
+    InstanceQueue setCheckOutdatedFlag(boolean checkOutdatedFlag);
+
+    boolean isCheckOutdatedFlag();
 }

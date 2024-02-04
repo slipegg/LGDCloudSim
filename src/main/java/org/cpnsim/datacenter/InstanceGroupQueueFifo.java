@@ -29,6 +29,10 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     @Setter
     private int batchNum;
 
+    @Getter
+    @Setter
+    private boolean checkOutdatedFlag = false;
+
     public InstanceGroupQueueFifo() {
         this.instanceGroups = new LinkedList<>();
         this.batchNum = 1000;
@@ -92,7 +96,7 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
                 instanceGroups.remove(0);
                 continue;
             }
-            if (userRequest.getScheduleDelayLimit() > 0 && nowTime - userRequest.getSubmitTime() > userRequest.getScheduleDelayLimit()) {
+            if (checkOutdatedFlag && userRequest.getScheduleDelayLimit() > 0 && nowTime - userRequest.getSubmitTime() > userRequest.getScheduleDelayLimit()) {
                 failedUserRequests.add(userRequest);
                 instanceGroups.remove(0);
                 continue;

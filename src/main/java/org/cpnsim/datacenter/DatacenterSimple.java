@@ -469,15 +469,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         Map<IntraScheduler, List<Instance>> failedAllocatedRes = allocateResource(allocateResult.getSuccessRes());
 
-        allocateResult.getFailRes().putAll(failedAllocatedRes);
+        allocateResult.addAllocateFailRes(failedAllocatedRes);
 
-        for (Map.Entry<IntraScheduler, List<Instance>> entry : allocateResult.getFailRes().entrySet()) {
-            IntraScheduler intraScheduler = entry.getKey();
-            List<Instance> failedInstances = entry.getValue();
-
-            if (!failedInstances.isEmpty()) {
-                intraScheduleFailed(failedInstances, intraScheduler, true);
-            }
+        for (IntraScheduler intraScheduler : allocateResult.getFailedOutdatedResultMap().keySet()) {
+            List<Instance> failedInstances = allocateResult.getFailedOutdatedResultMap().get(intraScheduler).getFailRes();
+            Set<UserRequest> outDatedUserRequests = allocateResult.getFailedOutdatedResultMap().get(intraScheduler).getOutdatedRequests();
+            intraScheduleFailed(failedInstances, intraScheduler, true, outDatedUserRequests);
         }
 
         for (IntraSchedulerResult intraSchedulerResult : this.intraSchedulerResults) {
@@ -598,12 +595,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
-        Iterator<Instance> instanceIterator = instances.iterator();
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
         for (UserRequest userRequest : outDatedUserRequests) {
             userRequest.addFailReason("outDated");
         }
 
+        Iterator<Instance> instanceIterator = instances.iterator();
         while (instanceIterator.hasNext()) {
             Instance instance = instanceIterator.next();
             if (instance.getExpectedScheduleHostId() != -1) {
@@ -666,6 +663,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    // TODO 这部分逻辑需要检查
     private void processScheduleToDcHost(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroupsTmp) {
             List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
@@ -674,10 +672,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<InstanceGroup> failedInstanceGroups = allocateBwForInstanceGroups(instanceGroups);
             instanceGroups.removeAll(failedInstanceGroups);
 
-            List<InstanceGroup> conflictedInstanceGroup = conflictHandler.filterConflictedInstanceGroup(instanceGroups);
-            instanceGroups.removeAll(conflictedInstanceGroup);
-            failedInstanceGroups.addAll(conflictedInstanceGroup);
-            revertBwForInstanceGroups(conflictedInstanceGroup);
+            FailedOutdatedResult<InstanceGroup> conflictedRes = conflictHandler.filterConflictedInstanceGroup(instanceGroups);
+            instanceGroups.removeAll(conflictedRes.getFailRes());
+            failedInstanceGroups.addAll(conflictedRes.getFailRes());
+            revertBwForInstanceGroups(instanceGroups, conflictedRes.getFailRes(), conflictedRes.getOutdatedRequests());
 
             List<InstanceGroup> allocateFailedInstanceGroups = allocateResourceForInstanceGroups(instanceGroups);
             instanceGroups.removeAll(allocateFailedInstanceGroups);
@@ -685,8 +683,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             revertBwForInstanceGroups(allocateFailedInstanceGroups);
 
             SimEntity source = evt.getSource();
-            if (failedInstanceGroups.size() > 0) {
-                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, failedInstanceGroups);
+            if (failedInstanceGroups.size() > 0 || conflictedRes.getOutdatedRequests().size() > 0) {
+                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, new FailedOutdatedResult<InstanceGroup>(failedInstanceGroups, conflictedRes.getOutdatedRequests()));
             } else {
                 send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_OK, null);
             }
@@ -705,6 +703,20 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         for (InstanceGroup instanceGroup : instanceGroups) {
             revertBwForInstanceGroup(instanceGroup);
             instanceGroup.setReceiveDatacenter(Datacenter.NULL);
+        }
+    }
+
+    private void revertBwForInstanceGroups(List<InstanceGroup> instanceGroups, List<InstanceGroup> failedInstanceGroups, Set<UserRequest> outDatedUserRequests) {
+        for (InstanceGroup instanceGroup : failedInstanceGroups) {
+            revertBwForInstanceGroup(instanceGroup);
+            instanceGroup.setReceiveDatacenter(Datacenter.NULL);
+        }
+
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            if (outDatedUserRequests.contains(instanceGroup.getUserRequest())) {
+                revertBwForInstanceGroup(instanceGroup);
+                instanceGroup.setReceiveDatacenter(Datacenter.NULL);
+            }
         }
     }
 
