@@ -673,9 +673,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             instanceGroups.removeAll(failedInstanceGroups);
 
             FailedOutdatedResult<InstanceGroup> conflictedRes = conflictHandler.filterConflictedInstanceGroup(instanceGroups);
+            Set<UserRequest> outDatedUserRequests = conflictedRes.getOutdatedRequests();
             instanceGroups.removeAll(conflictedRes.getFailRes());
+            instanceGroups.removeIf(instanceGroup -> outDatedUserRequests.contains(instanceGroup.getUserRequest()));
             failedInstanceGroups.addAll(conflictedRes.getFailRes());
-            revertBwForInstanceGroups(instanceGroups, conflictedRes.getFailRes(), conflictedRes.getOutdatedRequests());
+            revertBwForInstanceGroups(instanceGroups, conflictedRes.getFailRes(), outDatedUserRequests);
 
             List<InstanceGroup> allocateFailedInstanceGroups = allocateResourceForInstanceGroups(instanceGroups);
             instanceGroups.removeAll(allocateFailedInstanceGroups);
@@ -684,7 +686,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             SimEntity source = evt.getSource();
             if (failedInstanceGroups.size() > 0 || conflictedRes.getOutdatedRequests().size() > 0) {
-                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, new FailedOutdatedResult<InstanceGroup>(failedInstanceGroups, conflictedRes.getOutdatedRequests()));
+                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, new FailedOutdatedResult<InstanceGroup>(failedInstanceGroups, outDatedUserRequests));
             } else {
                 send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_OK, null);
             }
