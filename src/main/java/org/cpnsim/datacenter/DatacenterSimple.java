@@ -654,11 +654,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processScheduleToDcHostResponse(SimEvent evt) {
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
-            List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
-            handleFailedInterScheduling(failedInstanceGroups);
+            FailedOutdatedResult<InstanceGroup> failedOutdatedResult = (FailedOutdatedResult<InstanceGroup>) evt.getData();
+            handleFailedInterScheduling(failedOutdatedResult.getFailRes(), failedOutdatedResult.getOutdatedRequests());
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedInstanceGroups.size());
+                LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedOutdatedResult.getFailRes().size());
             }
         }
     }
