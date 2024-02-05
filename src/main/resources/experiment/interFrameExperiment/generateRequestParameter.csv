@@ -5,8 +5,8 @@ RequestPerNumMax,1000
 RequestTimeIntervalMin,100
 RequestTimeIntervalMax,100
 RequestTimes,304
-ScheduleDelayLimitMin,500
-ScheduleDelayLimitMax,1500
+ScheduleDelayLimitMin,1000
+ScheduleDelayLimitMax,1000
 RequestGroupNumMin,10
 RequestGroupNumMax,10
 GroupInstanceNumMin,1
