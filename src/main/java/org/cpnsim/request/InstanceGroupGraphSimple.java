@@ -5,14 +5,28 @@ import lombok.Setter;
 
 import java.util.*;
 
+/**
+ * InstanceGroupGraphSimple is a simple implementation of the {@link InstanceGroupGraph} interface.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class InstanceGroupGraphSimple implements InstanceGroupGraph {
     private int id;
+
     private UserRequest userRequest;
+
     private Set<InstanceGroupEdge> graph;
+
     @Getter
     @Setter
     boolean directed;
 
+    /**
+     * Construct an instance group graph with the directed flag, but the graph is empty.
+     *
+     * @param directed the directed flag of the graph.
+     */
     public InstanceGroupGraphSimple(boolean directed) {
         this.directed = directed;
         graph = new HashSet<>();
@@ -20,7 +34,7 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph {
 
     @Override
     public boolean getDirected() {
-        return false;
+        return directed;
     }
 
     @Override
@@ -33,7 +47,7 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph {
     public InstanceGroupGraph addEdge(InstanceGroupEdge edge) {
         graph.add(Objects.requireNonNull(edge));
         if (!directed) {
-            graph.add(new InstanceGroupEdgeSimple(edge.getDst(), edge.getSrc(), edge.getMinDelay(), edge.getRequiredBw()));
+            graph.add(new InstanceGroupEdgeSimple(edge.getDst(), edge.getSrc(), edge.getMaxDelay(), edge.getRequiredBw()));
         }
         return this;
     }
@@ -56,7 +70,7 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph {
                 return instanceGroupEdge;
             }
         }
-        LOGGER.info("There is no edge(src={},dst={}).",src,dst);
+        LOGGER.info("There is no edge(src={},dst={}).", src, dst);
         return null;
     }
 
@@ -91,7 +105,7 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph {
     public double getDelay(InstanceGroup src, InstanceGroup dst) {
         for (InstanceGroupEdge instanceGroupEdge : graph) {
             if (instanceGroupEdge.getSrc() == src && instanceGroupEdge.getDst() == dst) {
-                return instanceGroupEdge.getMinDelay();
+                return instanceGroupEdge.getMaxDelay();
             }
         }
         return Double.MAX_VALUE;
@@ -143,7 +157,7 @@ public class InstanceGroupGraphSimple implements InstanceGroupGraph {
 
     @Override
     public void setUserRequest(UserRequest userRequest) {
-        this.userRequest= userRequest;
+        this.userRequest = userRequest;
     }
 
     @Override

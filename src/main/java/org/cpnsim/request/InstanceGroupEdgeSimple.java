@@ -5,18 +5,37 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+/**
+ * InstanceGroupEdgeSimple is a simple implementation of the {@link InstanceGroupEdge} interface.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
+
 @Getter
 @Setter
 public class InstanceGroupEdgeSimple implements InstanceGroupEdge{
     InstanceGroup src;
+
     InstanceGroup dst;
-    double minDelay;
+
+    double maxDelay;
+
     double requiredBw;
 
-    public InstanceGroupEdgeSimple(InstanceGroup src, InstanceGroup dst, double minDelay, double requiredBw) {
+    /**
+     * Construct an instance group edge with the source instance group, the destination instance group,
+     * the maximum delay and the required bandwidth.
+     *
+     * @param src        the source instance group of the edge.
+     * @param dst        the destination instance group of the edge.
+     * @param maxDelay   the maximum delay of the edge.
+     * @param requiredBw the required bandwidth of the edge.
+     */
+    public InstanceGroupEdgeSimple(InstanceGroup src, InstanceGroup dst, double maxDelay, double requiredBw) {
         this.src = Objects.requireNonNull(src);
         this.dst = Objects.requireNonNull(dst);
-        this.minDelay = minDelay;
+        this.maxDelay = maxDelay;
         this.requiredBw = requiredBw;
     }
 
@@ -25,7 +44,7 @@ public class InstanceGroupEdgeSimple implements InstanceGroupEdge{
         return "InstanceGroupEdgeSimple{" +
                 "src=" + src.getId() +
                 ", dst=" + dst.getId() +
-                ", minDelay=" + minDelay +
+                ", maxDelay=" + maxDelay +
                 ", requiredBw=" + requiredBw +
                 '}';
     }
