@@ -4,7 +4,13 @@ import org.cpnsim.core.SimEntity;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.UserRequest;
 
-public class NetworkTopologyNull implements  NetworkTopology{
+/**
+ * The null network topology.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
+public class NetworkTopologyNull implements NetworkTopology {
     @Override
     public double getDelay(SimEntity src, SimEntity dst) {
         return 0;
