@@ -88,6 +88,11 @@ public class RandomUserRequestGenerator implements UserRequestGenerator {
 
         int instanceGroupNum = instanceGroups.size();
         int maxEdgeNum = instanceGroupNum * (instanceGroupNum - 1) / 2;
+
+        if (maxEdgeNum <= 0) {
+            return instanceGroupGraph;
+        }
+
         int edgeNum = rand.nextInt(maxEdgeNum) + 1;
 
         for (int i = 0; i < edgeNum; i++) {

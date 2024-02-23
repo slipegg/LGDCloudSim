@@ -1,6 +1,5 @@
 package org.cpnsim.user;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -16,69 +15,301 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
+/**
+ * UserRequestManagerCsv is a class that implements the @{@link UserRequestManager} interface.
+ * It can randomly generate user requests from a csv file.
+ * <p>The csv file should contain the following parameters:</p>
+ * <ul>
+ *     <li>DcDistribution: area distribution of user requests received by the data center.
+ *     For example: {"1":{"shanghai":0.4,"beijing":0.1},"2":{"beijing":0.5}}.
+ *     It means that 40% of users are from Shanghai and sent to data center 1, 10% of users are from Beijing and sent to data center 1,
+ *     and 50% of users are from Beijing and sent to data center 2.</li>
+ *     <li>RequestPerNumMin: the minimum number of requests per time.</li>
+ *     <li>RequestPerNumMax: the maximum number of requests per time.</li>
+ *     <li>RequestTimeIntervalMin: the minimum time interval (ms) between two requests.</li>
+ *     <li>RequestTimeIntervalMax: the maximum time interval (ms) between two requests.</li>
+ *     <li>RequestTimes: the number of times to send requests.</li>
+ *     <li>ScheduleDelayLimitMin: the minimum schedule delay limit (ms) of the requests.</li>
+ *     <li>ScheduleDelayLimitMax: the maximum schedule delay limit (ms) of the requests.</li>
+ *     <li>RequestGroupNumMin: the minimum number of instance groups in a request.</li>
+ *     <li>RequestGroupNumMax: the maximum number of instance groups in a request.</li>
+ *     <li>GroupInstanceNumMin: the minimum number of instances in an instance group.</li>
+ *     <li>GroupInstanceNumMax: the maximum number of instances in an instance group.</li>
+ *     <li>GroupAccessDelayPercent: the percentage of instance groups that have access delay.</li>
+ *     <li>GroupAccessDelayMin: the minimum access delay (ms) of the instance groups.</li>
+ *     <li>GroupAccessDelayMax: the maximum access delay (ms) of the instance groups.</li>
+ *     <li>GroupEdgePercent: the percentage that an instance group has edge constraints with other instance groups.</li>
+ *     <li>GroupEdgeIsDirected: whether the edges between instance groups are directed.</li>
+ *     <li>GroupBwPercent: the percentage that an edge constraint contains a bandwidth constraint.</li>
+ *     <li>GroupBwMin: the minimum bandwidth requirement in the edge constraints.</li>
+ *     <li>GroupBwMax: the maximum bandwidth requirement in the edge constraints.</li>
+ *     <li>GroupDelayPercent: the percentage that an edge constraint contains a link delay constraint (ms).</li>
+ *     <li>GroupDelayMin: the minimum link delay (ms) requirement in the edge constraints.</li>
+ *     <li>GroupDelayMax: the maximum link delay (ms) requirement in the edge constraints.</li>
+ *     <li>GroupRetryTimesMin: the minimum retry times of the instance groups.</li>
+ *     <li>GroupRetryTimesMax: the maximum retry times of the instance groups.</li>
+ *     <li>InstanceCpuNumMin: the minimum number of cpu core in an instance.</li>
+ *     <li>InstanceCpuNumMax: the maximum number of cpu core in an instance.</li>
+ *     <li>InstanceRamNumMin: the minimum number (GB) of ram in an instance.</li>
+ *     <li>InstanceRamNumMax: the maximum number (GB) of ram in an instance.</li>
+ *     <li>InstanceStorageNumMin: the minimum number (GB) of storage in an instance.</li>
+ *     <li>InstanceStorageNumMax: the maximum number of (GB) storage in an instance.</li>
+ *     <li>InstanceBwNumMin: the minimum number (Mbps) of bw in an instance.</li>
+ *     <li>InstanceBwNumMax: the maximum number (Mbps) of bw in an instance.</li>
+ *     <li>InstanceLifeTimeMin: the minimum lifecycle (ms) of an instance.</li>
+ *     <li>InstanceLifeTimeMax: the maximum lifecycle (ms) of an instance.</li>
+ *     <li>InstanceRetryTimesMin: the minimum retry times of an instance.</li>
+ *     <li>InstanceRetryTimesMax: the maximum retry times of an instance.</li>
+ * </ul>
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class UserRequestManagerCsv implements UserRequestManager {
-    private String fileName;
+    /**
+     * The csv file name.
+     */
+    private final String fileName;
+
+    /**
+     * The area distribution of user requests received by the data center.
+     */
     private TreeMap<Integer, TreeMap<String, Double>> DcAreaDistribution = new TreeMap<>();
-    double DcAreaDistributionSum = 0;
+
+    /**
+     * The sum of the area distribution of user requests.
+     */
+    private double DcAreaDistributionSum = 0;
+
+    /**
+     * The minimum number of requests per time.
+     */
     private int RequestPerNumMin = -2;
+
+    /**
+     * The maximum number of requests per time.
+     */
     private int RequestPerNumMax = -2;
+
+    /**
+     * The minimum time interval (ms) between two requests.
+     */
     private int RequestTimeIntervalMin = -2;
+
+    /**
+     * The maximum time interval (ms) between two requests.
+     */
     private int RequestTimeIntervalMax = -2;
+
+    /**
+     * The number of times to send requests.
+     */
     private int RequestTimes = -2;
+
+    /**
+     * The minimum schedule delay limit (ms) of the requests.
+     */
     private double ScheduleDelayLimitMin = -2;
+
+    /**
+     * The maximum schedule delay limit (ms) of the requests.
+     */
     private double ScheduleDelayLimitMax = -2;
+
+    /**
+     * The minimum number of instance groups in a request.
+     */
     private int RequestGroupNumMin = -2;
+
+    /**
+     * The maximum number of instance groups in a request.
+     */
     private int RequestGroupNumMax = -2;
+
+    /**
+     * The minimum number of instances in an instance group.
+     */
     private int GroupInstanceNumMin = -2;
+
+    /**
+     * The maximum number of instances in an instance group.
+     */
     private int GroupInstanceNumMax = -2;
+
+    /**
+     * The percentage of instance groups that have access delay.
+     */
     private double GroupAccessDelayPercent = -2;
+
+    /**
+     * The minimum access delay (ms) of the instance groups.
+     */
     private int GroupAccessDelayMin = -2;
+
+    /**
+     * The maximum access delay (ms) of the instance groups.
+     */
     private int GroupAccessDelayMax = -2;
+
+    /**
+     * The percentage that an instance group has edge constraints with other instance groups.
+     */
     private double GroupEdgePercent = -2;
+
+    /**
+     * Whether the edges between instance groups are directed.
+     */
     private int GroupEdgeIsDirected = -2;
+
+    /**
+     * The percentage that an edge constraint contains a bandwidth constraint.
+     */
     private double GroupBwPercent = -2;
+
+    /**
+     * The minimum bandwidth requirement in the edge constraints.
+     */
     private int GroupBwMin = -2;
+
+    /**
+     * The maximum bandwidth requirement in the edge constraints.
+     */
     private int GroupBwMax = -2;
+
+    /**
+     * The percentage that an edge constraint contains a link delay constraint (ms).
+     */
     private double GroupDelayPercent = -2;
+
+    /**
+     * The minimum link delay (ms) requirement in the edge constraints.
+     */
     private int GroupDelayMin = -2;
+
+    /**
+     * The maximum link delay (ms) requirement in the edge constraints.
+     */
     private int GroupDelayMax = -2;
+
+    /**
+     * The minimum retry times of the instance groups.
+     */
     private int GroupRetryTimesMin = -2;
+
+    /**
+     * The maximum retry times of the instance groups.
+     */
     private int GroupRetryTimesMax = -2;
+
+    /**
+     * The minimum number of cpu core in an instance.
+     */
     private int InstanceCpuNumMin = -2;
+
+    /**
+     * The maximum number of cpu core in an instance.
+     */
     private int InstanceCpuNumMax = -2;
+
+    /**
+     * The minimum number (GB) of ram in an instance.
+     */
     private int InstanceRamNumMin = -2;
+
+    /**
+     * The maximum number (GB) of ram in an instance.
+     */
     private int InstanceRamNumMax = -2;
+
+    /**
+     * The minimum number (GB) of storage in an instance.
+     */
     private int InstanceStorageNumMin = -2;
+
+    /**
+     * The maximum number of (GB) storage in an instance.
+     */
     private int InstanceStorageNumMax = -2;
+
+    /**
+     * The minimum number (Mbps) of bw in an instance.
+     */
     private int InstanceBwNumMin = -2;
+
+    /**
+     * The maximum number (Mbps) of bw in an instance.
+     */
     private int InstanceBwNumMax = -2;
+
+    /**
+     * The minimum lifecycle (ms) of an instance.
+     */
     private int InstanceLifeTimeMin = -2;
+
+    /**
+     * The maximum lifecycle (ms) of an instance.
+     */
     private int InstanceLifeTimeMax = -2;
+
+    /**
+     * The minimum retry times of an instance.
+     */
     private int InstanceRetryTimesMin = -2;
+
+    /**
+     * The maximum retry times of an instance.
+     */
     private int InstanceRetryTimesMax = -2;
+
+    /**
+     * The id of the next instance.
+     */
     private static int instanceId = 0;
+
+    /**
+     * The id of the next instance group.
+     */
     private static int instanceGroupId = 0;
+
+    /**
+     * The id of the next user request.
+     */
     private static int userRequestId = 0;
-    private Random random;
+
+    /**
+     * The random object.
+     */
+    private final Random random;
+
+    /**
+     * The next send time.
+     */
     @Getter
     private double nextSendTime = 0;
+
+    /**
+     * The number of times the user requests have been sent.
+     * If the number of times the user requests have been sent exceeds the RequestTimes, the user requests will not be sent again.
+     */
     private int sendTimes = 0;
 
+    /**
+     * Construct a user request manager with the csv file name.
+     *
+     * @param fileName the csv file name.
+     */
     public UserRequestManagerCsv(String fileName) {
         random = new Random();
-
         this.fileName = fileName;
-        // 将CSV文件的路径传递给File对象
+
+        // Pass the path to the CSV file to the File object
         File csvFile = new File(this.fileName);
 
-        // 创建CSVFormat对象，指定CSV文件的格式
+        // create the CSVFormat object, specify the format of the CSV file
         CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
 
         try (CSVParser csvParser = new CSVParser(new FileReader(csvFile), csvFormat)) {
-            // 获取CSV文件的迭代器
-            // 遍历CSV文件的每一行记录
             for (CSVRecord csvRecord : csvParser) {
-                // 从CSV记录中读取特定列的值
                 String title = csvRecord.get(0);
                 switch (title) {
                     case "DcDistribution" -> stringToDistributionMap(csvRecord.get(1));
@@ -130,6 +361,11 @@ public class UserRequestManagerCsv implements UserRequestManager {
         }
     }
 
+    /**
+     * Generate a batch of user requests after initialization via csv file.
+     *
+     * @return a map of user requests, the key is the data center id which the user requests are sent to, and the value is the list of user requests.
+     */
     @Override
     public Map<Integer, List<UserRequest>> generateOnceUserRequests() {
         Map<Integer, List<UserRequest>> userRequestsMap = new HashMap<>();
@@ -172,6 +408,10 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return userRequestsMap;
     }
 
+    /**
+     * Generate an instance.
+     * @return an instance.
+     */
     private Instance generateAnInstance() {
         int cpuNum = random.nextInt(InstanceCpuNumMax - InstanceCpuNumMin + 1) + InstanceCpuNumMin;
         int ramNum = random.nextInt(InstanceRamNumMax - InstanceRamNumMin + 1) + InstanceRamNumMin;
@@ -184,8 +424,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return instance;
     }
 
-    private int generateInstanceLifeTime(){
-        if(InstanceLifeTimeMax==-1||InstanceLifeTimeMax==-1){
+    /**
+     * Generate the lifecycle of an instance.
+     * @return
+     */
+    private int generateInstanceLifeTime() {
+        if (InstanceLifeTimeMax == -1 || InstanceLifeTimeMin==-1){
             return -1;
         }
         int lifeGap = InstanceLifeTimeMax - InstanceLifeTimeMin;
@@ -195,6 +439,10 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return random.nextInt(lifeSmallGapNum+1) * granularity + InstanceLifeTimeMin;
     }
 
+    /**
+     * Generate an instance group.
+     * @return an instance group.
+     */
     private InstanceGroup generateAnInstanceGroup() {
         int instanceNum = random.nextInt(GroupInstanceNumMax - GroupInstanceNumMin + 1) + GroupInstanceNumMin;
         List<Instance> instanceList = new ArrayList<>();
@@ -211,6 +459,11 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return instanceGroup;
     }
 
+    /**
+     * Generate an instance group graph.
+     * @param instanceGroups the instance groups.
+     * @return an instance group graph.
+     */
     private InstanceGroupGraph generateAnInstanceGroupGraph(List<InstanceGroup> instanceGroups) {
         InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
         instanceGroupGraph.setDirected(GroupEdgeIsDirected == 1);
@@ -228,6 +481,10 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return instanceGroupGraph;
     }
 
+    /**
+     * Generate a user request.
+     * @return a user request.
+     */
     private UserRequest generateAUserRequest() {
         int groupNum = random.nextInt(RequestGroupNumMax - RequestGroupNumMin + 1) + RequestGroupNumMin;
         List<InstanceGroup> instanceGroups = new ArrayList<>();
@@ -238,51 +495,11 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph);
     }
 
-    public TreeMap<Integer, Double> stringToMap(String str) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            TreeMap<Integer, Double> map = objectMapper.readValue(str, new TypeReference<TreeMap<Integer, Double>>() {
-            });
-
-            double sum = 0;
-            for (Map.Entry<Integer, Double> entry : map.entrySet()) {
-                sum += entry.getValue();
-                entry.setValue(sum);
-            }
-            return map;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static TreeMap<Integer, TreeMap<String, Double>> convertToTreeMap(String jsonString) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(jsonString);
-
-        TreeMap<Integer, TreeMap<String, Double>> resultMap = new TreeMap<>();
-
-        double sum = 0;
-        for (Iterator<Map.Entry<String, JsonNode>> it = rootNode.fields(); it.hasNext(); ) {
-            Map.Entry<String, JsonNode> outerEntry = it.next();
-            int outerKey = Integer.parseInt(outerEntry.getKey());
-            JsonNode innerNode = outerEntry.getValue();
-
-            TreeMap<String, Double> innerMap = new TreeMap<>();
-            for (Iterator<Map.Entry<String, JsonNode>> innerIt = innerNode.fields(); innerIt.hasNext(); ) {
-                Map.Entry<String, JsonNode> entry = innerIt.next();
-                String innerKey = entry.getKey();
-                double innerValue = entry.getValue().asDouble();
-                sum += innerValue;
-                innerMap.put(innerKey, sum);
-            }
-
-            resultMap.put(outerKey, innerMap);
-        }
-
-        return resultMap;
-    }
-
+    /**
+     * Convert the JSON string to a distribution map.
+     * @param jsonString the JSON string.
+     * @throws IOException if the JSON string is not correct.
+     */
     private void stringToDistributionMap(String jsonString) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(jsonString);
@@ -305,6 +522,9 @@ public class UserRequestManagerCsv implements UserRequestManager {
         }
     }
 
+    /**
+     * Check if all the variables have been initialized.
+     */
     private void checkVars() {
         List<String> uninitializedVars = new ArrayList<>();
 
@@ -406,14 +626,4 @@ public class UserRequestManagerCsv implements UserRequestManager {
             throw new RuntimeException("The following variables have not been initialized: " + uninitializedVars);
         }
     }
-
-
-    public static void main(String[] args) {
-        String str = "{\"1\":0.5,\"2\":0.5}";
-        TreeMap<Integer, TreeMap<String, Double>> DcDistribution;
-
-
-    }
-
-//    {"1":{"africa-south1":0.4,"asia-east1":0.1},"2":{"asia-east2":0.5}}
 }

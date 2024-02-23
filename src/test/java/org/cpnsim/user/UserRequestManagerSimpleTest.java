@@ -1,18 +1,33 @@
 package org.cpnsim.user;
 
-import org.junit.jupiter.api.Test;
 import org.cpnsim.request.UserRequest;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class UserRequestManagerSimpleTest {
+class UserRequestManagerSimpleTest {
+
     @Test
-    public void testGetUserRequests() {
-        UserRequestManager userRequestManager = new UserRequestManagerSimple();
-        List<UserRequest> userRequests0 = userRequestManager.generateOnceUserRequests().get(0);
-        assertNotEquals(0, userRequests0.size());
+    void testGenerateOnceUserRequests() {
+        UserRequestManagerSimple userRequestManagerSimple = new UserRequestManagerSimple();
+        Map<Integer, List<UserRequest>> userRequestMap = userRequestManagerSimple.generateOnceUserRequests();
+
+        assertNotNull(userRequestMap);
+        assertEquals(1, userRequestMap.size());
+        List<UserRequest> userRequests = userRequestMap.get(1);
+        assertNotNull(userRequests);
+        // Add more assertions as needed
+    }
+
+    @Test
+    void testGetNextSendTime() {
+        UserRequestManagerSimple userRequestManagerSimple = new UserRequestManagerSimple();
+        double nextSendTime = userRequestManagerSimple.getNextSendTime();
+
+        assertEquals(100.0, nextSendTime);
     }
 }
