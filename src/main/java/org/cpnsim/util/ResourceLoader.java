@@ -58,7 +58,6 @@ public final class ResourceLoader {
      * @param filePath the path of the resource to get a {@link BufferedReader} for it
      * @param klass    a class from the project that will be used just to assist in getting the path of the given resource
      * @return a {@link BufferedReader} to read the resource
-     * @throws FileNotFoundException when the file doesn't exist
      */
     public static BufferedReader newBufferedReader(final String filePath, final Class klass) {
         return new BufferedReader(newInputStreamReader(filePath, klass));

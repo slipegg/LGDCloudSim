@@ -84,7 +84,6 @@ public class GoogleTraceExample {
         System.out.println("模拟总耗时：" + (end - start) / 1000 + "s");
         System.out.println("运行过程占用最大内存: " + MemoryRecord.getMaxUsedMemory() / 1000000 + " Mb");
         System.out.println("运行结果保存路径:" + cpnSim.getSqlRecord().getDbPath());
-        System.out.println("数据中心间调度花费时间：" + cpnSim.getSqlRecord().getInterScheduleTime());
     }
 
     private void initUser() {

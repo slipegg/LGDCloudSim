@@ -187,7 +187,6 @@ public class CloudInformationService extends CloudSimEntity {
 
             double scheduleTime = interScheduler.getScheduleTime();
             send(this, scheduleTime, CloudSimTag.INTER_SCHEDULE_END, interSchedulerResult);
-            getSimulation().getSqlRecord().recordInterScheduleTime(getSimulation().clock(),scheduleTime, interScheduler.getTraversalTime());
             LOGGER.info("{}: collaboration{}'s centerScheduler starts scheduling.It will cost {}ms", getSimulation().clockStr(), collaborationId, scheduleTime);
         }
     }

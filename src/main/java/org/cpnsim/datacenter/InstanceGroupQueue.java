@@ -15,7 +15,7 @@ public interface InstanceGroupQueue {
     /**
      * Add a list of userRequests to the queue.
      *
-     * @param userRequests the list of userRequests to be added to the queue
+     * @param userRequestsOrInstanceGroups the list of userRequests to be added to the queue
      */
     InstanceGroupQueue add(List<?> userRequestsOrInstanceGroups);
 

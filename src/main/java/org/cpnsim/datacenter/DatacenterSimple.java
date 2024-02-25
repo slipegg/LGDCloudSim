@@ -391,7 +391,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void finishInstance(Instance instance) {
         int hostId = instance.getHost();
-        if (getSimulation().clock() - instance.getStartTime() >= instance.getLifeTime() - 0.01 && instance.getLifeTime() != -1) {
+        if (getSimulation().clock() - instance.getStartTime() >= instance.getLifecycle() - 0.01 && instance.getLifecycle() != -1) {
             instance.setState(UserRequest.SUCCESS);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
@@ -508,7 +508,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
                 updateAfterInstanceAllocated(instance);
 
-                int lifeTime = instance.getLifeTime();
+                int lifeTime = instance.getLifecycle();
                 successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
                 successAllocatedInstances.get(lifeTime).add(instance);
             }
@@ -780,7 +780,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
                 updateAfterInstanceAllocated(instance);
 
-                int lifeTime = instance.getLifeTime();
+                int lifeTime = instance.getLifecycle();
                 lifeInstancesMap.putIfAbsent(lifeTime, new ArrayList<>());
                 lifeInstancesMap.get(lifeTime).add(instance);
             }
@@ -1021,10 +1021,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public double getEstimatedTCO(InstanceGroup instanceGroup) {
         double tco = 0;
         for (Instance instance : instanceGroup.getInstances()) {
-            tco += instance.getCpu() * unitCpuPrice * instance.getLifeTime() / 1000.0
-                    + instance.getRam() * unitRamPrice * instance.getLifeTime() / 1000.0
-                    + instance.getStorage() * unitStoragePrice * instance.getLifeTime() / 1000.0
-                    + instance.getBw() * unitBwPrice * instance.getLifeTime() / 1000.0
+            tco += instance.getCpu() * unitCpuPrice * instance.getLifecycle() / 1000.0
+                    + instance.getRam() * unitRamPrice * instance.getLifecycle() / 1000.0
+                    + instance.getStorage() * unitStoragePrice * instance.getLifecycle() / 1000.0
+                    + instance.getBw() * unitBwPrice * instance.getLifecycle() / 1000.0
                     + (double) instance.getCpu() / statesManager.getMaxCpuCapacity() * unitRackPrice;
         }
         return tco;

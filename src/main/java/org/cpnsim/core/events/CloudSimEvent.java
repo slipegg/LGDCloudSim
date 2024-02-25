@@ -90,7 +90,6 @@ public final class CloudSimEvent implements SimEvent {
 
     /**
      * Creates a CloudSimEvent.
-     * @param type the internal type of the event
      * @param delay how many seconds after the current simulation time the event should be scheduled
      * @param source the source entity which is sending the message
      * @param destination the destination entity which has to receive the message

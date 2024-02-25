@@ -24,11 +24,15 @@ public class InterFrameExample {
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     String DATACENTER_BW_FILE = "./src/main/resources/experiment/interFrameExperiment/DatacenterBwConfig.csv";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrameExperiment/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/dcInterToSelfAndForward/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerToDcAndForward/DatacentersConfig.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";
 
+    //    String DBNAME = "Centralized-one-stage";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
+//    String DBNAME = "Centralized-two-stage";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/dcInterToSelfAndForward/DatacentersConfig.json";
+//    String DBNAME = "Distributed-two-stage";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerToDcAndForward/DatacentersConfig.json";
+//    String DBNAME = "Hybrid-two-stage";
     public static void main(String[] args) {
         new InterFrameExample();
     }

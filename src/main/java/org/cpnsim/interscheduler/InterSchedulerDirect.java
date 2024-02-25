@@ -132,7 +132,7 @@ public class InterSchedulerDirect extends InterSchedulerSimple {
                     while (iterator2.hasNext()) {
                         Datacenter datacenter = iterator2.next();
                         InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dstInstanceGroup);
-                        if (networkTopology.getDelay(datacenter, dstReceiveDc) > edge.getMinDelay()) {
+                        if (networkTopology.getDelay(datacenter, dstReceiveDc) > edge.getMaxDelay()) {
                             iterator2.remove();
                             continue;
                         }

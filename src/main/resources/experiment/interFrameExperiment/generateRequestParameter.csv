@@ -34,5 +34,5 @@ InstanceBwNumMin,25
 InstanceBwNumMax,75
 InstanceLifeTimeMin,-1
 InstanceLifeTimeMax,-1
-InstanceRetryTimesMin,1
-InstanceRetryTimesMax,1
+InstanceRetryTimesMin,0
+InstanceRetryTimesMax,0
