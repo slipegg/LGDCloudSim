@@ -35,15 +35,15 @@ import java.util.*;
  *     <li>RequestGroupNumMax: the maximum number of instance groups in a request.</li>
  *     <li>GroupInstanceNumMin: the minimum number of instances in an instance group.</li>
  *     <li>GroupInstanceNumMax: the maximum number of instances in an instance group.</li>
- *     <li>GroupAccessDelayPercent: the percentage of instance groups that have access delay.</li>
+ *     <li>GroupAccessDelayPercent: the percentage of instance groups that have access delay. (Range: [0,1]) </li>
  *     <li>GroupAccessDelayMin: the minimum access delay (ms) of the instance groups.</li>
  *     <li>GroupAccessDelayMax: the maximum access delay (ms) of the instance groups.</li>
- *     <li>GroupEdgePercent: the percentage that an instance group has edge constraints with other instance groups.</li>
- *     <li>GroupEdgeIsDirected: whether the edges between instance groups are directed.</li>
- *     <li>GroupBwPercent: the percentage that an edge constraint contains a bandwidth constraint.</li>
+ *     <li>GroupEdgePercent: the percentage that an instance group has edge constraints with other instance groups. (Range: [0,1]) </li>
+ *     <li>GroupEdgeIsDirected: whether the edges between instance groups are directed. (1: true, 0: false) </li>
+ *     <li>GroupBwPercent: the percentage that an edge constraint contains a bandwidth constraint. (Range: [0,1]) </li>
  *     <li>GroupBwMin: the minimum bandwidth requirement in the edge constraints.</li>
  *     <li>GroupBwMax: the maximum bandwidth requirement in the edge constraints.</li>
- *     <li>GroupDelayPercent: the percentage that an edge constraint contains a link delay constraint (ms).</li>
+ *     <li>GroupDelayPercent: the percentage that an edge constraint contains a link delay constraint (ms). (Range: [0,1]) </li>
  *     <li>GroupDelayMin: the minimum link delay (ms) requirement in the edge constraints.</li>
  *     <li>GroupDelayMax: the maximum link delay (ms) requirement in the edge constraints.</li>
  *     <li>GroupRetryTimesMin: the minimum retry times of the instance groups.</li>
