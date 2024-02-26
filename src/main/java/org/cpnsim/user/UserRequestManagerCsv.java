@@ -56,8 +56,10 @@ import java.util.*;
  *     <li>InstanceStorageNumMax: the maximum number of (GB) storage in an instance.</li>
  *     <li>InstanceBwNumMin: the minimum number (Mbps) of bw in an instance.</li>
  *     <li>InstanceBwNumMax: the maximum number (Mbps) of bw in an instance.</li>
- *     <li>InstanceLifeTimeMin: the minimum lifecycle (ms) of an instance.</li>
- *     <li>InstanceLifeTimeMax: the maximum lifecycle (ms) of an instance.</li>
+ *     <li>InstanceLifeTimeMin: the minimum lifecycle (ms) of an instance.
+ *     When InstanceLifeTimeMin==-1 and InstanceLifeTimeMax==-1, the instance life cycle is ♾️. </li>
+ *     <li>InstanceLifeTimeMax: the maximum lifecycle (ms) of an instance.
+ *     When InstanceLifeTimeMin==-1 and InstanceLifeTimeMax==-1, the instance life cycle is ♾️. </li>
  *     <li>InstanceRetryTimesMin: the minimum retry times of an instance.</li>
  *     <li>InstanceRetryTimesMax: the maximum retry times of an instance.</li>
  * </ul>
