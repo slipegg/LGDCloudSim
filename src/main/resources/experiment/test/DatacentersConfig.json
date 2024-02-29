@@ -34,7 +34,7 @@
             "isDirectSend": true
           },
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "partitionRandom"

@@ -38,7 +38,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -110,7 +110,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -182,7 +182,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -254,7 +254,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -326,7 +326,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -398,7 +398,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -475,7 +475,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -547,7 +547,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -619,7 +619,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"
@@ -691,7 +691,7 @@
             }
           ],
           "synchronizationGap": 500,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"

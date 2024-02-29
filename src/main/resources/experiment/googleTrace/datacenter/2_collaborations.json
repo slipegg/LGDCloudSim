@@ -118,7 +118,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
@@ -240,7 +240,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
@@ -376,7 +376,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
@@ -498,7 +498,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
@@ -639,7 +639,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
@@ -761,7 +761,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
@@ -918,7 +918,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"
@@ -1040,7 +1040,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"

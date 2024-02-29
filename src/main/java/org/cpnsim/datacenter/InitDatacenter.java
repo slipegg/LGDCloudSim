@@ -18,11 +18,91 @@ import java.util.*;
 import org.slf4j.Logger;
 
 /**
- * A class to initialize datacenters.
- * All methods are static.
+ * A class to initialize datacenters from a json file.
+ * A simple example of the json file is as follows, the iter-architecture is centralized-two stage:
+ * {
+ *    "collaborations": // A list of collaboration areas
+ *    [
+ *      {
+ *        "id": 1, // The id of the collaboration area
+ *        "centerScheduler": // The center inter-scheduler of the cloud administrator in the collaboration area. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
+ *        {
+ *          "type": "centralized", // The type of the center inter-scheduler. Inter-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
+ *          "target": "dc", // The target of the center inter-scheduler.
+ *                          // The value can be dc, host or mixed. If the value is dc, the center inter-scheduler only needs to distribute the instanceGroups to the datacenters.
+ *                          // If the value is host, the center inter-scheduler needs to schedule all instances in instanceGroups to the hosts in the datacenter.
+ *                          // If the value is mixed, the center inter-scheduler can distribute some instanceGroups to the datacenters and schedule some instances to the hosts in the datacenter.
+ *                          // Note: now the value of target can only be dc or host, the mixed target is only used for the inter-scheduler of the datacenter.
+ *          "isSupportForward": true // When the target is dc, the value of isSupportForward needs to be set.
+ *                                   // If the value is false, after the instance group is distributed to each data center,
+ *                                   // the instance group cannot be forwarded. If it is true, it can be forwarded again.
+ *          "dcStateSynInfo":
+ *          [
+ *            {
+ *              "dcId": 1, // The id of the datacenter that needs to synchronize the state
+ *              "synInterval": 1500, // The interval of state synchronization, in milliseconds
+ *              "synStateType": "easySimple" // The type of state synchronization. It determines the status that the scheduler can obtain. These types need to be registered in the {@link StatesManager}.
+ *            },
+ *            ...
+ *          ]
+ *        }
+ *        "datacenters": // A list of datacenters in the collaboration area
+ *        [
+ *          {
+ *              "id": 1, // The id of the datacenter, Note: the id of the datacenter cannot be 0, because 0 is the id of the cloud administrator. And the id of the datacenter should be unique.
+ *              "region": "us-east1", // The region of the datacenter. It's mostly about network.
+ *              "hostNum": 100, // The number of hosts in the datacenter
+ *              "partitions": // The partition information of the datacenter
+ *                [
+ *                  length: 50, // The length of the partition
+ *                  length: 50, // The length of the partition
+ *                ]
+ *              "hostStates": // The state information of the hosts in the datacenter
+ *              [
+ *                {
+ *                   "cpu": 100, // The number of CPU cores of the host
+ *                   "ram": 100, // The size of the RAM of the host, in GB
+ *                   "storage": 1000, // The size of the storage of the host, in GB
+ *                   "bw": 100, // The bandwidth of the host, in Mbps
+ *                   "startId": 0, // The start id of the host state
+ *                   "length": 50 // The number of hosts with the same state
+ *                 }
+ *                 ...
+ *              ]
+ *              "synchronizationGap": 1000, // The interval of state synchronization, in milliseconds
+ *              "intraSchedulers": // The intra-schedulers of the datacenter
+ *              {
+ *                "firstPartitionId": 0, // The first partition id of the intra-scheduler to synchronize the state. If it is not set, the default value is 0.
+ *                                       // The status synchronization method in the data center is performed by zone,
+ *                                       //and the intra-scheduler will synchronize the status of each partition in turn.
+ *                "type": "simple", // The type of the intra-scheduler. Intra-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
+ *              },
+ *              "loadBalancer": // The load balancer of the datacenter
+ *              {
+ *                "type": "batch" // The type of the load balancer. Load balancers with different scheduling algorithms need to be registered in the {@link Factory}.
+ *              },
+ *              "resourceAllocateSelector": // The resource allocation selector of the datacenter
+ *              {
+ *                "type": "simple" // The type of the resource allocation selector. Resource allocation selectors with different scheduling algorithms need to be registered in the {@link Factory}.
+ *              }
+ *          },
+ *          ...
+ *          ]
+ *        },
+ *        ...
+ *   ]
+ * }
+ *
+ * When the research scenario has only one data center and does not require additional inter-data center scheduling components,
+ * you can only define the data center information in json, as follows:
+ * {
+ *     "id": 1, // The id of the datacenter, Note: the id of the datacenter cannot be 0, because 0 is the id of the cloud administrator. And the id of the datacenter should be unique.
+ *     "region": "us-east1", // The region of the datacenter. It's mostly about network.
+ *     ...// Other information for data centers which is similar to above.
+ * }
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class InitDatacenter {
     private static Logger LOGGER = LoggerFactory.getLogger(InitDatacenter.class.getSimpleName());
@@ -261,7 +341,7 @@ public class InitDatacenter {
     }
 
     /**
-     * From a {@link JsonObject} object to get all InnerSchedulers.
+     * From a {@link JsonObject} object to get all IntraSchedulers.
      *
      * @param datacenterJson a {@link JsonObject} object
      * @param partitionNum   the number of partitions
@@ -270,12 +350,12 @@ public class InitDatacenter {
     private static List<IntraScheduler> getIntraSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<IntraScheduler> intraSchedulers = new ArrayList<>();
         int firstPartitionId = 0;
-        for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
-            JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
+        for (int k = 0; k < datacenterJson.getJsonArray("intraSchedulers").size(); k++) {
+            JsonObject schedulerJson = datacenterJson.getJsonArray("intraSchedulers").getJsonObject(k);
             if(schedulerJson.containsKey("firstPartitionId")){
                 firstPartitionId = schedulerJson.getInt("firstPartitionId");
             }else{
-                LOGGER.info("InnerScheduler {} Missing firstPartitionId, defaults to 0", k);
+                LOGGER.info("IntraScheduler {} Missing firstPartitionId, defaults to 0", k);
             }
             IntraScheduler scheduler = factory.getIntraScheduler(schedulerJson.getString("type"), intraSchedulerId++, firstPartitionId, partitionNum);
             intraSchedulers.add(scheduler);

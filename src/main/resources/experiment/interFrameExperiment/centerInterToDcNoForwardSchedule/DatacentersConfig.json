@@ -80,7 +80,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -113,7 +113,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -146,7 +146,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -179,7 +179,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -212,7 +212,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -245,7 +245,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -278,7 +278,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -311,7 +311,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -344,7 +344,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"
@@ -377,7 +377,7 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "leastRequested"

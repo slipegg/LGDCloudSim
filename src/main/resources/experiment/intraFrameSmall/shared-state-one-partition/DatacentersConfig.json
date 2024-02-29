@@ -18,7 +18,7 @@
   ],
   "synchronizationGap": 500,
   "architecture": "shared-state-one-partition",
-  "innerSchedulers": [
+  "intraSchedulers": [
     {
       "type": "randomScore"
     },

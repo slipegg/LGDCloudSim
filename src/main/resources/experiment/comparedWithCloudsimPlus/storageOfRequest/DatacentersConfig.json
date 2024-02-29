@@ -17,7 +17,7 @@
     }
   ],
   "synchronizationGap": 0,
-  "innerSchedulers": [
+  "intraSchedulers": [
     {
       "type": "FirstFit"
     }
