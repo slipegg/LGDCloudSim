@@ -1,10 +1,12 @@
 package org.cpnsim.datacenter;
 
+import org.cpnsim.request.Instance;
+
 /**
  * An interface to be implemented by each class that to record the price of the datacenter.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public interface DatacenterPrice {
     /**
@@ -142,15 +144,38 @@ public interface DatacenterPrice {
      */
     double getAllCost();
 
+    /**
+     * Set the billing type of bandwidth
+     * It can be "used" or "fixed"
+     * <ul>
+     *     <li>used: the cost of bandwidth will be calculated according the amount of network data used:(instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * unitBwPrice </li>
+     *     <li>fixed: the cost of bandwidth will be calculated according the network bandwidth speed and time used: instance.getBw() * unitBwPrice * lifeTimeSec</li>
+     * </ul
+     *
+     * @param bwBillingType the billing type of bandwidth
+     * @return the datacenter
+     * @see org.cpnsim.datacenter.DatacenterSimple#calculateInstanceBwCost(Instance)
+     */
     DatacenterPrice setBwBillingType(String bwBillingType);
 
+    /**
+     * Get the billing type of bandwidth
+     *
+     * @return the billing type of bandwidth
+     */
     String getBwBillingType();
 
+    /**
+     * Set the utilization of bandwidth.
+     * It is used to calculate the cost of bandwidth when the billing type is "used"
+     * @param bwUtilization the utilization of bandwidth
+     * @return the datacenter
+     */
     DatacenterPrice setBwUtilization(double bwUtilization);
 
+    /**
+     * Get the utilization of bandwidth
+     * @return the utilization of bandwidth
+     */
     double getBwUtilization();
-
-    double getTCOEnergy();
-
-    double getTCORack();
 }

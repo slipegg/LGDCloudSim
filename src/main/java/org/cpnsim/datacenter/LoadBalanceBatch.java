@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class LoadBalanceBatch implements LoadBalance {
     /**
-     * the datacenter to be load balanced.
+     * the data center that the load balancer belongs to.
      **/
     @Getter
     Datacenter datacenter;
@@ -32,10 +32,18 @@ public class LoadBalanceBatch implements LoadBalance {
     double loadBalanceCostTime = 0.1;
 
     /**
-     * the last inner scheduler id.
+     * the last intra-scheduler id.
      **/
     int lastInnerSchedulerId = 0;
 
+    /**
+     * Overrides the method to send instances to intra schedulers.
+     * This method distributes instances to each intra-scheduler in batches according to the batch size
+     * until all instances have been issued.
+     *
+     * @param instances List of instances to be sent to intra-schedulers.
+     * @return Set of intra schedulers to which instances were sent.
+     */
     @Override
     public Set<IntraScheduler> sendInstances(List<Instance> instances) {
         Set<IntraScheduler> sentIntraSchedulers = new HashSet<>();

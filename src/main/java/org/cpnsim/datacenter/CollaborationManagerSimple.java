@@ -13,7 +13,7 @@ import java.util.*;
  *
  * @author Jiawen Liu
  * @author Xinlei Wei
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class CollaborationManagerSimple implements CollaborationManager {
     /**
@@ -33,6 +33,9 @@ public class CollaborationManagerSimple implements CollaborationManager {
      */
     private Map<Integer, Set<Datacenter>> collaborationMap;
 
+    /**
+     * The datacenter id Map.
+     */
     private Map<Integer, Datacenter> datacenterIdMap;
 
     /**
@@ -40,15 +43,30 @@ public class CollaborationManagerSimple implements CollaborationManager {
      */
     private Simulation cloudSim;
 
+    /**
+     * The map of the collaboration id and the InstanceGroupQueue.
+     * The key is the collaboration id, and the value is the InstanceGroupQueue for the center scheduler of the collaboration with the collaboration id.
+     */
     @Getter
     private Map<Integer, InstanceGroupQueue> collaborationGroupQueueMap = new HashMap<>();
 
+    /**
+     * The map of the collaboration id and the center InterScheduler.
+     * The key is the collaboration id, and the value is the center InterScheduler of the collaboration with the collaboration id.
+     */
     @Getter
     private Map<Integer, InterScheduler> collaborationCenterSchedulerMap = new HashMap<>();
 
+    /**
+     * The map of the collaboration id and the center scheduler busy status.
+     * The key is the collaboration id, and the value is the center scheduler busy status of the collaboration with the collaboration id.
+     */
     @Getter
     private Map<Integer, Boolean> centerSchedulerBusyMap = new HashMap<>();
 
+    /**
+     * Construct a new CollaborationManagerSimple with the given simulation.
+     */
     public CollaborationManagerSimple(Simulation simulation) {
         this.cloudSim = simulation;
         this.collaborationMap = new HashMap<>();
@@ -211,7 +229,6 @@ public class CollaborationManagerSimple implements CollaborationManager {
         long maxCpuSum = -1;
         int smallCpuCollaborationId = -1;
         int maxCpuCollaborationId = -1;
-//        遍历Map<Integer, Set<Datacenter>> collaborationMap;
         for (Map.Entry<Integer, Set<Datacenter>> entry : collaborationMap.entrySet()) {
             Set<Datacenter> datacenters = entry.getValue();
             for (Datacenter datacenter : datacenters) {
@@ -235,7 +252,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
                 }
             }
         }
-        //交换
+        //exchange the datacenter
         LOGGER.info("{}: change collaboration, minCpuDatacenter: Collaboration{}-{} <--> maxCpuDatacenter: Collaboration{}-Datacenter{}",
                 cloudSim.clockStr(), smallCpuCollaborationId, minCpuDatacenter.getName(), maxCpuCollaborationId, maxCpuDatacenter.getName());
         Set<Datacenter> smallCpuDatacenters = collaborationMap.get(smallCpuCollaborationId);

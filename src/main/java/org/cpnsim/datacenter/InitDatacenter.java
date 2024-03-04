@@ -21,11 +21,11 @@ import org.slf4j.Logger;
  * A class to initialize datacenters from a json file.
  * A simple example of the json file is as follows, the iter-architecture is centralized-two stage:
  * {
- *    "collaborations": // A list of collaboration areas
+ *    "collaborations": // A list of collaboration zones
  *    [
  *      {
- *        "id": 1, // The id of the collaboration area
- *        "centerScheduler": // The center inter-scheduler of the cloud administrator in the collaboration area. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
+ *        "id": 1, // The id of the collaboration zone
+ *        "centerScheduler": // The center inter-scheduler of the cloud administrator in the collaboration zone. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
  *        {
  *          "type": "centralized", // The type of the center inter-scheduler. Inter-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
  *          "target": "dc", // The target of the center inter-scheduler.
@@ -46,7 +46,7 @@ import org.slf4j.Logger;
  *            ...
  *          ]
  *        }
- *        "datacenters": // A list of datacenters in the collaboration area
+ *        "datacenters": // A list of datacenters in the collaboration zone
  *        [
  *          {
  *              "id": 1, // The id of the datacenter, Note: the id of the datacenter cannot be 0, because 0 is the id of the cloud administrator. And the id of the datacenter should be unique.
@@ -92,6 +92,10 @@ import org.slf4j.Logger;
  *        ...
  *   ]
  * }
+ * If you want to set centralized-one-stage scheduling architecture, you need to use center inter-scheduler in collaboration zone and set the target to host.
+ * If you want to set centralized-two-stage scheduling architecture, you need to use center inter-scheduler in collaboration zone and set the target to dc and to set the isSupportForward of the center inter-scheduler to false and set intra-scheduler for each datacenter.
+ * If you want to set distributed-two-stage scheduling architecture, you must not set center inter-scheduler in collaboration zone and set the inter-scheduler for each datacenter and set the target to mixed.
+ * If you want to set mixed-two-stage scheduling architecture, you need to use center inter-scheduler in collaboration zone and set the target to dc and to set the isSupportForward of the center inter-scheduler to true and set inter-scheduler for each datacenter.
  *
  * When the research scenario has only one data center and does not require additional inter-data center scheduling components,
  * you can only define the data center information in json, as follows:
@@ -116,14 +120,27 @@ public class InitDatacenter {
      **/
     private static Factory factory;
 
+    /**
+     * The id of the inter-scheduler.
+     */
     private static int interSchedulerId = 0;
 
+    /**
+     * The id of the intra-scheduler.
+     */
     private static int intraSchedulerId = 0;
 
+    /**
+     * The id of the datacenter.
+     */
     private static int datacenterId = 1;
 
     /**
-     * Initialize datacenters.
+     * Initialize datacenters with the simulation and factory and the path of the json file.
+     *
+     * @param cpnSim the {@link Simulation} object
+     * @param factory the {@link Factory} object
+     * @param filePath the path of the json file
      **/
     public static void initDatacenters(Simulation cpnSim, Factory factory, String filePath) {
         InitDatacenter.cpnSim = cpnSim;
@@ -137,6 +154,11 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Initialize multiple datacenters scenario.
+     *
+     * @param jsonObject the json object of multiple datacenters scenario
+     */
     private static void initMultiDatacenters(JsonObject jsonObject){
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
@@ -171,6 +193,10 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Initialize single datacenter scenario.
+     * @param jsonObject the json object of single datacenter scenario
+     */
     private static void initSingleDatacenter(JsonObject jsonObject){
         cpnSim.setSingleDatacenterFlag(true);
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
@@ -179,6 +205,12 @@ public class InitDatacenter {
         collaborationManager.addDatacenter(datacenter, collaborationId);
     }
 
+    /**
+     * Initialize the inter-schedulers of the datacenters in the collaboration zone.
+     * @param datacenters the json array of datacenters
+     * @param collaborationId the id of the collaboration zone
+     * @param collaborationManager the {@link CollaborationManager} object
+     */
     private static void initInterSchedulers(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
         for (int j = 0; j < datacenters.size(); j++) {
             JsonObject datacenterJson = datacenters.getJsonObject(j);
@@ -196,6 +228,13 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Initialize the inter-scheduler.
+     * @param interSchedulerJson the json object of the inter-scheduler
+     * @param collaborationId the id of the collaboration zone
+     * @param collaborationManager the {@link CollaborationManager} object
+     * @return the {@link InterScheduler} object
+     */
     private static InterScheduler initInterScheduler(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
         String interSchedulerType = interSchedulerJson.getString("type");
         int target = getInterScheduleTarget(interSchedulerJson);
@@ -210,11 +249,22 @@ public class InitDatacenter {
         return interScheduler;
     }
 
+    /**
+     * Get the target of the inter-scheduler from the json object.
+     * @param centerSchedulerJson the json object of the center inter-scheduler
+     * @return the target of the inter-scheduler
+     */
     private static int getInterScheduleTarget(JsonObject centerSchedulerJson) {
         String targetStr = centerSchedulerJson.getString("target");
         return switchTarget(targetStr);
     }
 
+    /**
+     * Get the target of the inter-scheduler.
+     * It can be dc, host or mixed.
+     * @param targetStr the target string
+     * @return the target of the inter-scheduler
+     */
     private static int switchTarget(String targetStr) {
         return switch (targetStr) {
             case "dc","datacenter" -> InterSchedulerSimple.DC_TARGET;
@@ -224,6 +274,12 @@ public class InitDatacenter {
         };
     }
 
+    /**
+     * Get the interval and type of state synchronization of the datacenter for inter-scheduler from the json object.
+     * @param dcStateSynInfoJson the json object of the state synchronization information of the datacenter
+     * @param collaborationManager the {@link CollaborationManager} object
+     * @return an array of the interval and type of state synchronization
+     */
     private static Object[] getDcStateSynIntervalAndType(JsonObject dcStateSynInfoJson, CollaborationManager collaborationManager) {
         Map<Datacenter, Double> dcStateSynInterval = new HashMap<>();
         Map<Datacenter, String> dcStateSynType = new HashMap<>();
@@ -290,7 +346,7 @@ public class InitDatacenter {
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         if (isCenterSchedule) {
-            datacenter.setCentralizedInterSchedule(true);
+            datacenter.setCentralizedInterScheduleFlag(true);
         }
         if (isNeedInterSchedulerForDc(isCenterSchedule, target, isSupportForward)) {
             InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId, target, false);
@@ -298,7 +354,7 @@ public class InitDatacenter {
             datacenter.setInterScheduler(interScheduler);
         }
 
-        if (isNeedInnerSchedule(isCenterSchedule, target, isSupportForward)) {
+        if (isNeedIntraScheduler(isCenterSchedule, target, isSupportForward)) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
             LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
             datacenter.setLoadBalance(loadBalance);
@@ -317,6 +373,11 @@ public class InitDatacenter {
         return datacenter;
     }
 
+    /**
+     * Add region information and location information to the datacenter.
+     * @param datacenter the {@link Datacenter} object
+     * @param datacenterJson the json object of the datacenter
+     */
     private static void addRegionInfo(Datacenter datacenter, JsonObject datacenterJson) {
         if (datacenterJson.containsKey("region")) {
             String region = datacenterJson.getString("region");
@@ -330,11 +391,28 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Get whether the inter-scheduler is needed for the datacenter.
+     * It is decided by the scheduling architecture.
+     * @param isCenterSchedule whether the center inter-scheduler is needed
+     * @param target the target of the center inter-scheduler
+     * @param isSupportForward whether the center inter-scheduler supports forwarding
+     * @return whether the inter-scheduler is needed for the datacenter
+     */
     private static boolean isNeedInterSchedulerForDc(boolean isCenterSchedule, int target, boolean isSupportForward) {
         return (!cpnSim.isSingleDatacenterFlag())&&((isCenterSchedule && isSupportForward) || (!isCenterSchedule));
     }
 
-    private static boolean isNeedInnerSchedule(boolean isCenterSchedule, int target, boolean isSupportForward) {
+    /**
+     * Get whether the intra-scheduler is needed for the datacenter.
+     * It is decided by the scheduling architecture.
+     *
+     * @param isCenterSchedule whether the center inter-scheduler is needed
+     * @param target           the target of the center inter-scheduler
+     * @param isSupportForward whether the center inter-scheduler supports forwarding
+     * @return
+     */
+    private static boolean isNeedIntraScheduler(boolean isCenterSchedule, int target, boolean isSupportForward) {
         return !((isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET)
                 || (!isCenterSchedule && target == InterSchedulerSimple.MIXED_TARGET)
                 || (isCenterSchedule && target == InterSchedulerSimple.DC_TARGET && isSupportForward));
@@ -377,7 +455,6 @@ public class InitDatacenter {
         } else {
             synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
         }
-//        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, intraSchedulers);
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
         StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
 
@@ -388,6 +465,11 @@ public class InitDatacenter {
         return statesManager;
     }
 
+    /**
+     * Get the maximum CPU and RAM of the hosts in the datacenter.
+     * @param datacenterJson a {@link JsonObject} object
+     * @return an array of the maximum CPU and RAM
+     */
     private static int[] getMaxCpuRam(JsonObject datacenterJson) {
         int maxCpu = 0;
         int maxRam = 0;
@@ -416,7 +498,6 @@ public class InitDatacenter {
         Map<Integer, int[]> ranges = new HashMap<>();
         for (int k = 0; k < datacenterJson.getJsonArray("partitions").size(); k++) {
             JsonObject partition = datacenterJson.getJsonArray("partitions").getJsonObject(k);
-//            partitionRangesManager.addRange(partition.getInt("id"), startId, partition.getInt("length"));
             ranges.put(partitionId, new int[]{startId, startId + partition.getInt("length") - 1});
             startId += partition.getInt("length");
             partitionId++;
@@ -471,6 +552,17 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Set the resource unit price of the datacenter.
+     * It includes the unit price of CPU, RAM, rack, storage and bandwidth.
+     * The bandwidth billing type has two types: used and fixed.
+     * If the bandwidth billing type is used, the bandwidth utilization should be set.
+     * It means the bandwidth price is calculated based on the actual amount of network data used.
+     * If the bandwidth billing type is fixed, the bandwidth utilization should not be set.
+     * It means the bandwidth price is calculated based on the actual bandwidth speed used.
+     * @param datacenter the {@link Datacenter} object
+     * @param unitPriceJson the json object of the resource unit price
+     */
     private static void setDatacenterResourceUnitPrice(Datacenter datacenter, JsonObject unitPriceJson) {
         if (unitPriceJson == null) {
             return;

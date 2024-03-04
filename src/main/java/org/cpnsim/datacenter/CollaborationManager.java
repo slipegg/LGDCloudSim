@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A class to manager the collaboration of the datacenters.
+ * A class to manager the collaboration zones of the datacenters.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public interface CollaborationManager {
     /**
@@ -89,30 +89,30 @@ public interface CollaborationManager {
     List<Integer> getCollaborationIds();
 
     /**
-     * Get the interval time for periodic adjustment of collaboration areas.
+     * Get the interval time for periodic adjustment of collaboration zones.
      *
-     * @return the interval time for periodic adjustment of collaboration areas
+     * @return the interval time for periodic adjustment of collaboration zones
      */
     double getChangeCollaborationSynTime();
 
     /**
-     * Set the interval time for periodic adjustment of collaboration areas.
+     * Set the interval time for periodic adjustment of collaboration zones.
      *
-     * @param changeCollaborationSynTime the interval time for periodic adjustment of collaboration areas
+     * @param changeCollaborationSynTime the interval time for periodic adjustment of collaboration zones
      */
     CollaborationManager setChangeCollaborationSynTime(double changeCollaborationSynTime);
 
     /**
-     * Get whether the collaboration areas is adjusted periodically.
+     * Get whether the collaboration zones is adjusted periodically.
      *
-     * @return true if the collaboration areas is adjusted periodically, false otherwise
+     * @return true if the collaboration zones is adjusted periodically, false otherwise
      */
     boolean getIsChangeCollaborationSyn();
 
     /**
-     * Set whether the collaboration areas is adjusted periodically.
+     * Set whether the collaboration zones is adjusted periodically.
      *
-     * @param isChangeCollaborationSyn true if the collaboration areas is adjusted periodically, false otherwise
+     * @param isChangeCollaborationSyn true if the collaboration zones is adjusted periodically, false otherwise
      */
     CollaborationManager setIsChangeCollaborationSyn(boolean isChangeCollaborationSyn);
 
@@ -121,15 +121,49 @@ public interface CollaborationManager {
      */
     CollaborationManager changeCollaboration();
 
+    /**
+     * Add the center scheduler to the collaboration with the given collaboration id.
+     *
+     * @param centerScheduler the center scheduler to be added to the collaboration
+     * @return the collaboration manager
+     */
     CollaborationManager addCenterScheduler(InterScheduler centerScheduler);
 
+    /**
+     * Get the center scheduler with the given collaboration id.
+     *
+     * @return the center scheduler with the given collaboration id
+     */
     Map<Integer, InstanceGroupQueue> getCollaborationGroupQueueMap();
 
+    /**
+     * Get the map of the collaboration id and the center scheduler.
+     * The key is the collaboration id, and the value is the center scheduler of the collaboration with the collaboration id.
+     *
+     * @return the map of the collaboration id and the center scheduler
+     */
     Map<Integer, InterScheduler> getCollaborationCenterSchedulerMap();
 
+    /**
+     * Get the map of the collaboration id and the center scheduler busy status.
+     * If the value is true, the center scheduler is busy, it can not start a new scheduling.
+     * Otherwise, the center scheduler is idle.
+     *
+     * @return the map of the collaboration id and the center scheduler busy status
+     */
     Map<Integer, Boolean> getCenterSchedulerBusyMap();
 
+    /**
+     * Get the data center by the given data center id.
+     *
+     * @param datacenterId the id of the data center
+     */
     Datacenter getDatacenterById(int datacenterId);
 
+    /**
+     * Get the only collaboration id of the data center.
+     *
+     * @param datacenterId the id of the data center
+     */
     int getOnlyCollaborationId(int datacenterId);
 }

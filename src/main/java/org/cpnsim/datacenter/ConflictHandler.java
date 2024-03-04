@@ -15,21 +15,29 @@ import java.util.Map;
  * and which are not placed on the host through it.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public interface ConflictHandler extends DatacenterEntity {
     /**
      * Select the {@link Instance}s to be placed on the host.
+     * It is processing the scheduling results of intra-scheduler.
      *
-     * @param intraSchedulerResults the inner schedule results
-     * @return the result of the resource allocation
+     * @param intraSchedulerResults the intra-schedule results.
+     * @return the result of the resource allocation.
      */
     ConflictHandlerResult filterConflictedInstance(List<IntraSchedulerResult> intraSchedulerResults);
 
     /**
-     * Get the number of conflicts when resource allocating.
+     * Get the number of conflicts when resource allocating of each partition.
      */
     Map<Integer, Integer> getPartitionConflicts();
 
+    /**
+     * Select the {@link InstanceGroup}s to be placed on the host.
+     * It is processing the scheduling results of inter-scheduler.
+     *
+     * @param instanceGroups the instance groups which the instance of them are to be placed on the host.
+     * @return the result of the resource allocation.
+     */
     FailedOutdatedResult<InstanceGroup> filterConflictedInstanceGroup(List<InstanceGroup> instanceGroups);
 }

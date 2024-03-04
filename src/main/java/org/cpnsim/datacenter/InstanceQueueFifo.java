@@ -28,15 +28,24 @@ public class InstanceQueueFifo implements InstanceQueue {
     @Setter
     private int batchNum;
 
+    /**
+     * the flag to set whether to check if the instance exceeds the maximum schedule delay limit.
+     */
     @Getter
     @Setter
     boolean checkOutdatedFlag = false;
 
+    /**
+     * Create a new instance of InstanceQueueFifo with the batch number.
+     */
     public InstanceQueueFifo(int batchNum) {
         instances = new LinkedList<>();
         this.batchNum = batchNum;
     }
 
+    /**
+     * Create a new instance of InstanceQueueFifo with the default batch number.
+     */
     public InstanceQueueFifo() {
         this(1000);
     }
@@ -59,6 +68,13 @@ public class InstanceQueueFifo implements InstanceQueue {
         return getItems(this.instances.size(), -1).getWaitScheduledItems();
     }
 
+    /**
+     * Select num instances at the head of the queue.
+     *
+     * @param num     the number of instances to be selected
+     * @param nowTime the current time
+     * @return the selected instances
+     */
     @Override
     public QueueResult<Instance> getItems(int num, double nowTime) {
         List<Instance> sendInstances = new ArrayList<>();

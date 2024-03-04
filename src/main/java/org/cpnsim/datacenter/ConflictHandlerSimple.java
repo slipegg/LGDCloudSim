@@ -36,48 +36,13 @@ public class ConflictHandlerSimple implements ConflictHandler {
     public ConflictHandlerResult filterConflictedInstance(List<IntraSchedulerResult> intraSchedulerResults) {
         ConflictHandlerResult conflictHandlerResult = new ConflictHandlerResult();
         Map<Integer, HostState> allocateHostStates = new HashMap<>();
-        StatesManager statesManager = datacenter.getStatesManager();
         int conflictSum = 0;
-        double nowTime = datacenter.getSimulation().clock();
 
         for (IntraSchedulerResult intraSchedulerResult : intraSchedulerResults) {
             List<Instance> successRes = new ArrayList<>();
             List<Instance> failRes = new ArrayList<>();
             Set<UserRequest> outdatedRequests = new HashSet<>();
-            for (Instance instance : intraSchedulerResult.getScheduledInstances()) {
-                if (instance.getUserRequest().getState() == UserRequest.FAILED) {
-                    continue;
-                }
-
-                if (instance.getUserRequest().getScheduleDelayLimit() > 0 && nowTime - instance.getUserRequest().getSubmitTime() > instance.getUserRequest().getScheduleDelayLimit()) {
-                    outdatedRequests.add(instance.getUserRequest());
-                    continue;
-                }
-
-                int hostId = instance.getExpectedScheduleHostId();
-                HostState hostState;
-                if (allocateHostStates.containsKey(hostId)) {
-                    hostState = allocateHostStates.get(hostId);
-                } else {
-                    hostState = statesManager.getNowHostState(hostId);
-                    allocateHostStates.put(hostId, hostState);
-                }
-
-                if (hostState.isSuitable(instance)) {
-                    hostState.allocate(instance);
-                    successRes.add(instance);
-                } else {
-                    failRes.add(instance);
-
-                    int partitionId = datacenter.getStatesManager().getPartitionRangesManager().getPartitionId(hostId);
-                    if (partitionConflicts.containsKey(partitionId)) {
-                        partitionConflicts.put(partitionId, partitionConflicts.get(partitionId) + 1);
-                    } else {
-                        partitionConflicts.put(partitionId, 1);
-                    }
-                    conflictSum += 1;
-                }
-            }
+            conflictSum += dealConflictInstance(intraSchedulerResult.getScheduledInstances(), successRes, failRes, outdatedRequests, allocateHostStates, allocateHostStates);
             conflictHandlerResult.addSuccessRes(intraSchedulerResult.getIntraScheduler(), successRes);
             conflictHandlerResult.addFailRes(intraSchedulerResult.getIntraScheduler(), failRes, outdatedRequests);
         }
@@ -85,6 +50,59 @@ public class ConflictHandlerSimple implements ConflictHandler {
             getDatacenter().getSimulation().getSqlRecord().recordConflict(getDatacenter().getSimulation().clock(), conflictSum);
         }
         return conflictHandlerResult;
+    }
+
+    /**
+     * Deal with the conflict instances.
+     *
+     * @param scheduledInstances    the instances to be scheduled.
+     * @param successInstances      the instances allocated to the host successfully.
+     * @param failedInstances       the instances need to be rescheduled or be marked as failed.
+     * @param outdatedRequests      the outdated requests.
+     * @param hostStatesIfScheduled the host states if the instances are scheduled.
+     * @param allocateHostStates    the host states if the instances are allocated.
+     * @return the number of conflicts when resource allocating.
+     */
+    private int dealConflictInstance(List<Instance> scheduledInstances, List<Instance> successInstances, List<Instance> failedInstances, Set<UserRequest> outdatedRequests, Map<Integer, HostState> hostStatesIfScheduled, Map<Integer, HostState> allocateHostStates) {
+        StatesManager statesManager = datacenter.getStatesManager();
+        int conflictSum = 0;
+        for (Instance instance : scheduledInstances) {
+            if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                continue;
+            }
+
+            if (instance.getUserRequest().getScheduleDelayLimit() > 0 && getDatacenter().getSimulation().clock() - instance.getUserRequest().getSubmitTime() > instance.getUserRequest().getScheduleDelayLimit()) {
+                outdatedRequests.add(instance.getUserRequest());
+                continue;
+            }
+
+
+            int hostId = instance.getExpectedScheduleHostId();
+            HostState hostState;
+            if (allocateHostStates.containsKey(hostId)) {
+                hostState = allocateHostStates.get(hostId);
+            } else {
+                hostState = statesManager.getNowHostState(hostId);
+                allocateHostStates.put(hostId, hostState);
+            }
+
+            if (hostState.isSuitable(instance)) {
+                hostState.allocate(instance);
+                successInstances.add(instance);
+            } else {
+                failedInstances.add(instance);
+
+                int partitionId = datacenter.getStatesManager().getPartitionRangesManager().getPartitionId(hostId);
+                if (partitionConflicts.containsKey(partitionId)) {
+                    partitionConflicts.put(partitionId, partitionConflicts.get(partitionId) + 1);
+                } else {
+                    partitionConflicts.put(partitionId, 1);
+                }
+                conflictSum += 1;
+            }
+        }
+
+        return conflictSum;
     }
 
     @Override

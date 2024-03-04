@@ -18,7 +18,7 @@ import java.util.Set;
  * It is used to avoid NullPointerException.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class DatacenterNull implements Datacenter {
     @Override
@@ -112,7 +112,7 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setCentralizedInterSchedule(boolean centralizedInterSchedule) {
+    public Datacenter setCentralizedInterScheduleFlag(boolean centralizedInterScheduleFlag) {
         return null;
     }
 
@@ -288,16 +288,6 @@ public class DatacenterNull implements Datacenter {
 
     @Override
     public double getBwUtilization() {
-        return 0;
-    }
-
-    @Override
-    public double getTCOEnergy() {
-        return 0;
-    }
-
-    @Override
-    public double getTCORack() {
         return 0;
     }
 }

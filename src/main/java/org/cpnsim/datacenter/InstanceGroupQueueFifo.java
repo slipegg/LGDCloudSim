@@ -14,7 +14,7 @@ import java.util.*;
  * This class implements the interface {@link InstanceGroupQueue}.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     /**
@@ -29,15 +29,37 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     @Setter
     private int batchNum;
 
+    /**
+     * the flag to set whether to check if the instanceGroup exceeds the maximum schedule delay limit.
+     **/
     @Getter
     @Setter
     private boolean checkOutdatedFlag = false;
 
+    /**
+     * Create a new instance of InstanceGroupQueueFifo with an empty list of instanceGroups and the default batch number.
+     */
     public InstanceGroupQueueFifo() {
         this.instanceGroups = new LinkedList<>();
         this.batchNum = 1000;
     }
 
+    /**
+     * Create a new instance of InstanceGroupQueueFifo with the given list of instanceGroups and the default batch number.
+     *
+     * @param batchNum the number of instanceGroups to be sent in a batch
+     */
+    public InstanceGroupQueueFifo(int batchNum) {
+        this.instanceGroups = new LinkedList<>();
+        this.batchNum = batchNum;
+    }
+
+    /**
+     * Add the instanceGroup in the request to the end of the queue
+     *
+     * @param userRequestsOrInstanceGroups the list of userRequests to be added to the queue
+     * @return the instanceGroupQueue
+     */
     @Override
     public InstanceGroupQueue add(List<?> userRequestsOrInstanceGroups) {
         if (userRequestsOrInstanceGroups.size() != 0) {
@@ -82,6 +104,13 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
         return getItems(batchNum, nowTime);
     }
 
+    /**
+     * Select num instanceGroups at the head of the queue.
+     *
+     * @param num the number of InstanceGroup need to be selected
+     * @param nowTime the current time
+     * @return the batch of groupInstances
+     */
     @Override
     public QueueResult<InstanceGroup> getItems(int num, double nowTime) {
         List<InstanceGroup> sendInstanceGroups = new ArrayList<>();

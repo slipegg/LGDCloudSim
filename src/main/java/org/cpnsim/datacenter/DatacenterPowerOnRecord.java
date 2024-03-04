@@ -6,10 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A class to record the power on information of the datacenter.
+ * A class to record the power on hosts information of the datacenter.
+ * It will record the number of instances running on each powered on host,
+ * the start time of the host powered on, the maximum number of hosts powered on during the simulation,
+ * the number of hosts powered on now, and the total power on time of the all hosts.
+ * It can be used to analyze the rental cost of the datacenter.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class DatacenterPowerOnRecord {
     /**

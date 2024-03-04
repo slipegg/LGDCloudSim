@@ -7,10 +7,13 @@ import org.cpnsim.request.UserRequest;
 import java.util.List;
 
 /**
- * An interface to be implemented by each class that represents a instance queue.
+ * An interface to be implemented by each class that represents an instance queue.
+ * The instance queue is used to store the instances to be scheduled.
+ * Every intra-scheduler has two queues, one stores the instances to be scheduled,
+ * and the other stores the instances that need to be rescheduled.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public interface InstanceQueue {
     /**
@@ -44,10 +47,16 @@ public interface InstanceQueue {
      */
     InstanceQueue add(InstanceGroup instanceGroup);
 
+    /**
+     * Add all instances of a userRequest to the queue.
+     *
+     * @param userRequest the userRequest to be added to the queue
+     */
     InstanceQueue add(UserRequest userRequest);
 
     /**
      * Add a list of instances to the queue.
+     * The list can be a list of instances, a list of instanceGroups, or a list of userRequests.
      *
      * @param requests the list of instances to be added to the queue
      */
@@ -63,9 +72,28 @@ public interface InstanceQueue {
      */
     InstanceQueue setBatchNum(int batchNum);
 
+    /**
+     * Get whether the queue is empty.
+     */
     boolean isEmpty();
 
+    /**
+     * Set whether queue needs to check the instance in the queue exceeds the scheduling delay limit when get instances.
+     * If the flag is true, when traversing and selecting instances,
+     * the traversed instances that have exceeded the scheduling delay limit will be recorded,
+     * deleted from the queue, and sent to the handler for scheduling failure.
+     * These instances that have exceeded the scheduling delay limit will not be counted.
+     * If the flag is false, there is no additional check to see if the instance has exceeded the scheduling delay limit.
+     *
+     * @param checkOutdatedFlag the flag to check the instance in the queue exceeds the scheduling delay limit
+     * @return the instanceQueue
+     */
     InstanceQueue setCheckOutdatedFlag(boolean checkOutdatedFlag);
 
+    /**
+     * Get whether the queue needs to check the instance in the queue exceeds the scheduling delay limit when get instances.
+     *
+     * @return true if the queue needs to check the instance in the queue exceeds the scheduling delay limit, false otherwise
+     */
     boolean isCheckOutdatedFlag();
 }
