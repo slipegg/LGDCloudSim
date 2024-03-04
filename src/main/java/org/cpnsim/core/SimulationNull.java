@@ -121,11 +121,6 @@ public class SimulationNull implements Simulation {
     }
 
     @Override
-    public double getTCO() {
-        return 0;
-    }
-
-    @Override
     public boolean isSingleDatacenterFlag() {
         return false;
     }

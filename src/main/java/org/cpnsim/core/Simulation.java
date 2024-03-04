@@ -58,8 +58,6 @@ public interface Simulation {
 
     void setIsSqlRecord(boolean isSqlRecord);
 
-    double getTCO();
-
     boolean isSingleDatacenterFlag();
 
     Simulation setSingleDatacenterFlag(boolean isSingleDatacenter);

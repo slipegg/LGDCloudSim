@@ -325,25 +325,4 @@ public class CloudSim implements Simulation {
     public boolean isTerminationTimeSet() {
         return terminationTime > 0.0;
     }
-
-    @Override
-    public double getTCO() {
-        double TCOSum = 0;
-        double TCOEnergySum = 0;
-        double TCORackSum = 0;
-        double TCONetworkSum = 0;
-        for (Datacenter datacenter : getCis().getDatacenterList()) {
-            LOGGER.debug("TCO Detail: [ {} ] Energy = {} Rack = {}",
-                    datacenter.getName(), datacenter.getTCOEnergy(), datacenter.getTCORack());
-            TCOEnergySum += datacenter.getTCOEnergy();
-            TCORackSum += datacenter.getTCORack();
-        }
-        TCONetworkSum += networkTopology.getNetworkTCO();
-        TCOSum = TCOEnergySum + TCORackSum + TCONetworkSum;
-        LOGGER.debug("TCO Detail: Total Energy = {}", TCOEnergySum);
-        LOGGER.debug("TCO Detail: Total Rack = {}", TCORackSum);
-        LOGGER.debug("TCO Detail: Total Network = {}", TCONetworkSum);
-        LOGGER.info("{}: Calculated TCO: {}", clockStr(), TCOSum);
-        return TCOSum;
-    }
 }
