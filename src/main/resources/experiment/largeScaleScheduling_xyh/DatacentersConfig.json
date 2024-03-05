@@ -5,7 +5,7 @@
       "centerScheduler": {
         "type": "leastRequested",
         "target": "dc",
-        "isSupportForward":false,
+        "isSupportForward": false,
         "dcStateSynInfo": [
           {
             "dcId": 1,
@@ -80,10 +80,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -113,10 +112,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -146,10 +144,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -179,10 +176,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -212,10 +208,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -245,10 +240,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -278,10 +272,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -311,10 +304,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -344,10 +336,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
@@ -377,10 +368,9 @@
             }
           ],
           "synchronizationGap": 0,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
+            "type": "leastRequested"
             }
           ],
           "loadBalancer": {
