@@ -24,7 +24,7 @@ public class largeScaleScheduling_xyh {
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/DatacenterBwConfig.csv";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/centerInterToDcNoForwardSchedule/DatacentersConfig.json";//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/DatacentersConfig.json";
 
     //    String DBNAME = "Centralized-one-stage";
 //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
