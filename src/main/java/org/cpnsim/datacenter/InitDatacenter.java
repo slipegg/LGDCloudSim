@@ -70,13 +70,14 @@ import org.slf4j.Logger;
  *                 ...
  *              ]
  *              "synchronizationGap": 1000, // The interval of state synchronization, in milliseconds
+ *              //TODO intraSchedulers、loadBalancer、resourceAllocateSelector 三者组合关系？什么情况下哪些是必选？
  *              "intraSchedulers": // The intra-schedulers of the datacenter
- *              {
+ *              [{
  *                "firstPartitionId": 0, // The first partition id of the intra-scheduler to synchronize the state. If it is not set, the default value is 0.
  *                                       // The status synchronization method in the data center is performed by zone,
  *                                       //and the intra-scheduler will synchronize the status of each partition in turn.
  *                "type": "simple", // The type of the intra-scheduler. Intra-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
- *              },
+ *              }],
  *              "loadBalancer": // The load balancer of the datacenter
  *              {
  *                "type": "batch" // The type of the load balancer. Load balancers with different scheduling algorithms need to be registered in the {@link Factory}.
@@ -337,7 +338,7 @@ public class InitDatacenter {
 
         addRegionInfo(datacenter, datacenterJson);
 
-        if(datacenterJson.containsKey("architecture")){
+        if(datacenterJson.containsKey("architecture")){ //TODO 该参数在示例中没有提到
             datacenter.setArchitecture(datacenterJson.getString("architecture"));
         }
 
