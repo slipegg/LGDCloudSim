@@ -296,7 +296,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     /**
-     * When a datacenter is created, it will send a registration request to the CIS.
+     * When a datacenter is created, it will send a registration request to the CIS and start the synchronization process.
      */
     @Override
     protected void startInternal() {
