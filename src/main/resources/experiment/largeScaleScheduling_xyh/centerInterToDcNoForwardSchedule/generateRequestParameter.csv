@@ -1,10 +1,10 @@
   Parament Name,Parament
 DcDistribution,"{""1"":{""africa-south1"":0.4,""asia-east1"":0.1},""2"":{""asia-east1"":0.5}}"
-RequestPerNumMin,10
-RequestPerNumMax,10
-RequestTimeIntervalMin,10
-RequestTimeIntervalMax,10
-RequestTimes,5
+RequestPerNumMin,1000
+RequestPerNumMax,1000
+RequestTimeIntervalMin,1
+RequestTimeIntervalMax,1
+RequestTimes,10
 ScheduleDelayLimitMin,1000
 ScheduleDelayLimitMax,1000
 RequestGroupNumMin,1
