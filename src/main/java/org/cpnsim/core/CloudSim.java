@@ -21,10 +21,33 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+/**
+ * An abstract class to manage Cloud Computing simulations,
+ * providing all methods to start, pause and stop them.
+ * It sends and processes all discrete events during the simulation time.
+ *
+ * @author Rodrigo N. Calheiros
+ * @author Anton Beloglazov
+ * @author Manoel Campos da Silva Filho
+ * @author Jiawen Liu
+ * @since CloudSim Toolkit 1.0
+ */
 public class CloudSim implements Simulation {
+    /**
+     * The logger for this class.
+     */
     public static final Logger LOGGER = LoggerFactory.getLogger(CloudSim.class.getSimpleName());
-    public static final String VERSION = "CPNSim 0.0.0";
+    /**
+     * The version of CLGDCloudSim.
+     */
+    public static final String VERSION = "LGDCloudSim 1.0";
+    /**
+     * The simulation time.
+     */
     double clock;
+    /**
+     * A flag to indicate if the simulation is running or not.
+     */
     @Getter
     private boolean running;
     /**
@@ -35,29 +58,61 @@ public class CloudSim implements Simulation {
      * The deferred event queue.
      */
     private final DeferredQueue deferred;
+    /**
+     * The list of entities in the simulation.
+     */
     private final List<CloudSimEntity> entityList;
+    /**
+     * The Cloud Information Service (CIS) that provides information about the simulation entities.
+     * It also acts as a cloud administrator.
+     */
     @Getter
     private final CloudInformationService cis;
+    /**
+     * The network topology used in the simulation.
+     */
     @Getter
     private NetworkTopology networkTopology;
+    /**
+     * The collaboration manager used in the simulation.
+     */
     @Getter
     private CollaborationManager collaborationManager;
+    /**
+     * A flag to indicate if the simulation should record the simulation data in a SQL database.
+     */
     @Getter
     @Setter
     private boolean isSqlRecord;
+    /**
+     * The SQL record used to store the simulation data in a SQL database.
+     */
     SqlRecord sqlRecord = new SqlRecordNull();
+    /**
+     * The simulation accuracy.
+     */
     @Getter
     private int simulationAccuracy;
+    /**
+     * The termination time of the simulation.
+     */
     private double terminationTime = -1;
-
+    /**
+     * A flag to indicate if the simulation system is simulating only one datacenter.
+     */
     @Getter
     @Setter
     private boolean singleDatacenterFlag = false;
-
+    /**
+     * The name of the database used to store the simulation data.
+     */
     @Getter
     @Setter
     private String dbName;
 
+    /**
+     * Creates a new CloudSim instance.
+     */
     public CloudSim() {
         clock = 0;
         this.entityList = new ArrayList<>();
@@ -130,10 +185,26 @@ public class CloudSim implements Simulation {
         return true;
     }
 
+    /**
+     * Gets a stream of events inside a specific queue that match a given predicate
+     * and are targeted to an specific entity.
+     *
+     * @param queue     the queue to get the events from
+     * @param predicate the event selection predicate
+     * @param dest      id of entity that the event has to be sent to
+     * @return a Stream of events from the queue
+     */
     private Stream<SimEvent> filterEventsToDestinationEntity(final EventQueue queue, final Predicate<SimEvent> predicate, final SimEntity dest) {
         return filterEvents(queue, predicate.and(evt -> evt.getDestination() == dest));
     }
 
+    /**
+     * Gets a stream of events inside a specific queue that match a given predicate.
+     *
+     * @param queue the queue to get the events from
+     * @param predicate the event selection predicate
+     * @return a Stream of events from the queue
+     */
     private Stream<SimEvent> filterEvents(final EventQueue queue, final Predicate<SimEvent> predicate) {
         return queue.stream().filter(predicate);
     }
@@ -161,6 +232,13 @@ public class CloudSim implements Simulation {
         return clock;
     }
 
+    /**
+     * Process all the events happening up to a given time are processed.
+     *
+     * @param until The interval for which the events should be processed (in seconds)
+     * @return true if some event was processed, false if no event was processed
+     *         or a termination time was set and the clock reached that time
+     */
     protected boolean processEvents(final double until) {
         if (!runClockTickAndProcessFutureEvents(until)) {
             return false;
@@ -177,6 +255,16 @@ public class CloudSim implements Simulation {
         return true;
     }
 
+
+    /**
+     * Finishes execution of running entities before terminating the simulation,
+     * then cleans up internal state.
+     *
+     * <b>Note:</b> Should be used only in the <b>synchronous</b> mode
+     * (after starting the simulation with {@link #startSync()}).
+     *
+     * Note that it prints some simulation details at the end.
+     */
     private void finish() {
         LOGGER.info("Simulation finished at {}.", clockStr());
         double allCost = 0;
@@ -212,6 +300,13 @@ public class CloudSim implements Simulation {
         this.isSqlRecord = isSqlRecord;
     }
 
+    /**
+     * Run one tick of the simulation, processing and removing the
+     * events in the {@link #future future event queue} that happen
+     * up to a given time.
+     * @param until The interval for which the events should be processed (in seconds)
+     * @return true if some event was processed, false otherwise
+     */
     private boolean runClockTickAndProcessFutureEvents(final double until) {
         executeRunnableEntities(until);
         if (future.isEmpty() || isOnlySyn()) {
@@ -227,8 +322,12 @@ public class CloudSim implements Simulation {
         return false;
     }
 
+    /**
+     * Get whether there are only continuous looping events.
+     * @return true if there are only continuous looping events, false otherwise
+     */
     private boolean isOnlySyn() {
-        //TODO 可以考虑在这里提前判断一下
+        //TODO We can consider making a judgment in advance here.
 //        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size() + 1) {
 //            return false;
 //        }
@@ -240,6 +339,11 @@ public class CloudSim implements Simulation {
         return true;
     }
 
+    /**
+     * Gets the list of entities that are in {@link SimEntity.State#RUNNABLE}
+     * and execute them.
+     */
+    @SuppressWarnings("ForLoopReplaceableByForEach")
     private void executeRunnableEntities(final double until) {
         /* Uses an indexed loop instead of anything else to avoid
         ConcurrencyModificationException when a HostFaultInjection is created inside a DC. */
@@ -251,6 +355,10 @@ public class CloudSim implements Simulation {
         }
     }
 
+    /**
+     * Process all the future events happening at the same time of the first one.
+     * @param firstEvent the first event to process
+     */
     private void processFutureEventsHappeningAtSameTimeOfTheFirstOne(final SimEvent firstEvent) {
         processEvent(firstEvent);
         future.remove(firstEvent);
@@ -264,6 +372,11 @@ public class CloudSim implements Simulation {
         }
     }
 
+    /**
+     * Processes an event.
+     *
+     * @param evt the event to be processed
+     */
     protected void processEvent(final SimEvent evt) {
         if (evt.getTime() < clock) {
             final var msg = "Past event detected. Event time: %.2f Simulation clock: %.2f";
@@ -291,6 +404,9 @@ public class CloudSim implements Simulation {
         return entityList.size();
     }
 
+    /**
+     * Starts all entities if they are not running yet.
+     */
     private void startEntitiesIfNotRunning() {
         if (running) {
             return;

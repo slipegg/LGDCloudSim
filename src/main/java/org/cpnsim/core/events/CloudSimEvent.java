@@ -13,6 +13,12 @@ import java.math.RoundingMode;
 import java.util.Objects;
 import java.math.BigDecimal;
 
+/**
+ * An event which is passed between the entities in the simulation.
+ *
+ * @author Costas Simatos
+ * @see SimEntity
+ */
 @Accessors @Getter @Setter
 public final class CloudSimEvent implements SimEvent {
     @NonNull

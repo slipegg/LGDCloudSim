@@ -27,6 +27,7 @@ import static java.util.Objects.requireNonNullElse;
  * send events to other entities.
  *
  * @author Marcos Dias de Assuncao
+ * @author Jiawen Liu
  * @since CloudSim Toolkit 1.0
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -107,9 +108,26 @@ public abstract class CloudSimEntity implements SimEntity {
         buffer = null;
     }
 
+    /**
+     * Gets the first event matching a predicate from the deferred queue, or if
+     * none match, wait for a matching event to arrive.
+     *
+     * @param predicate The predicate to match
+     * @return the simulation event;
+     * or {@link SimEvent#NULL} if not found or the simulation is not running
+     */
     public SimEvent getNextEvent(final Predicate<SimEvent> predicate) {
         return selectEvent(predicate);
     }
+
+    /**
+     * Extracts the first event matching a predicate waiting in the entity's
+     * deferred queue.
+     *
+     * @param predicate The event selection predicate
+     * @return the simulation event;
+     *         or {@link SimEvent#NULL} if not found or the simulation is not running
+     */
     public SimEvent selectEvent(final Predicate<SimEvent> predicate) {
         return simulation.select(this, predicate);
     }
@@ -123,10 +141,19 @@ public abstract class CloudSimEntity implements SimEntity {
         return this;
     }
 
+    /**
+     * Sets the entity id and defines its name based on such ID.
+     *
+     * @param id the new id
+     */
     protected final void setId(final int id) {
         this.id = id;
         setAutomaticName();
     }
+
+    /**
+     * Sets an automatic generated name for the entity.
+     */
     private void setAutomaticName() {
         final long id = this.id >= 0 ? this.id : this.simulation.getNumEntities();
         this.name = "%s%d".formatted(getClass().getSimpleName(), id);
@@ -150,6 +177,15 @@ public abstract class CloudSimEntity implements SimEntity {
     public boolean schedule(final SimEntity dest, final double delay, final int tag, final Object data) {
         return schedule(new CloudSimEvent(delay, this, dest, tag, data));
     }
+
+    /**
+     * Sends an event from one entity to another.
+     * It will not only consider the delay but also the network delay between the entities.
+     * @param dest the destination entity
+     * @param delay how long from now the event should be executed
+     * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
+     * @param data a reference to an object to be sent with the event
+     */
     protected void send(final SimEntity dest, double delay, final int tag, final Object data) {
         requireNonNull(dest);
         if (dest.getId() < 0) {
@@ -174,6 +210,13 @@ public abstract class CloudSimEntity implements SimEntity {
         schedule(dest, delay, tag, data);
     }
 
+    /**
+     * Sends an event from one entity to another without considering the network delay.
+     * @param dest the destination entity
+     * @param delay how long from now the event should be executed
+     * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
+     * @param data a reference to an object to be sent with the event
+     */
     protected void sendWithoutNetwork(final SimEntity dest, double delay, final int tag, final Object data) {
         requireNonNull(dest);
         if (dest.getId() < 0) {
@@ -193,14 +236,32 @@ public abstract class CloudSimEntity implements SimEntity {
         schedule(dest, delay, tag, data);
     }
 
+    /**
+     * Get the network delay between two entities.
+     * @param src the source entity
+     * @param dst the destination entity
+     */
     private double getNetworkDelay(final SimEntity src, final SimEntity dst) {
         return getSimulation().getNetworkTopology().getDynamicDelay(src, dst, getSimulation().clock());
     }
 
+    /**
+     * Sends an event from one entity to another now.
+     * The network delay between the entities will be considered.
+     * @param dest the destination entity
+     * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
+     * @param data a reference to an object to be sent with the event
+     */
     protected void sendNow(final SimEntity dest, final int tag, final Object data) {
         send(dest, 0, tag, data);
     }
 
+    /**
+     * Sends an event from one entity to another now.
+     * The network delay between the entities will be considered.
+     * @param dest the destination entity
+     * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
+     */
     protected void sendNow(final SimEntity dest, final int tag) {
         send(dest, 0, tag, null);
     }

@@ -2,6 +2,14 @@ package org.cpnsim.core;
 
 import org.cpnsim.core.events.SimEvent;
 
+/**
+ * A base interface used internally to implement the Null Object Design Pattern
+ * for interfaces extending {@link SimEntity}.
+ * It's just used to avoid the boilerplate code in such Null Object implementations.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @see SimEntity#NULL
+ */
 public class SimEntityNull implements SimEntity{
     @Override
     public int getId() {

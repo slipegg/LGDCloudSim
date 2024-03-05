@@ -7,6 +7,13 @@ import org.cpnsim.record.SqlRecord;
 
 import java.util.function.Predicate;
 
+/**
+ * A class that implements the Null Object Design Pattern for {@link Simulation}
+ * class.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @see Simulation#NULL
+ */
 public class SimulationNull implements Simulation {
     @Override public double clock() { return 0.0; }
 

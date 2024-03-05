@@ -7,5 +7,8 @@ package org.cpnsim.core;
  * @since CloudSim Plus 1.0
  */
 public interface Identifiable {
+    /**
+     * {@return the id number} assigned to this entity.
+     */
     int getId();
 }

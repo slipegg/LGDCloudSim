@@ -6,7 +6,14 @@ import org.cpnsim.interscheduler.*;
 import org.cpnsim.statemanager.PredictionManager;
 import org.cpnsim.statemanager.PredictionManagerSimple;
 
+/**
+ * A simple factory that implements the {@link Factory} interface.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class FactorySimple implements Factory {
+    @Override
     public IntraScheduler getIntraScheduler(String type, int id, int firstPartitionId, int partitionNum) {
         return switch (type) {
             case "simple", "Simple" -> new IntraSchedulerSimple(id, firstPartitionId, partitionNum);

@@ -19,25 +19,80 @@ import org.cpnsim.core.events.SimEvent;
  */
 public interface SimEntity extends Nameable, Runnable, Comparable<SimEntity> {
     /**
-     * Defines the event state.
+     * An attribute that implements the Null Object Design Pattern for {@link SimEntity}
+     * objects.
      */
     SimEntity NULL = new SimEntityNull();
 
+    /**
+     * Defines the event state.
+     */
     enum State {RUNNABLE, WAITING, HOLDING, FINISHED}
 
+    /**
+     * Sets the Entity name.
+     *
+     * @param newName the new name
+     * @return the entity
+     * @throws IllegalArgumentException when the entity name is null or empty
+     */
     SimEntity setName(String newName) throws IllegalArgumentException;
 
+    /**
+     * Gets the LGDCloudSim instance that represents the simulation to each the Entity belongs to.
+     *
+     * @return the simulation instance
+     */
     Simulation getSimulation();
 
+    /**
+     * Starts the entity during simulation start.
+     * This method is invoked by the {@link CloudSim} class when the simulation is started.
+     * @return true if the entity started successfully; false if it was already started
+     */
     boolean start();
 
+    /**
+     * The run loop to process events fired during the simulation. The events
+     * that will be processed are defined in the
+     * {@link #processEvent(SimEvent)} method.
+     *
+     * @see #processEvent(SimEvent)
+     */
     @Override void run();
 
+    /**
+     * Sends an event where all data required is defined inside the event instance.
+     * @param evt the event to send
+     * @return true if the event was sent; false if the simulation was not started yet
+     */
     boolean schedule(SimEvent evt);
 
+    /**
+     * Sends an event to another entity with <b>no</b> attached data.
+     * @param dest the destination entity
+     * @param delay How many seconds after the current simulation time the event should be sent
+     * @param tag   a tag representing the type of event.
+     * @return true if the event was sent; false if the simulation was not started yet
+     */
     boolean schedule(SimEntity dest, double delay, int tag);
 
+    /**
+     * Sends an event to another entity.
+     * @param dest  the destination entity
+     * @param delay How many seconds after the current simulation time the event should be sent
+     * @param tag   a tag representing the type of event.
+     * @param data  The data to be sent with the event.
+     * @return true if the event was sent; false if the simulation was not started yet
+     */
     boolean schedule(SimEntity dest, double delay, int tag, Object data);
 
+    /**
+     * Processes events or services that are available for the entity. This
+     * method is invoked by the {@link CloudSim} class whenever there is an
+     * event in the deferred queue, which needs to be processed by the entity.
+     *
+     * @param evt information about the event just happened
+     */
     void processEvent(SimEvent evt);
 }
