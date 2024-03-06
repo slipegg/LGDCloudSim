@@ -22,6 +22,7 @@ import java.util.Map;
  * 6.原数据中心接收发送出去的各个亲和组的调度结果，进行最终决策，为其决定指定的数据中心，并发送信息释放其他数据中心的资源
  * 7.各个数据中心如果接收到释放资源的消息，就释放资源，如果接收到确认亲和组放置的信息就将其实例放入到域内实例调度请求队列中
  */
+//TODO 可以补充一个案例介绍（列出自定义调度算法时必须实现的函数）
 public interface InterScheduler extends Nameable, DatacenterEntity {
     Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups);
 
