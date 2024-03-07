@@ -568,11 +568,46 @@ public class InitDatacenter {
         if (unitPriceJson == null) {
             return;
         }
-        double unitCpuPrice = unitPriceJson.getJsonNumber("cpu").doubleValue();
-        double unitRamPrice = unitPriceJson.getJsonNumber("ram").doubleValue();
-        double unitRackPrice = unitPriceJson.getJsonNumber("rack").doubleValue();
-        double unitStoragePrice = unitPriceJson.getJsonNumber("storage").doubleValue();
-        double unitBwPrice = unitPriceJson.getJsonNumber("bw").doubleValue();
+        if (unitPriceJson.containsKey("pricePerCpuPerSec")) {
+            double unitCpuPrice = unitPriceJson.getJsonNumber("pricePerCpuPerSec").doubleValue();
+            datacenter.setPricePerCpuPerSec(unitCpuPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerCpu")) {
+            double unitCpuPrice = unitPriceJson.getJsonNumber("pricePerCpu").doubleValue();
+            datacenter.setPricePerCpu(unitCpuPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerRamPerSec")) {
+            double unitRamPrice = unitPriceJson.getJsonNumber("pricePerRamPerSec").doubleValue();
+            datacenter.setPricePerRamPerSec(unitRamPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerRam")) {
+            double unitRamPrice = unitPriceJson.getJsonNumber("pricePerRam").doubleValue();
+            datacenter.setPricePerRam(unitRamPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerStoragePerSec")) {
+            double unitStoragePrice = unitPriceJson.getJsonNumber("pricePerStoragePerSec").doubleValue();
+            datacenter.setPricePerStoragePerSec(unitStoragePrice);
+        }
+        if (unitPriceJson.containsKey("pricePerStorage")) {
+            double unitStoragePrice = unitPriceJson.getJsonNumber("pricePerStorage").doubleValue();
+            datacenter.setPricePerStorage(unitStoragePrice);
+        }
+        if (unitPriceJson.containsKey("pricePerBwPerSec")) {
+            double unitBwPrice = unitPriceJson.getJsonNumber("pricePerBwPerSec").doubleValue();
+            datacenter.setPricePerBwPerSec(unitBwPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerBw")) {
+            double unitBwPrice = unitPriceJson.getJsonNumber("pricePerBw").doubleValue();
+            datacenter.setPricePerBw(unitBwPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerRack")) {
+            double unitRackPrice = unitPriceJson.getJsonNumber("pricePerRack").doubleValue();
+            datacenter.setUnitRackPrice(unitRackPrice);
+        }
+        if (unitPriceJson.containsKey("HostNumPerRack")) {
+            double hostNumPeerRack = unitPriceJson.getJsonNumber("HostNumPerRack").doubleValue();
+            datacenter.setHostNumPerRack(hostNumPeerRack);
+        }
         if (unitPriceJson.containsKey("bwBillingType")) {
             String bwBillingType = unitPriceJson.getString("bwBillingType");
             if (!Objects.equals(bwBillingType, "used") && !Objects.equals(bwBillingType, "fixed")) {
@@ -592,10 +627,5 @@ public class InitDatacenter {
 
             }
         }
-        datacenter.setUnitCpuPrice(unitCpuPrice);
-        datacenter.setUnitRamPrice(unitRamPrice);
-        datacenter.setUnitRackPrice(unitRackPrice);
-        datacenter.setUnitStoragePrice(unitStoragePrice);
-        datacenter.setUnitBwPrice(unitBwPrice);
     }
 }

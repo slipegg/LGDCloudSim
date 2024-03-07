@@ -102,11 +102,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private ConflictHandler conflictHandler;
 
     /**
-     * The unit price of cpu resources,See {@link DatacenterPrice}.
+     * The price per CPU per second.
+     * It is used to record the price per second of each CPU occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    double unitCpuPrice;
+    double pricePerCpuPerSec;
+
+    /**
+     * The price per CPU.
+     * It is used to record the price of each CPU occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerCpu;
 
     /**
      * All cpu expenses, See {@link DatacenterPrice}.
@@ -115,11 +126,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double cpuCost;
 
     /**
-     * The unit price of ram resources,See {@link DatacenterPrice}.
+     * The price per ram per second.
+     * It is used to record the price per second of each ram occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    private double unitRamPrice;
+    private double pricePerRamPerSec;
+
+    /**
+     * The price per ram.
+     * It is used to record the price of each ram occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerRam;
 
     /**
      * All ram expenses, See {@link DatacenterPrice}.
@@ -128,11 +150,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double ramCost;
 
     /**
-     * The unit price of storage resources,See {@link DatacenterPrice}.
+     * The price per storage per second.
+     * It is used to record the price per second of each storage occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    private double unitStoragePrice;
+    private double pricePerStoragePerSec;
+
+    /**
+     * The price per storage.
+     * It is used to record the price of each storage occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerStorage;
 
     /**
      * All storage expenses, See {@link DatacenterPrice}.
@@ -141,11 +174,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double storageCost;
 
     /**
-     * The unit price of bw resources,See {@link DatacenterPrice}.
+     * The price per bw per second.
+     * It is used to record the price per second of each bw occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    private double unitBwPrice;
+    private double pricePerBwPerSec;
+
+    /**
+     * The price per bw.
+     * It is used to record the price of each bw occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerBw;
 
     /**
      * All bw expenses, See {@link DatacenterPrice}.
@@ -154,12 +198,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double bwCost;
 
     /**
-     * Number of CPUs in a rack.
+     * Number of hosts in a rack.
      **/
-    //TODO 需要删除这个概念
     @Getter
     @Setter
-    private int cpuNumPerRack;
+    private double hostNumPerRack;
 
     /**
      * Rental price per rack.
@@ -220,12 +263,16 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.instanceQueue = new InstanceQueueFifo();
         this.instanceGroupSendResultMap = new HashMap<>();
         this.intraSchedulerResults = new ArrayList<>();
-        this.unitCpuPrice = 1.0;
-        this.unitRamPrice = 1.0;
-        this.unitStoragePrice = 1.0;
-        this.unitBwPrice = 1.0;
+        this.pricePerCpuPerSec = 1.0;
+        this.pricePerCpu = 1.0;
+        this.pricePerRamPerSec = 1.0;
+        this.pricePerRam = 1.0;
+        this.pricePerStoragePerSec = 1.0;
+        this.pricePerStorage = 1.0;
+        this.pricePerBwPerSec = 1.0;
+        this.pricePerBw = 1.0;
         this.unitRackPrice = 100.0;
-        this.cpuNumPerRack = 10;
+        this.hostNumPerRack = 10;
         this.cpuCost = 0.0;
         this.ramCost = 0.0;
         this.storageCost = 0.0;
@@ -282,7 +329,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public double getRackCost() {
         int maxPowerOnHostNum = statesManager.getDatacenterPowerOnRecord().getMaxHostNum();
-        return maxPowerOnHostNum * unitRackPrice;
+        return maxPowerOnHostNum / hostNumPerRack * unitRackPrice;
     }
 
     @Override
@@ -428,13 +475,19 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param instance the instance need to be calculated.
      */
     private void calculateCost(Instance instance) {
-        if (instance.getStartTime() == -1 || instance.getFinishTime() == -1) {
+        if (instance.getStartTime() == -1) {
             return;
         }
-        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
-        cpuCost += instance.getCpu() * unitCpuPrice * lifeTimeSec;
-        ramCost += instance.getRam() * unitRamPrice * lifeTimeSec;
-        storageCost += instance.getStorage() * unitStoragePrice * lifeTimeSec;
+        if (instance.getLifecycle() < 0) {
+            cpuCost += instance.getCpu() * pricePerCpu;
+            ramCost += instance.getRam() * pricePerRam;
+            storageCost += instance.getStorage() * pricePerStorage;
+        } else {
+            double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
+            cpuCost += instance.getCpu() * pricePerCpuPerSec * lifeTimeSec;
+            ramCost += instance.getRam() * pricePerRamPerSec * lifeTimeSec;
+            storageCost += instance.getStorage() * pricePerStoragePerSec * lifeTimeSec;
+        }
         bwCost += calculateInstanceBwCost(instance);
     }
 
@@ -448,9 +501,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double calculateInstanceBwCost(Instance instance) {
         double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
         if (bwBillingType.equals("used")) {
-            return (instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * unitBwPrice;
+            return (instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * pricePerBwPerSec;
         } else {
-            return instance.getBw() * unitBwPrice * lifeTimeSec;
+            if (instance.getLifecycle() < 0) {
+                return instance.getBw() * pricePerBw;
+            } else {
+                return instance.getBw() * pricePerBwPerSec * lifeTimeSec;
+            }
         }
     }
 
@@ -583,6 +640,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 int lifeTime = instance.getLifecycle();
                 successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
                 successAllocatedInstances.get(lifeTime).add(instance);
+
+                if (lifeTime < 0) {
+                    calculateCost(instance);
+                }
             }
         }
 
@@ -1210,10 +1271,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public double getEstimatedTCO(InstanceGroup instanceGroup) {
         double tco = 0;
         for (Instance instance : instanceGroup.getInstances()) {
-            tco += instance.getCpu() * unitCpuPrice * instance.getLifecycle() / 1000.0
-                    + instance.getRam() * unitRamPrice * instance.getLifecycle() / 1000.0
-                    + instance.getStorage() * unitStoragePrice * instance.getLifecycle() / 1000.0
-                    + instance.getBw() * unitBwPrice * instance.getLifecycle() / 1000.0
+            tco += instance.getCpu() * pricePerCpuPerSec * instance.getLifecycle() / 1000.0
+                    + instance.getRam() * pricePerRamPerSec * instance.getLifecycle() / 1000.0
+                    + instance.getStorage() * pricePerStoragePerSec * instance.getLifecycle() / 1000.0
+                    + instance.getBw() * pricePerBwPerSec * instance.getLifecycle() / 1000.0
                     + (double) instance.getCpu() / statesManager.getMaxCpuCapacity() * unitRackPrice;
         }
         return tco;

@@ -1,50 +1,71 @@
 package org.example;
 
+import ch.qos.logback.classic.Level;
 import org.cpnsim.core.CloudSim;
 import org.cpnsim.core.Factory;
 import org.cpnsim.core.FactorySimple;
 import org.cpnsim.core.Simulation;
-import org.cpnsim.util.Log;
 import org.cpnsim.datacenter.InitDatacenter;
 import org.cpnsim.network.NetworkTopology;
-import org.cpnsim.network.NetworkTopologySimple;
+import org.cpnsim.record.MemoryRecord;
 import org.cpnsim.user.UserRequestManager;
 import org.cpnsim.user.UserRequestManagerCsv;
 import org.cpnsim.user.UserSimple;
+import org.cpnsim.util.Log;
 
-import ch.qos.logback.classic.Level;
-
+/**
+ * A class to configure the simulation of setting the unit price of the datacenter via file.
+ * When the lifecycle of the instance in your user request is infinite, you can set the long-term rental price of each CPU, Ram, Storage, and BW in the file.
+ * When the lifecycle of the instances in your user requests is limited, you can set the price per second of renting each CPU, Ram, Storage, and BW in the file.
+ * Of course, you can also set two at the same time.
+ * You need to add the "resourceUnitPrice" field in the data center file.
+ * If you do not customize it in the file, the default value will be used, as follows.
+ * pricePerCpuPerSec = 1.0;
+ * pricePerCpu = 1.0;
+ * pricePerRamPerSec = 1.0;
+ * pricePerRam = 1.0;
+ * pricePerStoragePerSec = 1.0;
+ * pricePerStorage = 1.0;
+ * pricePerBwPerSec = 1.0;
+ * pricePerBw = 1.0;
+ * unitRackPrice = 100.0;
+ * hostNumPerRack = 10;
+ *
+ * @author Jiawen Liu
+ * @author VVsxmja
+ * @since LGDCloudSim 1.0
+ */
 public class UnitPriceConfiguration {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
-    String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
-    String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfig.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameter.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameterInfiniteLife.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfigInfiniteLife.json";
 
+    //    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameterLimitedLife.csv";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfigLimitedLife.json";
     public static void main(String[] args) {
         new UnitPriceConfiguration();
     }
 
     private UnitPriceConfiguration() {
-        double startTime = System.currentTimeMillis();
-        Log.setLevel(Level.DEBUG);
+        double start = System.currentTimeMillis();
+        Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
-        cpnSim.setIsSqlRecord(false);
         factory = new FactorySimple();
         initUser();
         initDatacenters();
         initNetwork();
-        double endInitTime = System.currentTimeMillis();
+        double endInit = System.currentTimeMillis();
         cpnSim.start();
-        double endTime = System.currentTimeMillis();
+        double end = System.currentTimeMillis();
         System.out.println("\n运行情况：");
-        System.out.println("初始化耗时：" + (endInitTime - startTime) / 1000 + "s");
-        System.out.println("模拟运行耗时：" + (endTime - endInitTime) / 1000 + "s");
-        System.out.println("模拟总耗时：" + (endTime - startTime) / 1000 + "s");
+        System.out.println("初始化耗时：" + (endInit - start) / 1000 + "s");
+        System.out.println("模拟运行耗时：" + (end - endInit) / 1000 + "s");
+        System.out.println("模拟总耗时：" + (end - start) / 1000 + "s");
+        System.out.println("运行过程占用最大内存: " + MemoryRecord.getMaxUsedMemory() / 1000000 + " Mb");
+        System.out.println("运行结果保存路径:" + cpnSim.getSqlRecord().getDbPath());
     }
 
 
@@ -55,12 +76,9 @@ public class UnitPriceConfiguration {
 
     private void initDatacenters() {
         InitDatacenter.initDatacenters(cpnSim, factory, DATACENTER_CONFIG_FILE);
-        cpnSim.getCollaborationManager().setIsChangeCollaborationSyn(false);
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
-        cpnSim.setNetworkTopology(networkTopology);
+        cpnSim.setNetworkTopology(NetworkTopology.NULL);
     }
-    
 }
