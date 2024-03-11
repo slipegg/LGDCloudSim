@@ -352,6 +352,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "InstanceLifeTimeMax" -> this.InstanceLifeTimeMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceRetryTimesMin" -> this.InstanceRetryTimesMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceRetryTimesMax" -> this.InstanceRetryTimesMax = Integer.parseInt(csvRecord.get(1));
+                    case "randomSeed" -> this.random.setSeed(Long.parseLong(csvRecord.get(1)));
                     default -> {
                         LOGGER.warn("The parameter name {} is not correct, please check the parameter name in the csv file", title);
                     }
