@@ -71,3 +71,30 @@ print(data)
 cursor.execute(USED_RESOURCE_SQL)
 data = cursor.fetchall()  # 获取所有查询结果
 print(data)
+
+
+# 绘图
+
+import matplotlib.pyplot as plt
+
+# 将原始数据转换为适合绘图的格式
+months, sales = zip(*data)
+
+# 绘制折线图
+plt.figure(figsize=(10, 5))
+plt.plot(months, sales, label='Monthly Sales')
+plt.xlabel('Month')
+plt.ylabel('Total Sales')
+plt.title('Monthly Sales Over Time')
+plt.legend()
+plt.show()
+
+# 绘制柱状图
+plt.figure(figsize=(10, 5))
+plt.bar(months, sales, label='Monthly Sales')
+plt.xlabel('Month')
+plt.ylabel('Total Sales')
+plt.title('Monthly Sales Bar Chart')
+plt.xticks(rotation=90)  # 如果月份太长可旋转标签
+plt.legend()
+plt.show()
