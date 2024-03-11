@@ -5,10 +5,10 @@ import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.InstanceGroup;
 
 import java.util.List;
+import java.util.Map;
 
-public class InterSchedulerRound extends InterSchedulerSimple{
-    private int lastSendDCIndex = 0;
-    public InterSchedulerRound(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
+public class InterSchedulerRFHS extends InterSchedulerSimple{
+    public InterSchedulerRFHS(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
         super(id, simulation, collaborationId, target, isSupportForward);
     }
     @Override
@@ -17,7 +17,7 @@ public class InterSchedulerRound extends InterSchedulerSimple{
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
 
         Double RandomRate = 0.3;
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.heuristicFiltering(instanceGroups, allDatacenters, RandomRate);
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.randomFiltering(instanceGroups, allDatacenters, RandomRate);
 
         RandomAndHeuristicAlgorithm.heuristicScoring(interSchedulerResult, instanceGroupAvailableDatacenters, interScheduleSimpleStateMap);
 

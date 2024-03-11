@@ -32,11 +32,11 @@ public class largeScaleScheduling_xyh {
     // String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
     // String testAlgorithm = "4-random";
 
-    String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testRequest+"/"+testTime+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testRequest+"/"+testTime+"/"+testAlgorithm+"/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testRequest+"/"+testTime+"/"+testAlgorithm+"/DatacentersConfig.json";
+    String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacentersConfig.json";
 
-    String DBNAME = testRequest+"."+testTime+"."+testAlgorithm+".db";
+    String DBNAME = testTime+"."+testRequest+"."+testAlgorithm+".db";
 
     public static void main(String[] args) {
         setArgs(args);

@@ -1,0 +1,355 @@
+当前时间是：2024-03-12 16:07:41
+【编译中...】
+[INFO] Unable to find the root directory. Create a .mvn directory in the root directory or add the root="true" attribute on the root project's model to identify it.
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< org.example:CPNSim >---------------
+[INFO] Building CPNSim 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] ----------------------[ jar ]-----------------------
+[WARNING] Version not locked for default bindings plugins [maven-clean-plugin, maven-resources-plugin, maven-compiler-plugin], you should define versions in pluginManagement section of your pom.xml or parent
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ CPNSim ---
+[INFO] Deleting /home/xyh/LGDCloudSim/target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ CPNSim ---
+[INFO] Copying 159 resources from src/main/resources to target/classes
+[INFO] skip non existing resourceDirectory /home/xyh/LGDCloudSim/src/main/resources-filtered
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ CPNSim ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 141 source files with javac [debug target 17] to target/classes
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceGroupGraphSimple.java:[21,5] Not generating isDirected(): A method with that name already exists (getDirected)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/interscheduler/InterSchedulerSimple.java:[49,5] Not generating isDirectedSend(): A method with that name already exists
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[84,5] Not generating isSqlRecord(): A method with that name already exists (getSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[86,21] Not generating setSqlRecord(): A method with that name already exists (setIsSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceSimple.java:[23,5] @NonNull is meaningless on a primitive.
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/events/CloudSimEvent.java:[22,1] Accessors on its own does nothing. Set at least one parameter
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] ----------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ----------------------------------------------------
+[INFO] Total time:  3.525 s
+[INFO] Finished at: 2024-03-12T16:07:45+08:00
+[INFO] ----------------------------------------------------
+【编译完成！】
+
+
+【运行 complexRequest-intermittent-1-heuristic 中...】
+【完成运行 complexRequest-intermittent-1-heuristic ！ 花费 966 s。】
+
+【运行 complexRequest-intermittent-2-HFRS 中...】
+【完成运行 complexRequest-intermittent-2-HFRS ！ 花费 487 s。】
+
+【运行 complexRequest-intermittent-3-RFHS 中...】
+【完成运行 complexRequest-intermittent-3-RFHS ！ 花费 202 s。】
+
+【运行 complexRequest-intermittent-4-random 中...】
+【完成运行 complexRequest-intermittent-4-random ！ 花费 158 s。】
+
+【运行 simpleRequest-intermittent-1-heuristic 中...】
+【完成运行 simpleRequest-intermittent-1-heuristic ！ 花费 1043 s。】
+
+【运行 simpleRequest-intermittent-2-HFRS 中...】
+【完成运行 simpleRequest-intermittent-2-HFRS ！ 花费 676 s。】
+
+【运行 simpleRequest-intermittent-3-RFHS 中...】
+【完成运行 simpleRequest-intermittent-3-RFHS ！ 花费 577 s。】
+
+【运行 simpleRequest-intermittent-4-random 中...】
+【完成运行 simpleRequest-intermittent-4-random ！ 花费 707 s。】
+
+【完成所有运行！ 花费 4816 s。】
+
+
+
+
+当前时间是：2024-03-13 11:36:20
+【编译中...】
+./largeScaleScheduling_xyh.sh:行22: mvn: 未找到命令
+【编译完成！】
+
+
+【运行 simpleRequest-troubleshooting-1-heuristic 中...】
+【完成运行 simpleRequest-troubleshooting-1-heuristic ！ 花费 0 s。】
+
+【运行 complexRequest-troubleshooting-1-heuristic 中...】
+【完成运行 complexRequest-troubleshooting-1-heuristic ！ 花费 0 s。】
+
+【完成所有运行！ 花费 0 s。】
+
+
+
+
+当前时间是：2024-03-13 11:36:50
+【编译中...】
+[INFO] Unable to find the root directory. Create a .mvn directory in the root directory or add the root="true" attribute on the root project's model to identify it.
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< org.example:CPNSim >---------------
+[INFO] Building CPNSim 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] ----------------------[ jar ]-----------------------
+[WARNING] Version not locked for default bindings plugins [maven-clean-plugin, maven-resources-plugin, maven-compiler-plugin], you should define versions in pluginManagement section of your pom.xml or parent
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ CPNSim ---
+[INFO] Deleting /home/xyh/LGDCloudSim/target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ CPNSim ---
+[INFO] Copying 165 resources from src/main/resources to target/classes
+[INFO] skip non existing resourceDirectory /home/xyh/LGDCloudSim/src/main/resources-filtered
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ CPNSim ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 141 source files with javac [debug target 17] to target/classes
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/interscheduler/InterSchedulerSimple.java:[49,5] Not generating isDirectedSend(): A method with that name already exists
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceGroupGraphSimple.java:[21,5] Not generating isDirected(): A method with that name already exists (getDirected)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[84,5] Not generating isSqlRecord(): A method with that name already exists (getSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[86,21] Not generating setSqlRecord(): A method with that name already exists (setIsSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceSimple.java:[23,5] @NonNull is meaningless on a primitive.
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/events/CloudSimEvent.java:[22,1] Accessors on its own does nothing. Set at least one parameter
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] ----------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ----------------------------------------------------
+[INFO] Total time:  3.538 s
+[INFO] Finished at: 2024-03-13T11:36:55+08:00
+[INFO] ----------------------------------------------------
+【编译完成！】
+
+
+【运行 simpleRequest-troubleshooting-1-heuristic 中...】
+【完成运行 simpleRequest-troubleshooting-1-heuristic ！ 花费 88 s。】
+
+【运行 complexRequest-troubleshooting-1-heuristic 中...】
+【完成运行 complexRequest-troubleshooting-1-heuristic ！ 花费 123 s。】
+
+【完成所有运行！ 花费 211 s。】
+
+
+
+
+当前时间是：2024-03-13 12:26:31
+【编译中...】
+[INFO] Unable to find the root directory. Create a .mvn directory in the root directory or add the root="true" attribute on the root project's model to identify it.
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< org.example:CPNSim >---------------
+[INFO] Building CPNSim 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] ----------------------[ jar ]-----------------------
+[WARNING] Version not locked for default bindings plugins [maven-clean-plugin, maven-resources-plugin, maven-compiler-plugin], you should define versions in pluginManagement section of your pom.xml or parent
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ CPNSim ---
+[INFO] Deleting /home/xyh/LGDCloudSim/target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ CPNSim ---
+[INFO] Copying 165 resources from src/main/resources to target/classes
+[INFO] skip non existing resourceDirectory /home/xyh/LGDCloudSim/src/main/resources-filtered
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ CPNSim ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 141 source files with javac [debug target 17] to target/classes
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/interscheduler/InterSchedulerSimple.java:[49,5] Not generating isDirectedSend(): A method with that name already exists
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceGroupGraphSimple.java:[21,5] Not generating isDirected(): A method with that name already exists (getDirected)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[84,5] Not generating isSqlRecord(): A method with that name already exists (getSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[86,21] Not generating setSqlRecord(): A method with that name already exists (setIsSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceSimple.java:[23,5] @NonNull is meaningless on a primitive.
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/events/CloudSimEvent.java:[22,1] Accessors on its own does nothing. Set at least one parameter
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] ----------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ----------------------------------------------------
+[INFO] Total time:  3.512 s
+[INFO] Finished at: 2024-03-13T12:26:36+08:00
+[INFO] ----------------------------------------------------
+【编译完成！】
+
+
+【运行 simpleRequest-troubleshooting-1-heuristic 中...】
+【完成运行 simpleRequest-troubleshooting-1-heuristic ！ 花费 129 s。】
+
+【运行 complexRequest-troubleshooting-1-heuristic 中...】
+【完成运行 complexRequest-troubleshooting-1-heuristic ！ 花费 100 s。】
+
+【完成所有运行！ 花费 229 s。】
+
+
+
+
+当前时间是：2024-03-13 12:40:46
+【编译中...】
+[INFO] Unable to find the root directory. Create a .mvn directory in the root directory or add the root="true" attribute on the root project's model to identify it.
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< org.example:CPNSim >---------------
+[INFO] Building CPNSim 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] ----------------------[ jar ]-----------------------
+[WARNING] Version not locked for default bindings plugins [maven-clean-plugin, maven-resources-plugin, maven-compiler-plugin], you should define versions in pluginManagement section of your pom.xml or parent
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ CPNSim ---
+[INFO] Deleting /home/xyh/LGDCloudSim/target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ CPNSim ---
+[INFO] Copying 165 resources from src/main/resources to target/classes
+[INFO] skip non existing resourceDirectory /home/xyh/LGDCloudSim/src/main/resources-filtered
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ CPNSim ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 141 source files with javac [debug target 17] to target/classes
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceGroupGraphSimple.java:[21,5] Not generating isDirected(): A method with that name already exists (getDirected)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[84,5] Not generating isSqlRecord(): A method with that name already exists (getSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[86,21] Not generating setSqlRecord(): A method with that name already exists (setIsSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/interscheduler/InterSchedulerSimple.java:[49,5] Not generating isDirectedSend(): A method with that name already exists
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceSimple.java:[23,5] @NonNull is meaningless on a primitive.
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/events/CloudSimEvent.java:[22,1] Accessors on its own does nothing. Set at least one parameter
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] ----------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ----------------------------------------------------
+[INFO] Total time:  3.535 s
+[INFO] Finished at: 2024-03-13T12:40:51+08:00
+[INFO] ----------------------------------------------------
+【编译完成！】
+
+
+【运行 simpleRequest-troubleshooting-1-heuristic 中...】
+【完成运行 simpleRequest-troubleshooting-1-heuristic ！ 花费 22 s。】
+
+【运行 complexRequest-troubleshooting-1-heuristic 中...】
+【完成运行 complexRequest-troubleshooting-1-heuristic ！ 花费 27 s。】
+
+【完成所有运行！ 花费 49 s。】
+
+
+
+
+当前时间是：2024-03-13 12:50:41
+【编译中...】
+[INFO] Unable to find the root directory. Create a .mvn directory in the root directory or add the root="true" attribute on the root project's model to identify it.
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< org.example:CPNSim >---------------
+[INFO] Building CPNSim 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] ----------------------[ jar ]-----------------------
+[WARNING] Version not locked for default bindings plugins [maven-clean-plugin, maven-resources-plugin, maven-compiler-plugin], you should define versions in pluginManagement section of your pom.xml or parent
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ CPNSim ---
+[INFO] Deleting /home/xyh/LGDCloudSim/target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ CPNSim ---
+[INFO] Copying 165 resources from src/main/resources to target/classes
+[INFO] skip non existing resourceDirectory /home/xyh/LGDCloudSim/src/main/resources-filtered
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ CPNSim ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 141 source files with javac [debug target 17] to target/classes
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/interscheduler/InterSchedulerSimple.java:[49,5] Not generating isDirectedSend(): A method with that name already exists
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[84,5] Not generating isSqlRecord(): A method with that name already exists (getSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[86,21] Not generating setSqlRecord(): A method with that name already exists (setIsSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceGroupGraphSimple.java:[21,5] Not generating isDirected(): A method with that name already exists (getDirected)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceSimple.java:[23,5] @NonNull is meaningless on a primitive.
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/events/CloudSimEvent.java:[22,1] Accessors on its own does nothing. Set at least one parameter
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] ----------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ----------------------------------------------------
+[INFO] Total time:  3.534 s
+[INFO] Finished at: 2024-03-13T12:50:46+08:00
+[INFO] ----------------------------------------------------
+【编译完成！】
+
+
+【运行 simpleRequest-intermittent-1-heuristic 中...】
+【完成运行 simpleRequest-intermittent-1-heuristic ！ 花费 944 s。】
+
+【运行 simpleRequest-intermittent-2-HFRS 中...】
+
+
+
+
+
+当前时间是：2024-03-13 13:24:59
+【编译中...】
+[INFO] Unable to find the root directory. Create a .mvn directory in the root directory or add the root="true" attribute on the root project's model to identify it.
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< org.example:CPNSim >---------------
+[INFO] Building CPNSim 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] ----------------------[ jar ]-----------------------
+[WARNING] Version not locked for default bindings plugins [maven-clean-plugin, maven-resources-plugin, maven-compiler-plugin], you should define versions in pluginManagement section of your pom.xml or parent
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ CPNSim ---
+[INFO] Deleting /home/xyh/LGDCloudSim/target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ CPNSim ---
+[INFO] Copying 165 resources from src/main/resources to target/classes
+[INFO] skip non existing resourceDirectory /home/xyh/LGDCloudSim/src/main/resources-filtered
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ CPNSim ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 141 source files with javac [debug target 17] to target/classes
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/interscheduler/InterSchedulerSimple.java:[49,5] Not generating isDirectedSend(): A method with that name already exists
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[84,5] Not generating isSqlRecord(): A method with that name already exists (getSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudSim.java:[86,21] Not generating setSqlRecord(): A method with that name already exists (setIsSqlRecord)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceGroupGraphSimple.java:[21,5] Not generating isDirected(): A method with that name already exists (getDirected)
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/request/InstanceSimple.java:[23,5] @NonNull is meaningless on a primitive.
+[WARNING] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/events/CloudSimEvent.java:[22,1] Accessors on its own does nothing. Set at least one parameter
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/network/RegionDelayManager.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /home/xyh/LGDCloudSim/src/main/java/org/cpnsim/core/CloudInformationService.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] ----------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ----------------------------------------------------
+[INFO] Total time:  3.572 s
+[INFO] Finished at: 2024-03-13T13:25:04+08:00
+[INFO] ----------------------------------------------------
+【编译完成！】
+
+
+【运行 simpleRequest-intermittent-1-heuristic 中...】
+【完成运行 simpleRequest-intermittent-1-heuristic ！ 花费 421 s。】
+
+【运行 simpleRequest-intermittent-2-HFRS 中...】
+【完成运行 simpleRequest-intermittent-2-HFRS ！ 花费 235 s。】
+
+【运行 simpleRequest-intermittent-3-RFHS 中...】
+【完成运行 simpleRequest-intermittent-3-RFHS ！ 花费 165 s。】
+
+【运行 simpleRequest-intermittent-4-random 中...】
+【完成运行 simpleRequest-intermittent-4-random ！ 花费 236 s。】
+
+【运行 complexRequest-intermittent-1-heuristic 中...】
+【完成运行 complexRequest-intermittent-1-heuristic ！ 花费 386 s。】
+
+【运行 complexRequest-intermittent-2-HFRS 中...】
+【完成运行 complexRequest-intermittent-2-HFRS ！ 花费 239 s。】
+
+【运行 complexRequest-intermittent-3-RFHS 中...】
+【完成运行 complexRequest-intermittent-3-RFHS ！ 花费 102 s。】
+
+【运行 complexRequest-intermittent-4-random 中...】
+【完成运行 complexRequest-intermittent-4-random ！ 花费 102 s。】
+
+【完成所有运行！ 花费 1886 s。】
+
+
