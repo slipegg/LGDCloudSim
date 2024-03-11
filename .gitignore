@@ -3,6 +3,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 /RecordDb/
+/scripts/nohup.out
+/scripts/logs/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

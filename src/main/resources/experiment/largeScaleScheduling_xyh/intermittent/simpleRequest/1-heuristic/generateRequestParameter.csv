@@ -36,3 +36,4 @@ InstanceLifeTimeMin,-1
 InstanceLifeTimeMax,-1
 InstanceRetryTimesMin,0
 InstanceRetryTimesMax,0
+randomSeed,123456789
