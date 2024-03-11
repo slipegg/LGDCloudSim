@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# 版本信息：
+# mvn 4.0.0
+# java 17.0.10
+
 homeDir="/home/xyh/LGDCloudSim"
 scriptDir=$homeDir"/scripts"
 javaFile=$homeDir"/src/main/java/org/example/largeScaleScheduling_xyh.java"
