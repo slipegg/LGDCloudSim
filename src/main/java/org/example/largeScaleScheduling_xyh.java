@@ -29,8 +29,8 @@ public class largeScaleScheduling_xyh {
     // String testTime = "continued";
     // String testAlgorithm = "1-heuristic";
     // String testAlgorithm = "2-HFRS"; // heuristicFiltering-randomScoring
-    String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
-    // String testAlgorithm = "4-random";
+    // String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
+    String testAlgorithm = "4-random";
 
     String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/generateRequestParameter.csv";
@@ -39,17 +39,20 @@ public class largeScaleScheduling_xyh {
     String DBNAME = testTime+"."+testRequest+"."+testAlgorithm+".db";
 
     public static void main(String[] args) {
-        setArgs(args);
-        new largeScaleScheduling_xyh();
+        new largeScaleScheduling_xyh(args);
     }
 
-    private static void setArgs(String[] args) {
+    private void setArgs(String[] args) {
         if(args.length > 0) {
-            
+            testRequest = args[0];
+            testTime = args[1];
+            testAlgorithm = args[2];
         }
     }
 
-    private largeScaleScheduling_xyh() {
+    private largeScaleScheduling_xyh(String[] args) {
+        setArgs(args);
+        
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
