@@ -22,25 +22,38 @@ public class largeScaleScheduling_xyh {
     UserRequestManager userRequestManager;
     String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
-    String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/DatacenterBwConfig.csv";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/DatacentersConfig.json";
+    
+    String testRequest = "simpleRequest";
+    // String testRequest = "complexRequest";
+    String testTime = "intermittent";
+    // String testTime = "continued";
+    String testAlgorithm = "1-heuristic";
+    // String testAlgorithm = "2-HFRS"; // heuristicFiltering-randomScoring
+    // String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
+    // String testAlgorithm = "4-random";
 
-    //    String DBNAME = "Centralized-one-stage";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
-//    String DBNAME = "Centralized-two-stage";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/dcInterToSelfAndForward/DatacentersConfig.json";
-//    String DBNAME = "Distributed-two-stage";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerToDcAndForward/DatacentersConfig.json";
-//    String DBNAME = "Hybrid-two-stage";
+    String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testRequest+"/"+testTime+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testRequest+"/"+testTime+"/"+testAlgorithm+"/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testRequest+"/"+testTime+"/"+testAlgorithm+"/DatacentersConfig.json";
+
+    String DBNAME = testRequest+"."+testTime+"."+testAlgorithm+".db";
+
     public static void main(String[] args) {
+        setArgs(args);
         new largeScaleScheduling_xyh();
+    }
+
+    private static void setArgs(String[] args) {
+        if(args.length > 0) {
+            
+        }
     }
 
     private largeScaleScheduling_xyh() {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
+        cpnSim.setDbName(DBNAME);
         factory = new FactorySimple();
         initUser();
         initDatacenters();
