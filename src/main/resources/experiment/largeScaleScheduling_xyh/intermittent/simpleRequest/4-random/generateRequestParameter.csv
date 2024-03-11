@@ -5,8 +5,8 @@ RequestPerNumMax,100000
 RequestTimeIntervalMin,10000
 RequestTimeIntervalMax,10000
 RequestTimes,9
-ScheduleDelayLimitMin,1000
-ScheduleDelayLimitMax,1000
+ScheduleDelayLimitMin,9000
+ScheduleDelayLimitMax,9000
 RequestGroupNumMin,3
 RequestGroupNumMax,5
 GroupInstanceNumMin,1
@@ -36,3 +36,4 @@ InstanceLifeTimeMin,-1
 InstanceLifeTimeMax,-1
 InstanceRetryTimesMin,0
 InstanceRetryTimesMax,0
+randomSeed,123456789
