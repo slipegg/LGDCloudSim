@@ -27,9 +27,9 @@ public class largeScaleScheduling_xyh {
     // String testRequest = "complexRequest";
     String testTime = "intermittent";
     // String testTime = "continued";
-    String testAlgorithm = "1-heuristic";
+    // String testAlgorithm = "1-heuristic";
     // String testAlgorithm = "2-HFRS"; // heuristicFiltering-randomScoring
-    // String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
+    String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
     // String testAlgorithm = "4-random";
 
     String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
