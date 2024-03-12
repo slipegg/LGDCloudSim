@@ -2,11 +2,11 @@
 DcDistribution,"{""1"":{""United States"":1},""2"":{""United States"":1},""3"":{""United States"":1},""4"":{""United Kingdom"":1},""5"":{""United Kingdom"":1},""6"":{""China"":1},""7"":{""China"":1},""8"":{""Japan"":1},""9"":{""Japan"":1},""10"":{""Singapore"":1}}"
 RequestPerNumMin,100000
 RequestPerNumMax,100000
-RequestTimeIntervalMin,10000
-RequestTimeIntervalMax,10000
+RequestTimeIntervalMin,1000000
+RequestTimeIntervalMax,1000000
 RequestTimes,9
-ScheduleDelayLimitMin,9000
-ScheduleDelayLimitMax,9000
+ScheduleDelayLimitMin,999000
+ScheduleDelayLimitMax,999000
 RequestGroupNumMin,3
 RequestGroupNumMax,5
 GroupInstanceNumMin,1

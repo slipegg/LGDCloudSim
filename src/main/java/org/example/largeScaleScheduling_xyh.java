@@ -23,8 +23,8 @@ public class largeScaleScheduling_xyh {
     String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     
-    String testRequest = "simpleRequest";
-    // String testRequest = "complexRequest";
+    // String testRequest = "simpleRequest";
+    String testRequest = "complexRequest";
     String testTime = "intermittent";
     // String testTime = "continued";
     // String testAlgorithm = "1-heuristic";
@@ -43,10 +43,19 @@ public class largeScaleScheduling_xyh {
     }
 
     private void setArgs(String[] args) {
+        // System.out.println(args.length);
         if(args.length > 0) {
+            // System.out.println(args[0]+" "+args[1]+" "+args[2]);
             testRequest = args[0];
             testTime = args[1];
             testAlgorithm = args[2];
+            
+            
+            DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
+            USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/generateRequestParameter.csv";
+            DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacentersConfig.json";
+
+            DBNAME = testTime+"."+testRequest+"."+testAlgorithm+".db";
         }
     }
 
