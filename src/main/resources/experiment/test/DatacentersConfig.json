@@ -2,54 +2,87 @@
   "collaborations": [
     {
       "id": 1,
+      "centerScheduler": {
+        "type": "simple",
+        "target": "dc",
+        "isSupportForward": false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 5,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 6,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 7,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 8,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 9,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 10,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          }
+        ]
+      },
       "datacenters": [
         {
           "id": 1,
-          "hostNum": 100000,
+          "region": "us-east1",
+          "hostNum": 40000,
           "partitions": [
             {
-              "length": 5
-            },
-            {
-              "length": 5
-            },
-            {
-              "length": 5
-            },
-            {
-              "length": 500
+              "length": 40000
             }
           ],
           "hostStates": [
             {
-              "cpu": 1,
-              "ram": 1,
-              "storage": 1,
-              "bw": 1,
-              "length": 515
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 40000
             }
           ],
-          "interScheduler": {
-            "type": "direct",
-            "isDirectSend": true
-          },
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-              "firstPartitionIndex": 0,
-              "type": "partitionRandom"
-            },
-            {
-              "firstPartitionIndex": 1,
-              "type": "partitionRandom"
-            },
-            {
-              "firstPartitionIndex": 2,
-              "type": "partitionRandom"
-            },
-            {
-              "firstPartitionIndex": 3,
-              "type": "partitionRandom"
+              "type": "simple"
             }
           ],
           "loadBalancer": {
@@ -58,7 +91,374 @@
           "resourceAllocateSelector": {
             "type": "simple"
           },
-          "isPredict": false
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 2,
+          "region": "northamerica-northeast1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 3,
+          "region": "us-west1",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 4,
+          "region": "europe-west1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 5,
+          "region": "europe-west2",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 6,
+          "region": "asia-east1",
+          "hostNum": 40000,
+          "partitions": [
+            {
+              "length": 40000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 40000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 7,
+          "region": "asia-east1",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 8,
+          "region": "asia-northeast1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 9,
+          "region": "asia-northeast2",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
+        },
+        {
+          "id": 10,
+          "region": "asia-southeast1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCPU": 10,
+            "pricePerRAM": 10,
+            "pricePerStorage": 10,
+            "pricePerBW": 10,
+            "PricePerRack": 0.1,
+            "HostPerRack": 100
+          }
         }
       ]
     }
