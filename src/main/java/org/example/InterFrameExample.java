@@ -23,8 +23,10 @@ public class InterFrameExample {
     String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     String DATACENTER_BW_FILE = "./src/main/resources/experiment/interFrameExperiment/DatacenterBwConfig.csv";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrameExperiment/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";
+    // String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrameExperiment/generateRequestParameter.csv";
+    // String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/DatacentersConfig.json";
 
     //    String DBNAME = "Centralized-one-stage";
 //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
