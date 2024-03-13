@@ -172,6 +172,11 @@ public class InterSchedulerSimple implements InterScheduler {
         double end = System.currentTimeMillis();
 
         this.scheduleTime = Math.max(0.1, end - start);
+
+        if(end-start<0.1) {
+            LOGGER.warn("{}: interSchedule schedule time is less than 0.1 ms ({} ms).", simulation.clockStr(), end-start);
+        }
+
         interSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
         return interSchedulerResult;
     }

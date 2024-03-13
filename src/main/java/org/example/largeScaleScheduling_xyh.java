@@ -23,14 +23,15 @@ public class largeScaleScheduling_xyh {
     String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     
-    // String testRequest = "simpleRequest";
-    String testRequest = "complexRequest";
-    String testTime = "intermittent";
+    // String testTime = "intermittent";
     // String testTime = "continued";
-    // String testAlgorithm = "1-heuristic";
+    String testTime = "troubleshooting";
+    String testRequest = "simpleRequest";
+    // String testRequest = "complexRequest";
+    String testAlgorithm = "1-heuristic";
     // String testAlgorithm = "2-HFRS"; // heuristicFiltering-randomScoring
     // String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
-    String testAlgorithm = "4-random";
+    // String testAlgorithm = "4-random";
 
     String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/generateRequestParameter.csv";

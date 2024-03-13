@@ -339,7 +339,7 @@ public class CloudInformationService extends CloudSimEntity {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
         for (UserRequest userRequest : outDatedUserRequests) {
-            userRequest.addFailReason("outDated");
+            userRequest.addFailReason("interSchedule outDated");
         }
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {
@@ -347,7 +347,8 @@ public class CloudInformationService extends CloudSimEntity {
             instanceGroup.addRetryNum();
 
             if (instanceGroup.isFailed()) {
-                instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId() + "Instance" + instanceGroup.getInstances().get(0).getId() + "expectedHostId:" + instanceGroup.getInstances().get(0).getExpectedScheduleHostId());
+                // instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId() + "Instance" + instanceGroup.getInstances().get(0).getId() + "expectedHostId:" + instanceGroup.getInstances().get(0).getExpectedScheduleHostId());
+                instanceGroup.getUserRequest().addFailReason("InstanceGroup No solution");
 
                 failedUserRequests.add(instanceGroup.getUserRequest());
             } else {
