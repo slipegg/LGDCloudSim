@@ -82,7 +82,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -122,7 +122,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -162,7 +162,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -202,7 +202,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -242,7 +242,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -282,7 +282,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -322,7 +322,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -362,7 +362,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -402,7 +402,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {
@@ -442,7 +442,7 @@
           "synchronizationGap": 0,
           "intraSchedulers": [
             {
-            "type": "simple"
+            "type": "random"
             }
           ],
           "loadBalancer": {

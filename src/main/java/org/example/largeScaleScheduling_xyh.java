@@ -32,6 +32,7 @@ public class largeScaleScheduling_xyh {
     // String testAlgorithm = "2-HFRS"; // heuristicFiltering-randomScoring
     // String testAlgorithm = "3-RFHS"; // randomFiltering-heuristicScoring
     // String testAlgorithm = "4-random";
+    String suffix = "";
 
     String DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/generateRequestParameter.csv";
@@ -50,13 +51,17 @@ public class largeScaleScheduling_xyh {
             testRequest = args[0];
             testTime = args[1];
             testAlgorithm = args[2];
+
+            if(args.length > 3) {
+                suffix = "."+args[3];
+            }
             
             
             DATACENTER_BW_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacenterBwConfig.csv";
             USER_REQUEST_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/generateRequestParameter.csv";
             DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/largeScaleScheduling_xyh/"+testTime+"/"+testRequest+"/"+testAlgorithm+"/DatacentersConfig.json";
 
-            DBNAME = testTime+"."+testRequest+"."+testAlgorithm+".db";
+            DBNAME = testTime+"."+testRequest+"."+testAlgorithm+suffix+".db";
         }
     }
 
