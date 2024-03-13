@@ -47,8 +47,8 @@ public class RandomAndHeuristicAlgorithm {
 
             instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
             
-            // TODO: test，待删除
-            LOGGER.warn("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
+            // // TODO: test，待删除
+            // LOGGER.warn("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
         }
         
         return instanceGroupAvailableDatacenters;
@@ -72,7 +72,8 @@ public class RandomAndHeuristicAlgorithm {
             filterAvailableDatacenterByEdgeBwLimit(instanceGroup, availableDatacenters, networkTopology);
             instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
 
-            LOGGER.debug("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
+            // // TODO: test，待删除
+            // LOGGER.warn("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
         }
         
         return instanceGroupAvailableDatacenters;
@@ -153,17 +154,18 @@ public class RandomAndHeuristicAlgorithm {
                     double scoreD1 = getScoreForDc(scheduleRes.getKey(), d1, (SimpleStateEasyObject)interScheduleSimpleStateMap.get(d1));
                     double scoreD2 = getScoreForDc(scheduleRes.getKey(), d2, (SimpleStateEasyObject)interScheduleSimpleStateMap.get(d2));
     
-                    return Double.compare(scoreD1, scoreD2);
+                    // 按降序排序
+                    return -Double.compare(scoreD1, scoreD2);
                 });
                 
-                // TODO: test，待删除
-                if(scheduleRes.getValue().size()>=3) {
-                    LOGGER.warn("instanceGroup {} scored 1st-3rd dcs: {} - {} - {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0),scheduleRes.getValue().get(1),scheduleRes.getValue().get(2));
-                } else if(scheduleRes.getValue().size()==2) {
-                    LOGGER.warn("instanceGroup {} scored 1st-2nd dcs: {} - {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0),scheduleRes.getValue().get(1));
-                } else if(scheduleRes.getValue().size()==1) {
-                    LOGGER.warn("instanceGroup {} scored 1st dc: {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0));
-                }
+                // // TODO: test，待删除
+                // if(scheduleRes.getValue().size()>=3) {
+                //     LOGGER.warn("instanceGroup {} scored 1st-3rd dcs: {} - {} - {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0).getId(),scheduleRes.getValue().get(1).getId(),scheduleRes.getValue().get(2).getId());
+                // } else if(scheduleRes.getValue().size()==2) {
+                //     LOGGER.warn("instanceGroup {} scored 1st-2nd dcs: {} - {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0).getId(),scheduleRes.getValue().get(1).getId());
+                // } else if(scheduleRes.getValue().size()==1) {
+                //     LOGGER.warn("instanceGroup {} scored 1st dc: {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0).getId());
+                // }
 
                 Datacenter target = scheduleRes.getValue().get(0);
                 interSchedulerResult.addDcResult(scheduleRes.getKey(), target);
