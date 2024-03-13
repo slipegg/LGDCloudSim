@@ -18,6 +18,8 @@ os.chdir(script_dir)
 #===========================================================#
 #                          方法参数                          #
 #===========================================================#
+dirPrefix = "test-20240312/"
+#===========================================================#
 testRequestList = ["simpleRequest","complexRequest"]
 testTimeList = ["intermittent"]
 testAlgorithmList = ["1-heuristic","2-HFRS","3-RFHS","4-random"]
@@ -33,7 +35,7 @@ testAlgorithmList = ["1-heuristic","2-HFRS","3-RFHS","4-random"]
 # testAlgorithm = "3-RFHS" # randomFiltering-heuristicScoring
 # testAlgorithm = "4-random"
 #===========================================================#
-# DBNAME = testTime+"."+testRequest+"."+testAlgorithm+".db"
+# DBNAME = dirPrefix+testTime+"."+testRequest+"."+testAlgorithm+".db"
 #===========================================================#
 #                          SQL 语句                          #
 #===========================================================#
@@ -71,7 +73,7 @@ for testRequest in testRequestList:
         for testAlgorithm in testAlgorithmList:
             if data[testRequest][testTime][testAlgorithm] == None:
                 data[testRequest][testTime][testAlgorithm] = {}
-            DBNAME = testTime+"."+testRequest+"."+testAlgorithm+".db"
+            DBNAME = dirPrefix+testTime+"."+testRequest+"."+testAlgorithm+".db"
             # 连接到你的SQLite数据库文件
             conn = sqlite3.connect('../RecordDb/'+DBNAME)
             # 创建一个游标对象用于执行SQL命令

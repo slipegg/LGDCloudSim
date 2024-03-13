@@ -3,7 +3,21 @@ CREATE VIEW IF NOT EXISTS instanceDelay AS
 SELECT instance.id,userRequest.submitTime AS submitTime,instance.startTime-userRequest.submitTime AS delay
 FROM instance LEFT JOIN userRequest on instance.userRequestId = userRequest.id  Where instance.startTime >= 0;
 
+
 SELECT submitTime,AVG(delay),Max(delay),Min(delay) FROM instanceDelay GROUP BY submitTime;
+
+
+SELECT submitTime, COUNT(*) AS sumNum, failReason
+FROM
+    userRequest
+WHERE
+    state = 'FAILED' 
+GROUP BY
+    submitTime, failReason
+HAVING
+    COUNT(*) > 10
+ORDER BY 
+    submitTime ASC, sumNum DESC;
 
 
 SELECT

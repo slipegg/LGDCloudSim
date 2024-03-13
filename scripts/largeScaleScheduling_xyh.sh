@@ -10,9 +10,9 @@ javaFile=$homeDir"/src/main/java/org/example/largeScaleScheduling_xyh.java"
 javaPkg="org.example.largeScaleScheduling_xyh"
 
 # 定义三个字符串列表
-list_testRequest=("complexRequest") # ("complexRequest" "simpleRequest")
+list_testRequest=("complexRequest" "simpleRequest") # ("complexRequest" "simpleRequest")
 list_testTime=("intermittent") # ("intermittent" "continued")
-list_testAlgorithm=("2-HFRS" "3-RFHS" "4-random") # "1-heuristic" "2-HFRS" "3-RFHS" "4-random"
+list_testAlgorithm=("1-heuristic" "2-HFRS" "3-RFHS" "4-random") # "1-heuristic" "2-HFRS" "3-RFHS" "4-random"
 
 echo ""
 echo ""
