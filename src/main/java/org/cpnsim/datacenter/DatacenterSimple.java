@@ -752,7 +752,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
         for (UserRequest userRequest : outDatedUserRequests) {
-            userRequest.addFailReason("outDated");
+            userRequest.addFailReason("intraSchedule outDated");
         }
 
         Iterator<Instance> instanceIterator = instances.iterator();
@@ -766,7 +766,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             instance.addRetryNum();
             if (instance.isFailed()) {
                 UserRequest userRequest = instance.getUserRequest();
-                userRequest.addFailReason("instance" + instance.getId());
+                // userRequest.addFailReason("instance" + instance.getId());
+                userRequest.addFailReason("Instance No Solution");
                 failedUserRequests.add(userRequest);
                 instanceIterator.remove();
             }
@@ -1226,7 +1227,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
 
         for (UserRequest userRequest : outDatedUserRequests) {
-            userRequest.addFailReason("outDated");
+            userRequest.addFailReason("intraSchedule outDated");
         }
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {
@@ -1234,7 +1235,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             instanceGroup.addRetryNum();
 
             if (instanceGroup.isFailed()) {
-                instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId());
+                // instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId());
+                instanceGroup.getUserRequest().addFailReason("InstanceGroup No solution");
 
                 failedUserRequests.add(instanceGroup.getUserRequest());
             } else {

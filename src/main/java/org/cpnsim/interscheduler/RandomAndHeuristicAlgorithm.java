@@ -7,13 +7,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.cpnsim.core.CloudInformationService;
 import org.cpnsim.core.Simulation;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.statemanager.SimpleStateEasyObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RandomAndHeuristicAlgorithm {
+    /**
+     * The logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(RandomAndHeuristicAlgorithm.class.getSimpleName());
+
+
     public RandomAndHeuristicAlgorithm() {
     }
 
@@ -36,6 +46,9 @@ public class RandomAndHeuristicAlgorithm {
             availableDatacenters = availableDatacenters.subList(0, RandomNum);
 
             instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
+            
+            // TODO: test，待删除
+            LOGGER.warn("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
         }
         
         return instanceGroupAvailableDatacenters;
@@ -58,6 +71,8 @@ public class RandomAndHeuristicAlgorithm {
             filterAvailableDatacenterByEdgeDelayLimit(instanceGroup, availableDatacenters, networkTopology);
             filterAvailableDatacenterByEdgeBwLimit(instanceGroup, availableDatacenters, networkTopology);
             instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
+
+            LOGGER.debug("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
         }
         
         return instanceGroupAvailableDatacenters;
@@ -140,6 +155,15 @@ public class RandomAndHeuristicAlgorithm {
     
                     return Double.compare(scoreD1, scoreD2);
                 });
+                
+                // TODO: test，待删除
+                if(scheduleRes.getValue().size()>=3) {
+                    LOGGER.warn("instanceGroup {} scored 1st-3rd dcs: {} - {} - {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0),scheduleRes.getValue().get(1),scheduleRes.getValue().get(2));
+                } else if(scheduleRes.getValue().size()==2) {
+                    LOGGER.warn("instanceGroup {} scored 1st-2nd dcs: {} - {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0),scheduleRes.getValue().get(1));
+                } else if(scheduleRes.getValue().size()==1) {
+                    LOGGER.warn("instanceGroup {} scored 1st dc: {}.",scheduleRes.getKey().getId(),scheduleRes.getValue().get(0));
+                }
 
                 Datacenter target = scheduleRes.getValue().get(0);
                 interSchedulerResult.addDcResult(scheduleRes.getKey(), target);
