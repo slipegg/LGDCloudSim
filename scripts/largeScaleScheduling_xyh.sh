@@ -8,11 +8,12 @@ homeDir="/home/xyh/LGDCloudSim"
 scriptDir=$homeDir"/scripts"
 javaFile=$homeDir"/src/main/java/org/example/largeScaleScheduling_xyh.java"
 javaPkg="org.example.largeScaleScheduling_xyh"
+suffix=""
 
 # 定义三个字符串列表
-list_testRequest=("complexRequest" "simpleRequest") # ("complexRequest" "simpleRequest")
-list_testTime=("intermittent") # ("intermittent" "continued")
-list_testAlgorithm=("1-heuristic" "2-HFRS" "3-RFHS" "4-random") # "1-heuristic" "2-HFRS" "3-RFHS" "4-random"
+list_testRequest=("simpleRequest" "complexRequest") # ("complexRequest" "simpleRequest")
+list_testTime=("intermittent") # ("intermittent" "continued" "troubleshooting")
+list_testAlgorithm=("1-heuristic" "2-HFRS" "3-RFHS" "4-random") # ("1-heuristic" "2-HFRS" "3-RFHS" "4-random")
 
 echo ""
 echo ""
@@ -31,10 +32,16 @@ start_seconds=$SECONDS
 for testRequest in "${list_testRequest[@]}"; do
   for testTime in "${list_testTime[@]}"; do
     for testAlgorithm in "${list_testAlgorithm[@]}"; do
-      
+
+      if [ $testTime = "troubleshooting" ]
+      then
+        # suffix 设置为当前时间
+        suffix="-$(date +'%Y-%m-%d_%H:%M:%S')"
+      fi
+
       echo "【运行 $testRequest-$testTime-$testAlgorithm 中...】"
       start_seconds_tmp=$SECONDS
-       mvn exec:java -Dexec.mainClass="$javaPkg" -Dexec.args="$testRequest  $testTime $testAlgorithm" > $scriptDir/logs/$testRequest-$testTime-$testAlgorithm.log 2>&1 
+       mvn exec:java -Dexec.mainClass="$javaPkg" -Dexec.args="$testRequest  $testTime $testAlgorithm $suffix" > $scriptDir/logs/$testRequest-$testTime-$testAlgorithm$suffix.log 2>&1 
       echo "【完成运行 $testRequest-$testTime-$testAlgorithm ！ 花费 $((SECONDS - start_seconds_tmp)) s。】"
       echo ""
     done
