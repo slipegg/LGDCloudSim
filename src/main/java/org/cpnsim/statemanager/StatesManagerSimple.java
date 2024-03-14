@@ -15,23 +15,25 @@ import static org.apache.commons.lang3.math.NumberUtils.max;
 /**
  * A class to manage the states of datacenter.
  * This class implements the interface {@link StatesManager}.
+ * There we will introduce the methods to manage the states of the datacenter.
+ * Because the intra-scheduler necessitates synchronization to acquire the host state in each partition in the data center.
+ * However, using a simple method of duplicating all states to the intra-scheduler during each synchronization would result in redundant state copies and substantial memory wastage.
+ * As a result, we optimize the maintenance of historical host resource states through a multi-level incremental state representation (MLI) method.
+ * The core idea of this method is only to perform appropriate state replication on changed hosts to avoid redundant replication.
+ * When synchronizing the host states to the intra-scheduler, the system creates an empty hash table in synStateMap for each partition and deletes outdated historical hash tables.
+ * Before the next synchronization, if a host's state changes, the host state before the change is put into the new hash table of the corresponding partition to prevent state loss.
+ * Since these hash tables synStateMap maintained by the state manager do not belong exclusively to an intra-scheduler, these tables are read-only to the intra-scheduler.
+ * Therefore, each intra-scheduler also needs to maintain additional hash tables selfHostStateMap for each partition.
+ * The hash tables document the state of the scheduled hosts from the intra-scheduler's own view before the next synchronization.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class StatesManagerSimple implements StatesManager {
     /**
      * The status of all hosts at the current time
      **/
     private int[] hostStates;
-    @Getter
-    private int totalCpuInUse;
-    @Getter
-    private int totalRamInUse;
-    @Getter
-    private int totalStorageInUse;
-    @Getter
-    private int totalBwInUse;
 
     /**
      * Whether to enable prediction
@@ -99,19 +101,43 @@ public class StatesManagerSimple implements StatesManager {
     @Setter
     private SimpleState simpleState;
 
+    /**
+     * The max cpu capacity among all hosts in the datacenter
+     */
     @Getter
     private int maxCpuCapacity;
 
+    /**
+     * The max ram capacity among all hosts in the datacenter
+     */
     @Getter
     private int maxRamCapacity;
 
+    /**
+     * see {@link  SynGapManager}
+     */
     private SynGapManager synGapManager;
 
+    /**
+     * see {@link  HostCapacityManager}
+     */
     @Getter
     private HostCapacityManager hostCapacityManager;
 
-    private Map<IntraScheduler, List<Integer>> innerSchedulerView;
+    /**
+     * The view of each intra-scheduler.
+     */
+    private Map<IntraScheduler, List<Integer>> intraSchedulerView;
 
+    /**
+     * Initialize the StatesManagerSimple.
+     *
+     * @param hostNum                the number of hosts in the datacenter.
+     * @param partitionRangesManager the partition ranges manager.
+     * @param synGap                 the synchronization gap.
+     * @param maxCpuCapacity         the max cpu capacity among all hosts in the datacenter.
+     * @param maxRamCapacity         the max ram capacity among all hosts in the datacenter.
+     */
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
         this.hostStates = new int[hostNum * HostState.STATE_NUM];
@@ -124,30 +150,49 @@ public class StatesManagerSimple implements StatesManager {
         this.selfHostStateMap = new HashMap<>();
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
         this.hostCapacityManager = new HostCapacityManager();
-        this.innerSchedulerView = new HashMap<>();
-        this.totalCpuInUse = 0;
-        this.totalRamInUse = 0;
-        this.totalStorageInUse = 0;
-        this.totalBwInUse = 0;
+        this.intraSchedulerView = new HashMap<>();
         initSynStateMap();
     }
 
+    /**
+     * Initialize the StatesManagerSimple.
+     * @param hostNum the number of hosts in the datacenter.
+     * @param partitionRangesManager the partition ranges manager.
+     * @param synGap the synchronization gap.
+     */
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
         this(hostNum, partitionRangesManager, synGap, 128, 256);
     }
 
-    //TODO: initHostStates不需要是有序的，但是这里却要求了hostCapacityManager初始化是有序的，后面需要修改
-    //但是因为现在只在initDatacenter中使用了这个，所以还没什么问题
+    /**
+     * Initialize the host states of the datacenter.
+     *
+     * @param cpu     the cpu capacity of the host.
+     * @param ram     the ram capacity of the host.
+     * @param storage the storage capacity of the host.
+     * @param bw      the bw capacity of the host.
+     * @param startId the start id of the host.
+     * @param length  the number of hosts that has the same capacity.
+     * @return the host state.
+     */
+    //TODO: The initHostStates function does not need to be in order,
+    // but here it is required that hostCapacityManager is initialized in order,
+    // which needs to be modified later.But since this is only used in initDatacenter, there is no problem yet.
     @Override
     public StatesManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length) {
         int endId = startId + length - 1;
         for (int i = startId; i <= endId; i++) {
             initSingleHostState(i, cpu, ram, storage, bw);
         }
-        hostCapacityManager.orderlyAddSameCapacityHost(length,new int[]{cpu,ram,storage,bw});
+        hostCapacityManager.orderlyAddSameCapacityHost(length, new int[]{cpu, ram, storage, bw});
         return this;
     }
 
+    /**
+     * Initialize the host states of the datacenter by {@link HostStateGenerator}.
+     * @param hostStateGenerator the host state generator.
+     * @return the host state.
+     */
     @Override
     public StatesManager initHostStates(HostStateGenerator hostStateGenerator) {
         for (int i = 0; i < hostNum; i++) {
@@ -157,6 +202,11 @@ public class StatesManagerSimple implements StatesManager {
         return this;
     }
 
+    /**
+     * Initialize the host state with the given state.
+     * @param hostId the id of the host.
+     * @param state the state of the host.
+     */
     private void initSingleHostState(int hostId, int[] state) {
         if (state.length != HostState.STATE_NUM) {
             throw new IllegalArgumentException("Host state must be array of size " + HostState.STATE_NUM);
@@ -165,10 +215,24 @@ public class StatesManagerSimple implements StatesManager {
         simpleState.initHostSimpleState(hostId, state);
     }
 
+    /**
+     * Initialize the host state with the given state.
+     * @param hostId the id of the host.
+     * @param cpu the cpu capacity of the host.
+     * @param ram the ram capacity of the host.
+     * @param storage the storage capacity of the host.
+     * @param bw the bw capacity of the host.
+     */
     private void initSingleHostState(int hostId, int cpu, int ram, int storage, int bw) {
-        initSingleHostState(hostId, new int[] { cpu, ram, storage, bw });
+        initSingleHostState(hostId, new int[]{cpu, ram, storage, bw});
     }
 
+    /**
+     * Get the host state of the host with hostId in the intra-scheduler's view.
+     * @see SynState
+     * @param scheduler the intra-scheduler.
+     * @return the host state.
+     */
     @Override
     public SynState getSynState(IntraScheduler scheduler) {
         Map<Integer, Map<Integer, int[]>> selfHostState;
@@ -185,15 +249,15 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     /**
-     * Synchronize one area for each {@link IntraScheduler}.
+     * Perform a partition synchronization for each {@link IntraScheduler}.
      */
     @Override
     public StatesManager synAllState() {
         if (!isSynCostTime()) {
             return this;
         }
-        synGapManager.synGapCountAddOne();
-        int latestSmallSynGapCount = synGapManager.getSmallSynGapCount();
+        synGapManager.partitionSynGapCountAddOne();
+        int latestSmallSynGapCount = synGapManager.getPartitionSynCount();
         for (Map<Double, Map<Integer, int[]>> partitionSynStateMap : synStateMap.values()) {
             if (!predictable && latestSmallSynGapCount >= partitionNum) {
                 partitionSynStateMap.remove(synGapManager.getSynTime(latestSmallSynGapCount - partitionNum));
@@ -209,6 +273,12 @@ public class StatesManagerSimple implements StatesManager {
         return this;
     }
 
+    /**
+     * Allocate the instance to the host.
+     * @param hostId the id of the host.
+     * @param instance the instance.
+     * @return whether the instance is allocated to the host successfully.
+    */
     @Override
     public boolean allocate(int hostId, Instance instance) {
         int[] beforeHostState = new int[HostState.STATE_NUM];
@@ -224,17 +294,17 @@ public class StatesManagerSimple implements StatesManager {
         hostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
         hostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
 
-        // update total ... in use
-        totalCpuInUse += instance.getCpu();
-        totalRamInUse += instance.getRam();
-        totalStorageInUse += instance.getStorage();
-        totalBwInUse += instance.getBw();
-
         simpleState.updateSimpleStateAllocated(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostAllocateInstance(hostId, datacenter.getSimulation().clock());
         return true;
     }
 
+    /**
+     * Release the instance from the host.
+     * @param hostId the id of the host.
+     * @param instance the instance to be released.
+     * @return the StatesManager itself.
+     */
     @Override
     public StatesManager release(int hostId, Instance instance) {
         int[] beforeHostState = new int[HostState.STATE_NUM];
@@ -246,12 +316,6 @@ public class StatesManagerSimple implements StatesManager {
         hostStates[hostId * HostState.STATE_NUM + 1] += instance.getRam();
         hostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
         hostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
-
-        // update total ... in use
-        totalCpuInUse -= instance.getCpu();
-        totalRamInUse -= instance.getRam();
-        totalStorageInUse -= instance.getStorage();
-        totalBwInUse -= instance.getBw();
 
         simpleState.updateSimpleStateReleased(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostReleaseInstance(hostId, datacenter.getSimulation().clock());
@@ -291,7 +355,7 @@ public class StatesManagerSimple implements StatesManager {
 
     @Override
     public StatesManager revertHostState(IntraSchedulerResult intraSchedulerResult) {
-        int smallSynGapCount = synGapManager.getSmallSynGapCount();
+        int smallSynGapCount = synGapManager.getPartitionSynCount();
         IntraScheduler intraScheduler = intraSchedulerResult.getIntraScheduler();
         Set<Integer> clearPartitions = new HashSet<>();
         while (clearPartitions.size() != partitionNum && smallSynGapCount >= 0) {
@@ -324,8 +388,13 @@ public class StatesManagerSimple implements StatesManager {
         return this;
     }
 
+    /**
+     * Get the latest synchronized host state of the host with hostId.
+     * @param hostId the id of the host.
+     * @return the host state.
+     */
     private int[] getLatestSynHostState(int hostId) {
-        double time = synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
+        double time = synGapManager.getSynTime(synGapManager.getPartitionSynCount());
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         Map<Integer, int[]> partitionSynState = synStateMap.get(partitionId).get(time);
         if (partitionSynState.containsKey(hostId)) {
@@ -338,18 +407,13 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public StatesManager revertSelftHostState(List<Instance> instances, IntraScheduler intraScheduler) {
+    public StatesManager revertSelfHostState(List<Instance> instances, IntraScheduler intraScheduler) {
         Map<Integer, Map<Integer, int[]>> selfHostState = selfHostStateMap.get(intraScheduler);
-//        LOGGER.error("{}: revert self host state:{}", getDatacenter().getSimulation().clockStr(), innerScheduler.getName());
-//        for(Map.Entry<Integer, Map<Integer, int[]>> entry:selfHostState.entrySet()){
-//            LOGGER.error("partitionId:{},hostState.size():{}",entry.getKey(),entry.getValue().size());
-//        }
         for (Instance instance : instances) {
             if (instance.getRetryHostIds() == null || instance.getRetryHostIds().size() == 0) {
                 LOGGER.error("{}: instance {} has no retry host id in revertSelftHostState function", getDatacenter().getSimulation().clockStr(), instance.getId());
                 System.exit(-1);
             }
-//            LOGGER.error("instance{} retryHostIds:{}", instance.getId(),instance.getRetryHostIds());
             int hostId = instance.getRetryHostIds().get(instance.getRetryHostIds().size() - 1);
             int[] hostState = selfHostState.get(partitionRangesManager.getPartitionId(hostId)).get(hostId);
             hostState[0] += instance.getCpu();
@@ -366,18 +430,18 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public double getNextSynDelay() {
+    public double getNextPartitionSynDelay() {
         return synGapManager.getNextSynDelay(datacenter.getSimulation().clock());
     }
 
     @Override
-    public int getSmallSynGapCount() {
-        return synGapManager.getSmallSynGapCount();
+    public int getPartitionSynCount() {
+        return synGapManager.getPartitionSynCount();
     }
 
     @Override
-    public boolean isInLatestSmallSynGap(double time) {
-        return time >= synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
+    public boolean isInLatestPartitionSynGap(double time) {
+        return time >= synGapManager.getSynTime(synGapManager.getPartitionSynCount());
     }
 
     @Override
@@ -394,11 +458,15 @@ public class StatesManagerSimple implements StatesManager {
     public StatesManager adjustScheduleView() {
         if(Objects.equals(datacenter.getArchitecture(), "two-level")) {
             return adjustScheduleViewOfDynamicAvg();
-        }else{
+        } else {
             return adjustScheduleViewToAll();
         }
     }
 
+    /**
+     * Adjust the scheduling view of each intra-scheduler and divide it evenly according to the remaining resources of the hosts in the current data center.
+     * @return the StatesManager itself.
+     */
     private StatesManager adjustScheduleViewOfDynamicAvg(){
         long cpuAvailableSum = simpleState.getCpuAvailableSum();
         int innerSchedulerNum = getDatacenter().getIntraSchedulers().size();
@@ -411,21 +479,25 @@ public class StatesManagerSimple implements StatesManager {
             tmpCpuAvailableSum+=getNowHostState(hostId).getCpu();
             if(tmpCpuAvailableSum>=averageCpuAvailable){
                 IntraScheduler intraScheduler = getDatacenter().getIntraSchedulers().get(innerSchedulerId);
-                innerSchedulerView.putIfAbsent(intraScheduler, List.of(startIndex, hostId));
+                intraSchedulerView.putIfAbsent(intraScheduler, List.of(startIndex, hostId));
                 startIndex = hostId+1;
                 innerSchedulerId++;
                 tmpCpuAvailableSum = 0;
             }
         }
         IntraScheduler intraScheduler = getDatacenter().getIntraSchedulers().get(innerSchedulerId);
-        innerSchedulerView.putIfAbsent(intraScheduler, List.of(startIndex, hostNum - 1));
+        intraSchedulerView.putIfAbsent(intraScheduler, List.of(startIndex, hostNum - 1));
 
         return this;
     }
 
+    /**
+     * Set the scheduling view of each scheduler to be all hosts.
+     * @return the StatesManager itself.
+     */
     private StatesManager adjustScheduleViewToAll(){
         for (IntraScheduler intraScheduler : getDatacenter().getIntraSchedulers()) {
-            innerSchedulerView.putIfAbsent(intraScheduler, List.of(0, hostNum - 1));
+            intraSchedulerView.putIfAbsent(intraScheduler, List.of(0, hostNum - 1));
         }
 
         return this;
@@ -433,7 +505,7 @@ public class StatesManagerSimple implements StatesManager {
 
     @Override
     public List<Integer> getIntraSchedulerView(IntraScheduler intraScheduler) {
-        return innerSchedulerView.get(intraScheduler);
+        return intraSchedulerView.get(intraScheduler);
     }
 
     /**
@@ -451,19 +523,6 @@ public class StatesManagerSimple implements StatesManager {
             partitionSynStateMap.get(largestSynTime).put(hostId, synHostState);
         }
     }
-
-    /**
-     * Update the simple state of the host after the host state changes.
-     *
-     * @param hostId       The host id to be changed
-     * @param synHostState The host state before the change
-     */
-//    private void updateSimpleState(int hostId, int[] synHostState) {
-//        simpleState.updateCpuRamMap(synHostState[0], synHostState[1],
-//                hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1]);
-//        simpleState.updateStorageSum(hostStates[hostId * HostState.STATE_NUM + 2] - synHostState[2]);
-//        simpleState.updateBwSum(hostStates[hostId * HostState.STATE_NUM + 3] - synHostState[3]);
-//    }
 
     /**
      * Initialize the synStateMap.
