@@ -150,7 +150,7 @@ public class ComparedStatesManagerSimple {
         initSelfMap(selfHostStateMap);
 
         while (true) {
-            double synTime = synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
+            double synTime = synGapManager.getSynTime(synGapManager.getPartitionSynCount());
             if (synTime >= allTime) {
                 break;
             }
@@ -166,7 +166,7 @@ public class ComparedStatesManagerSimple {
                 scheduleOnceRoundForIntraScheduler(1, intraScheduler, synTime, selfHostStateMap, synStateMap, getHostStates(statesManager));
             }
 
-            synGapManager.synGapCountAddOne();
+            synGapManager.partitionSynGapCountAddOne();
             updateAfterSyn(selfHostStateMap, synStateMap);
         }
     }
@@ -181,7 +181,7 @@ public class ComparedStatesManagerSimple {
     }
 
     private void updateAfterSyn(Map<IntraScheduler, Map<Integer, Map<Integer, int[]>>> selfHostStateMap, Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synStateMap) {
-        int latestSmallSynGapCount = synGapManager.getSmallSynGapCount();
+        int latestSmallSynGapCount = synGapManager.getPartitionSynCount();
         for (IntraScheduler intraScheduler : intraSchedulers) {
             for (Map<Double, Map<Integer, int[]>> partitionSynStateMap : synStateMap.values()) {
                 if (latestSmallSynGapCount >= partitionNum) {
@@ -219,11 +219,11 @@ public class ComparedStatesManagerSimple {
     }
 
     private Map<Integer, Integer> initPartitionLatestSynCount(IntraScheduler intraScheduler) {
-        int latestSynPartitionId = (intraScheduler.getFirstPartitionId() + synGapManager.getSmallSynGapCount()) % partitionNum;
+        int latestSynPartitionId = (intraScheduler.getFirstPartitionId() + synGapManager.getPartitionSynCount()) % partitionNum;
         Map<Integer, Integer> partitionLatestSynCount = new HashMap<>();
         for (int partitionId = 0; partitionId < partitionNum; partitionId++) {
             int partDistanceLatestSynPartition = (latestSynPartitionId + partitionNum - partitionId) % partitionNum;
-            int partLatestSmallSynGapCount = max(0, synGapManager.getSmallSynGapCount() - partDistanceLatestSynPartition);
+            int partLatestSmallSynGapCount = max(0, synGapManager.getPartitionSynCount() - partDistanceLatestSynPartition);
             partitionLatestSynCount.put(partitionId, partLatestSmallSynGapCount);
         }
         return partitionLatestSynCount;
@@ -237,7 +237,7 @@ public class ComparedStatesManagerSimple {
         } else {
             TreeMap<Double, Map<Integer, int[]>> partitionSynState = synStateMap.get(partitionId);
             int latestSmallSynCount = partitionLatestSynCount.get(partitionId);
-            while (latestSmallSynCount <= synGapManager.getSmallSynGapCount()) {
+            while (latestSmallSynCount <= synGapManager.getPartitionSynCount()) {
                 double synTime = synGapManager.getSynTime(latestSmallSynCount);
                 if (partitionSynState.containsKey(synTime) && partitionSynState.get(synTime).containsKey(hostId)) {
                     return partitionSynState.get(synTime).get(hostId);

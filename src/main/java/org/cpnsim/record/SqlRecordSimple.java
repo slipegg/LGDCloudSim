@@ -21,6 +21,9 @@ import java.util.Set;
 /**
  * It is an implementation of the SqlRecord interface.
  * It records the simulation information through the SQLite database.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
  */
 public class SqlRecordSimple implements SqlRecord {
     /**

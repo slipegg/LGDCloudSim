@@ -125,7 +125,7 @@ public interface Simulation {
      *
      * <b>Note</b>: This method should be called only after all entities have been set up and added.
      * The method returns immediately after preparing the internal state of the simulation.
-     * </p>
+     *
      *
      * @throws UnsupportedOperationException When the simulation has already run once.
      * If you paused the simulation and wants to resume it,
