@@ -37,13 +37,24 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      **/
     public Logger LOGGER = LoggerFactory.getLogger(DatacenterSimple.class.getSimpleName());
 
+    /**
+     * the region of the datacenter.
+     **/
     @Getter
     @Setter
     private String region;
 
+    /**
+     * the location of the datacenter.
+     * It can be set or not.
+     **/
     @Getter
     private Point2D location;
 
+    /**
+     * the architecture of the datacenter.
+     * It can be set or not.
+     **/
     @Getter
     @Setter
     private String architecture = "";
@@ -91,11 +102,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private ConflictHandler conflictHandler;
 
     /**
-     * The unit price of cpu resources,See {@link DatacenterPrice}.
+     * The price per CPU per second.
+     * It is used to record the price per second of each CPU occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    double unitCpuPrice;
+    double pricePerCpuPerSec;
+
+    /**
+     * The price per CPU.
+     * It is used to record the price of each CPU occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerCpu;
 
     /**
      * All cpu expenses, See {@link DatacenterPrice}.
@@ -104,11 +126,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double cpuCost;
 
     /**
-     * The unit price of ram resources,See {@link DatacenterPrice}.
+     * The price per ram per second.
+     * It is used to record the price per second of each ram occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    private double unitRamPrice;
+    private double pricePerRamPerSec;
+
+    /**
+     * The price per ram.
+     * It is used to record the price of each ram occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerRam;
 
     /**
      * All ram expenses, See {@link DatacenterPrice}.
@@ -117,11 +150,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double ramCost;
 
     /**
-     * The unit price of storage resources,See {@link DatacenterPrice}.
+     * The price per storage per second.
+     * It is used to record the price per second of each storage occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    private double unitStoragePrice;
+    private double pricePerStoragePerSec;
+
+    /**
+     * The price per storage.
+     * It is used to record the price of each storage occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerStorage;
 
     /**
      * All storage expenses, See {@link DatacenterPrice}.
@@ -130,11 +174,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double storageCost;
 
     /**
-     * The unit price of bw resources,See {@link DatacenterPrice}.
+     * The price per bw per second.
+     * It is used to record the price per second of each bw occupied by an instance with a finite lifecycle.
+     * See {@link DatacenterPrice}.
      */
     @Getter
     @Setter
-    private double unitBwPrice;
+    private double pricePerBwPerSec;
+
+    /**
+     * The price per bw.
+     * It is used to record the price of each bw occupied by an instance with an infinite lifecycle.
+     * See {@link DatacenterPrice}.
+     */
+    @Getter
+    @Setter
+    private double pricePerBw;
 
     /**
      * All bw expenses, See {@link DatacenterPrice}.
@@ -143,12 +198,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private double bwCost;
 
     /**
-     * Number of CPUs in a rack.
+     * Number of hosts in a rack.
      **/
-    //TODO 需要删除这个概念
     @Getter
     @Setter
-    private int cpuNumPerRack;
+    private double hostNumPerRack;
 
     /**
      * Rental price per rack.
@@ -157,22 +211,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Setter
     private double unitRackPrice;
 
+    /**
+     * The billing type of bw resources.
+     * It can be "fixed" or "used".
+     **/
     @Getter
     @Setter
     private String bwBillingType = "fixed";
 
+    /**
+     * The utilization of bw resources.
+     **/
     @Getter
     @Setter
     private double bwUtilization;
 
-    @Getter
-    private double TCOEnergy;
-
-    @Getter
-    private double TCORack;
-
+    /**
+     * The flag to set whether the inter-architecture is centralized.
+     **/
     @Setter
-    private boolean centralizedInterSchedule;
+    private boolean centralizedInterScheduleFlag;
 
     /**
      * The IntraScheduleResult List.
@@ -187,31 +245,45 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * Whether the interScheduler is busy.
      **/
-    private boolean isGroupFilterDcBusy = false;
+    private boolean isInterSchedulerBusy = false;
 
     /**
      * Whether the intraScheduler is busy.
      **/
     private Map<IntraScheduler, Boolean> isIntraSchedulerBusy = new HashMap<>();
 
+    /**
+     * Create a new instance of DatacenterSimple with the given simulation.
+     *
+     * @param simulation the simulation
+     */
     public DatacenterSimple(@NonNull Simulation simulation) {
         super(simulation);
         this.collaborationIds = new HashSet<>();
         this.instanceQueue = new InstanceQueueFifo();
         this.instanceGroupSendResultMap = new HashMap<>();
         this.intraSchedulerResults = new ArrayList<>();
-        this.unitCpuPrice = 1.0;
-        this.unitRamPrice = 1.0;
-        this.unitStoragePrice = 1.0;
-        this.unitBwPrice = 1.0;
+        this.pricePerCpuPerSec = 1.0;
+        this.pricePerCpu = 1.0;
+        this.pricePerRamPerSec = 1.0;
+        this.pricePerRam = 1.0;
+        this.pricePerStoragePerSec = 1.0;
+        this.pricePerStorage = 1.0;
+        this.pricePerBwPerSec = 1.0;
+        this.pricePerBw = 1.0;
         this.unitRackPrice = 100.0;
-        this.cpuNumPerRack = 10;
+        this.hostNumPerRack = 10;
         this.cpuCost = 0.0;
         this.ramCost = 0.0;
         this.storageCost = 0.0;
         this.bwCost = 0.0;
     }
 
+    /**
+     * Create a new instance of DatacenterSimple with the given simulation and id.
+     * @param simulation the simulation
+     * @param id the id of the datacenter
+     */
     public DatacenterSimple(@NonNull Simulation simulation, int id) {
         this(simulation);
         this.setId(id);
@@ -224,6 +296,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return this;
     }
 
+    @Override
     public Datacenter setIntraSchedulers(List<IntraScheduler> intraSchedulers) {
         this.intraSchedulers = intraSchedulers;
         for (IntraScheduler intraScheduler : intraSchedulers) {
@@ -239,6 +312,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return this;
     }
 
+    @Override
     public Datacenter setConflictHandler(ConflictHandler conflictHandler) {
         this.conflictHandler = conflictHandler;
         conflictHandler.setDatacenter(this);
@@ -255,7 +329,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public double getRackCost() {
         int maxPowerOnHostNum = statesManager.getDatacenterPowerOnRecord().getMaxHostNum();
-        return maxPowerOnHostNum * unitRackPrice;
+        return maxPowerOnHostNum / hostNumPerRack * unitRackPrice;
     }
 
     @Override
@@ -269,14 +343,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     /**
-     * When a datacenter is created, it will send a registration request to the CIS.
+     * When a datacenter is created, it will send a registration request to the CIS and start the synchronization process.
      */
     @Override
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         sendWithoutNetwork(getSimulation().getCis(), 0, CloudSimTag.DC_REGISTRATION_REQUEST, this);
         if (statesManager.isSynCostTime()) {
-            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
+            send(this, statesManager.getNextPartitionSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
         }
 
         if (interScheduler != null) {
@@ -294,13 +368,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
 
-        if (intraSchedulers.size() > 0) {
+        if (intraSchedulers != null && !intraSchedulers.isEmpty()) {
             statesManager.adjustScheduleView();
         }
     }
 
     /**
      * The events that the datacenter needs to process.
+     * @see SimEntity#processEvent(SimEvent)
+     * @param evt the event
      */
     @Override
     public void processEvent(SimEvent evt) {
@@ -315,8 +391,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
             case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);//负载均衡花费时间，不形成瓶颈
-            case CloudSimTag.INTRA_SCHEDULE_BEGIN -> processInnerScheduleBegin(evt);
-            case CloudSimTag.INTRA_SCHEDULE_END -> processInnerScheduleEnd(evt);
+            case CloudSimTag.INTRA_SCHEDULE_BEGIN -> processIntraScheduleBegin(evt);
+            case CloudSimTag.INTRA_SCHEDULE_END -> processIntraScheduleEnd(evt);
             case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
             case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
             default ->
@@ -324,13 +400,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    //需要保证传递过来的都是同一个同步时间的dc,
+
+    /**
+     * Synchronize the status of other data center.
+     * And send a {@link CloudSimTag#SYN_STATE_BETWEEN_DC} event to itself after the specified synchronization interval.
+     * @param evt the event
+     */
     private void processSynStateBetweenDc(SimEvent evt) {
         if (evt.getData() instanceof List<?> synTargets) {
             if (!synTargets.isEmpty() && synTargets.get(0) instanceof Datacenter) {
                 List<Datacenter> datacenters = (List<Datacenter>) synTargets;
                 interScheduler.synBetweenDcState(datacenters);
-                //TODO 需要考虑中途同步时间是否会变，会变的话需要检查，如果一直都不会变，就不改了
+                //TODO In the future, we should consider whether the synchronization time will change midway. If it does, we need to check it. If it never changes, don't change it.
                 sendWithoutNetwork(this, interScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
             }
         }
@@ -343,32 +424,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processSynStateInDc() {
         statesManager.synAllState();
         if (statesManager.isSynCostTime()) {
-            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
+            send(this, statesManager.getNextPartitionSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
         }
 
         if (Objects.equals(this.architecture, "two-level")) {
             statesManager.adjustScheduleView();
             LOGGER.info("{}: {} adjust schedule view, now the view of {} is {}", getSimulation().clockStr(), getName(), intraSchedulers.get(0), statesManager.getIntraSchedulerView(intraSchedulers.get(0)));
-        }
-    }
-
-    private void calculateCost(Instance instance) {
-        if (instance.getStartTime() == -1 || instance.getFinishTime() == -1) {
-            return;
-        }
-        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
-        cpuCost += instance.getCpu() * unitCpuPrice * lifeTimeSec;
-        ramCost += instance.getRam() * unitRamPrice * lifeTimeSec;
-        storageCost += instance.getStorage() * unitStoragePrice * lifeTimeSec;
-        bwCost += calculateInstanceBwCost(instance);
-    }
-
-    private double calculateInstanceBwCost(Instance instance) {
-        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
-        if (bwBillingType.equals("used")) {
-            return (instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * unitBwPrice;
-        } else {
-            return instance.getBw() * unitBwPrice * lifeTimeSec;
         }
     }
 
@@ -391,7 +452,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void finishInstance(Instance instance) {
         int hostId = instance.getHost();
-        if (getSimulation().clock() - instance.getStartTime() >= instance.getLifeTime() - 0.01 && instance.getLifeTime() != -1) {
+        if (getSimulation().clock() - instance.getStartTime() >= instance.getLifecycle() - 0.01 && instance.getLifecycle() != -1) {
             instance.setState(UserRequest.SUCCESS);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
@@ -404,12 +465,58 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
-        updateTCO();
-//        getSimulation().getSqlRecord().recordInstanceFinishInfo(instance);
         calculateCost(instance);
         updateGroupAndUserRequestState(instance);
     }
 
+    /**
+     * Calculate the cost of the instance.
+     *
+     * @param instance the instance need to be calculated.
+     */
+    private void calculateCost(Instance instance) {
+        if (instance.getStartTime() == -1) {
+            return;
+        }
+        if (instance.getLifecycle() < 0) {
+            cpuCost += instance.getCpu() * pricePerCpu;
+            ramCost += instance.getRam() * pricePerRam;
+            storageCost += instance.getStorage() * pricePerStorage;
+        } else {
+            double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
+            cpuCost += instance.getCpu() * pricePerCpuPerSec * lifeTimeSec;
+            ramCost += instance.getRam() * pricePerRamPerSec * lifeTimeSec;
+            storageCost += instance.getStorage() * pricePerStoragePerSec * lifeTimeSec;
+        }
+        bwCost += calculateInstanceBwCost(instance);
+    }
+
+    /**
+     * Calculate the cost of the bw resources of the instance.
+     * Because the cost of the bw resources is related to the billing type of the bw resources.
+     *
+     * @param instance the instance need to be calculated.
+     * @return the cost of the bw resources of the instance.
+     */
+    private double calculateInstanceBwCost(Instance instance) {
+        double lifeTimeSec = (instance.getFinishTime() - instance.getStartTime()) / 1000.0;
+        if (bwBillingType.equals("used")) {
+            return (instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * pricePerBwPerSec;
+        } else {
+            if (instance.getLifecycle() < 0) {
+                return instance.getBw() * pricePerBw;
+            } else {
+                return instance.getBw() * pricePerBwPerSec * lifeTimeSec;
+            }
+        }
+    }
+
+    /**
+     * Update the state of the instance group and the user request.
+     * If all instances in the instance group have been successfully run, the instance group is successful.
+     * If all instance groups in the user request have been successfully run, the user request is successful.
+     * @param instance the instance
+     */
     private void updateGroupAndUserRequestState(Instance instance) {
         InstanceGroup instanceGroup = instance.getInstanceGroup();
         if (instance.getState() == UserRequest.SUCCESS) {
@@ -417,25 +524,39 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         if (instanceGroup.getState() != UserRequest.SUCCESS) {
             return;
-        } else {
-            instanceGroup.setFinishTime(getSimulation().clock());
         }
-        //instanceGroup的所有实例都已经成功运行完毕
 
+        updateInstanceGroupAfterSuccess(instanceGroup);
+
+        //If the InstanceGroup runs successfully, the UserRequest status information needs to be updated.
+        UserRequest userRequest = instanceGroup.getUserRequest();
+        userRequest.addSuccessGroupNum();
+        if (userRequest.getState() == UserRequest.SUCCESS) {
+            updateUserRequestAfterSuccess(userRequest);
+        }
+    }
+
+    /**
+     * Update the state of the instance group after all instances in the instance group have been successfully run.
+     *
+     * @param instanceGroup the instance group
+     */
+    private void updateInstanceGroupAfterSuccess(InstanceGroup instanceGroup) {
+        //All instances of instanceGroup have been successfully run.
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
         }
+        instanceGroup.setFinishTime(getSimulation().clock());
         getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
 
         UserRequest userRequest = instanceGroup.getUserRequest();
-        //释放Bw资源
-
+        //Release bandwidth resources
         List<InstanceGroup> dstInstanceGroups = userRequest.getInstanceGroupGraph().getDstList(instanceGroup);
         for (InstanceGroup dstInstanceGroup : dstInstanceGroups) {
             if (dstInstanceGroup.getState() == UserRequest.SUCCESS) {
                 double releaseBw = userRequest.getInstanceGroupGraph().getBw(instanceGroup, dstInstanceGroup);
                 getSimulation().getNetworkTopology().releaseBw(instanceGroup.getReceiveDatacenter(), dstInstanceGroup.getReceiveDatacenter(), releaseBw);
-                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(instance.getInstanceGroup().getId(), dstInstanceGroup.getId(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(instanceGroup.getId(), dstInstanceGroup.getId(), getSimulation().clock());
             }
         }
         List<InstanceGroup> srcInstanceGroups = userRequest.getInstanceGroupGraph().getSrcList(instanceGroup);
@@ -443,25 +564,28 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (srcInstanceGroup.getState() == UserRequest.SUCCESS) {
                 double releaseBw = userRequest.getInstanceGroupGraph().getBw(srcInstanceGroup, instanceGroup);
                 getSimulation().getNetworkTopology().releaseBw(srcInstanceGroup.getReceiveDatacenter(), instanceGroup.getReceiveDatacenter(), releaseBw);
-                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(srcInstanceGroup.getId(), instance.getInstanceGroup().getId(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(srcInstanceGroup.getId(), instanceGroup.getId(), getSimulation().clock());
             }
-        }
-
-        //如果InstanceGroup成功运行了就需要更新UserRequest状态信息
-        userRequest.addSuccessGroupNum();
-        if (userRequest.getState() == UserRequest.SUCCESS) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}: userRequest{} successfully completed running.", getSimulation().clockStr(), getName());
-            }
-            userRequest.setFinishTime(getSimulation().clock());
-            getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
         }
     }
 
     /**
-     * Place instances on the host based on the results of the {@link IntraScheduler} and the strategy of the {@link ConflictHandler}.
+     * Update the state of the user request after all instance groups in the user request have been successfully run.
      *
-     * @param evt
+     * @param userRequest the user request
+     */
+    private void updateUserRequestAfterSuccess(UserRequest userRequest) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{}: userRequest{} successfully completed running.", getSimulation().clockStr(), getName());
+        }
+        userRequest.setFinishTime(getSimulation().clock());
+        getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
+    }
+
+    /**
+     * Use a {@link ConflictHandler} to check for conflicts before allocating resources and allocate the appropriate instance to the host.
+     * The reason for using global intraSchedulerResults is to be able to handle the scheduling results of multiple intra-schedulers at the same time
+     * @param evt the event
      */
     private void processPreAllocateResource(SimEvent evt) {
         LOGGER.info("{}: {}'s all intraScheduler results have been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
@@ -469,25 +593,27 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         Map<IntraScheduler, List<Instance>> failedAllocatedRes = allocateResource(allocateResult.getSuccessRes());
 
-        allocateResult.getFailRes().putAll(failedAllocatedRes);
+        allocateResult.addAllocateFailRes(failedAllocatedRes);
 
-        for (Map.Entry<IntraScheduler, List<Instance>> entry : allocateResult.getFailRes().entrySet()) {
-            IntraScheduler intraScheduler = entry.getKey();
-            List<Instance> failedInstances = entry.getValue();
-
-            if (!failedInstances.isEmpty()) {
-                innerScheduleFailed(failedInstances, intraScheduler, true);
-            }
+        for (IntraScheduler intraScheduler : allocateResult.getFailedOutdatedResultMap().keySet()) {
+            List<Instance> failedInstances = allocateResult.getFailedOutdatedResultMap().get(intraScheduler).getFailRes();
+            Set<UserRequest> outDatedUserRequests = allocateResult.getFailedOutdatedResultMap().get(intraScheduler).getOutdatedRequests();
+            intraScheduleFailed(failedInstances, intraScheduler, true, outDatedUserRequests);
         }
 
         for (IntraSchedulerResult intraSchedulerResult : this.intraSchedulerResults) {
             IntraScheduler intraScheduler = intraSchedulerResult.getIntraScheduler();
-            startInnerScheduling(intraScheduler);
+            startIntraScheduling(intraScheduler);
         }
 
         this.intraSchedulerResults.clear();
     }
 
+    /**
+     * Allocate resources to the host based on the results of the {@link IntraScheduler}.
+     * @param allocatedResult the result of the resource allocation from the {@link IntraScheduler}
+     * @return the failed instances
+     */
     private Map<IntraScheduler, List<Instance>> allocateResource(Map<IntraScheduler, List<Instance>> allocatedResult) {
         LOGGER.info("{}: {} is allocate resource.", getSimulation().clockStr(), getName());
         Map<Integer, List<Instance>> successAllocatedInstances = new HashMap<>();
@@ -511,9 +637,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
                 updateAfterInstanceAllocated(instance);
 
-                int lifeTime = instance.getLifeTime();
+                int lifeTime = instance.getLifecycle();
                 successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
                 successAllocatedInstances.get(lifeTime).add(instance);
+
+                if (lifeTime < 0) {
+                    calculateCost(instance);
+                }
             }
         }
 
@@ -523,6 +653,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return failedInstances;
     }
 
+    /**
+     * Send the {@link CloudSimTag#END_INSTANCE_RUN} event to itself after the instance has been allocated.
+     * Note that the same lifeTime instances are sent in the same event.
+     * @param finishInstances
+     */
     private void sendFinishInstanceRunEvt(Map<Integer, List<Instance>> finishInstances) {
         for (Map.Entry<Integer, List<Instance>> entry : finishInstances.entrySet()) {
             int lifeTime = entry.getKey();
@@ -539,18 +674,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      *
      * @param evt the data of the event is {@link IntraSchedulerResult}
      */
-    private void processInnerScheduleEnd(SimEvent evt) {
+    private void processIntraScheduleEnd(SimEvent evt) {
         if (evt.getData() instanceof IntraSchedulerResult intraSchedulerResult) {
             IntraScheduler intraScheduler = intraSchedulerResult.getIntraScheduler();
 
             LOGGER.info("{}: {}'s {} ends scheduling instances.", getSimulation().clockStr(), getName(), intraScheduler.getName());
 
-            if (!statesManager.isInLatestSmallSynGap(intraSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
+            if (!statesManager.isInLatestPartitionSynGap(intraSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
                 statesManager.revertHostState(intraSchedulerResult);
             }
 
             if (!intraSchedulerResult.isFailedInstancesEmpty()) {
-                innerScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false);
+                intraScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false, intraSchedulerResult.getOutDatedUserRequests());
             }
             intraSchedulerResults.add(intraSchedulerResult);
             if (!intraSchedulerResult.isScheduledInstancesEmpty()) {
@@ -558,15 +693,16 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             } else {
                 isIntraSchedulerBusy.put(intraScheduler, false);
             }
-//            if (intraScheduler.getNewInstanceQueueSize() != 0) {
-//                send(this, 0, CloudSimTag.INNER_SCHEDULE_BEGIN, intraScheduler);
-//            } else {
-//                isIntraSchedulerBusy.put(intraScheduler, false);
-//            }
         }
     }
 
-    private void startInnerScheduling(IntraScheduler intraScheduler) {
+    /**
+     * Start the inter-scheduling process of an intra-scheduler.
+     * Note that the inter-scheduling process is only started when the intra-scheduler is not busy and the queue is not empty.
+     *
+     * @param intraScheduler the intra-scheduler
+     */
+    private void startIntraScheduling(IntraScheduler intraScheduler) {
         if (intraScheduler.isQueuesEmpty()) {
             isIntraSchedulerBusy.put(intraScheduler, false);
         } else if (!intraScheduler.isQueuesEmpty()) {
@@ -576,11 +712,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     /**
      * Call the {@link IntraScheduler} to allocate {@link Instance} to various hosts.
-     * It will send INNER_SCHEDULE_END after {@link IntraScheduler#getScheduleCostTime()}
+     * It will send {CloudSimTag#INTRA_SCHEDULE_END} to itself after the scheduling is completed.
      *
-     * @param evt
+     * @param evt the event
      */
-    private void processInnerScheduleBegin(SimEvent evt) {
+    private void processIntraScheduleBegin(SimEvent evt) {
         if (evt.getData() instanceof IntraScheduler intraScheduler) {
             IntraSchedulerResult innerScheduleResult = intraScheduler.schedule();
 
@@ -592,10 +728,34 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-    private void innerScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState) {
-        Iterator<Instance> instanceIterator = instances.iterator();
-        Set<UserRequest> failedUserRequests = new HashSet<>();
+    /**
+     * Handle the failed scheduling results of the {@link InterScheduler}.
+     * Note that there is no check for scheduling timeout requests here.
+     * @param instances the failed instances
+     * @param intraScheduler the scheduler corresponding to this scheduling result
+     * @param isNeedRevertSelfHostState whether to revert the state of the host
+     */
+    private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState) {
+        Set<UserRequest> outDatedUserRequests = new HashSet<>();
+        intraScheduleFailed(instances, intraScheduler, isNeedRevertSelfHostState, outDatedUserRequests);
+    }
 
+    /**
+     * Handle the failed scheduling results of the {@link InterScheduler}.
+     * The reason why the host state needs to be restored is that after each scheduler schedules an instance, it will default to a successful schedule, and then modify the host state it maintains.
+     * Therefore, if the subsequently scheduled instance fails when handling the scheduling conflict, the host state needs to be reverted.
+     * @param instances the failed instances
+     * @param intraScheduler the scheduler corresponding to this scheduling result
+     * @param isNeedRevertSelfHostState whether to revert the state of the host
+     * @param outDatedUserRequests the outdated user requests that has exceeded the scheduling time limit
+     */
+    private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
+        Set<UserRequest> failedUserRequests = outDatedUserRequests;
+        for (UserRequest userRequest : outDatedUserRequests) {
+            userRequest.addFailReason("outDated");
+        }
+
+        Iterator<Instance> instanceIterator = instances.iterator();
         while (instanceIterator.hasNext()) {
             Instance instance = instanceIterator.next();
             if (instance.getExpectedScheduleHostId() != -1) {
@@ -615,7 +775,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         intraScheduler.addInstance(instances, true);
 
         if (isNeedRevertSelfHostState) {
-            statesManager.revertSelftHostState(instances, intraScheduler);
+            statesManager.revertSelfHostState(instances, intraScheduler);
         }
 
         if(instances.size()>0){
@@ -629,10 +789,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * Retrieve instances from the {@link InstanceQueue} and publish them to various {@link IntraScheduler}s.
      *
-     * @param evt
+     * @param evt the event
      */
     private void processLoadBalanceSend(SimEvent evt) {
-        List<Instance> instances = instanceQueue.getAllItem(true);
+        List<Instance> instances = instanceQueue.getAllItem();
         if (instances.size() != 0) {
             Set<IntraScheduler> sentIntraScheduler = loadBalance.sendInstances(instances);
             if (instanceQueue.size() > 0) {
@@ -647,17 +807,29 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Handle user requests that fail inter-scheduler scheduling.
+     * This includes both scheduling failures due to insufficient resources and other reasons, and user requests that fail due to exceeding the scheduling time limit.
+     *
+     * @param evt the event
+     */
     private void processScheduleToDcHostResponse(SimEvent evt) {
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
-            List<InstanceGroup> failedInstanceGroups = (List<InstanceGroup>) evt.getData();
-            handleFailedInterScheduling(failedInstanceGroups);
+            FailedOutdatedResult<InstanceGroup> failedOutdatedResult = (FailedOutdatedResult<InstanceGroup>) evt.getData();
+            handleFailedInterScheduling(failedOutdatedResult.getFailRes(), failedOutdatedResult.getOutdatedRequests());
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedInstanceGroups.size());
+                LOGGER.debug("{}: {}'s {} failed to schedule {} instanceGroups,it need retry soon.", getSimulation().clockStr(), getName(), interScheduler.getName(), failedOutdatedResult.getFailRes().size());
             }
         }
     }
 
+    // TODO This part of the logic needs to be checked
+
+    /**
+     * Processes the scheduling results of the cloud administrator's centralized inter-scheduler scheduling specific to the hosts in the data center.
+     * @param evt the event
+     */
     private void processScheduleToDcHost(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroupsTmp) {
             List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
@@ -666,10 +838,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             List<InstanceGroup> failedInstanceGroups = allocateBwForInstanceGroups(instanceGroups);
             instanceGroups.removeAll(failedInstanceGroups);
 
-            List<InstanceGroup> conflictedInstanceGroup = conflictHandler.filterConflictedInstanceGroup(instanceGroups);
-            instanceGroups.removeAll(conflictedInstanceGroup);
-            failedInstanceGroups.addAll(conflictedInstanceGroup);
-            revertBwForInstanceGroups(conflictedInstanceGroup);
+            FailedOutdatedResult<InstanceGroup> conflictedRes = conflictHandler.filterConflictedInstanceGroup(instanceGroups);
+            Set<UserRequest> outDatedUserRequests = conflictedRes.getOutdatedRequests();
+            instanceGroups.removeAll(conflictedRes.getFailRes());
+            instanceGroups.removeIf(instanceGroup -> outDatedUserRequests.contains(instanceGroup.getUserRequest()));
+            failedInstanceGroups.addAll(conflictedRes.getFailRes());
+            revertBwForInstanceGroups(instanceGroups, conflictedRes.getFailRes(), outDatedUserRequests);
 
             List<InstanceGroup> allocateFailedInstanceGroups = allocateResourceForInstanceGroups(instanceGroups);
             instanceGroups.removeAll(allocateFailedInstanceGroups);
@@ -677,8 +851,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             revertBwForInstanceGroups(allocateFailedInstanceGroups);
 
             SimEntity source = evt.getSource();
-            if (failedInstanceGroups.size() > 0) {
-                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, failedInstanceGroups);
+            if (failedInstanceGroups.size() > 0 || conflictedRes.getOutdatedRequests().size() > 0) {
+                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, new FailedOutdatedResult<InstanceGroup>(failedInstanceGroups, outDatedUserRequests));
             } else {
                 send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_OK, null);
             }
@@ -693,6 +867,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Reverting the bandwidth occupied by an instance group that failed to schedule
+     * @param instanceGroups the failed instance groups
+     */
     private void revertBwForInstanceGroups(List<InstanceGroup> instanceGroups) {
         for (InstanceGroup instanceGroup : instanceGroups) {
             revertBwForInstanceGroup(instanceGroup);
@@ -700,6 +878,31 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Reverting the bandwidth occupied by an instance group that failed to schedule
+     * @param instanceGroups the instance groups that have been successfully scheduled
+     * @param failedInstanceGroups the failed instance groups
+     * @param outDatedUserRequests  the failed user requests that has exceeded the scheduling time limit
+     */
+    private void revertBwForInstanceGroups(List<InstanceGroup> instanceGroups, List<InstanceGroup> failedInstanceGroups, Set<UserRequest> outDatedUserRequests) {
+        for (InstanceGroup instanceGroup : failedInstanceGroups) {
+            revertBwForInstanceGroup(instanceGroup);
+            instanceGroup.setReceiveDatacenter(Datacenter.NULL);
+        }
+
+        //Revert the bandwidth occupied by the instance group that has been successfully scheduled but the user request has exceeded the scheduling time limit
+        for (InstanceGroup instanceGroup : instanceGroups) {
+            if (outDatedUserRequests.contains(instanceGroup.getUserRequest())) {
+                revertBwForInstanceGroup(instanceGroup);
+                instanceGroup.setReceiveDatacenter(Datacenter.NULL);
+            }
+        }
+    }
+
+    /**
+     * Reverting the bandwidth occupied by an instance group that failed to schedule
+     * @param instanceGroup the instance group
+     */
     private void revertBwForInstanceGroup(InstanceGroup instanceGroup) {
         UserRequest userRequest = instanceGroup.getUserRequest();
         List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
@@ -721,12 +924,21 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Record the time when the instance group is received and the state of the instance group
+     * @param instanceGroups the instance groups
+     */
     private void markAndRecordInstanceGroups(List<InstanceGroup> instanceGroups) {
         instanceGroups.forEach(instanceGroup -> instanceGroup.setReceivedTime(getSimulation().clock()));
         instanceGroups.forEach(instanceGroup -> instanceGroup.setState(UserRequest.SCHEDULING));
         getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
     }
 
+    /**
+     * Allocate bandwidth for the instance group
+     * @param instanceGroups the instance groups
+     * @return the instance groups which failed to allocate bandwidth
+     */
     private List<InstanceGroup> allocateBwForInstanceGroups(List<InstanceGroup> instanceGroups) {
         List<InstanceGroup> failedInstanceGroups = new ArrayList<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
@@ -739,6 +951,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return failedInstanceGroups;
     }
 
+    /**
+     * Allocate resources for all instances in the instance groups
+     * @param instanceGroups the instance groups
+     * @return the instance groups which failed to allocate resources
+     */
     private List<InstanceGroup> allocateResourceForInstanceGroups(List<InstanceGroup> instanceGroups) {
         List<InstanceGroup> failedInstanceGroups = new ArrayList<>();
         Map<Integer, List<Instance>> lifeInstancesMap = new HashMap<>();
@@ -758,7 +975,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
                 updateAfterInstanceAllocated(instance);
 
-                int lifeTime = instance.getLifeTime();
+                int lifeTime = instance.getLifecycle();
                 lifeInstancesMap.putIfAbsent(lifeTime, new ArrayList<>());
                 lifeInstancesMap.get(lifeTime).add(instance);
             }
@@ -769,6 +986,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return failedInstanceGroups;
     }
 
+    /**
+     * Update the state, the start time and the expected host of the instance after the instance is allocated
+     * @param instance the instance
+     */
     private void updateAfterInstanceAllocated(Instance instance) {
         instance.setState(UserRequest.RUNNING);
         instance.setStartTime(getSimulation().clock());
@@ -776,6 +997,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instance.setExpectedScheduleHostId(-1);
     }
 
+    /**
+     * Accepts relatives that cannot be forwarded to other data centers and adds all instances in the request to the queue
+     * and attempts to start scheduling with the intra-scheduler.
+     * @param evt the event
+     */
     private void processScheduleToDcNoForward(SimEvent evt) {
         if (evt.getData() instanceof List<?> instanceGroupsTmp) {
             List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
@@ -796,18 +1022,28 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Delete the failed instance group and set the received time of the instance group
+     * @param instanceGroups the instance groups
+     */
     private void deleteFailedInstanceGroupAndSetReceivedTime(List<InstanceGroup> instanceGroups) {
         Iterator<InstanceGroup> iterator = instanceGroups.iterator();
         while (iterator.hasNext()) {
             InstanceGroup instanceGroup = iterator.next();
             if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
-                iterator.remove(); // 使用迭代器的remove()方法安全地删除元素
+                iterator.remove();
             } else {
                 instanceGroup.setReceivedTime(getSimulation().clock());
             }
         }
     }
 
+    /**
+     * Allocate bandwidth for the instance group
+     * @param instanceGroup the instance group
+     * @param receiveDatacenter the data center that receives the instance group
+     * @return whether the bandwidth allocation is successful
+     */
     private boolean allocateBwForGroup(InstanceGroup instanceGroup, Datacenter receiveDatacenter) {
         UserRequest userRequest = instanceGroup.getUserRequest();
         List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
@@ -854,6 +1090,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * When experimenting in a single data center scenario, user requests are accepted.
+     * Note that since there is no inter-datacenter scheduling, all instances in user requests are directly put into the {@link InstanceQueue}
+     * @param userRequests the user requests need to be accepted
+     */
     private void acceptUserRequestForSingleDatacenter(List<UserRequest> userRequests){
         instanceQueue.add(userRequests);
         userRequests.forEach(userRequest -> {
@@ -867,6 +1108,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
     }
 
+    /**
+     * When experimenting in a multi-data center scenario, user requests are accepted.
+     * Note that since there is inter-datacenter scheduling, all instances in user requests are directly put into the {@link InstanceGroupQueue}.
+     * @param userRequestsTmp the user requests need to be accepted
+     */
     private void acceptUserRequestForMultiDatacenters(List<?> userRequestsTmp){
         if (userRequestsTmp.get(0) instanceof UserRequest) {
             List<UserRequest> userRequests = (List<UserRequest>) userRequestsTmp;
@@ -878,9 +1124,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             interScheduler.addInstanceGroups(instanceGroups, false);
         }
 
-        if (!isGroupFilterDcBusy) {
+        if (!isInterSchedulerBusy) {
             sendNow(this, CloudSimTag.INTER_SCHEDULE_BEGIN);
-            isGroupFilterDcBusy = true;//放在这里可以防止同一时间多次触发
+            isInterSchedulerBusy = true;//放在这里可以防止同一时间多次触发
         }
     }
 
@@ -904,7 +1150,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             sendInterScheduleResult(interSchedulerResult);
 
-            handleFailedInterScheduling(interSchedulerResult.getFailedInstanceGroups());
+            handleFailedInterScheduling(interSchedulerResult.getFailedInstanceGroups(), interSchedulerResult.getOutDatedUserRequests());
 
             LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getInstanceGroupNum());
 
@@ -914,19 +1160,31 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Determine if the scheduling result of the data center itself is empty
+     * @param interSchedulerResult the result of the inter-scheduler
+     * @return whether the scheduling result of the data center itself is empty
+     */
     private boolean isScheduleToSelfEmpty(InterSchedulerResult interSchedulerResult) {
         Map<Datacenter, List<InstanceGroup>> scheduledResultMap = interSchedulerResult.getScheduledResultMap();
         return !scheduledResultMap.containsKey(this) || scheduledResultMap.get(this).size() == 0;
     }
 
+    /**
+     * Try to start the inter-scheduling process if the queue is not empty.
+     */
     private void startInterScheduling() {
         if (interScheduler.isQueuesEmpty()) {
-            isGroupFilterDcBusy = false;
+            isInterSchedulerBusy = false;
         } else {
             send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, null);
         }
     }
 
+    /**
+     * Send scheduling results of the inter-scheduler to the corresponding data center.
+     * @param interSchedulerResult the result of the inter-scheduler
+     */
     private void sendInterScheduleResult(InterSchedulerResult interSchedulerResult) {
         if (interSchedulerResult.getTarget() == InterSchedulerSimple.MIXED_TARGET) {
             Map<Datacenter, List<InstanceGroup>> scheduledResultMap = interSchedulerResult.getScheduledResultMap();
@@ -950,13 +1208,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Add the data center to the forward history of the instance group
+     * @param instanceGroups the instance groups
+     */
     private void addSelfInForwardHistory(List<InstanceGroup> instanceGroups) {
         instanceGroups.forEach(instanceGroup -> instanceGroup.addForwardDatacenterIdHistory(getId()));
     }
 
-    private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups) {
+    /**
+     * Handle the failed scheduling results of the inter-scheduler.
+     * @param failedInstanceGroups the failed instance groups
+     * @param outDatedUserRequests the failed user requests that has exceeded the scheduling time limit
+     */
+    private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups, Set<UserRequest> outDatedUserRequests) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
-        Set<UserRequest> failedUserRequests = new HashSet<>();
+        Set<UserRequest> failedUserRequests = outDatedUserRequests;
+
+        for (UserRequest userRequest : outDatedUserRequests) {
+            userRequest.addFailReason("outDated");
+        }
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {
             //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
@@ -981,19 +1252,29 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Handle the failed scheduling results of the inter-scheduler.
+     * Noted that there is no check for scheduling timeout requests here.
+     * @param failedInstanceGroups the failed instance groups
+     */
+    private void handleFailedInterScheduling(List<InstanceGroup> failedInstanceGroups) {
+        Set<UserRequest> outDatedUserRequests = new HashSet<>();
+        handleFailedInterScheduling(failedInstanceGroups, outDatedUserRequests);
+    }
+
     @Override
     public boolean isCentralizedInterSchedule() {
-        return centralizedInterSchedule;
+        return centralizedInterScheduleFlag;
     }
 
     @Override
     public double getEstimatedTCO(InstanceGroup instanceGroup) {
         double tco = 0;
         for (Instance instance : instanceGroup.getInstances()) {
-            tco += instance.getCpu() * unitCpuPrice * instance.getLifeTime() / 1000.0
-                    + instance.getRam() * unitRamPrice * instance.getLifeTime() / 1000.0
-                    + instance.getStorage() * unitStoragePrice * instance.getLifeTime() / 1000.0
-                    + instance.getBw() * unitBwPrice * instance.getLifeTime() / 1000.0
+            tco += instance.getCpu() * pricePerCpuPerSec * instance.getLifecycle() / 1000.0
+                    + instance.getRam() * pricePerRamPerSec * instance.getLifecycle() / 1000.0
+                    + instance.getStorage() * pricePerStoragePerSec * instance.getLifecycle() / 1000.0
+                    + instance.getBw() * pricePerBwPerSec * instance.getLifecycle() / 1000.0
                     + (double) instance.getCpu() / statesManager.getMaxCpuCapacity() * unitRackPrice;
         }
         return tco;
@@ -1008,11 +1289,5 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public int compareTo(SimEntity o) {
         return Comparator.comparing(SimEntity::getId).compare(this, o);
-    }
-
-    private void updateTCO() {
-        TCOEnergy = statesManager.getTotalCpuInUse() * unitCpuPrice
-                + statesManager.getTotalStorageInUse() * unitStoragePrice;
-        TCORack = Math.ceil((double) statesManager.getTotalCpuInUse() / cpuNumPerRack) * unitRackPrice;
     }
 }

@@ -15,11 +15,11 @@ import java.util.Set;
  * This class implements the interface {@link LoadBalance}.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class LoadBalanceRound implements LoadBalance {
     /**
-     * the datacenter to be load balanced.
+     * the data center that the load balancer belongs to.
      **/
     @Getter
     Datacenter datacenter;
@@ -36,6 +36,14 @@ public class LoadBalanceRound implements LoadBalance {
      **/
     int lastInnerSchedulerId = 0;
 
+    /**
+     * Overrides the method to send instances to intra schedulers.
+     * The method divides all instances into fractions of the number of intra-schedulers,
+     * and then distributes them to each intra-scheduler.
+     *
+     * @param instances List of instances to be sent to intra schedulers.
+     * @return Set of intra schedulers to which instances were sent.
+     */
     @Override
     public Set<IntraScheduler> sendInstances(List<Instance> instances) {
         Set<IntraScheduler> sentIntraSchedulers = new HashSet<>();

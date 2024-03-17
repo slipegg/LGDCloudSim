@@ -7,6 +7,13 @@ import org.cpnsim.record.SqlRecord;
 
 import java.util.function.Predicate;
 
+/**
+ * A class that implements the Null Object Design Pattern for {@link Simulation}
+ * class.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @see Simulation#NULL
+ */
 public class SimulationNull implements Simulation {
     @Override public double clock() { return 0.0; }
 
@@ -121,11 +128,6 @@ public class SimulationNull implements Simulation {
     }
 
     @Override
-    public double getTCO() {
-        return 0;
-    }
-
-    @Override
     public boolean isSingleDatacenterFlag() {
         return false;
     }
@@ -133,5 +135,15 @@ public class SimulationNull implements Simulation {
     @Override
     public Simulation setSingleDatacenterFlag(boolean isSingleDatacenter) {
         return  this;
+    }
+
+    @Override
+    public Simulation setDbName(String dbName) {
+        return null;
+    }
+
+    @Override
+    public String getDbName() {
+        return null;
     }
 }

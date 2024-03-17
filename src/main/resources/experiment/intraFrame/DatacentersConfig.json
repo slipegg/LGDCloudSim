@@ -17,7 +17,7 @@
     }
   ],
   "synchronizationGap": 100,
-  "innerSchedulers": [
+  "intraSchedulers": [
     {
       "firstPartitionIndex": 0,
       "type": "leastRequested"

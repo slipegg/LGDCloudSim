@@ -18,12 +18,12 @@ public class IntraFrameExample {
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraFrame/generateRequestParameter.csv";
-    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/two-level/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/shared-state-one-partition/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/monolithic/DatacentersConfig.json";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/shared-state-mul-partitions-all-random/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrame/shared-state-mul-partitions-partition-random/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraFrameSmall/generateRequestParameter.csv";
+    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/two-level/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-one-partition/DatacentersConfig.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/monolithic/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-mul-partitions-all-random/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-mul-partitions-partition-random/DatacentersConfig.json";
 
     public static void main(String[] args) {
         new IntraFrameExample();

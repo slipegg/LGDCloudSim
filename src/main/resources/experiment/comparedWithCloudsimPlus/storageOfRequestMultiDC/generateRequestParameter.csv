@@ -1,10 +1,12 @@
 Parament Name,Parament
-FromDcPercent,"[1]"
-RequestPerNumMin,100
-RequestPerNumMax,100
-RequestTimeIntervalMin,100
-RequestTimeIntervalMax,100
-RequestTimes,200
+DcDistribution,"{""1"":{""United States"":1}}"
+RequestPerNumMin,1000000
+RequestPerNumMax,1000000
+RequestTimeIntervalMin,500
+RequestTimeIntervalMax,500
+RequestTimes,1
+ScheduleDelayLimitMin,1000
+ScheduleDelayLimitMax,1000
 RequestGroupNumMin,1
 RequestGroupNumMax,1
 GroupInstanceNumMin,1

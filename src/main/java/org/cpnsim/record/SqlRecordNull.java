@@ -7,12 +7,14 @@ import org.cpnsim.request.UserRequest;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * It is an implementation of the SqlRecord interface.
+ * If you do not want to record the simulation information, you can use this class.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class SqlRecordNull implements SqlRecord {
-    private double instanceDelaySum = 0.0;
-    private long instanceNum = 0L;
-
-    private double interScheduleTime = 0.0;
-
     public SqlRecordNull() {
     }
 
@@ -27,7 +29,7 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
-    public void recordUserRequestsSubmitinfo(List<UserRequest> userRequests) {
+    public void recordUserRequestsSubmitInfo(List<UserRequest> userRequests) {
 
     }
 
@@ -68,12 +70,6 @@ public class SqlRecordNull implements SqlRecord {
 
     @Override
     public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
-        for (List<Instance> instanceList : instances.values()) {
-            for (Instance instance : instanceList) {
-                instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
-                instanceNum++;
-            }
-        }
     }
 
     @Override
@@ -88,12 +84,6 @@ public class SqlRecordNull implements SqlRecord {
 
     @Override
     public void recordInstancesAllInfo(List<Instance> instances) {
-        for (Instance instance : instances) {
-            if (instance.getStartTime() == -1) {
-                instanceDelaySum += instance.getFinishTime() - instance.getInstanceGroup().getReceivedTime();
-                instanceNum++;
-            }
-        }
     }
 
     @Override
@@ -102,29 +92,7 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
-    public double getAvgInstanceSubmitDelay() {
-        System.out.println("instanceDelaySum: " + instanceDelaySum);
-        System.out.println("instanceNum: " + instanceNum);
-        return instanceDelaySum / instanceNum;
-    }
-
-    @Override
     public void close() {
-
-    }
-
-    @Override
-    public void addInterScheduleTime(double interScheduleTime) {
-        this.interScheduleTime += interScheduleTime;
-    }
-
-    @Override
-    public double getInterScheduleTime() {
-        return this.interScheduleTime;
-    }
-
-    @Override
-    public void recordInterScheduleTime(double time, double costTime, int traversalTime) {
 
     }
 }

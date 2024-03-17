@@ -6,19 +6,55 @@ import org.cpnsim.core.SimEntity;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.UserRequest;
 
+/**
+ * NetworkTopologySimple is a simple implementation of the network topology.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class NetworkTopologySimple implements NetworkTopology {
+    /**
+     * The region delay manager.
+     */
     RegionDelayManager regionDelayManager;
+
+    /**
+     * The delay dynamic model.
+     */
     @Setter
     DelayDynamicModel delayDynamicModel;
+
+    /**
+     * The area delay manager.
+     */
     AreaDelayManager areaDelayManager;
+
+    /**
+     * The data center bandwidth manager.
+     */
     DcBwManager dcBwManager;
 
+    /**
+     * Construct a network topology with the region delay file name, the area delay file name and the data center bandwidth file name.
+     *
+     * @param regionDelayFileName the region delay file name.
+     * @param areaDelayFileName   the area delay file name.
+     * @param dcBwFileName        the data center bandwidth file name.
+     */
     public NetworkTopologySimple(String regionDelayFileName, String areaDelayFileName, String dcBwFileName) {
         this.regionDelayManager = new RegionDelayManager(regionDelayFileName);
         this.areaDelayManager = new AreaDelayManager(areaDelayFileName, regionDelayManager);
         this.dcBwManager = new DcBwManager(dcBwFileName);
     }
 
+    /**
+     * Construct a network topology with the region delay file name, the area delay file name and the data center bandwidth file name.
+     *
+     * @param regionDelayFileName the region delay file name.
+     * @param areaDelayFileName   the area delay file name.
+     * @param dcBwFileName        the data center bandwidth file name.
+     * @param isDirected          true if the data center bandwidth is directed, false otherwise.
+     */
     public NetworkTopologySimple(String regionDelayFileName, String areaDelayFileName, String dcBwFileName, boolean isDirected) {
         this.regionDelayManager = new RegionDelayManager(regionDelayFileName);
         this.areaDelayManager = new AreaDelayManager(areaDelayFileName, regionDelayManager);
@@ -43,9 +79,9 @@ public class NetworkTopologySimple implements NetworkTopology {
     @Override
     public double getDynamicDelay(SimEntity src, SimEntity dst, double time) {
         double standardDelay = getDelay(src, dst);
-        if(standardDelay == 0){
+        if (standardDelay == 0) {
             return 0;
-        }else{
+        } else {
             if (delayDynamicModel == null) {
                 return standardDelay;
             } else {

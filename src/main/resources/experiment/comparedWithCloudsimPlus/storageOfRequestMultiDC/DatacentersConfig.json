@@ -1,0 +1,3716 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "centerScheduler": {
+        "type": "round",
+        "target": "dc",
+        "isSupportForward":false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 5,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 6,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 7,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 8,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 9,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 10,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 11,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 12,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 13,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 14,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 15,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 16,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 17,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 18,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 19,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 20,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 21,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 22,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 23,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 24,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 25,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 26,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 27,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 28,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 29,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 30,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 31,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 32,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 33,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 34,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 35,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 36,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 37,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 38,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 39,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 40,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 41,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 42,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 43,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 44,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 45,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 46,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 47,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 48,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 49,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 50,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 51,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 52,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 53,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 54,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 55,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 56,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 57,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 58,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 59,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 60,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 61,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 62,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 63,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 64,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 65,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 66,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 67,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 68,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 69,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 70,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 71,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 72,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 73,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 74,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 75,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 76,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 77,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 78,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 79,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 80,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 81,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 82,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 83,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 84,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 85,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 86,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 87,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 88,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 89,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 90,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 91,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 92,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 93,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 94,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 95,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 96,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 97,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 98,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 99,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 100,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          }
+        ]
+      },
+      "datacenters": [
+        {
+          "id": 1,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 2,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 3,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 4,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 5,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 6,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 7,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 8,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 9,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 10,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 11,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 12,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 13,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 14,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 15,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 16,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 17,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 18,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 19,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 20,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 21,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 22,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 23,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 24,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 25,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 26,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 27,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 28,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 29,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 30,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 31,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 32,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 33,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 34,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 35,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 36,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 37,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 38,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 39,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 40,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 41,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 42,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 43,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 44,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 45,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 46,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 47,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 48,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 49,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 50,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 51,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 52,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 53,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 54,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 55,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 56,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 57,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 58,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 59,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 60,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 61,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 62,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 63,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 64,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 65,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 66,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 67,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 68,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 69,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 70,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 71,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 72,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 73,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 74,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 75,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 76,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 77,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 78,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 79,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 80,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 81,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 82,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 83,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 84,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 85,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 86,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 87,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 88,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 89,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 90,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 91,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 92,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 93,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 94,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 95,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 96,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 97,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 98,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 99,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 100,
+          "region": "us-east1",
+          "hostNum": 1000,
+          "partitions": [
+            {
+              "length": 1000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 10,
+              "ram": 10,
+              "storage": 10,
+              "bw": 10,
+              "startId": 0,
+              "length": 1000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "FirstFit"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        }
+      ]
+    }
+  ]
+}

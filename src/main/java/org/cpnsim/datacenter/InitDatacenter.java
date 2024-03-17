@@ -18,11 +18,96 @@ import java.util.*;
 import org.slf4j.Logger;
 
 /**
- * A class to initialize datacenters.
- * All methods are static.
+ * A class to initialize datacenters from a json file.
+ * A simple example of the json file is as follows, the iter-architecture is centralized-two stage:
+ * {
+ *    "collaborations": // A list of collaboration zones
+ *    [
+ *      {
+ *        "id": 1, // The id of the collaboration zone
+ *        "centerScheduler": // The center inter-scheduler of the cloud administrator in the collaboration zone. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
+ *        {
+ *          "type": "centralized", // The type of the center inter-scheduler. Inter-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
+ *          "target": "dc", // The target of the center inter-scheduler.
+ *                          // The value can be dc, host or mixed. If the value is dc, the center inter-scheduler only needs to distribute the instanceGroups to the datacenters.
+ *                          // If the value is host, the center inter-scheduler needs to schedule all instances in instanceGroups to the hosts in the datacenter.
+ *                          // If the value is mixed, the center inter-scheduler can distribute some instanceGroups to the datacenters and schedule some instances to the hosts in the datacenter.
+ *                          // Note: now the value of target can only be dc or host, the mixed target is only used for the inter-scheduler of the datacenter.
+ *          "isSupportForward": true // When the target is dc, the value of isSupportForward needs to be set.
+ *                                   // If the value is false, after the instance group is distributed to each data center,
+ *                                   // the instance group cannot be forwarded. If it is true, it can be forwarded again.
+ *          "dcStateSynInfo":
+ *          [
+ *            {
+ *              "dcId": 1, // The id of the datacenter that needs to synchronize the state
+ *              "synInterval": 1500, // The interval of state synchronization, in milliseconds
+ *              "synStateType": "easySimple" // The type of state synchronization. It determines the status that the scheduler can obtain. These types need to be registered in the {@link StatesManager}.
+ *            },
+ *            ...
+ *          ]
+ *        }
+ *        "datacenters": // A list of datacenters in the collaboration zone
+ *        [
+ *          {
+ *              "id": 1, // The id of the datacenter, Note: the id of the datacenter cannot be 0, because 0 is the id of the cloud administrator. And the id of the datacenter should be unique.
+ *              "region": "us-east1", // The region of the datacenter. It's mostly about network.
+ *              "hostNum": 100, // The number of hosts in the datacenter
+ *              "partitions": // The partition information of the datacenter
+ *                [
+ *                  length: 50, // The length of the partition
+ *                  length: 50, // The length of the partition
+ *                ]
+ *              "hostStates": // The state information of the hosts in the datacenter
+ *              [
+ *                {
+ *                   "cpu": 100, // The number of CPU cores of the host
+ *                   "ram": 100, // The size of the RAM of the host, in GB
+ *                   "storage": 1000, // The size of the storage of the host, in GB
+ *                   "bw": 100, // The bandwidth of the host, in Mbps
+ *                   "startId": 0, // The start id of the host state
+ *                   "length": 50 // The number of hosts with the same state
+ *                 }
+ *                 ...
+ *              ]
+ *              "synchronizationGap": 1000, // The interval of state synchronization, in milliseconds
+ *              //TODO intraSchedulers、loadBalancer、resourceAllocateSelector 三者组合关系？什么情况下哪些是必选？
+ *              "intraSchedulers": // The intra-schedulers of the datacenter
+ *              [{
+ *                "firstPartitionId": 0, // The first partition id of the intra-scheduler to synchronize the state. If it is not set, the default value is 0.
+ *                                       // The status synchronization method in the data center is performed by zone,
+ *                                       //and the intra-scheduler will synchronize the status of each partition in turn.
+ *                "type": "simple", // The type of the intra-scheduler. Intra-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
+ *              }],
+ *              "loadBalancer": // The load balancer of the datacenter
+ *              {
+ *                "type": "batch" // The type of the load balancer. Load balancers with different scheduling algorithms need to be registered in the {@link Factory}.
+ *              },
+ *              "resourceAllocateSelector": // The resource allocation selector of the datacenter
+ *              {
+ *                "type": "simple" // The type of the resource allocation selector. Resource allocation selectors with different scheduling algorithms need to be registered in the {@link Factory}.
+ *              }
+ *          },
+ *          ...
+ *          ]
+ *        },
+ *        ...
+ *   ]
+ * }
+ * If you want to set centralized-one-stage scheduling architecture, you need to use center inter-scheduler in collaboration zone and set the target to host.
+ * If you want to set centralized-two-stage scheduling architecture, you need to use center inter-scheduler in collaboration zone and set the target to dc and to set the isSupportForward of the center inter-scheduler to false and set intra-scheduler for each datacenter.
+ * If you want to set distributed-two-stage scheduling architecture, you must not set center inter-scheduler in collaboration zone and set the inter-scheduler for each datacenter and set the target to mixed.
+ * If you want to set mixed-two-stage scheduling architecture, you need to use center inter-scheduler in collaboration zone and set the target to dc and to set the isSupportForward of the center inter-scheduler to true and set inter-scheduler for each datacenter.
+ *
+ * When the research scenario has only one data center and does not require additional inter-data center scheduling components,
+ * you can only define the data center information in json, as follows:
+ * {
+ *     "id": 1, // The id of the datacenter, Note: the id of the datacenter cannot be 0, because 0 is the id of the cloud administrator. And the id of the datacenter should be unique.
+ *     "region": "us-east1", // The region of the datacenter. It's mostly about network.
+ *     ...// Other information for data centers which is similar to above.
+ * }
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class InitDatacenter {
     private static Logger LOGGER = LoggerFactory.getLogger(InitDatacenter.class.getSimpleName());
@@ -36,14 +121,27 @@ public class InitDatacenter {
      **/
     private static Factory factory;
 
+    /**
+     * The id of the inter-scheduler.
+     */
     private static int interSchedulerId = 0;
 
+    /**
+     * The id of the intra-scheduler.
+     */
     private static int intraSchedulerId = 0;
 
+    /**
+     * The id of the datacenter.
+     */
     private static int datacenterId = 1;
 
     /**
-     * Initialize datacenters.
+     * Initialize datacenters with the simulation and factory and the path of the json file.
+     *
+     * @param cpnSim the {@link Simulation} object
+     * @param factory the {@link Factory} object
+     * @param filePath the path of the json file
      **/
     public static void initDatacenters(Simulation cpnSim, Factory factory, String filePath) {
         InitDatacenter.cpnSim = cpnSim;
@@ -57,6 +155,11 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Initialize multiple datacenters scenario.
+     *
+     * @param jsonObject the json object of multiple datacenters scenario
+     */
     private static void initMultiDatacenters(JsonObject jsonObject){
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
@@ -91,6 +194,10 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Initialize single datacenter scenario.
+     * @param jsonObject the json object of single datacenter scenario
+     */
     private static void initSingleDatacenter(JsonObject jsonObject){
         cpnSim.setSingleDatacenterFlag(true);
         CollaborationManager collaborationManager = new CollaborationManagerSimple(cpnSim);
@@ -99,6 +206,12 @@ public class InitDatacenter {
         collaborationManager.addDatacenter(datacenter, collaborationId);
     }
 
+    /**
+     * Initialize the inter-schedulers of the datacenters in the collaboration zone.
+     * @param datacenters the json array of datacenters
+     * @param collaborationId the id of the collaboration zone
+     * @param collaborationManager the {@link CollaborationManager} object
+     */
     private static void initInterSchedulers(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
         for (int j = 0; j < datacenters.size(); j++) {
             JsonObject datacenterJson = datacenters.getJsonObject(j);
@@ -116,6 +229,13 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Initialize the inter-scheduler.
+     * @param interSchedulerJson the json object of the inter-scheduler
+     * @param collaborationId the id of the collaboration zone
+     * @param collaborationManager the {@link CollaborationManager} object
+     * @return the {@link InterScheduler} object
+     */
     private static InterScheduler initInterScheduler(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
         String interSchedulerType = interSchedulerJson.getString("type");
         int target = getInterScheduleTarget(interSchedulerJson);
@@ -130,11 +250,22 @@ public class InitDatacenter {
         return interScheduler;
     }
 
+    /**
+     * Get the target of the inter-scheduler from the json object.
+     * @param centerSchedulerJson the json object of the center inter-scheduler
+     * @return the target of the inter-scheduler
+     */
     private static int getInterScheduleTarget(JsonObject centerSchedulerJson) {
         String targetStr = centerSchedulerJson.getString("target");
         return switchTarget(targetStr);
     }
 
+    /**
+     * Get the target of the inter-scheduler.
+     * It can be dc, host or mixed.
+     * @param targetStr the target string
+     * @return the target of the inter-scheduler
+     */
     private static int switchTarget(String targetStr) {
         return switch (targetStr) {
             case "dc","datacenter" -> InterSchedulerSimple.DC_TARGET;
@@ -144,6 +275,12 @@ public class InitDatacenter {
         };
     }
 
+    /**
+     * Get the interval and type of state synchronization of the datacenter for inter-scheduler from the json object.
+     * @param dcStateSynInfoJson the json object of the state synchronization information of the datacenter
+     * @param collaborationManager the {@link CollaborationManager} object
+     * @return an array of the interval and type of state synchronization
+     */
     private static Object[] getDcStateSynIntervalAndType(JsonObject dcStateSynInfoJson, CollaborationManager collaborationManager) {
         Map<Datacenter, Double> dcStateSynInterval = new HashMap<>();
         Map<Datacenter, String> dcStateSynType = new HashMap<>();
@@ -201,7 +338,7 @@ public class InitDatacenter {
 
         addRegionInfo(datacenter, datacenterJson);
 
-        if(datacenterJson.containsKey("architecture")){
+        if(datacenterJson.containsKey("architecture")){ //TODO 该参数在示例中没有提到
             datacenter.setArchitecture(datacenterJson.getString("architecture"));
         }
 
@@ -210,7 +347,7 @@ public class InitDatacenter {
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         if (isCenterSchedule) {
-            datacenter.setCentralizedInterSchedule(true);
+            datacenter.setCentralizedInterScheduleFlag(true);
         }
         if (isNeedInterSchedulerForDc(isCenterSchedule, target, isSupportForward)) {
             InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, cpnSim, collaborationId, target, false);
@@ -218,7 +355,7 @@ public class InitDatacenter {
             datacenter.setInterScheduler(interScheduler);
         }
 
-        if (isNeedInnerSchedule(isCenterSchedule, target, isSupportForward)) {
+        if (isNeedIntraScheduler(isCenterSchedule, target, isSupportForward)) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
             LoadBalance loadBalance = factory.getLoadBalance(loadBalanceJson.getString("type"));
             datacenter.setLoadBalance(loadBalance);
@@ -237,6 +374,11 @@ public class InitDatacenter {
         return datacenter;
     }
 
+    /**
+     * Add region information and location information to the datacenter.
+     * @param datacenter the {@link Datacenter} object
+     * @param datacenterJson the json object of the datacenter
+     */
     private static void addRegionInfo(Datacenter datacenter, JsonObject datacenterJson) {
         if (datacenterJson.containsKey("region")) {
             String region = datacenterJson.getString("region");
@@ -250,18 +392,35 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Get whether the inter-scheduler is needed for the datacenter.
+     * It is decided by the scheduling architecture.
+     * @param isCenterSchedule whether the center inter-scheduler is needed
+     * @param target the target of the center inter-scheduler
+     * @param isSupportForward whether the center inter-scheduler supports forwarding
+     * @return whether the inter-scheduler is needed for the datacenter
+     */
     private static boolean isNeedInterSchedulerForDc(boolean isCenterSchedule, int target, boolean isSupportForward) {
         return (!cpnSim.isSingleDatacenterFlag())&&((isCenterSchedule && isSupportForward) || (!isCenterSchedule));
     }
 
-    private static boolean isNeedInnerSchedule(boolean isCenterSchedule, int target, boolean isSupportForward) {
+    /**
+     * Get whether the intra-scheduler is needed for the datacenter.
+     * It is decided by the scheduling architecture.
+     *
+     * @param isCenterSchedule whether the center inter-scheduler is needed
+     * @param target           the target of the center inter-scheduler
+     * @param isSupportForward whether the center inter-scheduler supports forwarding
+     * @return
+     */
+    private static boolean isNeedIntraScheduler(boolean isCenterSchedule, int target, boolean isSupportForward) {
         return !((isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET)
                 || (!isCenterSchedule && target == InterSchedulerSimple.MIXED_TARGET)
                 || (isCenterSchedule && target == InterSchedulerSimple.DC_TARGET && isSupportForward));
     }
 
     /**
-     * From a {@link JsonObject} object to get all InnerSchedulers.
+     * From a {@link JsonObject} object to get all IntraSchedulers.
      *
      * @param datacenterJson a {@link JsonObject} object
      * @param partitionNum   the number of partitions
@@ -270,12 +429,12 @@ public class InitDatacenter {
     private static List<IntraScheduler> getIntraSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<IntraScheduler> intraSchedulers = new ArrayList<>();
         int firstPartitionId = 0;
-        for (int k = 0; k < datacenterJson.getJsonArray("innerSchedulers").size(); k++) {
-            JsonObject schedulerJson = datacenterJson.getJsonArray("innerSchedulers").getJsonObject(k);
+        for (int k = 0; k < datacenterJson.getJsonArray("intraSchedulers").size(); k++) {
+            JsonObject schedulerJson = datacenterJson.getJsonArray("intraSchedulers").getJsonObject(k);
             if(schedulerJson.containsKey("firstPartitionId")){
                 firstPartitionId = schedulerJson.getInt("firstPartitionId");
             }else{
-                LOGGER.info("InnerScheduler {} Missing firstPartitionId, defaults to 0", k);
+                LOGGER.info("IntraScheduler {} Missing firstPartitionId, defaults to 0", k);
             }
             IntraScheduler scheduler = factory.getIntraScheduler(schedulerJson.getString("type"), intraSchedulerId++, firstPartitionId, partitionNum);
             intraSchedulers.add(scheduler);
@@ -297,7 +456,6 @@ public class InitDatacenter {
         } else {
             synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
         }
-//        StateManager stateManager = new StateManagerSimple(hostNum, cpnSim, partitionRangesManager, intraSchedulers);
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
         StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
 
@@ -308,6 +466,11 @@ public class InitDatacenter {
         return statesManager;
     }
 
+    /**
+     * Get the maximum CPU and RAM of the hosts in the datacenter.
+     * @param datacenterJson a {@link JsonObject} object
+     * @return an array of the maximum CPU and RAM
+     */
     private static int[] getMaxCpuRam(JsonObject datacenterJson) {
         int maxCpu = 0;
         int maxRam = 0;
@@ -336,7 +499,6 @@ public class InitDatacenter {
         Map<Integer, int[]> ranges = new HashMap<>();
         for (int k = 0; k < datacenterJson.getJsonArray("partitions").size(); k++) {
             JsonObject partition = datacenterJson.getJsonArray("partitions").getJsonObject(k);
-//            partitionRangesManager.addRange(partition.getInt("id"), startId, partition.getInt("length"));
             ranges.put(partitionId, new int[]{startId, startId + partition.getInt("length") - 1});
             startId += partition.getInt("length");
             partitionId++;
@@ -391,15 +553,61 @@ public class InitDatacenter {
         }
     }
 
+    /**
+     * Set the resource unit price of the datacenter.
+     * It includes the unit price of CPU, RAM, rack, storage and bandwidth.
+     * The bandwidth billing type has two types: used and fixed.
+     * If the bandwidth billing type is used, the bandwidth utilization should be set.
+     * It means the bandwidth price is calculated based on the actual amount of network data used.
+     * If the bandwidth billing type is fixed, the bandwidth utilization should not be set.
+     * It means the bandwidth price is calculated based on the actual bandwidth speed used.
+     * @param datacenter the {@link Datacenter} object
+     * @param unitPriceJson the json object of the resource unit price
+     */
     private static void setDatacenterResourceUnitPrice(Datacenter datacenter, JsonObject unitPriceJson) {
         if (unitPriceJson == null) {
             return;
         }
-        double unitCpuPrice = unitPriceJson.getJsonNumber("cpu").doubleValue();
-        double unitRamPrice = unitPriceJson.getJsonNumber("ram").doubleValue();
-        double unitRackPrice = unitPriceJson.getJsonNumber("rack").doubleValue();
-        double unitStoragePrice = unitPriceJson.getJsonNumber("storage").doubleValue();
-        double unitBwPrice = unitPriceJson.getJsonNumber("bw").doubleValue();
+        if (unitPriceJson.containsKey("pricePerCpuPerSec")) {
+            double unitCpuPrice = unitPriceJson.getJsonNumber("pricePerCpuPerSec").doubleValue();
+            datacenter.setPricePerCpuPerSec(unitCpuPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerCpu")) {
+            double unitCpuPrice = unitPriceJson.getJsonNumber("pricePerCpu").doubleValue();
+            datacenter.setPricePerCpu(unitCpuPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerRamPerSec")) {
+            double unitRamPrice = unitPriceJson.getJsonNumber("pricePerRamPerSec").doubleValue();
+            datacenter.setPricePerRamPerSec(unitRamPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerRam")) {
+            double unitRamPrice = unitPriceJson.getJsonNumber("pricePerRam").doubleValue();
+            datacenter.setPricePerRam(unitRamPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerStoragePerSec")) {
+            double unitStoragePrice = unitPriceJson.getJsonNumber("pricePerStoragePerSec").doubleValue();
+            datacenter.setPricePerStoragePerSec(unitStoragePrice);
+        }
+        if (unitPriceJson.containsKey("pricePerStorage")) {
+            double unitStoragePrice = unitPriceJson.getJsonNumber("pricePerStorage").doubleValue();
+            datacenter.setPricePerStorage(unitStoragePrice);
+        }
+        if (unitPriceJson.containsKey("pricePerBwPerSec")) {
+            double unitBwPrice = unitPriceJson.getJsonNumber("pricePerBwPerSec").doubleValue();
+            datacenter.setPricePerBwPerSec(unitBwPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerBw")) {
+            double unitBwPrice = unitPriceJson.getJsonNumber("pricePerBw").doubleValue();
+            datacenter.setPricePerBw(unitBwPrice);
+        }
+        if (unitPriceJson.containsKey("pricePerRack")) {
+            double unitRackPrice = unitPriceJson.getJsonNumber("pricePerRack").doubleValue();
+            datacenter.setUnitRackPrice(unitRackPrice);
+        }
+        if (unitPriceJson.containsKey("HostNumPerRack")) {
+            double hostNumPeerRack = unitPriceJson.getJsonNumber("HostNumPerRack").doubleValue();
+            datacenter.setHostNumPerRack(hostNumPeerRack);
+        }
         if (unitPriceJson.containsKey("bwBillingType")) {
             String bwBillingType = unitPriceJson.getString("bwBillingType");
             if (!Objects.equals(bwBillingType, "used") && !Objects.equals(bwBillingType, "fixed")) {
@@ -419,10 +627,5 @@ public class InitDatacenter {
 
             }
         }
-        datacenter.setUnitCpuPrice(unitCpuPrice);
-        datacenter.setUnitRamPrice(unitRamPrice);
-        datacenter.setUnitRackPrice(unitRackPrice);
-        datacenter.setUnitStoragePrice(unitStoragePrice);
-        datacenter.setUnitBwPrice(unitBwPrice);
     }
 }

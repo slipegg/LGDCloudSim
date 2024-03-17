@@ -7,37 +7,71 @@ import org.cpnsim.datacenter.Datacenter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter@Setter
-public class InstanceGroupSimple implements InstanceGroup{
+/**
+ * InstanceGroupSimple is a simple implementation of the {@link InstanceGroup} interface.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
+
+@Getter
+@Setter
+public class InstanceGroupSimple implements InstanceGroup {
+    /**
+     * The id of the instance group. Each instance group has a unique id.
+     */
     int id;
+
+    /**
+     * The user request to which the instance group belongs.
+     */
     UserRequest userRequest;
+
     List<Instance> instances;
-    int groupType;
+
     int destDatacenterId;
+
     double accessLatency;
+
     @Getter
     long storageSum;
+
     @Getter
     long bwSum;
+
     @Getter
     long cpuSum;
+
     @Getter
     long ramSum;
-    int retryNum;
+
     int retryMaxNum;
+
+    int retryNum;
+
     int state;
+
     Datacenter receiveDatacenter;
+
     double receivedTime;
+
     double finishTime;
+
     int successInstanceNum;
+
     List<Integer> forwardDatacenterIdsHistory;
 
+    /**
+     * Create an instance group with the specified id.
+     * The instances in the instance group are initially empty.
+     *
+     * @param id the id of the instance group.
+     */
     public InstanceGroupSimple(int id) {
         this.id = id;
         this.instances = new ArrayList<>();
-        this.groupType = 0;
         this.retryNum = 0;
-        this.retryMaxNum = 3;
+        this.retryMaxNum = 0;
         this.state = UserRequest.WAITING;
         this.accessLatency = Double.MAX_VALUE;
         this.receiveDatacenter = Datacenter.NULL;
@@ -45,8 +79,15 @@ public class InstanceGroupSimple implements InstanceGroup{
         this.finishTime = -1;
         this.successInstanceNum = 0;
         this.forwardDatacenterIdsHistory = new ArrayList<>();
+        this.destDatacenterId = -1;
     }
 
+    /**
+     * Create an instance group with the specified id and instances.
+     *
+     * @param id        the id of the instance group.
+     * @param instances the instances in the instance group.
+     */
     public InstanceGroupSimple(int id, List<Instance> instances) {
         this(id);
         setInstances(instances);
@@ -60,6 +101,13 @@ public class InstanceGroupSimple implements InstanceGroup{
         }
     }
 
+    /**
+     * Set the instances in the instance group
+     * and recalculate the sum of the storage, bandwidth, CPU, and memory required by the instances in the instance group.
+     *
+     * @param instanceList the instances in the instance group.
+     * @return the instance group itself.
+     */
     public InstanceGroup setInstances(List<Instance> instanceList) {
         this.instances = instanceList;
         this.storageSum = 0;
@@ -77,9 +125,14 @@ public class InstanceGroupSimple implements InstanceGroup{
     }
 
     @Override
+    public boolean isSetDestDatacenter() {
+        return destDatacenterId != -1;
+    }
+
+    @Override
     public InstanceGroup addRetryNum() {
         this.retryNum++;
-        if (this.retryNum >= this.retryMaxNum) {
+        if (this.retryNum > this.retryMaxNum) {
             this.state = UserRequest.FAILED;
         }
         return this;

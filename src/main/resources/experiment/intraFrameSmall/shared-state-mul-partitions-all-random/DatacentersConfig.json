@@ -75,7 +75,7 @@
   ],
   "synchronizationGap": 500,
   "architecture": "shared-state-mul-partitions-all-random",
-  "innerSchedulers": [
+  "intraSchedulers": [
     {
       "firstPartitionIndex": 0,
       "type": "randomScore"

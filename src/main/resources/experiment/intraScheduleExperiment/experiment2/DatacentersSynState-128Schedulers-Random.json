@@ -406,7 +406,7 @@
             "isDirectSend": true
           },
           "synchronizationGap": 10000,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "random"

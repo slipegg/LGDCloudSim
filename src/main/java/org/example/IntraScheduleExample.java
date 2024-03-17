@@ -28,7 +28,7 @@ public class IntraScheduleExample {
 //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment1/DatacentersShareState-fixPartitionRandom-20Schedulers-500SynGap.json";
 //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment1/DatacentersSynState-20Schedulers-500SynGap.json";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraScheduleExperiment/experiment2/DatacentersSynState-128Schedulers-Random.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraScheduleExperiment/generateRequestParament.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraScheduleExperiment/generateRequestParameter.csv";
 
     public static void main(String[] args) {
         new IntraScheduleExample();

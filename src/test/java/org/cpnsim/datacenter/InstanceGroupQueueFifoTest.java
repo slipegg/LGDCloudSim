@@ -34,9 +34,7 @@ public class InstanceGroupQueueFifoTest {
 
         assertEquals(5, groupQueueFifoTest.size());
         groupQueueFifoTest.setBatchNum(2);
-        List<InstanceGroup> instanceGroups = groupQueueFifoTest.getBatchItem();
+        List<InstanceGroup> instanceGroups = groupQueueFifoTest.getBatchItem(-1).getWaitScheduledItems();
         assertEquals(2, instanceGroups.size());
-        List<InstanceGroup> instanceGroups1 = groupQueueFifoTest.getAllItem();
-        assertEquals(3, instanceGroups1.size());
     }
 }

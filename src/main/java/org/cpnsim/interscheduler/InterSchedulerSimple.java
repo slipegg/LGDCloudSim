@@ -3,6 +3,7 @@ package org.cpnsim.interscheduler;
 import lombok.Getter;
 import lombok.Setter;
 import org.cpnsim.core.Simulation;
+import org.cpnsim.datacenter.QueueResult;
 import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.datacenter.InstanceGroupQueue;
@@ -18,71 +19,161 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * The InterSchedulerSimple class is an implementation of the {@link InterScheduler} interface.
+ * <p>
+ * The schedule algorithm as follows:
+ * <ul>
+ * <li>scheduleToDatacenter algorithm: Randomly select one of all data centers that may have sufficient resources.
+ * If the sum of the remaining resources in all data centers does not meet the resources required by the instance group, the instance group scheduling fails.</li>
+ * <li>scheduleToHost algorithm: Randomly select a host from all data centers that may have sufficient resources and start traversing until a suitable host is found.
+ * If all hosts are traversed and there is still no suitable one, the scheduling of this instance group fails.</li>
+ * <li>scheduleMixed algorithm: It will first try to schedule all instance in the instance group to the hosts in the data center where the inter-scheduler is located.
+ * The schedule algorithm is that randomly select a host from all hosts in the data center and start traversing until a suitable host is found.
+ * If there is no suitable host in the data center, it will try to forward the instance group to other data centers.
+ * The schedule algorithm is that randomly forward the instance group to one of the data centers that may have sufficient resources.
+ * </li>
+ * </ul>
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class InterSchedulerSimple implements InterScheduler {
+    /**
+     * The scheduling target of the inter-scheduler.
+     * The initial value is NULL, it needs to be set to DC_TARGET, HOST_TARGET, or MIXED_TARGET.
+     * You also can set it to other values, but you need to implement the corresponding scheduling algorithm.
+     */
     public static final int NULL = -1;
+
+    /**
+     * The scheduling target of the inter-scheduler is the data center.
+     */
     public static final int DC_TARGET = 0;
+
+    /**
+     * The scheduling target of the inter-scheduler is the host.
+     */
     public static final int HOST_TARGET = 1;
+
+    /**
+     * The scheduling target of the inter-scheduler is the mix of hosts and data centers.
+     */
     public static final int MIXED_TARGET = 2;
+
+    /**
+     * The logger of the inter-scheduler.
+     */
     public Logger LOGGER = LoggerFactory.getLogger(InterSchedulerSimple.class.getName());
+
+    /**
+     * The target of the inter-scheduler.
+     * It can be set to {@link InterSchedulerSimple#HOST_TARGET}, {@link InterSchedulerSimple#DC_TARGET} or {@link InterSchedulerSimple#MIXED_TARGET}.
+     */
     int target;
+
+    /**
+     * It is used when the target is {@link InterSchedulerSimple#DC_TARGET} or {@link InterSchedulerSimple#MIXED_TARGET}.
+     * It is a flag to set whether the instance group is allowed to be forwarded to other data centers after being sent to the target data center.
+     * Note that it is only used when inter-scheduler schedules instance groups to data centers but not schedules the instance of the instance group to hosts.
+     */
     boolean isSupportForward;
+
+    /**
+     * The simulation.
+     */
     @Getter
     @Setter
     Simulation simulation;
+
+    /**
+     * The collaboration id.
+     * It is used for the centralized inter-scheduler of the collaboration zone in CIS{@link org.cpnsim.core.CloudInformationService}.
+     */
     @Getter
     @Setter
     int collaborationId;
+
+    /**
+     * The data center where the inter-scheduler is located.
+     * If the inter-scheduler is a centralized inter-scheduler of the collaboration zone in CIS{@link org.cpnsim.core.CloudInformationService},
+     * it will not have a data center where it is located.
+     */
     @Getter
     Datacenter datacenter;
+
+    /**
+     * The name of the inter-scheduler.
+     */
     @Getter
     String name;
+
+    /**
+     * The id of the inter-scheduler.
+     */
     @Getter
     int id;
 
-    @Getter
-    double scheduleTime = 0.0;
-    @Getter
-    double decideReceiveGroupResultCostTime = 0.0;
-    @Getter
-    double decideTargetDatacenterCostTime = 0.0;
-    @Getter
-    @Setter
-    boolean directedSend = false;
-
+    /**
+     * The instance group queue that stores the new instance groups waiting for scheduling.
+     */
     @Getter
     InstanceGroupQueue instanceGroupQueue = new InstanceGroupQueueFifo();
 
+    /**
+     * The instance group queue that stores the instance groups that need to be retried for scheduling.
+     * When a new round of scheduling starts,
+     * the instance group will always be fetched from the retryInstanceGroupQueue first.
+     * If the number is not enough, the instance group will be fetched from the general instanceGroupQueue.
+     */
     @Getter
     InstanceGroupQueue retryInstanceGroupQueue = new InstanceGroupQueueFifo();
 
+    /**
+     * The state synchronization interval of each data center.
+     */
     @Getter
     @Setter
     Map<Datacenter, Double> dcStateSynInterval = new HashMap<>();
+
+    /**
+     * The state synchronization type of each data center.
+     */
     @Getter
     @Setter
     private Map<Datacenter, String> dcStateSynType = new HashMap<>();
+
+    /**
+     * The simple state get from data center by synchronization.
+     */
     @Getter
     Map<Datacenter, Object> interScheduleSimpleStateMap = new HashMap<>();
 
+    /**
+     * The random object.
+     */
     Random random = new Random();
 
+    /**
+     * The time spent on the scheduling.
+     */
+    @Getter
+    double scheduleTime = 0.0;
+
+    /**
+     * The number of traversals in the schedule
+     */
     @Getter
     int traversalTime = 0;
 
-    public InterSchedulerSimple(Simulation simulation, int collaborationId) {
-        this.id = 0;
-        this.simulation = simulation;
-        this.collaborationId = collaborationId;
-        this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
-    }
-
-    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId) {
-        this.id = id;
-        this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
-        this.simulation = simulation;
-        this.collaborationId = collaborationId;
-    }
-
+    /**
+     * The constructor of the InterSchedulerSimple class.
+     * @param id the id of the inter-scheduler
+     * @param simulation the simulation
+     * @param collaborationId the collaboration zone id
+     * @param target the target of the inter-scheduler, it can be set to {@link InterSchedulerSimple#HOST_TARGET}, {@link InterSchedulerSimple#DC_TARGET} or {@link InterSchedulerSimple#MIXED_TARGET}
+     * @param isSupportForward whether the scheduled instance group by the inter-scheduler supports forward
+     */
     public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
         this.id = id;
         this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
@@ -92,43 +183,21 @@ public class InterSchedulerSimple implements InterScheduler {
         this.isSupportForward = isSupportForward;
     }
 
-    @Override
-    public Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenter(List<InstanceGroup> instanceGroups) {
-        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        NetworkTopology networkTopology = simulation.getNetworkTopology();
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> availableDatacenters = getAvailableDatacenters(instanceGroup, allDatacenters, networkTopology);
-            instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
-        }
-        interScheduleByNetworkTopology(instanceGroupAvailableDatacenters, networkTopology);
-        this.scheduleTime = 0.2;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.2ms
-        return instanceGroupAvailableDatacenters;
-    }
-
-    private Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenterByEasySimple(List<InstanceGroup> instanceGroups) {
-        List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        NetworkTopology networkTopology = simulation.getNetworkTopology();
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
-            //根据接入时延要求得到可调度的数据中心
-            filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
-            //根据简单的资源抽样信息得到可调度的数据中心
-            filterDatacentersByResourceSample(instanceGroup, availableDatacenters);
-            instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
-        }
-        interScheduleByNetworkTopology(instanceGroupAvailableDatacenters, networkTopology);
-        return instanceGroupAvailableDatacenters;
-    }
-
+    /**
+     * Filter to obtain the appropriate data center based on the network constraints of the instance group.
+     * It needs to consider the access delay of the instance group,
+     * the connection delay between instance groups, and the bandwidth required to be rented between instances.
+     *
+     * @param instanceGroups the instance groups
+     * @return the instance group and the list of available data centers
+     */
     protected Map<InstanceGroup, List<Datacenter>> filterSuitableDatacenterByNetwork(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         NetworkTopology networkTopology = simulation.getNetworkTopology();
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
         for (InstanceGroup instanceGroup : instanceGroups) {
             List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
-            //根据接入时延要求得到可调度的数据中心
+
             filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
             instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
         }
@@ -136,24 +205,20 @@ public class InterSchedulerSimple implements InterScheduler {
         return instanceGroupAvailableDatacenters;
     }
 
-    @Override
-    public InterSchedulerResult schedule(List<InstanceGroup> instanceGroups) {
-        synDcStateRealTime();
-
-        if (target == DC_TARGET) {
-            return scheduleToDatacenter(instanceGroups);
-        } else if (target == HOST_TARGET) {
-            return scheduleToHost(instanceGroups);
-        } else {
-            throw new IllegalStateException("InterSchedulerSimple.schedule: Invalid target of " + target);
-        }
-    }
-
+    /**
+     * Schedule the instance groups.
+     * First, it will try to synchronize the state of the data center which is synchronized in real time.
+     * Then, it will try to get the instance groups that need to be scheduled from the two instance group queues.
+     * In the end, it will try to call the corresponding scheduling algorithm according to the target of the inter-scheduler.
+     *
+     * @return the result of the inter-scheduler
+     */
     @Override
     public InterSchedulerResult schedule() {
         synDcStateRealTime();
 
-        List<InstanceGroup> waitSchedulingInstanceGroups = getWaitSchedulingInstanceGroups();
+        QueueResult<InstanceGroup> queueResult = getWaitSchedulingInstanceGroups();
+        List<InstanceGroup> waitSchedulingInstanceGroups = queueResult.getWaitScheduledItems();
         InterSchedulerResult interSchedulerResult = null;
 
         traversalTime = 0;
@@ -170,9 +235,18 @@ public class InterSchedulerSimple implements InterScheduler {
         double end = System.currentTimeMillis();
 
         this.scheduleTime = Math.max(0.1, end - start);
+        interSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
         return interSchedulerResult;
     }
 
+    /**
+     * It will first try to schedule all instance in the instance group to the hosts in the data center where the inter-scheduler is located.
+     * The schedule algorithm is that randomly select a host from all hosts in the data center and start traversing until a suitable host is found.
+     * If there is no suitable host in the data center, it will try to forward the instance group to other data centers.
+     * The schedule algorithm is that randomly forward the instance group to one of the data centers that may have sufficient resources.
+     * @param instanceGroups the instance groups to be scheduled
+     * @return the result of the inter-scheduler
+     */
     protected InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
@@ -198,23 +272,32 @@ public class InterSchedulerSimple implements InterScheduler {
         return interSchedulerResult;
     }
 
+    /**
+     * Try to schedule all instance in a instance group to the hosts in the data center where the inter-scheduler is located.
+     * If any instance in the instance group is not scheduled successfully, it will try to forward the instance group to other data centers.
+     * @param instanceGroup the instance group to be scheduled
+     * @param availableDatacenters the available data centers
+     * @return the data center where the instance group is scheduled
+     */
     private Datacenter scheduleMixedInstanceGroup(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
         if (availableDatacenters.contains(datacenter)) {
-            if (random.nextDouble() < 0.1) {//暂时性测试用
-                availableDatacenters.remove(datacenter);
+            boolean isScheduleToSelfSuccess = scheduleHostInDcForInstanceGroup(instanceGroup, datacenter);
+            if (isScheduleToSelfSuccess) {
+                return datacenter;
             } else {
-                boolean isScheduleToSelfSuccess = scheduleHostInDcForInstanceGroup(instanceGroup, datacenter);
-                if (isScheduleToSelfSuccess) {
-                    return datacenter;
-                } else {
-                    availableDatacenters.remove(datacenter);
-                }
+                availableDatacenters.remove(datacenter);
             }
         }
 
         return selectDcToForward(instanceGroup, availableDatacenters);
     }
 
+    /**
+     * Select an available data center to forward the instance group randomly.
+     * @param instanceGroup the instance group to be scheduled
+     * @param availableDatacenters the available data centers
+     * @return the data center where the instance group is scheduled
+     */
     private Datacenter selectDcToForward(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
         if (availableDatacenters.size() == 0) {
             return Datacenter.NULL;
@@ -231,18 +314,29 @@ public class InterSchedulerSimple implements InterScheduler {
         return availableDatacenters.get(dcSelectedIndex);
     }
 
-    private List<InstanceGroup> getWaitSchedulingInstanceGroups() {
+    /**
+     * Get the instance groups that need to be scheduled from the instance group queues.
+     * @return the result of the instance group queues
+     */
+    private QueueResult<InstanceGroup> getWaitSchedulingInstanceGroups() {
+        double nowTime = getSimulation().clock();
         if (retryInstanceGroupQueue.isEmpty()) {
-            return instanceGroupQueue.getBatchItem();
+            return instanceGroupQueue.getBatchItem(nowTime);
         } else {
-            List<InstanceGroup> instanceGroups = retryInstanceGroupQueue.getBatchItem();
-            if (instanceGroups.size() < instanceGroupQueue.getBatchNum()) {
-                instanceGroups.addAll(instanceGroupQueue.getItems(instanceGroupQueue.getBatchNum() - instanceGroups.size()));
+            QueueResult<InstanceGroup> queueResult = retryInstanceGroupQueue.getBatchItem(nowTime);
+
+            if (queueResult.getWaitScheduledItemsSize() < instanceGroupQueue.getBatchNum()) {
+                int itemNum = instanceGroupQueue.getBatchNum() - queueResult.getWaitScheduledItemsSize();
+                QueueResult<InstanceGroup> queueResultTmp = instanceGroupQueue.getItems(itemNum, nowTime);
+                queueResult.add(queueResultTmp);
             }
-            return instanceGroups;
+            return queueResult;
         }
     }
 
+    /**
+     * Synchronize the state of the data center which is synchronized in real time.
+     */
     private void synDcStateRealTime() {
         List<Datacenter> realTimeSynDcList = simulation.getCollaborationManager().getDatacenters(collaborationId);
         for (Map.Entry<Datacenter, Double> dcStateSynIntervalEntry : dcStateSynInterval.entrySet()) {
@@ -257,6 +351,13 @@ public class InterSchedulerSimple implements InterScheduler {
         synBetweenDcState(realTimeSynDcList);
     }
 
+    /**
+     * Randomly select one of all data centers that may have sufficient resources.
+     * If the sum of the remaining resources in all data centers does not meet the resources required by the instance group,
+     * the instance group scheduling fails.
+     * @param instanceGroups the instance groups to be scheduled
+     * @return the result of the inter-scheduler
+     */
     protected InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
@@ -273,6 +374,12 @@ public class InterSchedulerSimple implements InterScheduler {
         return interSchedulerResult;
     }
 
+    /**
+     * Randomly select one of all data centers that may have sufficient resources.
+     * If the sum of the remaining resources in all data centers does not meet the resources required by the instance group, the instance group scheduling fails.
+     * @param instanceGroups the instance groups to be scheduled
+     * @return the result of the inter-scheduler
+     */
     protected InterSchedulerResult scheduleToHost(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, allDatacenters);
@@ -298,8 +405,13 @@ public class InterSchedulerSimple implements InterScheduler {
         return interSchedulerResult;
     }
 
+    /**
+     * Schedule all instance in the instance group to the hosts in the available data centers.
+     * @param instanceGroup the instance group to be scheduled
+     * @param availableDatacenters the available data centers
+     * @return the data center where the instance group is scheduled
+     */
     protected Datacenter scheduleForInstanceGroupAndInstance(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
-//        int dcStartIndex = random.nextInt(availableDatacenters.size());
         int hostSum = availableDatacenters.stream()
                 .mapToInt(dc -> dc.getStatesManager().getHostNum())
                 .sum();
@@ -324,6 +436,12 @@ public class InterSchedulerSimple implements InterScheduler {
         return Datacenter.NULL;
     }
 
+    /**
+     * Get the data center id by the host index in all available data centers.
+     * @param hostIdInAll the host index in all available data centers
+     * @param availableDatacenters the available data centers
+     * @return the data center id
+     */
     protected int getDcIdByHostIdInAll(int hostIdInAll, List<Datacenter> availableDatacenters) {
         for (int i = 0; i < availableDatacenters.size(); i++) {
             Datacenter datacenter = availableDatacenters.get(i);
@@ -335,6 +453,12 @@ public class InterSchedulerSimple implements InterScheduler {
         return -1;
     }
 
+    /**
+     * Schedule all instances of the instance group to the hosts in the data center.
+     * @param instanceGroup the instance group to be scheduled
+     * @param datacenter the data center
+     * @return whether the scheduling is successful
+     */
     private boolean scheduleHostInDcForInstanceGroup(InstanceGroup instanceGroup, Datacenter datacenter) {
         if (interScheduleSimpleStateMap.containsKey(datacenter)
                 && interScheduleSimpleStateMap.get(datacenter) instanceof DetailedDcStateSimple detailedDcStateSimple) {
@@ -362,6 +486,12 @@ public class InterSchedulerSimple implements InterScheduler {
         }
     }
 
+    /**
+     * Randomly schedule the instance to the hosts in the data center.
+     * @param instance the instance to be scheduled
+     * @param detailedDcStateSimple the state of the data center, See {@link DetailedDcStateSimple}
+     * @return the host id where the instance is scheduled
+     */
     private int randomScheduleInstanceByDetailedDcStateSimple(Instance instance, DetailedDcStateSimple detailedDcStateSimple) {
         int hostNum = detailedDcStateSimple.getHostNum();
         int startIndex = random.nextInt(hostNum);
@@ -380,6 +510,10 @@ public class InterSchedulerSimple implements InterScheduler {
         return -1;
     }
 
+    /**
+     * Record the scheduled result in the instances.
+     * @param scheduleResult the scheduled result
+     */
     private void recordScheduledResultInInstances(Map<Instance, Integer> scheduleResult) {
         for (Map.Entry<Instance, Integer> scheduleResultEntry : scheduleResult.entrySet()) {
             Instance instance = scheduleResultEntry.getKey();
@@ -387,51 +521,6 @@ public class InterSchedulerSimple implements InterScheduler {
 
             instance.setExpectedScheduleHostId(hostId);
         }
-    }
-
-    @Override
-    public Map<InstanceGroup, Double> decideReciveGroupResult(List<InstanceGroup> instanceGroups) {
-        //TODO 怎么判断是否接收，如果接收了怎么进行资源预留，目前是全部接收
-        Map<InstanceGroup, Double> result = new HashMap<>();
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
-                continue;
-            }
-            Double score = random.nextDouble(100);
-            result.put(instanceGroup, score);
-        }
-        this.decideReceiveGroupResultCostTime = 0.1;//TODO 为了模拟没有随机性，先设置为每一个亲和组调度花费0.1ms
-        return result;
-    }
-
-    @Override
-    public Map<InstanceGroup, Datacenter> decideTargetDatacenter(Map<InstanceGroup, Map<Datacenter, Double>> instanceGroupSendResultMap, List<InstanceGroup> instanceGroups) {
-        this.decideTargetDatacenterCostTime = 0.0;
-        Map<InstanceGroup, Datacenter> result = new HashMap<>();
-        for (InstanceGroup instanceGroup : instanceGroups) {
-            //取每个instanceGroup中最高得分的datacenter作为调度目标
-            Datacenter datacenter = instanceGroupSendResultMap.get(instanceGroup).entrySet().stream()
-                    .max(Comparator.comparingDouble(Map.Entry::getValue))
-                    .map(Map.Entry::getKey)
-                    .orElse(null);
-            result.put(instanceGroup, datacenter);
-        }
-        return result;
-    }
-
-    @Override
-    public void receiveNotEmployGroup(List<InstanceGroup> instanceGroups) {
-        // 目前不需要做任何处理
-    }
-
-    @Override
-    public void receiveEmployGroup(List<InstanceGroup> instanceGroups) {
-        // 目前不需要做任何处理
-    }
-
-    @Override
-    public boolean isDirectedSend() {
-        return directedSend;
     }
 
     @Override
@@ -475,22 +564,39 @@ public class InterSchedulerSimple implements InterScheduler {
         return retryInstanceGroupQueue.size();
     }
 
-    //TODO 如果前一个亲和组被可能被分配给多个数据中心，那么后一个亲和组在分配的时候应该如何更新资源状态。目前是不考虑
+    /**
+     * Get the available data centers for the instance group by the network limitations and the simple state.
+     * @param instanceGroup the instance group
+     * @param allDatacenters all data centers
+     * @param networkTopology the network topology
+     * @return the available data centers
+     */
     List<Datacenter> getAvailableDatacenters(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
-        //根据接入时延要求得到可调度的数据中心
+        //Filter available data centers based on access delay requirements
         filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
-        //根据资源抽样信息得到可调度的数据中心
+        //Filter available data centers based on the simple state.
         filterDatacentersByResourceSample(instanceGroup, availableDatacenters);
         return availableDatacenters;
     }
 
+    /**
+     * Filter the data centers based on the access latency.
+     * @param instanceGroup the instance group
+     * @param allDatacenters all data centers
+     * @param networkTopology the network topology
+     */
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
         // Filter based on access latency
         allDatacenters.removeIf(
                 datacenter -> instanceGroup.getAccessLatency() <= networkTopology.getAccessLatency(instanceGroup.getUserRequest(), datacenter));
     }
 
+    /**
+     * Filter the data centers based on the simple state.
+     * @param instanceGroup the instance group
+     * @param allDatacenters all data centers
+     */
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {
         //首先是粗粒度地筛选总量是否满足
         allDatacenters.removeIf(
@@ -502,40 +608,17 @@ public class InterSchedulerSimple implements InterScheduler {
                             || simpleStateEasyObject.getBwAvailableSum() < instanceGroup.getBwSum();
                 }
         );
-        //然后细粒度地查看CPU-RAM的组合是否满足
-//        Iterator<Datacenter> iterator = allDatacenters.iterator();
-//        while (iterator.hasNext()) {
-//            Datacenter datacenter = iterator.next();
-//            Map<Integer, Map<Integer, Integer>> instanceCpuRamNum = new HashMap<>();//记录一下所有Instance的cpu—ram的种类情况
-//            for (Instance instance : instanceGroup.getInstanceList()) {
-//                int allocateNum = instanceCpuRamNum.getOrDefault(instance.getCpu(), new HashMap<>()).getOrDefault(instance.getRam(), 0);
-//                int originSum = datacenter.getStatesManager().getSimpleState().getCpuRamSum(instance.getCpu(), instance.getRam());
-//                if (originSum - allocateNum <= 0) {
-//                    //如果该数据中心的资源不足以满足亲和组的资源需求，那么就将其从可调度的数据中心中移除
-//                    iterator.remove();
-//                    break;
-//                } else {
-//                    //如果该数据中心的资源可以满足亲和组的资源需求，那么就记录更新已分配的所有Instance的cpu—ram的种类情况
-//                    if (instanceCpuRamNum.containsKey(instance.getCpu())) {
-//                        Map<Integer, Integer> ramNumMap = instanceCpuRamNum.get(instance.getCpu());
-//                        if (ramNumMap.containsKey(instance.getRam())) {
-//                            ramNumMap.put(instance.getRam(), ramNumMap.get(instance.getRam()) + 1);
-//                        } else {
-//                            ramNumMap.put(instance.getRam(), 1);
-//                        }
-//                    } else {
-//                        Map<Integer, Integer> ramNumMap = new HashMap<>();
-//                        ramNumMap.put(instance.getRam(), 1);
-//                        instanceCpuRamNum.put(instance.getCpu(), ramNumMap);
-//                    }
-//                }
-//            }
-//        }
     }
 
-    void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvaiableDatacenters, NetworkTopology networkTopology) {
-        //TODO 根据网络拓扑中的时延和宽带进行筛选得到最优的调度方案
-        //TODO 后续可以添加一个回溯算法来简单筛选
+    /**
+     * Filter the data centers based on the network topology.
+     *
+     * @param instanceGroupAvailableDatacenters the instance group and the list of available data centers
+     * @param networkTopology                   the network topology
+     */
+    void interScheduleByNetworkTopology(Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters, NetworkTopology networkTopology) {
+        //TODO Filter according to the delay and bandwidth in the network topology to obtain the optimal scheduling plan
+        //TODO Later, a backtracking algorithm can be added for simple screening.
     }
 
     @Override

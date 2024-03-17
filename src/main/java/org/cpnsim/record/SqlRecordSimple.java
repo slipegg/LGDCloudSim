@@ -18,36 +18,116 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * It is an implementation of the SqlRecord interface.
+ * It records the simulation information through the SQLite database.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class SqlRecordSimple implements SqlRecord {
+    /**
+     * The Logger of the class.
+     **/
     Logger LOGGER = LoggerFactory.getLogger(SqlRecordSimple.class.getSimpleName());
+
+    /**
+     * The connection of the SQLite database.
+     */
     private Connection conn = null;
+
+    /**
+     * The statement of the SQLite database.
+     */
     private Statement stmt = null;
+
+    /**
+     * The name of the user request table.
+     */
     private String userRequestTableName = null;
+
+    /**
+     * The name of the instance group table.
+     */
     private String instanceGroupTableName = null;
+
+    /**
+     * The name of the instance group graph table.
+     */
     private String instanceGroupGraphTableName = null;
+
+    /**
+     * The name of the instance table.
+     */
     private String instanceTableName = null;
+
+    /**
+     * The name of the conflict table.
+     */
     private String conflictTableName = null;
+
+    /**
+     * The name of the inter schedule cost time table.
+     */
     private String interScheduleCostTimeTableName = null;
+
+    /**
+     * The name of the SQLite database.
+     */
     private String dbName = null;
+
+    /**
+     * The directory of the SQLite database.
+     */
     private String dbDir = null;
+
+    /**
+     * The path of the SQLite database.
+     */
     @Getter
     private String dbPath = null;
-    private String sql = null;
-    private PreparedStatement statement;
-    private double lastRecordConflictTime = -1;
-    private double instanceDelaySum = 0.0;
-    private long instanceNum = 0L;
-    private double interScheduleTime = 0.0;
 
+    /**
+     * The SQL statement.
+     */
+    private String sql = null;
+
+    /**
+     * The prepared statement.
+     */
+    private PreparedStatement statement;
+
+    /**
+     * The last record conflict time.
+     */
+    private double lastRecordConflictTime = -1;
+
+    /**
+     * Construct a SqlRecordSimple with the default database name "cpnSim.db".
+     */
     public SqlRecordSimple() {
-//        this("./RecordDb", "scaleCloudsimRecord-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")) + ".db", "userRequest", "instanceGroup", "instance");
         this("cpnSim.db");
     }
 
+    /**
+     * Construct a SqlRecordSimple with the given database name.
+     *
+     * @param dbName the name of the SQLite database
+     */
     public SqlRecordSimple(String dbName) {
         this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance");
     }
 
+    /**
+     * Construct a SqlRecordSimple with the given database name, user request table name, instance group table name, instance group graph table name and instance table name.
+     *
+     * @param dbDir                       the directory of the SQLite database
+     * @param dbName                      the name of the SQLite database
+     * @param userRequestTableName        the name of the user request table
+     * @param instanceGroupTableName      the name of the instance group table
+     * @param instanceGroupGraphTableName the name of the instance group graph table
+     * @param instanceTableName           the name of the instance table
+     */
     public SqlRecordSimple(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName) {
         this.dbDir = dbDir;
         this.dbName = dbName;
@@ -88,13 +168,17 @@ public class SqlRecordSimple implements SqlRecord {
         }
     }
 
+    /**
+     * Set the path of the SQLite database.
+     * @param dbPath the path of the SQLite database.
+     */
     @Override
     public void setDbPath(String dbPath) {
         this.dbPath = dbPath;
     }
 
     @Override
-    public void recordUserRequestsSubmitinfo(List<UserRequest> userRequests) {
+    public void recordUserRequestsSubmitInfo(List<UserRequest> userRequests) {
         try {
             statement = conn.prepareStatement("INSERT INTO " + this.userRequestTableName + " (id,belongDc,submitTime,instanceGroupNum) VALUES (?,?,?,?);");
             for (UserRequest userRequest : userRequests) {
@@ -149,6 +233,11 @@ public class SqlRecordSimple implements SqlRecord {
         }
     }
 
+    /**
+     * Add a batch in the statement for recording the instance groups received information.
+     * @param instanceGroup the instance group
+     * @throws SQLException the SQL exception
+     */
     private void addBatchInStatementForRecordInstanceGroupsReceivedInfo(InstanceGroup instanceGroup) throws SQLException {
         statement.setInt(1, instanceGroup.getId());
         statement.setInt(2, instanceGroup.getUserRequest().getId());
@@ -179,6 +268,10 @@ public class SqlRecordSimple implements SqlRecord {
         }
     }
 
+    /**
+     * Record the instance group graph allocate information.
+     * @param instanceGroups the instance groups.
+     */
     public void recordInstanceGroupsGraph(List<InstanceGroup> instanceGroups) {
         try {
             Set<InstanceGroupEdge> recordEdges = new HashSet<>();
@@ -256,7 +349,7 @@ public class SqlRecordSimple implements SqlRecord {
                     " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime) VALUES ("
                     + instance.getId() + "," + instance.getInstanceGroup().getId() + "," + instance.getUserRequest().getId() + ","
                     + instance.getCpu() + "," + instance.getRam() + "," + instance.getStorage() + "," + instance.getBw() + ","
-                    + instance.getLifeTime() + "," + instance.getRetryNum() + "," + instance.getInstanceGroup().getReceiveDatacenter().getId() + "," + instance.getHost() + ","
+                    + instance.getLifecycle() + "," + instance.getRetryNum() + "," + instance.getInstanceGroup().getReceiveDatacenter().getId() + "," + instance.getHost() + ","
                     + instance.getStartTime() + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
@@ -281,15 +374,13 @@ public class SqlRecordSimple implements SqlRecord {
                         statement.setDouble(5, instance.getRam());
                         statement.setDouble(6, instance.getStorage());
                         statement.setDouble(7, instance.getBw());
-                        statement.setDouble(8, instance.getLifeTime());
+                        statement.setDouble(8, instance.getLifecycle());
                         statement.setInt(9, instance.getRetryNum());
                         statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
                         statement.setInt(11, instance.getHost());
                         statement.setDouble(12, instance.getStartTime());
                         statement.addBatch();
                     }
-                    instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
-                    instanceNum++;
                 }
             }
             statement.executeBatch();
@@ -315,27 +406,16 @@ public class SqlRecordSimple implements SqlRecord {
                         statement.setDouble(5, instance.getRam());
                         statement.setDouble(6, instance.getStorage());
                         statement.setDouble(7, instance.getBw());
-                        statement.setDouble(8, instance.getLifeTime());
+                        statement.setDouble(8, instance.getLifecycle());
                         statement.setInt(9, instance.getRetryNum());
                         statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
                         statement.setInt(11, instance.getHost());
                         statement.setDouble(12, instance.getStartTime());
                         statement.addBatch();
                     }
-                    instanceDelaySum += instance.getStartTime() - instance.getInstanceGroup().getReceivedTime();
-                    instanceNum++;
                 }
             }
             statement.executeBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void recordInstanceFinishInfo(Instance instance) {
-        try {
-            sql = "UPDATE " + this.instanceTableName + " SET finishTime = " + instance.getFinishTime() + " WHERE id = " + instance.getId() + ";";
-            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -369,33 +449,15 @@ public class SqlRecordSimple implements SqlRecord {
                 statement.setDouble(5, instance.getRam());
                 statement.setDouble(6, instance.getStorage());
                 statement.setDouble(7, instance.getBw());
-                statement.setDouble(8, instance.getLifeTime());
+                statement.setDouble(8, instance.getLifecycle());
                 statement.setInt(9, instance.getRetryNum());
                 statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
                 statement.setInt(11, instance.getHost());
                 statement.setDouble(12, instance.getStartTime());
                 statement.setDouble(13, instance.getFinishTime());
                 statement.addBatch();
-                if (instance.getStartTime() == -1) {
-                    instanceDelaySum += instance.getFinishTime() - instance.getInstanceGroup().getReceivedTime();
-                    instanceNum++;
-                }
             }
             statement.executeBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void recordInstancesAllInfo(Instance instance) {
-        try {
-            sql = "INSERT INTO " + this.instanceTableName +
-                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime,finishTime) VALUES ("
-                    + instance.getId() + "," + instance.getInstanceGroup().getId() + "," + instance.getUserRequest().getId() + ","
-                    + instance.getCpu() + "," + instance.getRam() + "," + instance.getStorage() + "," + instance.getBw() + ","
-                    + instance.getLifeTime() + "," + instance.getRetryNum() + "," + instance.getInstanceGroup().getReceiveDatacenter().getId() + "," + instance.getHost() + ","
-                    + instance.getStartTime() + "," + instance.getFinishTime() + ");";
-            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -412,20 +474,23 @@ public class SqlRecordSimple implements SqlRecord {
         }
     }
 
-    @Override
-    public void addInterScheduleTime(double interScheduleTime) {
-        this.interScheduleTime += interScheduleTime;
-    }
-
-    @Override
-    public double getInterScheduleTime() {
-        return interScheduleTime;
-    }
-
+    /**
+     * Create the user request table.
+     * The user request table has the following columns:
+     * <ul>
+     *     <li>id: int, primary key. It records the id of the user request.</li>
+     *     <li>belongDc: int. It records the id of the data center where the user request belongs.</li>
+     *     <li>submitTime: double. It records the submit time of the user request.</li>
+     *     <li>finishTime: double. It records the finish time of the user request.</li>
+     *     <li>instanceGroupNum: int. It records the number of the instance groups of the user request.</li>
+     *     <li>state: char(10). It records the state of the user request.</li>
+     *     <li>failReason: char(100). It records the fail reason of the user request.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
     private void createUserRequestTable() throws SQLException {
         sql = "DROP TABLE IF EXISTS " + this.userRequestTableName;
         stmt.executeUpdate(sql);
-        //创建一个这种格式的表id:int,belongDc:int,submitTime:double,finishTime:double,state:char(10),failReason:char(100);
         sql = "CREATE TABLE IF NOT EXISTS " + this.userRequestTableName + " " +
                 "(id INT PRIMARY KEY     NOT NULL," +
                 " belongDc INT NOT NULL, " +
@@ -440,6 +505,20 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+    /**
+     * Create the instance group table.
+     * The instance group table has the following columns:
+     * <ul>
+     *     <li>id: int, primary key. It records the id of the instance group.</li>
+     *     <li>userRequestId: int. It records the id of the user request where the instance group belongs.</li>
+     *     <li>retryTimes: int. It records the retry times of the instance group.</li>
+     *     <li>receivedDc: int. It records the id of the data center where the instance group is received.</li>
+     *     <li>receivedTime: double. It records the receiving time of the instance group.</li>
+     *     <li>finishTime: double. It records the finish time of the instance group.</li>
+     *     <li>instanceNum: int. It records the number of the instances of the instance group.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
     private void createInstanceGroupTable() throws SQLException {
         sql = "DROP TABLE IF EXISTS " + this.instanceGroupTableName;
         stmt.executeUpdate(sql);
@@ -458,6 +537,20 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+    /**
+     * Create the instance group graph table.
+     * The instance group graph table has the following columns:
+     * <ul>
+     *     <li>srcInstanceGroupId: int. It records the id of the source instance group.</li>
+     *     <li>dstInstanceGroupId: int. It records the id of the destination instance group.</li>
+     *     <li>srcDcId: int. It records the id of the source data center.</li>
+     *     <li>dstDcId: int. It records the id of the destination data center.</li>
+     *     <li>bw: double. It records the bandwidth of the instance group edge allocated.</li>
+     *     <li>startTime: double. It records the start time of the instance group graph.</li>
+     *     <li>finishTime: double. It records the finish time of the instance group graph.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
     private void createGroupGraphTable() throws SQLException {
         sql = "DROP TABLE IF EXISTS " + this.instanceGroupGraphTableName;
         stmt.executeUpdate(sql);
@@ -476,6 +569,26 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+    /**
+     * Create the instance table.
+     * The instance table has the following columns:
+     * <ul>
+     *     <li>id: int, primary key. It records the id of the instance.</li>
+     *     <li>instanceGroupId: int. It records the id of the instance group where the instance belongs.</li>
+     *     <li>userRequestId: int. It records the id of the user request where the instance belongs.</li>
+     *     <li>cpu: int. It records the cpu of the instance.</li>
+     *     <li>ram: int. It records the ram of the instance.</li>
+     *     <li>storage: int. It records the storage of the instance.</li>
+     *     <li>bw: int. It records the bandwidth of the instance.</li>
+     *     <li>lifeTime: int. It records the life time of the instance.</li>
+     *     <li>retryTimes: int. It records the retry times of the instance.</li>
+     *     <li>datacenter: int. It records the id of the data center where the instance is received.</li>
+     *     <li>host: int. It records the id of the host where the instance is placed.</li>
+     *     <li>startTime: double. It records the start time of the instance.</li>
+     *     <li>finishTime: double. It records the finish time of the instance.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
     private void createInstanceTable() throws SQLException {
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;
         stmt.executeUpdate(sql);
@@ -499,6 +612,15 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+    /**
+     * Create the conflict table.
+     * The conflict table has the following columns:
+     * <ul>
+     *     <li>time: double, primary key. It records the time.</li>
+     *     <li>conflictSum: int. It records the sum of the conflicts at the time.</li>
+     * </ul>
+     * @throws SQLException
+     */
     private void createConflictTable() throws SQLException {
         sql = "DROP TABLE IF EXISTS " + this.conflictTableName;
         stmt.executeUpdate(sql);
@@ -521,6 +643,7 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+    @Override
     public void recordConflict(double time, int sum) {
         int tmpTime = (int) time / 10 * 10;
         try {
@@ -535,22 +658,5 @@ public class SqlRecordSimple implements SqlRecord {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void recordInterScheduleTime(double time, double costTime, int traversalTime) {
-        try {
-            sql = "INSERT INTO " + this.interScheduleCostTimeTableName + " (time, costTime, traversalTime) VALUES (" + time + "," + costTime + "," + traversalTime + ");";
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public double getAvgInstanceSubmitDelay() {
-        System.out.println("instanceDelaySum: " + instanceDelaySum);
-        System.out.println("instanceNum: " + instanceNum);
-        return instanceDelaySum / instanceNum;
     }
 }

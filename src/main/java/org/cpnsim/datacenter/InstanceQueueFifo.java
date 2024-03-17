@@ -6,9 +6,7 @@ import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A class to represent a instance queue with first in first out.
@@ -30,11 +28,24 @@ public class InstanceQueueFifo implements InstanceQueue {
     @Setter
     private int batchNum;
 
+    /**
+     * the flag to set whether to check if the instance exceeds the maximum schedule delay limit.
+     */
+    @Getter
+    @Setter
+    boolean checkOutdatedFlag = false;
+
+    /**
+     * Create a new instance of InstanceQueueFifo with the batch number.
+     */
     public InstanceQueueFifo(int batchNum) {
         instances = new LinkedList<>();
         this.batchNum = batchNum;
     }
 
+    /**
+     * Create a new instance of InstanceQueueFifo with the default batch number.
+     */
     public InstanceQueueFifo() {
         this(1000);
     }
@@ -46,36 +57,49 @@ public class InstanceQueueFifo implements InstanceQueue {
     }
 
     @Override
-    public List<Instance> getBatchItem(boolean isRemove) {
-        return getItems(batchNum, isRemove);
+    public QueueResult<Instance> getBatchItem(double nowTime) {
+        return getItems(batchNum, nowTime);
     }
 
     @Override
-    public List<Instance> getAllItem(boolean isRemove) {
-        return getItems(this.instances.size(), isRemove);
+    public List<Instance> getAllItem() {
+        // Because there is no failure handler after this function.
+        // So we set nowTime = -1, so that there is no instance will be removed because of the delay limit.
+        return getItems(this.instances.size(), -1).getWaitScheduledItems();
     }
 
-    private List<Instance> getItems(int num, boolean isRemove) {
+    /**
+     * Select num instances at the head of the queue.
+     *
+     * @param num     the number of instances to be selected
+     * @param nowTime the current time
+     * @return the selected instances
+     */
+    @Override
+    public QueueResult<Instance> getItems(int num, double nowTime) {
         List<Instance> sendInstances = new ArrayList<>();
+        Set<UserRequest> failedUserRequests = new HashSet<>();
+
         for (int i = 0; i < num; i++) {
-            if (this.instances.size() == 0) {
+            if (this.instances.isEmpty()) {
                 break;
             }
-            if (this.instances.get(0).getUserRequest().getState() == UserRequest.FAILED) {
-                if (isRemove) {
-                    this.instances.remove(0);
-                } else {
-                    sendInstances.add(this.instances.get(i));
-                }
+
+            UserRequest userRequest = this.instances.get(0).getUserRequest();
+            if (userRequest.getState() == UserRequest.FAILED) {
+                this.instances.remove(0);
                 continue;
             }
-            if (isRemove) {
-                sendInstances.add(this.instances.remove(0));
-            } else {
-                sendInstances.add(this.instances.get(i));
+
+            if (checkOutdatedFlag && userRequest.getScheduleDelayLimit() > 0 && nowTime - userRequest.getSubmitTime() > userRequest.getScheduleDelayLimit()) {
+                failedUserRequests.add(userRequest);
+                this.instances.remove(0);
+                continue;
             }
+
+            sendInstances.add(this.instances.remove(0));
         }
-        return sendInstances;
+        return new QueueResult(sendInstances, failedUserRequests);
     }
 
     @Override
@@ -93,7 +117,7 @@ public class InstanceQueueFifo implements InstanceQueue {
 
     @Override
     public InstanceQueue add(UserRequest userRequest) {
-        for(InstanceGroup instanceGroup : userRequest.getInstanceGroups()){
+        for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
             add(instanceGroup);
         }
         return this;
@@ -104,16 +128,21 @@ public class InstanceQueueFifo implements InstanceQueue {
         if (requests.size() == 0) {
             return this;
         } else if (requests.get(0) instanceof Instance) {
-            this.instances.addAll((List<Instance>)requests);
+            this.instances.addAll((List<Instance>) requests);
         } else if (requests.get(0) instanceof InstanceGroup) {
-            for (InstanceGroup instanceGroup : (List<InstanceGroup>)requests) {
+            for (InstanceGroup instanceGroup : (List<InstanceGroup>) requests) {
                 this.instances.addAll(instanceGroup.getInstances());
             }
-        } else if(requests.get(0) instanceof UserRequest){
-            for (UserRequest userRequest : (List<UserRequest>)requests) {
+        } else if (requests.get(0) instanceof UserRequest) {
+            for (UserRequest userRequest : (List<UserRequest>) requests) {
                 add(userRequest);
             }
         }
         return this;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return instances.isEmpty();
     }
 }

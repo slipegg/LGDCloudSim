@@ -1,25 +1,42 @@
 package org.cpnsim.datacenter;
 
+import org.cpnsim.request.Instance;
+
 /**
  * An interface to be implemented by each class that to record the price of the datacenter.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public interface DatacenterPrice {
     /**
-     * Setting the unit price of cpu resources
+     * Setting the unit price of cpu resources per second
      *
-     * @param unitCpuPrice the unit price of cpu resources
+     * @param pricePerCpuPerSec the unit price of cpu resources per second
+     *
      */
-    Datacenter setUnitCpuPrice(double unitCpuPrice);
+    Datacenter setPricePerCpuPerSec(double pricePerCpuPerSec);
 
     /**
-     * Getting the unit price of cpu resources
+     * Getting the unit price of cpu resources per second
      *
-     * @return the unit price of cpu resources
+     * @return the unit price of cpu resources per second
      */
-    double getUnitCpuPrice();
+    double getPricePerCpuPerSec();
+
+    /**
+     * Setting the price of renting a cpu
+     *
+     * @param pricePerCpu the price of renting a cpu
+     */
+    Datacenter setPricePerCpu(double pricePerCpu);
+
+    /**
+     * Getting the price of renting a cpu
+     *
+     * @return the price of renting a cpu
+     */
+    double getPricePerCpu();
 
     /**
      * Getting the cost of cpu resources
@@ -29,18 +46,32 @@ public interface DatacenterPrice {
     double getCpuCost();
 
     /**
-     * Setting the unit price of ram resources
+     * Setting the unit price of ram resources per second
      *
-     * @param unitRamPrice the unit price of ram resources
+     * @param pricePerRamPerSec the unit price of ram resources per second
      */
-    Datacenter setUnitRamPrice(double unitRamPrice);
+    Datacenter setPricePerRamPerSec(double pricePerRamPerSec);
 
     /**
-     * Getting the unit price of ram resources
+     * Getting the unit price of ram resources per second
      *
-     * @return the unit price of ram resources
+     * @return the unit price of ram resources per second
      */
-    double getUnitRamPrice();
+    double getPricePerRamPerSec();
+
+    /**
+     * Setting the price of renting a ram
+     *
+     * @param pricePerRam the price of renting a ram
+     */
+    Datacenter setPricePerRam(double pricePerRam);
+
+    /**
+     * Getting the price of renting a ram
+     *
+     * @return the price of renting a ram
+     */
+    double getPricePerRam();
 
     /**
      * Getting the cost of ram resources
@@ -50,18 +81,32 @@ public interface DatacenterPrice {
     double getRamCost();
 
     /**
-     * Setting the unit price of storage resources
+     * Setting the unit price of storage resources per second
      *
-     * @param unitStoragePrice the unit price of storage resources
+     * @param pricePerStoragePerSec the unit price of storage resources per second
      */
-    Datacenter setUnitStoragePrice(double unitStoragePrice);
+    Datacenter setPricePerStoragePerSec(double pricePerStoragePerSec);
 
     /**
-     * Getting the unit price of storage resources
+     * Getting the unit price of storage resources per second
      *
-     * @return the unit price of storage resources
+     * @return the unit price of storage resources per second
      */
-    double getUnitStoragePrice();
+    double getPricePerStoragePerSec();
+
+    /**
+     * Setting the price of renting a storage
+     *
+     * @param pricePerStorage the price of renting a storage
+     */
+    Datacenter setPricePerStorage(double pricePerStorage);
+
+    /**
+     * Getting the price of renting a storage
+     *
+     * @return the price of renting a storage
+     */
+    double getPricePerStorage();
 
     /**
      * Getting the cost of storage resources
@@ -71,18 +116,32 @@ public interface DatacenterPrice {
     double getStorageCost();
 
     /**
-     * Setting the unit price of bandwidth resources
+     * Setting the unit price of bandwidth resources per second
      *
-     * @param unitBwPrice the unit price of bandwidth resources
+     * @param pricePerBwPerSec the unit price of bandwidth resources per second
      */
-    Datacenter setUnitBwPrice(double unitBwPrice);
+    Datacenter setPricePerBwPerSec(double pricePerBwPerSec);
 
     /**
-     * Getting the unit price of bandwidth resources
+     * Getting the unit price of bandwidth resources per second
      *
-     * @return the unit price of bandwidth resources
+     * @return the unit price of bandwidth resources per second
      */
-    double getUnitBwPrice();
+    double getPricePerBwPerSec();
+
+    /**
+     * Setting the price of renting bandwidth
+     *
+     * @param pricePerBw the price of renting bandwidth
+     */
+    Datacenter setPricePerBw(double pricePerBw);
+
+    /**
+     * Getting the price of renting bandwidth
+     *
+     * @return the price of renting bandwidth
+     */
+    double getPricePerBw();
 
     /**
      * Getting the cost of bandwidth resources
@@ -94,16 +153,16 @@ public interface DatacenterPrice {
     /**
      * Setting the number of cpu resources per rack
      *
-     * @param cpuNumPerRack the number of cpu resources per rack
+     * @param hostNumPerRack the number of cpu resources per rack
      */
-    Datacenter setCpuNumPerRack(int cpuNumPerRack);
+    Datacenter setHostNumPerRack(double hostNumPerRack);
 
     /**
      * Getting the number of cpu resources per rack
      *
      * @return the number of cpu resources per rack
      */
-    int getCpuNumPerRack();
+    double getHostNumPerRack();
 
     /**
      * Set the price of renting a rack
@@ -123,6 +182,7 @@ public interface DatacenterPrice {
      * A host needs to pay the basic rental cost to power on,
      * and here we calculate the cost caused by the maximum number of hosts that need to be powered on
      * throughout the entire process
+     * rackCost = maxPowerOnHostNum / hostNumPerRack * unitRackPrice
      *
      * @return the cost of renting racks
      */
@@ -142,15 +202,38 @@ public interface DatacenterPrice {
      */
     double getAllCost();
 
+    /**
+     * Set the billing type of bandwidth
+     * It can be "used" or "fixed"
+     * <ul>
+     *     <li>used: the cost of bandwidth will be calculated according the amount of network data used:(instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * unitBwPrice </li>
+     *     <li>fixed: the cost of bandwidth will be calculated according the network bandwidth speed and time used: instance.getBw() * unitBwPrice * lifeTimeSec</li>
+     * </ul>
+     *
+     * @param bwBillingType the billing type of bandwidth
+     * @return the datacenter
+     * @see org.cpnsim.datacenter.DatacenterSimple#calculateInstanceBwCost(Instance)
+     */
     DatacenterPrice setBwBillingType(String bwBillingType);
 
+    /**
+     * Get the billing type of bandwidth
+     *
+     * @return the billing type of bandwidth
+     */
     String getBwBillingType();
 
+    /**
+     * Set the utilization of bandwidth.
+     * It is used to calculate the cost of bandwidth when the billing type is "used"
+     * @param bwUtilization the utilization of bandwidth
+     * @return the datacenter
+     */
     DatacenterPrice setBwUtilization(double bwUtilization);
 
+    /**
+     * Get the utilization of bandwidth
+     * @return the utilization of bandwidth
+     */
     double getBwUtilization();
-
-    double getTCOEnergy();
-
-    double getTCORack();
 }

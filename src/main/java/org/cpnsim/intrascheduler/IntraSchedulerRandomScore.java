@@ -4,11 +4,34 @@ import org.cpnsim.request.Instance;
 import org.cpnsim.statemanager.HostState;
 import org.cpnsim.statemanager.SynState;
 
+/**
+ * The intra-scheduler that extends the {@link IntraSchedulerLeastRequested} class.
+ * It has changed the score calculation method to random score.
+ * So that the intra-scheduler is like schedule the instances to the suitable host randomly.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class IntraSchedulerRandomScore extends IntraSchedulerLeastRequested {
+    /**
+     * Construct the intra-scheduler with the id, the first partition id and the partition number.
+     *
+     * @param id               the intra-scheduler id.
+     * @param firstPartitionId the first synchronization partition id.
+     * @param partitionNum     the number of partitions in the data center.
+     */
     public IntraSchedulerRandomScore(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 
+    /**
+     * The score is calculated by the random score.
+     * Note that the score also will be cached in the scoreHostHistoryMap.
+     * @param instance the instance to be scheduled.
+     * @param hostId the id of the host.
+     * @param synState the synchronization state.
+     * @return the score for the host.
+     */
     @Override
     protected double getScoreForHost(Instance instance, int hostId, SynState synState){
         long startTime = System.nanoTime();

@@ -8,46 +8,63 @@ import org.cpnsim.util.ScoredHostsManager;
 
 import java.util.*;
 
+/**
+ * The intra-scheduler that implements the least requested scheduling strategy.
+ * It is extended from the {@link IntraSchedulerSimple}.
+ * It changes the scheduleInstances function to implement the least requested scheduling strategy.
+ * The least requested scheduling strategy is as follows:
+ * <ul>
+ *      <li>Sort the instances by the resource requirements in descending order.</li>
+ *      <li>Get the same instances to schedule.</li>
+ *      <li>Filter {@link #scoredHostNumForSameInstance} hosts and score them from a random start index.
+ *      Note that the score will be cached in the {@link #scoreHostHistoryMap}.</li>
+ *      <li>Schedule the same instances to the hosts with the highest scores one by one.</li>
+ * </ul>
+ * The score of a host that has met the requirements of the instance is calculated as follows:
+ * Score = (cpu remaining resources * 10 / total cpu resources + ram remaining resources * 10 / total ram resources) / 2
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class IntraSchedulerLeastRequested extends IntraSchedulerSimple {
+    /**
+     * The cache of the host score history.
+     */
     Map<Integer, Double> scoreHostHistoryMap = new HashMap<>();
+
+    /**
+     * The number of scored hosts for the same instance.
+     */
     int scoredHostNumForSameInstance = 100;
 
+    /**
+     * The time spent on the getting host state.
+     * It needs to be excluded from the scheduling time.
+     */
     long excludeTimeNanos = 0;
 
+    /**
+     * The random object.
+     */
     Random random = new Random();
 
+    /**
+     * The constructor of the least requested intra-scheduler.
+     *
+     * @param id               the id of the intra-scheduler
+     * @param firstPartitionId the first synchronization partition id
+     * @param partitionNum     the number of partitions
+     */
     public IntraSchedulerLeastRequested(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 
-
-    //        for (Instance instance : instances) {
-//            int suitId = -1;
-//
-//            int synPartitionId = firstPartitionId;
-//            if (datacenter.getStatesManager().isSynCostTime()) {
-//                synPartitionId = (firstPartitionId + datacenter.getStatesManager().getSmallSynGapCount()) % partitionNum;
-//            }
-//            for (int p = 0; p < partitionNum; p++) {
-//                int[] range = datacenter.getStatesManager().getPartitionRangesManager().getRange((synPartitionId + p) % partitionNum);
-//                for (int i = range[0]; i <= range[1]; i++) {
-//                    if (synState.isSuitable(i, instance)) {
-//                        suitId = i;
-//                        break;
-//                    }
-//                }
-//                if (suitId != -1) {
-//                    break;
-//                }
-//            }
-//            if (suitId != -1) {
-//                synState.allocateTmpResource(suitId, instance);
-//                instance.setExpectedScheduleHostId(suitId);
-//                innerSchedulerResult.addScheduledInstance(instance);
-//            } else {
-//                innerSchedulerResult.addFailedScheduledInstance(instance);
-//            }
-//        }
+    /**
+     * Schedule the instances to the host by the least requested scheduling strategy.
+     * @param instances the instances to be scheduled
+     * @param synState the synchronization state
+     * @return the result of the scheduling
+     */
     @Override
     protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
         processBeforeSchedule();
@@ -75,15 +92,30 @@ public class IntraSchedulerLeastRequested extends IntraSchedulerSimple {
         return intraSchedulerResult;
     }
 
+    /**
+     * Process before the scheduling.
+     */
     protected void processBeforeSchedule(){
         excludeTimeNanos = 0;
         scoreHostHistoryMap.clear();
     }
 
+    /**
+     * Judge whether the two instances are the same instance with the same resource requirements.
+     * @param instance1 the first instance
+     * @param instance2 the second instance
+     * @return true if the two instances are the same instance with the same resource requirements, otherwise false.
+     */
     private boolean isSameRequestInstance(Instance instance1, Instance instance2){
         return instance1.getCpu() == instance2.getCpu() && instance1.getRam() == instance2.getRam() && instance1.getStorage() == instance2.getStorage() && instance1.getBw() == instance2.getBw();
     }
 
+    /**
+     * Schedule the same instances to the host by the least requested scheduling strategy.
+     * @param sameInstances the same instances to be scheduled
+     * @param intraSchedulerResult the result of the scheduling
+     * @param synState the synchronization state
+     */
     private void scheduleForSameInstancesToHost(List<Instance> sameInstances, IntraSchedulerResult intraSchedulerResult, SynState synState) {
         int hostNum = datacenter.getStatesManager().getHostNum();
         int randomStartIndex = random.nextInt(hostNum);
@@ -95,6 +127,15 @@ public class IntraSchedulerLeastRequested extends IntraSchedulerSimple {
         scheduleSameInstancesByScoredHosts(sameInstances, scoredHostsManager, intraSchedulerResult, synState);
     }
 
+    /**
+     * Score host for the instance from the random start index.
+     * And get the {@link ScoredHostsManager} for the same instances.
+     * @param instance the instance to be scheduled
+     * @param randomStartIndex the random start index
+     * @param scoredHostNum the number of scored hosts
+     * @param synState the synchronization state
+     * @return the {@link ScoredHostsManager}
+     */
     protected ScoredHostsManager getScoredHostsManager(Instance instance, int randomStartIndex, int scoredHostNum, SynState synState){
         ScoredHostsManager scoredHostsManager = new ScoredHostsManager(new HashMap<>(Map.of(datacenter, scoreHostHistoryMap)));
         List<Integer> innerSchedulerView = getDatacenter().getStatesManager().getIntraSchedulerView(this);
@@ -115,6 +156,13 @@ public class IntraSchedulerLeastRequested extends IntraSchedulerSimple {
         return scoredHostsManager;
     }
 
+    /**
+     * Get the score for the host.
+     * @param instance the instance to be scheduled
+     * @param hostId the id of the host
+     * @param synState the synchronization state
+     * @return the score for the host
+     */
     protected double getScoreForHost(Instance instance, int hostId, SynState synState){
         long startTime = System.nanoTime();
         HostState hostState = synState.getHostState(hostId);
@@ -135,6 +183,13 @@ public class IntraSchedulerLeastRequested extends IntraSchedulerSimple {
         }
     }
 
+    /**
+     * Schedule the same instances to the hosts with the highest scores one by one.
+     * @param sameInstances the same instances to be scheduled
+     * @param scoredHostsManager the scored hosts manager
+     * @param intraSchedulerResult the result of the scheduling
+     * @param synState the synchronization state
+     */
     private void scheduleSameInstancesByScoredHosts(List<Instance> sameInstances, ScoredHostsManager scoredHostsManager, IntraSchedulerResult intraSchedulerResult, SynState synState) {
         for(Instance instance : sameInstances){
             ScoredHost scoredHost= scoredHostsManager.pollBestScoreHost();
@@ -159,7 +214,10 @@ public class IntraSchedulerLeastRequested extends IntraSchedulerSimple {
         }
     }
 
-    // 自定义比较器
+    /**
+     * The custom comparator for the instance.
+     * It compares the instance by the resource requirements.
+     */
     class CustomComparator implements Comparator<Instance> {
         @Override
         public int compare(Instance instance1, Instance instance2) {

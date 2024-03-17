@@ -1,35 +1,77 @@
 package org.cpnsim.request;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * InstanceSimple is a simple implementation of the {@link Instance} interface.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
+
 @Getter
 @Setter
 public class InstanceSimple implements Instance {
+    /**
+     * The id of the instance. Each instance has a unique id.
+     */
     @Getter
+    @NonNull
     int id;
+
+    /**
+     * The user request to which the instance belongs.
+     */
     @Getter
+    @NonNull
     UserRequest userRequest;
-    int cpu;
-    int ram;
-    int storage;
-    int bw;
-    int lifeTime;
+
     InstanceGroup instanceGroup;
-    int destHost;
+
+    int cpu;
+
+    int ram;
+
+    int storage;
+
+    int bw;
+
+    int lifecycle;
+
+    int destHostId;
+
     int host;
+
     double startTime;
+
     double finishTime;
+
     int retryNum;
+
     int retryMaxNum;
+
     int state;
+
     List<Integer> retryHostIds;
+
     int expectedScheduleHostId;
 
-    //还缺userRequest和instanceGroup等待后面进行设置
+    /**
+     * Create an instance with the specified id, CPU, memory, storage, and bandwidth.
+     * The lifecycle of the instance is set to -1 by default, which means the instance will not be terminated automatically.
+     * Later, we must set the userRequest and the instanceGroup to which the instance belongs.
+     *
+     * @param id      the id of the instance
+     * @param cpu     the CPU required by the instance
+     * @param ram     the memory required by the instance
+     * @param storage the storage required by the instance
+     * @param bw      the bandwidth required by the instance
+     */
     public InstanceSimple(int id, int cpu, int ram, int storage, int bw) {
         this.id = id;
 
@@ -37,10 +79,10 @@ public class InstanceSimple implements Instance {
         this.ram = ram;
         this.storage = storage;
         this.bw = bw;
+        this.lifecycle = -1;
 
-        this.lifeTime = -1;
-        this.destHost = -1;
-        this.retryMaxNum = 3;
+        this.destHostId = -1;
+        this.retryMaxNum = 0;
 
         this.host = -1;
         this.expectedScheduleHostId = -1;
@@ -50,9 +92,20 @@ public class InstanceSimple implements Instance {
         this.state = UserRequest.WAITING;
     }
 
-    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, int lifeTime) {
+    /**
+     * Create an instance with the specified id, CPU, memory, storage, bandwidth, and lifecycle.
+     * Later, we must set the userRequest and the instanceGroup to which the instance belongs.
+     *
+     * @param id        the id of the instance
+     * @param cpu       the CPU required by the instance
+     * @param ram       the memory required by the instance
+     * @param storage   the storage required by the instance
+     * @param bw        the bandwidth required by the instance
+     * @param lifecycle the lifecycle of the instance
+     */
+    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, int lifecycle) {
         this(id, cpu, ram, storage, bw);
-        this.lifeTime = lifeTime;
+        this.lifecycle = lifecycle;
     }
 
     @Override
@@ -62,13 +115,13 @@ public class InstanceSimple implements Instance {
 
     @Override
     public boolean isSetDestHost() {
-        return destHost != -1;
+        return destHostId != -1;
     }
 
     @Override
     public Instance addRetryNum() {
         this.retryNum++;
-        if (this.retryNum >= this.retryMaxNum) {
+        if (this.retryNum > this.retryMaxNum) {
             this.state = UserRequest.FAILED;
         }
         return this;
@@ -106,7 +159,7 @@ public class InstanceSimple implements Instance {
                 ", ram=" + ram +
                 ", storage=" + storage +
                 ", bw=" + bw +
-                ", lifeTime=" + lifeTime +
+                ", lifecycle=" + lifecycle +
                 '}';
     }
 }

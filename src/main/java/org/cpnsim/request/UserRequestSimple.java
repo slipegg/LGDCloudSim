@@ -6,26 +6,51 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * UserRequestSimple is a simple implementation of the {@link UserRequest} interface.
+ *
+ * @version 1.0
+ * @since LGDCloudSim 1.0
+ */
+
 @Getter
 @Setter
 public class UserRequestSimple implements UserRequest {
     @Getter
     private int id;
-    private String area;
-    private double submitTime;
-    private double finishTime;
+
     private int belongDatacenterId;
-    private int state;
-    @Getter
-    private String failReason;
-    @Getter
-    private List<InstanceGroupEdge> allocatedEdges;
-    private int successGroupNum;
+
     @Getter
     private List<InstanceGroup> instanceGroups;
+
     @Getter
     private InstanceGroupGraph instanceGroupGraph;
 
+    private String area;
+
+    private double submitTime;
+
+    private double finishTime;
+
+    private int state;
+
+    @Getter
+    private String failReason;
+
+    @Getter
+    private List<InstanceGroupEdge> allocatedEdges;
+
+    private int successGroupNum;
+
+    private double scheduleDelayLimit;
+
+    /**
+     * Construct a user request with the id.
+     * Note that it is empty and the state is waiting.
+     *
+     * @param id the id of the user request.
+     */
     public UserRequestSimple(int id) {
         this.id = id;
         this.state = UserRequest.WAITING;
@@ -33,8 +58,16 @@ public class UserRequestSimple implements UserRequest {
         this.failReason = "";
         this.successGroupNum = 0;
         this.allocatedEdges = new ArrayList<>();
+        this.scheduleDelayLimit = -1;
     }
 
+    /**
+     * Construct a user request with the id, the instance groups and the instance group graph.
+     * Note that the state is waiting.
+     * @param id the id of the user request.
+     * @param instanceGroups the instance groups of the user request.
+     * @param instanceGroupGraph the instance group graph of the user request.
+     */
     public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph) {
         this(id);
         setInstanceGroups(instanceGroups);

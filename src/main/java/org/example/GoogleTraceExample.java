@@ -16,12 +16,10 @@ import org.cpnsim.user.UserRequestManager;
 import org.cpnsim.user.UserRequestManagerGoogleTrace;
 import org.cpnsim.user.UserSimple;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class googleTraceExample {
+public class GoogleTraceExample {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
@@ -31,41 +29,48 @@ public class googleTraceExample {
     String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/googleTrace/datacenter/1_collaborations.json";
     Map<Integer, GoogleTraceRequestFile> GOOGLE_TRACE_REQUEST_FILE_DC_MAP = new HashMap<>() {{
-        put(1, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", "United States", 50000));
-        put(2, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_b_user_requests.csv", "United States", 50000));
-        put(3, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_c_user_requests.csv", "United States", 50000));
-        put(4, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_d_user_requests.csv", "United Kingdom", 50000));
-        put(5, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_e_user_requests.csv", "United Kingdom", 50000));
-        put(6, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_f_user_requests.csv", "China", 50000));
-        put(7, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_g_user_requests.csv", "China", 50000));
-        put(8, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_h_user_requests.csv", "China", 50000));
+        put(1, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", "United States", 5000));
+        put(2, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_b_user_requests.csv", "United States", 5000));
+        put(3, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_c_user_requests.csv", "United States", 5000));
+        put(4, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_d_user_requests.csv", "United States", 5000));
+        put(5, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_e_user_requests.csv", "United States", 5000));
+        put(6, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_f_user_requests.csv", "United States", 5000));
+        put(7, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_g_user_requests.csv", "United States", 5000));
+        put(8, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_h_user_requests.csv", "United States", 5000));
     }};
 
-    int MAX_CPU_CAPACITY = 10000;
-    int MAX_RAM_CAPACITY = 10000;
+    int MAX_CPU_CAPACITY = 100000;
+    int MAX_RAM_CAPACITY = 100000;
     int STORAGE_CAPACITY = 100;
     int BW_CAPACITY = 100;
     int LIFE_TIME_MEAN = -1;
     int LIFE_TIME_STD = 0;
-    double ACCESS_LATENCY_PERCENTAGE = 0.0;
-    double ACCESS_LATENCY_MEAN = 40;
-    double ACCESS_LATENCY_STD = 5;
+    double ACCESS_LATENCY_PERCENTAGE = 1;
+    double ACCESS_LATENCY_MEAN = 100;
+    double ACCESS_LATENCY_STD = 20;
     boolean IS_EDGE_DIRECTED = false;
-    double EDGE_PERCENTAGE = 0.0;
-    double EDGE_DELAY_MEAN = 40;
-    double EDGE_DELAY_STD = 5;
-    double EDGE_BW_MEAN = 100;
-    double EDGE_BW_STD = 50;
+    double EDGE_PERCENTAGE = 1;
+    double EDGE_DELAY_MEAN = 200;
+    double EDGE_DELAY_STD = 10;
+    double EDGE_BW_MEAN = 10;
+    double EDGE_BW_STD = 1;
+    int INSTANCE_GROUP_RETRY_TIMES = 0;
+    int INSTANCE_RETRY_TIMES = 0;
 
     public static void main(String[] args) {
-        new googleTraceExample();
+        new GoogleTraceExample();
     }
 
-    private googleTraceExample() {
+    private GoogleTraceExample() {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
         cpnSim.setIsSqlRecord(true);
+        if (ACCESS_LATENCY_PERCENTAGE==0&&EDGE_PERCENTAGE==0){
+            cpnSim.setDbName("cpnSim-com.db");
+        }else{
+            cpnSim.setDbName("cpnSim-aff.db");
+        }
         factory = new FactorySimple();
         initUser();
         initDatacenters();
@@ -79,11 +84,10 @@ public class googleTraceExample {
         System.out.println("模拟总耗时：" + (end - start) / 1000 + "s");
         System.out.println("运行过程占用最大内存: " + MemoryRecord.getMaxUsedMemory() / 1000000 + " Mb");
         System.out.println("运行结果保存路径:" + cpnSim.getSqlRecord().getDbPath());
-        System.out.println("数据中心间调度花费时间：" + cpnSim.getSqlRecord().getInterScheduleTime());
     }
 
     private void initUser() {
-        userRequestManager = new UserRequestManagerGoogleTrace(GOOGLE_TRACE_REQUEST_FILE_DC_MAP, MAX_CPU_CAPACITY, MAX_RAM_CAPACITY, STORAGE_CAPACITY, BW_CAPACITY, LIFE_TIME_MEAN, LIFE_TIME_STD,
+        userRequestManager = new UserRequestManagerGoogleTrace(GOOGLE_TRACE_REQUEST_FILE_DC_MAP, MAX_CPU_CAPACITY, MAX_RAM_CAPACITY, STORAGE_CAPACITY, BW_CAPACITY, LIFE_TIME_MEAN, LIFE_TIME_STD,INSTANCE_GROUP_RETRY_TIMES, INSTANCE_RETRY_TIMES,
                 ACCESS_LATENCY_PERCENTAGE, ACCESS_LATENCY_MEAN, ACCESS_LATENCY_STD, IS_EDGE_DIRECTED, EDGE_PERCENTAGE, EDGE_DELAY_MEAN, EDGE_DELAY_STD, EDGE_BW_MEAN, EDGE_BW_STD);
         user = new UserSimple(cpnSim, userRequestManager);
     }
@@ -186,7 +190,7 @@ DatacenterSimple6 all has 0 conflicts.
 DatacenterSimple6 has a maximum of 40 hosts powered on, with a total usage time of 72019438.101000 ms for all hosts
 DatacenterSimple7's TCO = 875.281691
 DatacenterSimple7 all has 0 conflicts.
-DatacenterSimple7 has a maximum of 7 hosts powered on, with a total usage time of 13762942.650000 ms for all hosts
+DatacenterSimple7 has a maximum of 7 hosts powered on, with a total usage time of 13762942.65000 ms for all hosts
 All TCO = 120752.636585
 ========================================================================================================================
 
@@ -217,7 +221,7 @@ DatacenterSimple6 all has 0 conflicts.
 DatacenterSimple6 has a maximum of 40 hosts powered on, with a total usage time of 72019438.101000 ms for all hosts
 DatacenterSimple7's TCO = 875.281691
 DatacenterSimple7 all has 0 conflicts.
-DatacenterSimple7 has a maximum of 7 hosts powered on, with a total usage time of 13762942.650000 ms for all hosts
+DatacenterSimple7 has a maximum of 7 hosts powered on, with a total usage time of 13762942.65000 ms for all hosts
 All TCO = 116547.856794
 ========================================================================================================================
 ==================

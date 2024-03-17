@@ -15,11 +15,11 @@ import java.util.Set;
  * it is necessary to allocate each instance to each {@link IntraScheduler} through it.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public interface LoadBalance extends DatacenterEntity {
     /**
-     * The logger.
+     * The logger of the class.
      */
     Logger LOGGER = LoggerFactory.getLogger(LoadBalance.class.getSimpleName());
 
@@ -27,7 +27,7 @@ public interface LoadBalance extends DatacenterEntity {
      * Send instances to the datacenter.
      *
      * @param instances the instance to be sent to the datacenter
-     * @return
+     * @return the intra-schedulers that the instances are sent to
      */
     Set<IntraScheduler> sendInstances(List<Instance> instances);
 

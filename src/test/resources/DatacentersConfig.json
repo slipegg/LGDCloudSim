@@ -29,7 +29,7 @@
             }
           ],
           "synchronizationGap": 120,
-          "innerSchedulers": [
+          "intraSchedulers": [
             {
               "firstPartitionIndex": 0,
               "type": "simple"

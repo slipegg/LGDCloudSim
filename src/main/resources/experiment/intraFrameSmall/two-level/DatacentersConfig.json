@@ -18,7 +18,7 @@
   ],
   "synchronizationGap": 500,
   "architecture": "two-level",
-  "innerSchedulers": [
+  "intraSchedulers": [
     {
       "type": "randomScore"
     },

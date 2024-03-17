@@ -42,6 +42,9 @@ public class PartitionRangesManager {
      **/
     int[] rangeId;
 
+    /**
+     * The number of hosts in the datacenter
+     */
     int hostNum = 0;
 
     /**
@@ -49,10 +52,18 @@ public class PartitionRangesManager {
      */
     public Logger LOGGER = LoggerFactory.getLogger(PartitionRangesManager.class.getSimpleName());
 
+    /**
+     * Create a new empty PartitionRangesManager.
+     */
     public PartitionRangesManager() {
         ranges = new TreeMap<>();
     }
 
+    /**
+     * Create a new PartitionRangesManager with the given ranges.
+     *
+     * @param ranges the ranges of the partitions in the datacenter, the key is the partition id, and the value is the range of the partition.
+     */
     public PartitionRangesManager(Map<Integer, int[]> ranges) {
         this.ranges = new TreeMap<>(ranges);
         rangePart = new int[ranges.size()];

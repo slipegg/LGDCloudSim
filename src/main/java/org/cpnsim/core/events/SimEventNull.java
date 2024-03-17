@@ -3,6 +3,13 @@ package org.cpnsim.core.events;
 import org.cpnsim.core.SimEntity;
 import org.cpnsim.core.Simulation;
 
+/**
+ * A class that implements the Null Object Design Pattern for {@link SimEvent}
+ * class.
+ *
+ * @author Manoel Campos da Silva Filho
+ * @see SimEvent#NULL
+ */
 public class SimEventNull implements SimEvent{
 
     @Override

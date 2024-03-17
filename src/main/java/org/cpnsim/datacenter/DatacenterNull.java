@@ -18,7 +18,7 @@ import java.util.Set;
  * It is used to avoid NullPointerException.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class DatacenterNull implements Datacenter {
     @Override
@@ -112,7 +112,7 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setCentralizedInterSchedule(boolean centralizedInterSchedule) {
+    public Datacenter setCentralizedInterScheduleFlag(boolean centralizedInterScheduleFlag) {
         return null;
     }
 
@@ -177,12 +177,22 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setUnitCpuPrice(double unitCpuPrice) {
+    public Datacenter setPricePerCpuPerSec(double pricePerCpuPerSec) {
         return null;
     }
 
     @Override
-    public double getUnitCpuPrice() {
+    public double getPricePerCpuPerSec() {
+        return 0;
+    }
+
+    @Override
+    public Datacenter setPricePerCpu(double pricePerCpu) {
+        return null;
+    }
+
+    @Override
+    public double getPricePerCpu() {
         return 0;
     }
 
@@ -192,12 +202,22 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setUnitRamPrice(double unitRamPrice) {
+    public Datacenter setPricePerRamPerSec(double pricePerRamPerSec) {
         return null;
     }
 
     @Override
-    public double getUnitRamPrice() {
+    public double getPricePerRamPerSec() {
+        return 0;
+    }
+
+    @Override
+    public Datacenter setPricePerRam(double pricePerRam) {
+        return null;
+    }
+
+    @Override
+    public double getPricePerRam() {
         return 0;
     }
 
@@ -207,12 +227,22 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setUnitStoragePrice(double unitStoragePrice) {
+    public Datacenter setPricePerStoragePerSec(double pricePerStoragePerSec) {
         return null;
     }
 
     @Override
-    public double getUnitStoragePrice() {
+    public double getPricePerStoragePerSec() {
+        return 0;
+    }
+
+    @Override
+    public Datacenter setPricePerStorage(double pricePerStorage) {
+        return null;
+    }
+
+    @Override
+    public double getPricePerStorage() {
         return 0;
     }
 
@@ -222,12 +252,22 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setUnitBwPrice(double unitBwPrice) {
+    public Datacenter setPricePerBwPerSec(double pricePerBwPerSec) {
         return null;
     }
 
     @Override
-    public double getUnitBwPrice() {
+    public double getPricePerBwPerSec() {
+        return 0;
+    }
+
+    @Override
+    public Datacenter setPricePerBw(double pricePerBw) {
+        return null;
+    }
+
+    @Override
+    public double getPricePerBw() {
         return 0;
     }
 
@@ -237,12 +277,12 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setCpuNumPerRack(int cpuNumPerRack) {
+    public Datacenter setHostNumPerRack(double hostNumPerRack) {
         return null;
     }
 
     @Override
-    public int getCpuNumPerRack() {
+    public double getHostNumPerRack() {
         return 0;
     }
 
@@ -288,16 +328,6 @@ public class DatacenterNull implements Datacenter {
 
     @Override
     public double getBwUtilization() {
-        return 0;
-    }
-
-    @Override
-    public double getTCOEnergy() {
-        return 0;
-    }
-
-    @Override
-    public double getTCORack() {
         return 0;
     }
 }

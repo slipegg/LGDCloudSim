@@ -2,19 +2,19 @@ package org.cpnsim.datacenter;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cpnsim.interscheduler.InterScheduler;
+import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A class to represent a instanceGroup queue with first in first out.
  * This class implements the interface {@link InstanceGroupQueue}.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     /**
@@ -29,11 +29,37 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     @Setter
     private int batchNum;
 
+    /**
+     * the flag to set whether to check if the instanceGroup exceeds the maximum schedule delay limit.
+     **/
+    @Getter
+    @Setter
+    private boolean checkOutdatedFlag = false;
+
+    /**
+     * Create a new instance of InstanceGroupQueueFifo with an empty list of instanceGroups and the default batch number.
+     */
     public InstanceGroupQueueFifo() {
-        instanceGroups = new LinkedList<>();
-        batchNum = 10000;
+        this.instanceGroups = new LinkedList<>();
+        this.batchNum = 1000;
     }
 
+    /**
+     * Create a new instance of InstanceGroupQueueFifo with the given list of instanceGroups and the default batch number.
+     *
+     * @param batchNum the number of instanceGroups to be sent in a batch
+     */
+    public InstanceGroupQueueFifo(int batchNum) {
+        this.instanceGroups = new LinkedList<>();
+        this.batchNum = batchNum;
+    }
+
+    /**
+     * Add the instanceGroup in the request to the end of the queue
+     *
+     * @param userRequestsOrInstanceGroups the list of userRequests to be added to the queue
+     * @return the instanceGroupQueue
+     */
     @Override
     public InstanceGroupQueue add(List<?> userRequestsOrInstanceGroups) {
         if (userRequestsOrInstanceGroups.size() != 0) {
@@ -74,29 +100,39 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
     }
 
     @Override
-    public List<InstanceGroup> getBatchItem() {
-        return getItems(batchNum);
+    public QueueResult<InstanceGroup> getBatchItem(double nowTime) {
+        return getItems(batchNum, nowTime);
     }
 
+    /**
+     * Select num instanceGroups at the head of the queue.
+     *
+     * @param num the number of InstanceGroup need to be selected
+     * @param nowTime the current time
+     * @return the batch of groupInstances
+     */
     @Override
-    public List<InstanceGroup> getAllItem() {
-        return getItems(this.instanceGroups.size());
-    }
-
-    @Override
-    public List<InstanceGroup> getItems(int num) {
+    public QueueResult<InstanceGroup> getItems(int num, double nowTime) {
         List<InstanceGroup> sendInstanceGroups = new ArrayList<>();
+        Set<UserRequest> failedUserRequests = new HashSet<>();
+
         for (int i = 0; i < num; i++) {
-            if (instanceGroups.size() == 0) {
+            if (instanceGroups.isEmpty()) {
                 break;
             }
-            if (instanceGroups.get(0).getUserRequest().getState() == UserRequest.FAILED) {
+            UserRequest userRequest = instanceGroups.get(0).getUserRequest();
+            if (userRequest.getState() == UserRequest.FAILED) {
+                instanceGroups.remove(0);
+                continue;
+            }
+            if (checkOutdatedFlag && userRequest.getScheduleDelayLimit() > 0 && nowTime - userRequest.getSubmitTime() > userRequest.getScheduleDelayLimit()) {
+                failedUserRequests.add(userRequest);
                 instanceGroups.remove(0);
                 continue;
             }
             sendInstanceGroups.add(instanceGroups.remove(0));
         }
-        return sendInstanceGroups;
+        return new QueueResult(sendInstanceGroups, failedUserRequests);
     }
 
     @Override
@@ -106,7 +142,7 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
 
     @Override
     public boolean isEmpty() {
-        return instanceGroups.size() == 0;
+        return instanceGroups.isEmpty();
     }
 
 }
