@@ -13,5 +13,8 @@ public class AreaDelayManagerTest {
         AreaDelayManager areaDelayManager = new AreaDelayManager(AREA_DELAY_FILE, regionDelayManager);
         assertEquals(176.93, areaDelayManager.getDelay("Angola", "africa-south1"));
         assertEquals(80.45, areaDelayManager.getDelay("China", "asia-east1"));
+        System.out.println(areaDelayManager.getDelay("United States", "us-east1"));
+        System.out.println(areaDelayManager.getDelay("United States", "northamerica-northeast1"));
+        System.out.println(areaDelayManager.getDelay("United States", "us-west1"));
     }
 }
