@@ -1,82 +1,211 @@
-<div align="right">
-  <img src="https://img.shields.io/badge/-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-03396c?style=flat-square" alt="简体中文" />
-  <a title="en-US" href="README_en-US.md">  <img src="https://img.shields.io/badge/-English-545759?style=flat-squaree" alt="English"></a>
-</div>
+<a id="top"></a>
 
-<img width= "20%" src="https://user-images.githubusercontent.com/46229052/196671093-21ba3438-719d-4dd4-ad79-bfddd1395663.png" align="right" />
+<p align="center">
+<b><a href="#overview">Overview</a></b>
+|
+<b><a href="#scenario">Scenario</a></b>
+|
+<b><a href="#feature">Exclusive Features</a></b>
+|
+<b><a href="#design">System Design</a></b>
+|
+<b><a href="#usage">How to use</a></b>
+|
+<b><a href="#example">Example</a></b>
+|
+<b><a href="#docs-help">Docs and Help</a></b>
+|
+<b><a href="#projects">Related Projects</a></b>
+|
+<b><a href="#license">License</a></b>
+</p>
 
-# CPNSim
-
-CPNSim：CPNSim是一个面向大规模、跨地域多数据中心场景的算力网络模拟系统。
-
-CPNSim还有一个可视化的项目可以在这里找到：[CPNSim-visualization](https://github.com/slipegg/CPNSim-visualization)。
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-
-<br></br>
-![image](https://user-images.githubusercontent.com/46229052/196704278-4d04778b-1a9e-46da-9ae2-18e6a7a1bae5.png)
 <a id="overview"></a>
-<img width="20%" src="https://user-images.githubusercontent.com/46229052/196671599-c2c33b14-be0b-4f7a-92b2-533978afb029.png" align="right" />
-<p align="justify">
-CPNSim面向的是大规模、跨地域多数据中心场景的算力网络场景，它支持的是亲和组任务请求。它除了支持常规的用户请求在数据中心内的调度外，还支持分区状态周期同步，算法运行时间毫秒级刻画，并提供数据中心间调度和数据中心内多调度器并行调度的能力。</p>
 
-CPNSim一方面优化了模拟运行过程中的内存消耗，另一方面优化了模拟运行的效率，使得模拟系统能够支持千万级乃至亿级主机数量和对应万级每秒请求速率的快速模拟。</p>
+# 1. Overview
 
-CPNSim的模拟系统架构如下：
+**LGDCloudSim** is a resource management simulation system for **large-scale geographically distributed cloud data center scenarios**.
+It support simulate diverse scheduling architectures and different request types in large-scale scenarios.
+The programming language it uses is Java17.
+The resource allocation model it simulates mainly includes two layers: host and instance. Instances occupy host resources. Tasks have a fixed life cycle and resources are released directly after expiration.
+Note that LGDCloudSim does not simulate the actual running process of the instance, but only focuses on simulating diverse scheduling strategies.
 
-![image](https://github.com/slipegg/CPNSim/assets/65942634/cea2c8ad-1691-4a0c-8943-e15156ab50fe)
+LGDCloudSim has made a lot of efforts to support the simulation of larger-scale scenarios, including **state management optimization** (unifying hosts as int arrays and using  a multi-level incremental state representation method to save historical sync resource states) and **operation process optimization** (trying to aggregate the same type of events that occur at the same time into one event for processing together).
+After testing on a 16-core 32G server, LGDCloudSim can support a total number of hosts reaching **500 million** and concurrent requests reaching **10 million**.
+More details will be available in the code and in a future paper.
 
-模拟场景如下：
+## Important
 
-![image](https://github.com/slipegg/CPNSim/assets/65942634/29d0bd2a-46d4-497f-9ea6-4914239afd52)
+* The development and maintenance of this project requires a considerable effort. Thus, any form of contribution is encouraged. We would be very grateful if you could give it a star ⭐ using the button at the top of the GitHub page👏.
 
-<br></br>
+* If you are willing to use the system to implement your own project on top of it, creating a fork is a bad solution. You are not supposed to modify the code base to implement your project, but extend it by creating some subclasses. Unless you plan to redistribute your changes, you will end up with an incompatible and obsolete version of the system. The project is constantly evolving and bug fixes are a priority. Your fork with personal changes will miss these updates and high performance improvements.
 
-![image](https://user-images.githubusercontent.com/46229052/196704803-9a9f53b2-8255-4042-9c16-6c8470489791.png)
-<a id="important"></a>
+<a id="scenario"></a>
 
-> * <p align="justify">这个项目的开发和维护需要付出相当大的努力。因此，欢迎任何形式的贡献。 </p>
->* <p align="justify">如果你愿意使用这个框架来实现你自己的项目，那么创建一个fork是一个糟糕的解决方案。您不应该修改代码库来实现您的项目，而是通过创建一些子类来扩展它。除非您计划重新分发您的更改，否则您最终会得到一个不兼容且过时的框架版本。该项目不断发展，错误修复是首要任务。您的fork与个人更改将错过这些更新和高性能改进。</p>
->* <p align="justify">如果你刚刚遇到这个项目，并想稍后查看，请不要忘记添加一个星号 :star: :wink:.。</p>
-<br></br>
-![image](https://user-images.githubusercontent.com/46229052/196704930-a1ef92c7-b62e-42a2-8e82-b6ba8b949070.png)
-<a id="exclusive-features"></a>
+# 2. Scenario
 
-<p align="justify">
-CPNSim提供了很多功能，主要如下。
+The scenario simulated by LGDCloudSim is shown in the Fig.1.
 
-<img width= "20%" src="https://user-images.githubusercontent.com/46229052/196670148-8f647e7f-ffe2-49ea-865b-2c37ca044cb2.png" align="right" />
+![Fig.1 scenario](https://github.com/slipegg/LGDCloudSim/assets/65942634/328a1d84-8281-4b19-83b0-223bd56e6103)
 
-- 支持的算力网络场景更加全面，包括：
-    - 支持亲和性任务请求的模拟。
-    - 支持通过文件自定义亲和组结构，并自动生成有户请求。
-    - 支持丰富的网络情况模拟，包括接入延迟，连接延迟，可分配宽带，动态接入延迟。
-    - 支持通过文件自定义数据中心间的网络拓扑结构与[CloudsimPlus](https://github.com/cloudsimplus/cloudsimplus)类似。
-    - 支持通过文件自定义数据中心情况。
-    - 支持数据中心间进行协商或非协商的调度
-    - 支持数据中心内多调度器并行调度
-    - 支持对多调度器产生的冲突进行处理
-    - 支持对数据中心分区
-    - 支持对数据中心分区进行状态周期同步
-    - ...
-- 支持大规模数量主机和请求的模拟
-    - 最高模拟536,870,911台主机
-    - 模拟万级每秒请求速率
+Data centers are distributed across various regions. 
+Mutually trusted data centers, such as those from the same IaaS provider, establish a collaborative zone for user request forwarding. 
+In Fig.1, data centers with the same color form a collaborative zone. 
+Each collaboration zone has an upper-level cloud administrator to manage its data centers.
+It records basic information about the data center, handles failed requests and maintains a centralized inter-scheduler if one exists.
+Each data center houses numerous hosts, and the resource types of each host include CPU, memory, storage, and bandwidth.
+The capacity of each resource type may vary among different hosts.
 
-CPNSim与[CloudsimPlus](https://github.com/cloudsimplus/cloudsimplus)的对比如下：
+Users are dispersed in different areas worldwide and send user requests through the network.
+The network connects users, data centers, and cloud administrators.
+The basic condition of each network connection is represented by static network latency.
+Real-time changing information delivery latency is represented by dynamic network latency.
+There are also allocatable bandwidth resources between data centers.
+The user request structure is shown in Fig.1.
+Each user request consists of multiple instance groups, each containing several instances. 
+If any instance schedule fails, the entire request is considered a failure.
+Each instance needs to run on a host. It must specify its running lifecycle and required resources like CPU, memory, storage, and bandwidth. 
+Each instance within the same group may vary but must run in the same data center.
+If any instance groups in a user request have access latency constraints, or if there are connection latency constraints or bandwidth needs between any instance groups, then this user request is called an affinity request; 
+otherwise, it is called an ordinary request if there are no network constraints.
 
-不同数量主机的内存消耗对比：
+Depending on the SA, user requests can be sent to the cloud administrator or the data center.
+The cloud administrator's inter-scheduler can either directly schedule instances of user requests to hosts in various data centers or simply forward them to each data center by the simple state of every data center.
+The inter-scheduler in the data center can forward user requests to other data centers or schedule them to hosts. 
+When user requests are only scheduled within the data center, multiple intra-schedulers can be used for scheduling. 
+The load balancer distributes user requests to each intra-scheduler, and each intra-scheduler then schedules user requests to hosts. 
+Each inter-scheduler and intra-scheduler obtains the states of the host through synchronization.
+In addition, to address potential conflicts, each scheduling result must pass through a conflict handler before being placed to run on a host.
 
-![image](https://github.com/slipegg/CPNSim/assets/65942634/2a201b29-5957-4c7c-a03b-b0d7312bec72)
-  
-不同数量请求的内存消耗对比：
+<p align="right"><a href="#top">:arrow_up:</a></p>
 
-![image](https://github.com/slipegg/CPNSim/assets/65942634/2347c641-c7d0-4aef-8a4a-cc6cc3e3496e)
-  
-不同数量请求的模拟速度对比：
+<a id="feature"></a>
 
-![image](https://github.com/slipegg/CPNSim/assets/65942634/374c5955-678d-4362-9be9-efb0fcdd750b)
+# 3. Exclusive Features
 
-![image](https://github.com/slipegg/CPNSim/assets/65942634/9b8cbd5c-d117-4cb4-830a-8e37ee32d0d5)
+LGDCloudSim offers many exclusive features, many of which are generated by large-scale scenarios:
 
-<br></br>
+## 3.1. Resource
+
+* Support host state partition synchronization to the intra-scheduler.
+* Support generating and synchronizing customized simple host states to the inter-scheduler.
+* Support prediction based on historical host status obtained through synchronization.
+
+## 3.2 Network
+
+* Support simulating network delays between data centers in units of regions.
+* Support simulating dynamic network delays between data centers through dynamic network fluctuation models.
+* Support simulating bandwidth between data centers.
+* Support users to use areas as units and data centers to use regions as units to simulate the access delay between users and data centers.
+* Provides network data processed from the real [Google network dataset](https://cloud.google.com/network-intelligence-center/docs/performance-dashboard/how-to/view-google-cloud-latency).
+
+## 3.3 Request
+
+* Support ordinary requests.
+* Support affinity requests with access latency constraints or connection latency constraints or bandwidth needs.
+
+## 3.4 Scheduler
+
+* Support diverse active request forwarding by upper-layer centralized inter-scheduler or data center's inter-scheduler.
+* Support parallel scheduling of multiple intra-schedulers in the data center.
+* Support dividing intra-scheduler's scheduling view.
+* Support load balancing of intra-schedulers.
+* Support handling of scheduling conflicts.
+* Support tracking scheduling time.
+
+## 3.5 Others
+
+* Support large-scale simulation up to 500 million host and 10 million request in a 16-core 32G server.
+* Supports diversified log output for the simulation process (through components of [CloudSim Plus](https://github.com/cloudsimplus/cloudsimplus)).
+* Support using SQLite database to record scheduling simulation results.
+* Support scene setting through files or codes.
+* Support generating data center resources and user requests relying on [Google Cluster datasets](https://github.com/google/cluster-data).
+* ...
+
+<p align="right"><a href="#top">:arrow_up:</a></p>
+
+<a id="design"></a>
+
+# 4. System Design
+
+Fig. 2 shows the architectural elements and multi-layered design of the LGDCloudSim. Its fundamental components consist of four modules: simulation core module, network module, data center module, and user request module. 
+System users can customize data centers, requests, and networks tobuild different scenarios and  define execution strategies for testing on the provided platform.
+
+![Fig.2 system design](https://github.com/slipegg/LGDCloudSim/assets/65942634/cda3d125-04b0-4e66-9fba-63fb89888c0e)
+
+
+<p align="right"><a href="#top">:arrow_up:</a></p>
+
+<a id="usage"></a>
+
+# 5. How to use LGDCloudSim
+
+LGDCloudSim is a Java 17 project that uses maven for build and dependency management. 
+To build and run the project, you need JDK 17+ installed and an updated version of maven (such as 3.8.6+). 
+Maven is already installed on your IDE. 
+Unless it's out-of-date or you want to build the project from the command line, you need to install maven into your operating system. 
+All project dependencies are download automatically by maven.
+
+We highly recommend you use [IDEA](https://www.jetbrains.com/idea/) to use LGDCloudSim.
+IDEA can quickly install the environment required for the project, allowing you to focus on running and modifying LGDCloudSim, if necessary.
+You can first try to run the examples in IDEA, they are under the src/main/java/org/example folder.
+
+<p align="right"><a href="#top">:arrow_up:</a></p>
+
+<a id="example"></a>
+
+# 6. A simple example
+
+A simple running example is shown below. 
+There is no need to configure the scene too much in the code, but only needs to customize it through files.
+
+```java
+    private SimpleExample() {
+        Log.setLevel(Level.INFO);
+        LGDCloudSim = new CloudSim();
+        factory = new FactorySimple();
+        initUser();
+        initDatacenters();
+        initNetwork();
+        LGDCloudSim.start();
+    }
+
+    private void initUser() {
+        userRequestManager = new UserRequestManagerCsv(USER_REQUEST_FILE);
+        user = new UserSimple(LGDCloudSim, userRequestManager);
+    }
+
+    private void initDatacenters() {
+        InitDatacenter.initDatacenters(LGDCloudSim, factory, DATACENTER_CONFIG_FILE);
+    }
+
+    private void initNetwork() {
+        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
+        networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
+        LGDCloudSim.setNetworkTopology(networkTopology);
+    }
+```
+<a id="docs-help"></a>
+# 7. Documentation and Help
+
+The specific documentation for each class in LGDCloudSim has been updated and can be obtained online through [ReadTheDocs](#). I hope it will be helpful to you. 
+In addition, if you have any questions, you can also ask them through the issue on github, and I will be happy to help you as much as I can.
+
+<p align="right"><a href="#top">:arrow_up:</a></p>
+
+<a id="projects"></a>
+
+# 8. Related Projects
+
+The simulation event structure, event queues, and event-driven rules are based on [CloudSim](https://github.com/Cloudslab/cloudsim), while the logger is derived from [CloudSim Plus](https://github.com/cloudsimplus/cloudsimplu).
+Thanks very much for the great work they did and I learned a lot from them.
+
+<p align="right"><a href="#top">:arrow_up:</a></p>
+
+<a id="license"></a>
+
+# 9. License
+
+This project is licensed under [GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0), as defined inside CloudSim 3 source files.
+
+<p align="right"><a href="#top">:arrow_up:</a></p>
