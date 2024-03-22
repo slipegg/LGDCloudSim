@@ -1,12 +1,12 @@
 package org.example.StatesManagerComparison;
 
 import lombok.Getter;
-import org.cpnsim.intrascheduler.IntraScheduler;
-import org.cpnsim.intrascheduler.IntraSchedulerSimple;
-import org.cpnsim.record.MemoryRecord;
-import org.cpnsim.statemanager.HostState;
-import org.cpnsim.statemanager.PartitionRangesManager;
-import org.cpnsim.statemanager.SynGapManager;
+import org.lgdcloudsim.intrascheduler.IntraScheduler;
+import org.lgdcloudsim.intrascheduler.IntraSchedulerSimple;
+import org.lgdcloudsim.record.MemoryRecord;
+import org.lgdcloudsim.statemanager.HostState;
+import org.lgdcloudsim.statemanager.PartitionRangesManager;
+import org.lgdcloudsim.statemanager.SynGapManager;
 
 import java.util.*;
 

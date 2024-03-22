@@ -1,9 +1,9 @@
 package org.example.StatesManagerComparison;
 
-import org.cpnsim.intrascheduler.IntraScheduler;
-import org.cpnsim.intrascheduler.IntraSchedulerSimple;
-import org.cpnsim.record.MemoryRecord;
-import org.cpnsim.statemanager.*;
+import org.lgdcloudsim.intrascheduler.IntraScheduler;
+import org.lgdcloudsim.intrascheduler.IntraSchedulerSimple;
+import org.lgdcloudsim.record.MemoryRecord;
+import org.lgdcloudsim.statemanager.*;
 
 import java.lang.reflect.Field;
 import java.util.*;
