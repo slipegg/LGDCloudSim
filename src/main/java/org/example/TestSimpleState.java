@@ -1,6 +1,6 @@
 package org.example;
 
-import org.cpnsim.record.MemoryRecord;
+import org.lgdcloudsim.record.MemoryRecord;
 
 import java.util.Random;
 
