@@ -1,8 +1,12 @@
 package org.lgdcloudsim.core;
 
-import org.lgdcloudsim.datacenter.*;
+import org.lgdcloudsim.conflicthandler.ConflictHandler;
+import org.lgdcloudsim.conflicthandler.ConflictHandlerSimple;
 import org.lgdcloudsim.intrascheduler.*;
 import org.lgdcloudsim.interscheduler.*;
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.loadbalancer.LoadBalancerBatch;
+import org.lgdcloudsim.loadbalancer.LoadBalancerRound;
 import org.lgdcloudsim.statemanager.PredictionManager;
 import org.lgdcloudsim.statemanager.PredictionManagerSimple;
 
@@ -50,10 +54,10 @@ public class FactorySimple implements Factory {
     }
 
     @Override
-    public LoadBalance getLoadBalance(String type) {
+    public LoadBalancer getLoadBalance(String type) {
         return switch (type) {
-            case "round", "Round" -> new LoadBalanceRound();
-            case "batch", "Batch" -> new LoadBalanceBatch();
+            case "round", "Round" -> new LoadBalancerRound();
+            case "batch", "Batch" -> new LoadBalancerBatch();
             default -> null;
         };
     }

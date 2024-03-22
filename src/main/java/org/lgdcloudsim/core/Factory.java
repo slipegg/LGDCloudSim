@@ -1,7 +1,7 @@
 package org.lgdcloudsim.core;
 
-import org.lgdcloudsim.datacenter.LoadBalance;
-import org.lgdcloudsim.datacenter.ConflictHandler;
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.conflicthandler.ConflictHandler;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.statemanager.PredictionManager;
@@ -13,7 +13,7 @@ import org.lgdcloudsim.statemanager.PredictionManager;
  * So when the user customizes a component with different methods,
  * it needs to be registered here. Then it can be initialized through the file.
  * Current components are:
- * {@link IntraScheduler}, {@link PredictionManager}, {@link InterScheduler}, {@link LoadBalance}, {@link ConflictHandler}.
+ * {@link IntraScheduler}, {@link PredictionManager}, {@link InterScheduler}, {@link LoadBalancer}, {@link ConflictHandler}.
  *
  * @author Jiawen Liu
  * @since LGDCloudSim 1.0
@@ -49,11 +49,11 @@ public interface Factory {
     InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward);
 
     /**
-     * Get the{@link LoadBalance} by the type name.
+     * Get the{@link LoadBalancer} by the type name.
      * @param type the type name of the load balance.
      * @return the load balance.
      */
-    LoadBalance getLoadBalance(String type);
+    LoadBalancer getLoadBalance(String type);
 
     /**
      * Get the {@link ConflictHandler} by the type name.

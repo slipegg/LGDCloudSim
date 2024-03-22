@@ -1,7 +1,9 @@
 package org.lgdcloudsim.core;
 
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
 import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.util.FailedOutdatedResult;
 
 import java.util.Set;
 
@@ -130,14 +132,14 @@ public class CloudSimTag {
     /**
      * This event is used to respond to the {@link #SCHEDULE_TO_DC_HOST} event.
      * It indicates that there are conflicts or failures in scheduling the instances to the host.
-     * The {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a {@link org.lgdcloudsim.datacenter.FailedOutdatedResult< InstanceGroup >} object.
+     * The {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a {@link FailedOutdatedResult < InstanceGroup >} object.
      */
     public static final int SCHEDULE_TO_DC_HOST_CONFLICTED = SCHEDULE_TO_DC_HOST_OK + 1;
 
     /**
      * Denotes the start of the load balancing process.
      * It is used by the {@link org.lgdcloudsim.datacenter.Datacenter}.
-     * It will call the {@link org.lgdcloudsim.datacenter.LoadBalance} to distribute the instances to the intra-schedulers.
+     * It will call the {@link LoadBalancer} to distribute the instances to the intra-schedulers.
      */
     public static final int LOAD_BALANCE_SEND = SCHEDULE_TO_DC_HOST_CONFLICTED + 1;
 

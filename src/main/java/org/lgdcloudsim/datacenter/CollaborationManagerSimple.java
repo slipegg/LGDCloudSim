@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.interscheduler.InterScheduler;
+import org.lgdcloudsim.queue.InstanceGroupQueue;
+import org.lgdcloudsim.queue.InstanceGroupQueueFifo;
 
 import java.util.*;
 

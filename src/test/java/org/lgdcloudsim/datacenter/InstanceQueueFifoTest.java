@@ -1,5 +1,6 @@
 package org.lgdcloudsim.datacenter;
 
+import org.lgdcloudsim.queue.InstanceQueueFifo;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceSimple;
 import org.lgdcloudsim.request.UserRequest;

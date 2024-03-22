@@ -1,6 +1,7 @@
 package org.lgdcloudsim.datacenter;
 
 import org.lgdcloudsim.interscheduler.InterScheduler;
+import org.lgdcloudsim.queue.InstanceGroupQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

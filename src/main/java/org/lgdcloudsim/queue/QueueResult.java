@@ -1,4 +1,4 @@
-package org.lgdcloudsim.datacenter;
+package org.lgdcloudsim.queue;
 
 
 import lombok.Getter;

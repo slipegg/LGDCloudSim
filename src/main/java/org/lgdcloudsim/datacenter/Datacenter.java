@@ -1,8 +1,11 @@
 package org.lgdcloudsim.datacenter;
 
+import org.lgdcloudsim.conflicthandler.ConflictHandler;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.queue.InstanceQueue;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
@@ -13,7 +16,7 @@ import java.util.Set;
 /**
  * An interface to be implemented by each class that represents a datacenter.
  * It extends {@link SimEntity} and {@link DatacenterPrice}.
- * The mainly components of a datacenter are the {@link InterScheduler}, {@link LoadBalance}, {@link IntraScheduler}, {@link ConflictHandler}, and {@link StatesManager}.
+ * The mainly components of a datacenter are the {@link InterScheduler}, {@link LoadBalancer}, {@link IntraScheduler}, {@link ConflictHandler}, and {@link StatesManager}.
  *
  * @author Jiawen Liu
  * @since LGDCloudSim 1.0
@@ -38,11 +41,15 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Get the {@link InterScheduler}. **/
     List<IntraScheduler> getIntraSchedulers();
 
-    /** Set the {@link LoadBalance}. **/
-    Datacenter setLoadBalance(LoadBalance loadBalance);
+    /**
+     * Set the {@link LoadBalancer}.
+     **/
+    Datacenter setLoadBalancer(LoadBalancer loadBalancer);
 
-    /** Get the {@link LoadBalance}. **/
-    LoadBalance getLoadBalance();
+    /**
+     * Get the {@link LoadBalancer}.
+     **/
+    LoadBalancer getLoadBalancer();
 
     /**
      * Set the {@link ConflictHandler}.

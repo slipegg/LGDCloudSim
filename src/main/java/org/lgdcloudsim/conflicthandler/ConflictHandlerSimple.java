@@ -1,12 +1,14 @@
-package org.lgdcloudsim.datacenter;
+package org.lgdcloudsim.conflicthandler;
 
 import lombok.Getter;
+import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.statemanager.HostState;
 import org.lgdcloudsim.statemanager.StatesManager;
+import org.lgdcloudsim.util.FailedOutdatedResult;
 
 import java.util.*;
 

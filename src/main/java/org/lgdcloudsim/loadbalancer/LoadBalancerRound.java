@@ -1,7 +1,8 @@
-package org.lgdcloudsim.datacenter;
+package org.lgdcloudsim.loadbalancer;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 
@@ -12,12 +13,12 @@ import java.util.Set;
 /**
  * A class to represent a load balancer.
  * This load balancer performs load balancing through cyclic allocation
- * This class implements the interface {@link LoadBalance}.
+ * This class implements the interface {@link LoadBalancer}.
  *
  * @author Jiawen Liu
  * @since LGDCloudSim 1.0
  */
-public class LoadBalanceRound implements LoadBalance {
+public class LoadBalancerRound implements LoadBalancer {
     /**
      * the data center that the load balancer belongs to.
      **/
@@ -66,7 +67,7 @@ public class LoadBalanceRound implements LoadBalance {
         }
 
         lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getIntraSchedulers().size();
-        LOGGER.info("{}: {}'s LoadBalanceRound send {} instances to {} intraScheduler,On average, each scheduler receives around {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(), sentIntraSchedulers.size(), onceSendSize);
+        LOGGER.info("{}: {}'s LoadBalancerRound send {} instances to {} intraScheduler,On average, each scheduler receives around {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(), sentIntraSchedulers.size(), onceSendSize);
         return sentIntraSchedulers;
     }
 

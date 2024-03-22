@@ -2,6 +2,7 @@ package org.lgdcloudsim.intrascheduler;
 
 import org.lgdcloudsim.core.DatacenterEntity;
 import org.lgdcloudsim.core.Nameable;
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.List;
  * It is used to schedule the instances in the data center.
  * Multi intra-schedulers can coexist in the data center.
  * They are able to schedule the instances in parallel.
- * The {@link org.lgdcloudsim.datacenter.LoadBalance} will distribute the received instances to the intra-schedulers.
+ * The {@link LoadBalancer} will distribute the received instances to the intra-schedulers.
  * Like the {@link org.lgdcloudsim.interscheduler.InterScheduler}, each intra-scheduler contains two similar instance queues.
  * One is the new instance queue, and the other is the retry instance queue.
  * Every intra-scheduler has its scheduling view through synchronization.

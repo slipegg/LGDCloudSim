@@ -3,6 +3,8 @@ package org.lgdcloudsim.datacenter;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.lgdcloudsim.conflicthandler.ConflictHandler;
+import org.lgdcloudsim.conflicthandler.ConflictHandlerResult;
 import org.lgdcloudsim.core.CloudSimEntity;
 import org.lgdcloudsim.core.CloudSimTag;
 import org.lgdcloudsim.core.SimEntity;
@@ -13,11 +15,16 @@ import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
 import org.lgdcloudsim.interscheduler.InterSchedulerSimple;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.queue.InstanceGroupQueue;
+import org.lgdcloudsim.queue.InstanceQueue;
+import org.lgdcloudsim.queue.InstanceQueueFifo;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.statemanager.StatesManager;
+import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,10 +97,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private List<IntraScheduler> intraSchedulers;
 
     /**
-     * See {@link LoadBalance}.
+     * See {@link LoadBalancer}.
      */
     @Getter
-    private LoadBalance loadBalance;
+    private LoadBalancer loadBalancer;
 
     /**
      * See {@link ConflictHandler}.
@@ -305,10 +312,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return this;
     }
 
-    @Override
-    public Datacenter setLoadBalance(LoadBalance loadBalance) {
-        this.loadBalance = loadBalance;
-        loadBalance.setDatacenter(this);
+    public Datacenter setLoadBalancer(LoadBalancer loadBalancer) {
+        this.loadBalancer = loadBalancer;
+        loadBalancer.setDatacenter(this);
         return this;
     }
 
@@ -794,13 +800,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processLoadBalanceSend(SimEvent evt) {
         List<Instance> instances = instanceQueue.getAllItem();
         if (instances.size() != 0) {
-            Set<IntraScheduler> sentIntraScheduler = loadBalance.sendInstances(instances);
+            Set<IntraScheduler> sentIntraScheduler = loadBalancer.sendInstances(instances);
             if (instanceQueue.size() > 0) {
-                send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
+                send(this, loadBalancer.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
             }
             for (IntraScheduler intraScheduler : sentIntraScheduler) {
                 if (!isIntraSchedulerBusy.containsKey(intraScheduler) || !isIntraSchedulerBusy.get(intraScheduler)) {
-                    send(this, loadBalance.getLoadBalanceCostTime(), CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
+                    send(this, loadBalancer.getLoadBalanceCostTime(), CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
                     isIntraSchedulerBusy.put(intraScheduler, true);
                 }
             }

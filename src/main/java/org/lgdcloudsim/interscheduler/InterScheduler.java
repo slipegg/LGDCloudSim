@@ -4,6 +4,7 @@ import org.lgdcloudsim.core.DatacenterEntity;
 import org.lgdcloudsim.core.Nameable;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.queue.InstanceGroupQueue;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
 
@@ -17,7 +18,7 @@ import java.util.Map;
  * In the current design, only one centralized inter-scheduler can exist in each collaboration zone, and only one inter-scheduler can exist in each data center.
  * TODO We will add support for multiple inter-scheduler parallel scheduling architectures in the near future.
  * The basic scheduling unit of the inter-scheduler is the {@link InstanceGroup}.
- * Each inter-scheduler maintains two {@link org.lgdcloudsim.datacenter.InstanceGroupQueue} of instance groups:
+ * Each inter-scheduler maintains two {@link InstanceGroupQueue} of instance groups:
  * one for normally scheduled groups and another for groups awaiting rescheduling due to previous scheduling failures.
  * The inter-scheduler synchronously acquires the customizable state of various data centers from each data center’s {@link org.lgdcloudsim.statemanager.StatesManager},
  * like the total remaining resources of each data center.
