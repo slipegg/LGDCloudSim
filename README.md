@@ -206,6 +206,6 @@ Thanks very much for the great work they did and I learned a lot from them.
 
 # 9. License
 
-This project is licensed under [GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0), as defined inside CloudSim 3 source files.
+This project is licensed under [GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0), as defined inside source files of CloudSim and CloudSim Plus .
 
 <p align="right"><a href="#top">:arrow_up:</a></p>
