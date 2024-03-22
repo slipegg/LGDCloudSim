@@ -12,7 +12,7 @@ import lombok.NonNull;
 import org.lgdcloudsim.core.events.SimEvent;
 import org.lgdcloudsim.datacenter.CollaborationManager;
 import org.lgdcloudsim.datacenter.Datacenter;
-import org.lgdcloudsim.datacenter.FailedOutdatedResult;
+import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
 import org.lgdcloudsim.interscheduler.InterSchedulerSimple;

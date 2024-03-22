@@ -1,9 +1,10 @@
-package org.lgdcloudsim.datacenter;
+package org.lgdcloudsim.conflicthandler;
 
 import lombok.Getter;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.UserRequest;
+import org.lgdcloudsim.util.FailedOutdatedResult;
 
 import java.util.HashMap;
 import java.util.List;

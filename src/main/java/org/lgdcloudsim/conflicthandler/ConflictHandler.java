@@ -1,9 +1,10 @@
-package org.lgdcloudsim.datacenter;
+package org.lgdcloudsim.conflicthandler;
 
 import org.lgdcloudsim.core.DatacenterEntity;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.util.FailedOutdatedResult;
 
 import java.util.List;
 import java.util.Map;

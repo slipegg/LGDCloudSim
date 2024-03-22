@@ -1,4 +1,4 @@
-package org.lgdcloudsim.datacenter;
+package org.lgdcloudsim.loadbalancer;
 
 import org.lgdcloudsim.core.DatacenterEntity;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
@@ -17,11 +17,11 @@ import java.util.Set;
  * @author Jiawen Liu
  * @since LGDCloudSim 1.0
  */
-public interface LoadBalance extends DatacenterEntity {
+public interface LoadBalancer extends DatacenterEntity {
     /**
      * The logger of the class.
      */
-    Logger LOGGER = LoggerFactory.getLogger(LoadBalance.class.getSimpleName());
+    Logger LOGGER = LoggerFactory.getLogger(LoadBalancer.class.getSimpleName());
 
     /**
      * Send instances to the datacenter.
@@ -36,7 +36,7 @@ public interface LoadBalance extends DatacenterEntity {
      *
      * @param loadBalanceCostTime the load balance cost time
      */
-    LoadBalance setLoadBalanceCostTime(double loadBalanceCostTime);
+    LoadBalancer setLoadBalanceCostTime(double loadBalanceCostTime);
 
     /**
      * Get the load balance cost time.

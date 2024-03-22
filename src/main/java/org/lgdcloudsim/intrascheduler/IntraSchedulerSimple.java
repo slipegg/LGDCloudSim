@@ -2,11 +2,11 @@ package org.lgdcloudsim.intrascheduler;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.lgdcloudsim.datacenter.QueueResult;
+import org.lgdcloudsim.queue.QueueResult;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.datacenter.Datacenter;
-import org.lgdcloudsim.datacenter.InstanceQueue;
-import org.lgdcloudsim.datacenter.InstanceQueueFifo;
+import org.lgdcloudsim.queue.InstanceQueue;
+import org.lgdcloudsim.queue.InstanceQueueFifo;
 import org.lgdcloudsim.statemanager.HostState;
 import org.lgdcloudsim.statemanager.SynState;
 

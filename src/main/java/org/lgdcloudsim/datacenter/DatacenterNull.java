@@ -1,10 +1,13 @@
 package org.lgdcloudsim.datacenter;
 
+import org.lgdcloudsim.conflicthandler.ConflictHandler;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.core.events.SimEvent;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.queue.InstanceQueue;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
@@ -82,12 +85,12 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setLoadBalance(LoadBalance loadBalance) {
+    public Datacenter setLoadBalancer(LoadBalancer loadBalancer) {
         return null;
     }
 
     @Override
-    public LoadBalance getLoadBalance() {
+    public LoadBalancer getLoadBalancer() {
         return null;
     }
 

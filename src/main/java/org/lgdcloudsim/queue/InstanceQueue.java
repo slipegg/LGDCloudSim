@@ -1,4 +1,4 @@
-package org.lgdcloudsim.datacenter;
+package org.lgdcloudsim.queue;
 
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
