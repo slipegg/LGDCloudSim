@@ -91,7 +91,7 @@ public class FactorySimple implements Factory {
     public SqlRecord getSqlRecord(String type, String dbName) {
         return switch (type) {
             case "simple", "Simple" -> new SqlRecordSimple(dbName);
-            case "detailscheduletime", "DetailScheduleTime" -> new SqlRecordDetailScheduleTime(dbName);
+            case "detailscheduletime", "detailScheduleTime", "DetailScheduleTime" -> new SqlRecordDetailScheduleTime(dbName);
             case "Null", "NULL", "null" -> new SqlRecordNull();
             default -> null;
         };
