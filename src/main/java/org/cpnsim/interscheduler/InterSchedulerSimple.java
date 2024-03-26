@@ -236,7 +236,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
         this.scheduleTime = Math.max(0.1, end - start);
 
-        setInstanceGroupInterScheduleTime(waitSchedulingInstanceGroups, this.scheduleTime);
+        setInstanceGroupInterScheduleEndTime(waitSchedulingInstanceGroups, getSimulation().clock() + this.scheduleTime);
 
         if(end-start<0.1) {
             LOGGER.warn("{}: interSchedule schedule time is less than 0.1 ms ({} ms).", simulation.clockStr(), end-start);
@@ -246,9 +246,9 @@ public class InterSchedulerSimple implements InterScheduler {
         return interSchedulerResult;
     }
 
-    private void setInstanceGroupInterScheduleTime(List<InstanceGroup> waitSchedulingInstanceGroups, double scheduleTime) {
+    private void setInstanceGroupInterScheduleEndTime(List<InstanceGroup> waitSchedulingInstanceGroups, double scheduleEndTime) {
         for (InstanceGroup instanceGroup : waitSchedulingInstanceGroups) {
-            instanceGroup.setInterScheduleTime(scheduleTime);
+            instanceGroup.setInterScheduleEndTime(scheduleEndTime);
         }
     }
 

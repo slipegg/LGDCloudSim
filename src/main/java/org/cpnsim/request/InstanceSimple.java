@@ -61,8 +61,7 @@ public class InstanceSimple implements Instance {
 
     int expectedScheduleHostId;
 
-    @Getter
-    double intraScheduleTime;
+    double intraScheduleEndTime;
 
     /**
      * Create an instance with the specified id, CPU, memory, storage, and bandwidth.
@@ -167,7 +166,8 @@ public class InstanceSimple implements Instance {
     }
 
     @Override
-    public void setIntraScheduleTime(double intraScheduleTime) {
-        this.intraScheduleTime += intraScheduleTime;
+    public Instance setIntraScheduleEndTime(double intraScheduleEndTime) {
+        this.intraScheduleEndTime = intraScheduleEndTime;
+        return this;
     }
 }

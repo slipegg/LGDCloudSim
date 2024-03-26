@@ -211,7 +211,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             try {
                 if (requests.get(0) instanceof InstanceGroup) {
                     List<InstanceGroup> instanceGroups = requests;
-                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,interScheduleTime) VALUES (?,?,?,?,?,?,?);");
+                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,interScheduleEndTime) VALUES (?,?,?,?,?,?,?);");
                     for (InstanceGroup instanceGroup : instanceGroups) {
                         addBatchInStatementForRecordInstanceGroupsReceivedInfo(instanceGroup);
                     }
@@ -219,7 +219,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
                 }
                 if (requests.get(0) instanceof UserRequest) {
                     List<UserRequest> userRequests = requests;
-                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,interScheduleTime) VALUES (?,?,?,?,?,?,?);");
+                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,interScheduleEndTime) VALUES (?,?,?,?,?,?,?);");
                     for (UserRequest userRequest : userRequests) {
                         for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
                             addBatchInStatementForRecordInstanceGroupsReceivedInfo(instanceGroup);
@@ -245,7 +245,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
         statement.setInt(4, instanceGroup.getReceiveDatacenter().getId());
         statement.setDouble(5, instanceGroup.getReceivedTime());
         statement.setInt(6, instanceGroup.getInstances().size());
-        statement.setDouble(7, instanceGroup.getInterScheduleTime());
+        statement.setDouble(7, instanceGroup.getInterScheduleEndTime());
         statement.addBatch();
     }
 
@@ -332,12 +332,12 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     @Override
     public void recordInstanceGroupAllInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum,interScheduleTime) VALUES ("
+            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum,interScheduleEndTime) VALUES ("
                     + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + ","
                     + instanceGroup.getReceiveDatacenter().getId() + "," + instanceGroup.getReceivedTime() + ","
                     + instanceGroup.getFinishTime() + ","
                     + instanceGroup.getInstances().size() + ","
-                    + instanceGroup.getInterScheduleTime()
+                    + instanceGroup.getInterScheduleEndTime()
                     + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
@@ -348,11 +348,11 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     public void recordInstanceCreateInfo(Instance instance) {
         try {
             sql = "INSERT INTO " + this.instanceTableName +
-                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime,intraScheduleTime) VALUES ("
+                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime,intraScheduleEndTime) VALUES ("
                     + instance.getId() + "," + instance.getInstanceGroup().getId() + "," + instance.getUserRequest().getId() + ","
                     + instance.getCpu() + "," + instance.getRam() + "," + instance.getStorage() + "," + instance.getBw() + ","
                     + instance.getLifecycle() + "," + instance.getRetryNum() + "," + instance.getInstanceGroup().getReceiveDatacenter().getId() + "," + instance.getHost() + ","
-                    + instance.getStartTime() + "," + instance.getIntraScheduleTime() + ");";
+                    + instance.getStartTime() + "," + instance.getIntraScheduleEndTime() + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -363,7 +363,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
         try {
             statement = conn.prepareStatement("INSERT INTO instance " +
-                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, intraScheduleTime) " +
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, intraScheduleEndTime) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
             for (List<Instance> instanceList : instances.values()) {
@@ -381,7 +381,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
                         statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
                         statement.setInt(11, instance.getHost());
                         statement.setDouble(12, instance.getStartTime());
-                        statement.setDouble(13, instance.getIntraScheduleTime());
+                        statement.setDouble(13, instance.getIntraScheduleEndTime());
                         statement.addBatch();
                     }
                 }
@@ -396,7 +396,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
         try {
             statement = conn.prepareStatement("INSERT INTO instance " +
-                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, intraScheduleTime) " +
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, intraScheduleEndTime) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
             for (InstanceGroup instanceGroup : instanceGroups) {
@@ -414,7 +414,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
                         statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
                         statement.setInt(11, instance.getHost());
                         statement.setDouble(12, instance.getStartTime());
-                        statement.setDouble(13, instance.getIntraScheduleTime());
+                        statement.setDouble(13, instance.getIntraScheduleEndTime());
                         statement.addBatch();
                     }
                 }
@@ -444,7 +444,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     public void recordInstancesAllInfo(List<Instance> instances) {
         try {
             statement = conn.prepareStatement("INSERT INTO instance " +
-                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, finishTime, intraScheduleTime) " + "VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, finishTime, intraScheduleEndTime) " + "VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             for (Instance instance : instances) {
                 statement.setInt(1, instance.getId());
                 statement.setInt(2, instance.getInstanceGroup().getId());
@@ -459,7 +459,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
                 statement.setInt(11, instance.getHost());
                 statement.setDouble(12, instance.getStartTime());
                 statement.setDouble(13, instance.getFinishTime());
-                statement.setDouble(14, instance.getIntraScheduleTime());
+                statement.setDouble(14, instance.getIntraScheduleEndTime());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -521,7 +521,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
      *     <li>receivedTime: double. It records the receiving time of the instance group.</li>
      *     <li>finishTime: double. It records the finish time of the instance group.</li>
      *     <li>instanceNum: int. It records the number of the instances of the instance group.</li>
-     *     <li>interScheduleTime: double. It records the inter-schedule time of the instance group.</li>
+     *     <li>InterScheduleEndTime: double. It records the inter-schedule time of the instance group.</li>
      * </ul>
      * @throws SQLException the SQL exception
      */
@@ -536,7 +536,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
                 " receivedTime DOUBLE NOT NULL," +
                 " finishTime DOUBLE," +
                 " instanceNum INT NOT NULL, " +
-                " interScheduleTime DOUBLE, " +
+                " InterScheduleEndTime DOUBLE, " +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;
@@ -593,7 +593,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
      *     <li>host: int. It records the id of the host where the instance is placed.</li>
      *     <li>startTime: double. It records the start time of the instance.</li>
      *     <li>finishTime: double. It records the finish time of the instance.</li>
-     *     <li>intraScheduleTime: double. It records the intra-schedule time of the instance.</li>
+     *     <li>IntraScheduleEndTime: double. It records the intra-schedule time of the instance.</li>
      * </ul>
      * @throws SQLException the SQL exception
      */
@@ -614,7 +614,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
                 " host INT NOT NULL, " +
                 " startTime DOUBLE NOT NULL, " +
                 " finishTime DOUBLE, " +
-                " intraScheduleTime DOUBLE, " +
+                " IntraScheduleEndTime DOUBLE, " +
                 " FOREIGN KEY(instanceGroupId) REFERENCES " + this.instanceGroupTableName + "(id)," +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
