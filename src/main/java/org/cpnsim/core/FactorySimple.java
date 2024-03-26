@@ -45,9 +45,9 @@ public class FactorySimple implements Factory {
             case "leastRequested" ->
                     new InterSchedulerLeastRequested(id, simulation, collaborationId, target, isSupportForward);
             case "round" -> new InterSchedulerRound(id, simulation, collaborationId, target, isSupportForward);
-            case "direct", "Direct" -> new InterSchedulerDirect(id, simulation, collaborationId);
-            case "minTCODirect" -> new InterSchedulerMinTCODirect(id, simulation, collaborationId);
-            case "consult", "Consult" -> new InterSchedulerConsult(id, simulation, collaborationId);
+            // case "direct", "Direct" -> new InterSchedulerDirect(id, simulation, collaborationId);
+            // case "minTCODirect" -> new InterSchedulerMinTCODirect(id, simulation, collaborationId);
+            // case "consult", "Consult" -> new InterSchedulerConsult(id, simulation, collaborationId);
             case "heuristic", "Heuristic" -> new InterSchedulerHeuristic(id, simulation, collaborationId, target, isSupportForward);
             case "hfrs", "HFRS" -> new InterSchedulerHFRS(id, simulation, collaborationId, target, isSupportForward);
             case "rfhs", "RFHS" -> new InterSchedulerRFHS(id, simulation, collaborationId, target, isSupportForward);
