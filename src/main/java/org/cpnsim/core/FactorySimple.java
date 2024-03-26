@@ -2,6 +2,10 @@ package org.cpnsim.core;
 
 import org.cpnsim.datacenter.*;
 import org.cpnsim.intrascheduler.*;
+import org.cpnsim.record.SqlRecord;
+import org.cpnsim.record.SqlRecordDetailScheduleTime;
+import org.cpnsim.record.SqlRecordNull;
+import org.cpnsim.record.SqlRecordSimple;
 import org.cpnsim.interscheduler.*;
 import org.cpnsim.statemanager.PredictionManager;
 import org.cpnsim.statemanager.PredictionManagerSimple;
@@ -69,6 +73,26 @@ public class FactorySimple implements Factory {
     public ConflictHandler getResourceAllocateSelector(String type) {
         return switch (type) {
             case "simple", "Simple" -> new ConflictHandlerSimple();
+            default -> null;
+        };
+    }
+
+    @Override
+    public SqlRecord getSqlRecord(String type) {
+        return switch (type) {
+            case "simple", "Simple" -> new SqlRecordSimple();
+            case "detailscheduletime", "DetailScheduleTime" -> new SqlRecordDetailScheduleTime();
+            case "Null", "NULL", "null" -> new SqlRecordNull();
+            default -> null;
+        };
+    }
+
+    @Override
+    public SqlRecord getSqlRecord(String type, String dbName) {
+        return switch (type) {
+            case "simple", "Simple" -> new SqlRecordSimple(dbName);
+            case "detailscheduletime", "DetailScheduleTime" -> new SqlRecordDetailScheduleTime(dbName);
+            case "Null", "NULL", "null" -> new SqlRecordNull();
             default -> null;
         };
     }

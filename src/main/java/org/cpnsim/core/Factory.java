@@ -3,6 +3,7 @@ package org.cpnsim.core;
 import org.cpnsim.datacenter.LoadBalance;
 import org.cpnsim.datacenter.ConflictHandler;
 import org.cpnsim.intrascheduler.IntraScheduler;
+import org.cpnsim.record.SqlRecord;
 import org.cpnsim.interscheduler.InterScheduler;
 import org.cpnsim.statemanager.PredictionManager;
 
@@ -61,4 +62,19 @@ public interface Factory {
      * @return the conflict handler.
      */
     ConflictHandler getResourceAllocateSelector(String type);
+
+    /**
+     * Get the {@link SqlRecord} by the type name.
+     * @param type the type name of the sql record.
+     * @return the sql record.
+     */
+    SqlRecord getSqlRecord(String type);
+
+    /**
+     * Get the {@link SqlRecord} by the type name and the database name.
+     * @param type the type name of the sql record.
+     * @param dbName the database name.
+     * @return the sql record.
+     */
+    SqlRecord getSqlRecord(String type, String dbName);
 }

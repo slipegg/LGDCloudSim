@@ -185,6 +185,12 @@ public interface Simulation {
     SqlRecord getSqlRecord();
 
     /**
+     * Set the sql record object.
+     * @param sqlRecord the sql record object to set
+     */
+    void setSqlRecord(SqlRecord sqlRecord);
+
+    /**
      * Get whether the termination time is set.
      * If the termination time is set, the simulation stops running even if there is no event to process.
      * @return true if the termination time is set, false otherwise
