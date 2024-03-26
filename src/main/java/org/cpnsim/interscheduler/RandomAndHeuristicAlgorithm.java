@@ -27,6 +27,33 @@ public class RandomAndHeuristicAlgorithm {
     public RandomAndHeuristicAlgorithm() {
     }
 
+    // 输入为 InstanceGroup
+    // Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.heuristicFiltering(instanceGroup, allDatacenters, RandomRate);
+    public static Map<InstanceGroup, List<Datacenter>> randomFiltering(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, Double RandomRate) {
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
+        // 获取最终随机筛选出的数据中心数量，最小为1
+        Integer RandomNum = (int) Math.max(Math.ceil(RandomRate * (double)allDatacenters.size()), 1);
+            
+        List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
+    
+        // 确保每一ms运行的两次代码不会相同
+        Random random = new Random();
+
+        // 对availableDatacenters列表进行洗牌（随机排序）
+        Collections.shuffle(availableDatacenters, random);
+
+        // 随机筛选出RandomNum个数据中心
+        availableDatacenters = availableDatacenters.subList(0, RandomNum);
+
+        instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
+        
+        // // TODO: test，待删除
+        // LOGGER.warn("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
+        
+        return instanceGroupAvailableDatacenters;
+    }
+
+    // 输入为 List<InstanceGroup>
     // Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.heuristicFiltering(instanceGroups, allDatacenters, RandomRate);
     public static Map<InstanceGroup, List<Datacenter>> randomFiltering(List<InstanceGroup> instanceGroups, List<Datacenter> allDatacenters, Double RandomRate) {
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
@@ -54,6 +81,31 @@ public class RandomAndHeuristicAlgorithm {
         return instanceGroupAvailableDatacenters;
     }
 
+    // 输入为 InstanceGroup
+    // Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.heuristicFiltering(instanceGroup, allDatacenters, simulation, interScheduleSimpleStateMap);
+    public static Map<InstanceGroup, List<Datacenter>> heuristicFiltering(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, Simulation simulation, Map<Datacenter, Object> interScheduleSimpleStateMap) {
+        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
+            
+        NetworkTopology networkTopology = simulation.getNetworkTopology();
+
+        List<Datacenter> availableDatacenters = new ArrayList<>(allDatacenters);
+    
+        //根据接入时延要求得到可调度的数据中心
+        filterDatacentersByAccessLatency(instanceGroup, availableDatacenters, networkTopology);
+        //根据简单的资源抽样信息得到可调度的数据中心
+        filterDatacentersByResourceSample(instanceGroup, availableDatacenters, interScheduleSimpleStateMap);
+        //根据带宽时延要求得到可调度的数据中心
+        filterAvailableDatacenterByEdgeDelayLimit(instanceGroup, availableDatacenters, networkTopology);
+        filterAvailableDatacenterByEdgeBwLimit(instanceGroup, availableDatacenters, networkTopology);
+        instanceGroupAvailableDatacenters.put(instanceGroup, availableDatacenters);
+
+        // // TODO: test，待删除
+        // LOGGER.warn("instanceGroup {} filted dc num: {}.",instanceGroup.getId(),availableDatacenters.size());
+        
+        return instanceGroupAvailableDatacenters;
+    }
+
+    // 输入为 List<InstanceGroup>
     // Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.heuristicFiltering(instanceGroups, allDatacenters, simulation, interScheduleSimpleStateMap);
     public static Map<InstanceGroup, List<Datacenter>> heuristicFiltering(List<InstanceGroup> instanceGroups, List<Datacenter> allDatacenters, Simulation simulation, Map<Datacenter, Object> interScheduleSimpleStateMap) {
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = new HashMap<>();
@@ -131,7 +183,7 @@ public class RandomAndHeuristicAlgorithm {
     }
 
     // RandomAndHeuristicAlgorithm.randomScoring(interSchedulerResult, instanceGroupAvailableDatacenters);
-    public static void randomScoring(InterSchedulerResult interSchedulerResult, Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters) {
+    public static void randomScoring(InterSchedulerResult interSchedulerResult, Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters, Map<Datacenter, Object> interScheduleSimpleStateMap) {
         for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleRes : instanceGroupAvailableDatacenters.entrySet()) {
             if (scheduleRes.getValue().size() == 0) {
                 interSchedulerResult.getFailedInstanceGroups().add(scheduleRes.getKey());
@@ -140,6 +192,9 @@ public class RandomAndHeuristicAlgorithm {
                 Random random = new Random();
                 Datacenter target = scheduleRes.getValue().get(random.nextInt(scheduleRes.getValue().size()));
                 interSchedulerResult.addDcResult(scheduleRes.getKey(), target);
+
+                // 更新统计信息
+                updateStateMap(interScheduleSimpleStateMap, target, scheduleRes.getKey());
             }
         }
     }
@@ -169,6 +224,9 @@ public class RandomAndHeuristicAlgorithm {
 
                 Datacenter target = scheduleRes.getValue().get(0);
                 interSchedulerResult.addDcResult(scheduleRes.getKey(), target);
+
+                // 更新统计信息
+                updateStateMap(interScheduleSimpleStateMap, target, scheduleRes.getKey());
             }
         }
     }
@@ -185,4 +243,13 @@ public class RandomAndHeuristicAlgorithm {
             return score;
         }
     }
+
+    private static void updateStateMap(Map<Datacenter, Object> interScheduleSimpleStateMap, Datacenter target, InstanceGroup instanceGroup) {
+        SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(target);
+        simpleStateEasyObject.setCpuAvailableSum(simpleStateEasyObject.getCpuAvailableSum() - instanceGroup.getCpuSum());
+        simpleStateEasyObject.setRamAvailableSum(simpleStateEasyObject.getRamAvailableSum() - instanceGroup.getRamSum());
+        simpleStateEasyObject.setStorageAvailableSum(simpleStateEasyObject.getStorageAvailableSum() - instanceGroup.getStorageSum());
+        simpleStateEasyObject.setBwAvailableSum(simpleStateEasyObject.getBwAvailableSum() - instanceGroup.getBwSum());
+    }
+
 }

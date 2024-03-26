@@ -17,10 +17,12 @@ public class InterSchedulerRFHS extends InterSchedulerSimple{
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
 
         Double RandomRate = 0.3;
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.randomFiltering(instanceGroups, allDatacenters, RandomRate);
+        for(InstanceGroup instanceGroup : instanceGroups){
+            Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.randomFiltering(instanceGroup, allDatacenters, RandomRate);
 
-        RandomAndHeuristicAlgorithm.heuristicScoring(interSchedulerResult, instanceGroupAvailableDatacenters, interScheduleSimpleStateMap);
-
+            RandomAndHeuristicAlgorithm.heuristicScoring(interSchedulerResult, instanceGroupAvailableDatacenters, interScheduleSimpleStateMap);    
+        }
+        
         return interSchedulerResult;
     }
 }
