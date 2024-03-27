@@ -2,6 +2,7 @@ package org.cpnsim.record;
 
 import lombok.Getter;
 import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
@@ -77,6 +78,11 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     private String datacenterTableName = null;
 
     /**
+     * The name of the dc network table.
+     */
+    private String dcNetworkTableName = null;
+
+    /**
      * The name of the SQLite database.
      */
     private String dbName = null;
@@ -120,7 +126,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
      * @param dbName the name of the SQLite database
      */
     public SqlRecordDetailScheduleTime(String dbName) {
-        this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance", "datacenter");
+        this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance", "datacenter", "dcNetwork");
     }
 
     /**
@@ -133,8 +139,9 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
      * @param instanceGroupGraphTableName the name of the instance group graph table
      * @param instanceTableName           the name of the instance table
      * @param datacenterTableName         the name of the datacenter table
+     * @param dcNetworkTableName          the name of the dc network table
      */
-    public SqlRecordDetailScheduleTime(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName, String datacenterTableName) {
+    public SqlRecordDetailScheduleTime(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName, String datacenterTableName, String dcNetworkTableName) {
         this.dbDir = dbDir;
         this.dbName = dbName;
         Path folder = Paths.get(this.dbDir);
@@ -149,6 +156,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
         this.instanceGroupGraphTableName = instanceGroupGraphTableName;
         this.instanceTableName = instanceTableName;
         this.datacenterTableName = datacenterTableName;
+        this.dcNetworkTableName = dcNetworkTableName;
         this.conflictTableName = "conflict";
         this.interScheduleCostTimeTableName = "interScheduleCostTime";
         try {
@@ -170,6 +178,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             createConflictTable();
             createInterScheduleCostTimeTable();
             createDatacenterTable();
+            createDcNetworkTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -706,6 +715,31 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
         conn.commit();
     }
 
+    /**
+     * Create the dc network table.
+     * The dc network table has the following columns:
+     * <ul>
+     *     <li>srcDatacenterId: int, primary key. It records the id of the source data center.</li>
+     *     <li>dstDatacenterId: int, primary key. It records the id of the destination data center.</li>
+     *     <li>bw: double. It records the bandwidth between the source data center and the destination data center.</li>
+     *     <li>unitPrice: double. It records the unit price of the bandwidth between the source data center and the destination data center.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
+    private void createDcNetworkTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.dcNetworkTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.dcNetworkTableName + " " +
+                "(srcDatacenterId INT NOT NULL, " +
+                " dstDatacenterId INT NOT NULL, " +
+                " bw DOUBLE NOT NULL, " +
+                " unitPrice DOUBLE NOT NULL," +
+                " PRIMARY KEY (srcDatacenterId, dstDatacenterId)," +
+                " FOREIGN KEY (srcDatacenterId) REFERENCES " + this.datacenterTableName + "(id)," +
+                " FOREIGN KEY (dstDatacenterId) REFERENCES " + this.datacenterTableName + "(id))";
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
 
     @Override
     public void recordConflict(double time, int sum) {
@@ -761,4 +795,32 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
         }
     }
 
+    @Override
+    public void recordDcNetworkInfo(NetworkTopology networkTopology) {
+        Set<Integer> dcIdList = networkTopology.getDcIdList();
+        for(Integer srcDcId: dcIdList) {
+            for(Integer dstDcId: dcIdList) {
+                try {
+                    recordDcNetworkInfo(srcDcId, dstDcId, networkTopology.getBw(srcDcId, dstDcId), networkTopology.getUnitPrice(srcDcId, dstDcId));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
+        try {
+            statement = conn.prepareStatement("INSERT INTO " + this.dcNetworkTableName + " (srcDatacenterId, dstDatacenterId, bw, unitPrice) VALUES (?, ?, ?, ?)");
+            statement.setInt(1, srcDcId);
+            statement.setInt(2, dstDcId);
+            statement.setDouble(3, bw);
+            statement.setDouble(4, unitPrice);
+            statement.addBatch();
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

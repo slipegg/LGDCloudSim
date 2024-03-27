@@ -1,6 +1,7 @@
 package org.cpnsim.record;
 
 import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
@@ -157,8 +158,22 @@ public interface SqlRecord {
      */
     void recordDatacentersInfo(Datacenter datacenter);
 
+    /**
+     * Record the network between DCs.
+     * It records the source data center id, the destination data center id, the bandwidth and the cost.
+     * @param networkTopology the network topology.
+     */
+    void recordDcNetworkInfo(NetworkTopology networkTopology);
 
-    // void recordNetworkInfo()
+    /**
+     * Record the network between DCs.
+     * It records the source data center id, the destination data center id, the bandwidth and the cost.
+     * @param srcDcId the source data center id.
+     * @param dstDcId the destination data center id.
+     * @param bw the bandwidth.
+     * @param unitPrice the unit price.
+     */
+    void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice);
 
     /**
      * Close the SQLite database.

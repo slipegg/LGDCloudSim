@@ -288,6 +288,8 @@ public class CloudSim implements Simulation {
 
             sqlRecord.recordDatacentersInfo(datacenter);
         }
+        sqlRecord.recordDcNetworkInfo(networkTopology);
+
         System.out.printf("All TCO = %f\n", allCost);
     }
 

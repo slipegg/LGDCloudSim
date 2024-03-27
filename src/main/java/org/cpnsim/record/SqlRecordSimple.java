@@ -2,6 +2,7 @@ package org.cpnsim.record;
 
 import lombok.Getter;
 import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
@@ -667,6 +668,16 @@ public class SqlRecordSimple implements SqlRecord {
     
     @Override
     public void recordDatacentersInfo(Datacenter datacenters) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(NetworkTopology networkTopology) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
 
     }
 }

@@ -1,5 +1,8 @@
 package org.cpnsim.network;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.cpnsim.core.SimEntity;
 import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.UserRequest;
@@ -27,7 +30,22 @@ public class NetworkTopologyNull implements NetworkTopology {
     }
 
     @Override
+    public double getBw(Integer src, Integer dst) {
+        return 0;
+    }
+
+    @Override
     public double getBw(SimEntity src, SimEntity dst) {
+        return 0;
+    }
+
+    @Override
+    public double getUnitPrice(Integer src, Integer dst) {
+        return 0;
+    }
+
+    @Override
+    public double getUnitPrice(SimEntity src, SimEntity dst) {
         return 0;
     }
 
@@ -49,5 +67,10 @@ public class NetworkTopologyNull implements NetworkTopology {
     @Override
     public double getAccessLatency(UserRequest userRequest, Datacenter datacenter) {
         return 0;
+    }
+
+    @Override
+    public Set<Integer> getDcIdList() {
+        return new HashSet<Integer>();
     }
 }
