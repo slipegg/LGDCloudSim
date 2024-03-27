@@ -55,22 +55,97 @@ ORDER BY
 
 
 -- CPU、RAM资源使用情况
-SELECT SUM(instance.cpu) AS usedCPU, 25600000 AS sumCPU, CAST(SUM(instance.cpu) AS REAL)/25600000 AS CPURate, SUM(instance.ram) AS usedRAM, 51200000 AS sumRAM, CAST(SUM(instance.ram) AS REAL)/51200000*100.0 AS RAMRate
+SELECT
+    SUM(instance.cpu) AS usedCPU, 
+    -- 25600000 AS sumCPU, 
+    datacenterSum.sumCPU AS sumCPU, 
+    CAST(SUM(instance.cpu) AS REAL)/datacenterSum.sumCPU*100.0 AS CPURate, 
+    -- 51200000 AS sumRAM, 
+    SUM(instance.ram) AS usedRAM, 
+    datacenterSum.sumRAM AS sumRAM, 
+    CAST(SUM(instance.ram) AS REAL)/datacenterSum.sumRAM*100.0 AS RAMRate
 FROM 
-    instance LEFT JOIN instanceGroup on instance.instanceGroupId = instanceGroup.id  
-Where 
+    instance 
+LEFT JOIN 
+    instanceGroup on instance.instanceGroupId = instanceGroup.id  
+LEFT JOIN
+    (
+        SELECT SUM(cpu) AS sumCPU, SUM(ram) AS sumRAM 
+        FROM datacenter
+    ) AS datacenterSum
+WHERE 
     instance.finishTime is null  AND instanceGroup.receivedDc!=-1;
 
 -- 带宽使用情况
 SELECT 
     IFNULL(SUM(instanceGroupGraph.bw), 0) / 2.0 AS usedBW, 
-    43675042.45 AS sumBW, 
-    CAST(IFNULL(SUM(instanceGroupGraph.bw), 0) AS REAL) / 2.0 / 43675042.45 * 100.0 AS BWRate
+    -- 43675042.45 AS sumBW, 
+    -- CAST(IFNULL(SUM(instanceGroupGraph.bw), 0) AS REAL) / 2.0 / 43675042.45 * 100.0 AS BWRate
+    dcNetworkSum.sumBW AS sumBW, 
+    CAST(IFNULL(SUM(instanceGroupGraph.bw), 0) AS REAL) / 2.0 / dcNetworkSum.sumBW * 100.0 AS BWRate
 FROM 
     instanceGroupGraph 
 LEFT JOIN 
     instanceGroup AS srcInstanceGroup ON instanceGroupGraph.srcInstanceGroupId = srcInstanceGroup.id
 LEFT JOIN 
     instanceGroup AS dstInstanceGroup ON instanceGroupGraph.dstInstanceGroupId = dstInstanceGroup.id
+LEFT JOIN
+    (
+        SELECT SUM(bw) AS sumBW 
+        FROM dcNetwork 
+        WHERE srcDatacenterId != dstDatacenterId
+    ) AS dcNetworkSum
 WHERE 
     srcInstanceGroup.receivedDc != -1 AND dstInstanceGroup.receivedDc != -1 AND instanceGroupGraph.srcDcId != instanceGroupGraph.dstDcId;
+
+
+-- 每个数据中心的资源使用情况
+SELECT
+    instanceGroup.receivedDc AS dcId, 
+    SUM(instance.cpu) AS usedCPU, 
+    datacenterSum.sumCPU AS sumCPU, 
+    CAST(SUM(instance.cpu) AS REAL)/datacenterSum.sumCPU*100.0 AS CPURate, 
+    SUM(instance.ram) AS usedRAM, 
+    datacenterSum.sumRAM AS sumRAM, 
+    CAST(SUM(instance.ram) AS REAL)/datacenterSum.sumRAM*100.0 AS RAMRate
+FROM 
+    instance 
+LEFT JOIN 
+    instanceGroup on instance.instanceGroupId = instanceGroup.id  
+LEFT JOIN
+    (
+        SELECT datacenter.id AS id, SUM(cpu) AS sumCPU, SUM(ram) AS sumRAM 
+        FROM datacenter
+        GROUP BY datacenter.id
+    ) AS datacenterSum
+    ON instanceGroup.receivedDc = datacenterSum.id
+WHERE 
+    instance.finishTime is null AND instanceGroup.receivedDc!=-1
+GROUP BY
+    instanceGroup.receivedDc;
+
+
+-- 每条网络的带宽使用情况
+SELECT 
+    instanceGroupGraph.srcDcId AS srcDcId, 
+    instanceGroupGraph.dstDcId AS dstDcId,
+    IFNULL(SUM(instanceGroupGraph.bw), 0) / 2.0 AS usedBW, 
+    dcNetworkSum.sumBW AS sumBW, 
+    CAST(IFNULL(SUM(instanceGroupGraph.bw), 0) AS REAL) / 2.0 / dcNetworkSum.sumBW * 100.0 AS BWRate
+FROM 
+    instanceGroupGraph 
+LEFT JOIN 
+    instanceGroup AS srcInstanceGroup ON instanceGroupGraph.srcInstanceGroupId = srcInstanceGroup.id
+LEFT JOIN 
+    instanceGroup AS dstInstanceGroup ON instanceGroupGraph.dstInstanceGroupId = dstInstanceGroup.id
+LEFT JOIN
+    (
+        SELECT srcDatacenterId, dstDatacenterId, SUM(bw) AS sumBW 
+        FROM dcNetwork 
+        GROUP BY srcDatacenterId, dstDatacenterId
+    ) AS dcNetworkSum 
+    ON instanceGroupGraph.srcDcId = dcNetworkSum.srcDatacenterId AND instanceGroupGraph.dstDcId = dcNetworkSum.dstDatacenterId
+WHERE 
+    srcInstanceGroup.receivedDc != -1 AND dstInstanceGroup.receivedDc != -1 AND instanceGroupGraph.srcDcId != instanceGroupGraph.dstDcId
+GROUP BY
+    instanceGroupGraph.srcDcId, instanceGroupGraph.dstDcId;
