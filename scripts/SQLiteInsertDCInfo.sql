@@ -1,151 +1,173 @@
 -- SQLite
-DROP VIEW IF EXISTS instanceDelay;
-CREATE VIEW IF NOT EXISTS instanceDelay AS
-SELECT 
-    instance.id, 
-    userRequest.submitTime AS submitTime, 
-    instance.startTime-userRequest.submitTime AS delay, 
-    instanceGroup.interScheduleEndTime-userRequest.submitTime AS interScheduleTime, 
-    instanceGroup.receivedTime-instanceGroup.InterScheduleEndTime AS transToDCTime, 
-    instance.intraScheduleEndTime-instanceGroup.receivedTime AS intraScheduleTime, 
-    instance.startTime-instance.IntraScheduleEndTime AS allocateTime
-FROM instance 
-LEFT JOIN instanceGroup on instance.instanceGroupId = instanceGroup.id 
-LEFT JOIN userRequest on instance.userRequestId = userRequest.id 
-Where instance.startTime >= 0;
 
--- 总体调度时延
-SELECT submitTime,AVG(delay),Max(delay),Min(delay) FROM instanceDelay GROUP BY submitTime;
+---------------------------------------------------------------------------------
+-- 对具有数据表的数据库，执行以下语句后保存为CSV文件
+---------------------------------------------------------------------------------
 
--- 数据中心间调度时延
-SELECT submitTime,AVG(interScheduleTime),Max(interScheduleTime),Min(interScheduleTime) FROM instanceDelay GROUP BY submitTime;
+-- -- 每个数据中心的资源情况
+-- SELECT
+--     *
+-- FROM 
+--     datacenter;
 
--- 发送到数据中心时延
-SELECT submitTime,AVG(transToDCTime),Max(transToDCTime),Min(transToDCTime) FROM instanceDelay GROUP BY submitTime;
+-- -- 每条网络的带宽情况
+-- SELECT 
+--     *
+-- FROM 
+--     dcNetwork;
 
--- 数据中心内调度时延
-SELECT submitTime,AVG(intraScheduleTime),Max(intraScheduleTime),Min(intraScheduleTime) FROM instanceDelay GROUP BY submitTime;
-
--- 为实例分配资源时延
-SELECT submitTime,AVG(allocateTime),Max(allocateTime),Min(allocateTime) FROM instanceDelay GROUP BY submitTime;
+---------------------------------------------------------------------------------
 
 
--- 调度成功率
-SELECT
-    submitTime,
-    SUM(CASE WHEN state is null THEN 1 ELSE 0 END) AS successNum, COUNT(*) AS sumNum, CAST(SUM(CASE WHEN state IS NULL THEN 1 ELSE 0 END) AS REAL) / COUNT(*) * 100.0 AS successRate
-FROM
-    userRequest
-GROUP BY
-    submitTime;
+---------------------------------------------------------------------------------
+-- 对没有数据表的数据库，执行以下语句后导入CSV文件（或根据CSV修改下方插入语句的数据）
+---------------------------------------------------------------------------------
 
+-- 创建数据中心表
+DROP TABLE IF EXISTS datacenter;
+CREATE TABLE IF NOT EXISTS datacenter
+    (id INT PRIMARY KEY NOT NULL,
+     region CHAR(50), 
+     location CHAR(50), 
+     architecture CHAR(50), 
+     hostNum INT NOT NULL, 
+     cpu INT NOT NULL, 
+     ram INT NOT NULL, 
+     storage INT NOT NULL, 
+     bw INT NOT NULL, 
+     pricePerCPU DOUBLE NOT NULL, 
+     pricePerRAM DOUBLE NOT NULL, 
+     pricePerStorage DOUBLE NOT NULL, 
+     pricePerBW DOUBLE NOT NULL, 
+     PricePerRack DOUBLE NOT NULL, 
+     HostPerRack DOUBLE NOT NULL);
 
--- 调度失败原因
-SELECT submitTime, COUNT(*) AS sumNum, failReason
-FROM
-    userRequest
-WHERE
-    state = 'FAILED' 
-GROUP BY
-    submitTime, failReason
-HAVING
-    COUNT(*) > 10
-ORDER BY 
-    submitTime ASC, sumNum DESC;
+-- 创建网络表
+DROP TABLE IF EXISTS dcNetwork;
+CREATE TABLE IF NOT EXISTS dcNetwork
+    (srcDatacenterId INT NOT NULL, 
+     dstDatacenterId INT NOT NULL, 
+     bw DOUBLE NOT NULL, 
+     unitPrice DOUBLE NOT NULL,
+     PRIMARY KEY (srcDatacenterId, dstDatacenterId),
+     FOREIGN KEY (srcDatacenterId) REFERENCES datacenter(id),
+     FOREIGN KEY (dstDatacenterId) REFERENCES datacenter(id));
+---------------------------------------------------------------------------------
 
+-- 插入数据中心数据
+INSERT INTO datacenter (id, region, location, architecture, hostNum, cpu, ram, storage, bw, pricePerCPU, pricePerRAM, pricePerStorage, pricePerBW, PricePerRack, HostPerRack)
+VALUES 
+(10, 'asia-southeast1', null, '', 20000, 2560000, 5120000, 32000000, 16000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(9, 'asia-northeast2', null, '', 10000, 1280000, 2560000, 16000000, 8000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(8, 'asia-northeast1', null, '', 20000, 2560000, 5120000, 32000000, 16000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(7, 'asia-east1', null, '', 10000, 1280000, 2560000, 16000000, 8000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(6, 'asia-east1', null, '', 40000, 5120000, 10240000, 64000000, 32000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(5, 'europe-west2', null, '', 10000, 1280000, 2560000, 16000000, 8000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(4, 'europe-west1', null, '', 20000, 2560000, 5120000, 32000000, 16000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(3, 'us-west1', null, '', 10000, 1280000, 2560000, 16000000, 8000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(2, 'northamerica-northeast1', null, '', 20000, 2560000, 5120000, 32000000, 16000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0),
+(1, 'us-east1', null, '', 40000, 5120000, 10240000, 64000000, 32000000, 1.0, 1.0, 10.0, 1.0, 100.0, 10.0);
 
--- CPU、RAM资源使用情况
-SELECT
-    SUM(instance.cpu) AS usedCPU, 
-    -- 25600000 AS sumCPU, 
-    datacenterSum.sumCPU AS sumCPU, 
-    CAST(SUM(instance.cpu) AS REAL)/datacenterSum.sumCPU*100.0 AS CPURate, 
-    -- 51200000 AS sumRAM, 
-    SUM(instance.ram) AS usedRAM, 
-    datacenterSum.sumRAM AS sumRAM, 
-    CAST(SUM(instance.ram) AS REAL)/datacenterSum.sumRAM*100.0 AS RAMRate
-FROM 
-    instance 
-LEFT JOIN 
-    instanceGroup on instance.instanceGroupId = instanceGroup.id  
-LEFT JOIN
-    (
-        SELECT SUM(cpu) AS sumCPU, SUM(ram) AS sumRAM 
-        FROM datacenter
-    ) AS datacenterSum
-WHERE 
-    instance.finishTime is null  AND instanceGroup.receivedDc!=-1;
-
--- 带宽使用情况
-SELECT 
-    IFNULL(SUM(instanceGroupGraph.bw), 0) / 2.0 AS usedBW, 
-    -- 43675042.45 AS sumBW, 
-    -- CAST(IFNULL(SUM(instanceGroupGraph.bw), 0) AS REAL) / 2.0 / 43675042.45 * 100.0 AS BWRate
-    dcNetworkSum.sumBW AS sumBW, 
-    CAST(IFNULL(SUM(instanceGroupGraph.bw), 0) AS REAL) / 2.0 / dcNetworkSum.sumBW * 100.0 AS BWRate
-FROM 
-    instanceGroupGraph 
-LEFT JOIN 
-    instanceGroup AS srcInstanceGroup ON instanceGroupGraph.srcInstanceGroupId = srcInstanceGroup.id
-LEFT JOIN 
-    instanceGroup AS dstInstanceGroup ON instanceGroupGraph.dstInstanceGroupId = dstInstanceGroup.id
-LEFT JOIN
-    (
-        SELECT SUM(bw) AS sumBW 
-        FROM dcNetwork 
-        WHERE srcDatacenterId != dstDatacenterId
-    ) AS dcNetworkSum
-WHERE 
-    srcInstanceGroup.receivedDc != -1 AND dstInstanceGroup.receivedDc != -1 AND instanceGroupGraph.srcDcId != instanceGroupGraph.dstDcId;
-
-
--- 每个数据中心的资源使用情况
-SELECT
-    instanceGroup.receivedDc AS dcId, 
-    SUM(instance.cpu) AS usedCPU, 
-    datacenterSum.sumCPU AS sumCPU, 
-    CAST(SUM(instance.cpu) AS REAL)/datacenterSum.sumCPU*100.0 AS CPURate, 
-    SUM(instance.ram) AS usedRAM, 
-    datacenterSum.sumRAM AS sumRAM, 
-    CAST(SUM(instance.ram) AS REAL)/datacenterSum.sumRAM*100.0 AS RAMRate
-FROM 
-    instance 
-LEFT JOIN 
-    instanceGroup on instance.instanceGroupId = instanceGroup.id  
-LEFT JOIN
-    (
-        SELECT datacenter.id AS id, SUM(cpu) AS sumCPU, SUM(ram) AS sumRAM 
-        FROM datacenter
-        GROUP BY datacenter.id
-    ) AS datacenterSum
-    ON instanceGroup.receivedDc = datacenterSum.id
-WHERE 
-    instance.finishTime is null AND instanceGroup.receivedDc!=-1
-GROUP BY
-    instanceGroup.receivedDc;
-
-
--- 每条网络的带宽使用情况
-SELECT 
-    instanceGroupGraph.srcDcId AS srcDcId, 
-    instanceGroupGraph.dstDcId AS dstDcId,
-    IFNULL(SUM(instanceGroupGraph.bw), 0) / 2.0 AS usedBW, 
-    dcNetworkSum.sumBW AS sumBW, 
-    CAST(IFNULL(SUM(instanceGroupGraph.bw), 0) AS REAL) / 2.0 / dcNetworkSum.sumBW * 100.0 AS BWRate
-FROM 
-    instanceGroupGraph 
-LEFT JOIN 
-    instanceGroup AS srcInstanceGroup ON instanceGroupGraph.srcInstanceGroupId = srcInstanceGroup.id
-LEFT JOIN 
-    instanceGroup AS dstInstanceGroup ON instanceGroupGraph.dstInstanceGroupId = dstInstanceGroup.id
-LEFT JOIN
-    (
-        SELECT srcDatacenterId, dstDatacenterId, SUM(bw) AS sumBW 
-        FROM dcNetwork 
-        GROUP BY srcDatacenterId, dstDatacenterId
-    ) AS dcNetworkSum 
-    ON instanceGroupGraph.srcDcId = dcNetworkSum.srcDatacenterId AND instanceGroupGraph.dstDcId = dcNetworkSum.dstDatacenterId
-WHERE 
-    srcInstanceGroup.receivedDc != -1 AND dstInstanceGroup.receivedDc != -1 AND instanceGroupGraph.srcDcId != instanceGroupGraph.dstDcId
-GROUP BY
-    instanceGroupGraph.srcDcId, instanceGroupGraph.dstDcId;
+-- 插入网络数据
+INSERT INTO dcNetwork (srcDatacenterId, dstDatacenterId, bw, unitPrice)
+VALUES (1,1,999999999.0,0.0),
+(1,2,1000242.48,1.0),
+(1,3,1126522.33,1.0),
+(1,4,1050926.46,1.0),
+(1,5,1249935.4,1.0),
+(1,6,1017065.44,1.0),
+(1,7,787216.22,1.0),
+(1,8,1237425.66,1.0),
+(1,9,737540.58,1.0),
+(1,10,842717.51,1.0),
+(2,1,1000242.48,1.0),
+(2,2,999999999.0,0.0),
+(2,3,869165.92,1.0),
+(2,4,840083.15,1.0),
+(2,5,880764.38,1.0),
+(2,6,1273808.32,1.0),
+(2,7,983841.9,1.0),
+(2,8,1218291.76,1.0),
+(2,9,1147098.63,1.0),
+(2,10,779506.46,1.0),
+(3,1,1126522.33,1.0),
+(3,2,869165.92,1.0),
+(3,3,999999999.0,0.0),
+(3,4,768427.65,1.0),
+(3,5,1017588.53,1.0),
+(3,6,989647.33,1.0),
+(3,7,1218253.36,1.0),
+(3,8,1116338.41,1.0),
+(3,9,1227778.47,1.0),
+(3,10,1027354.24,1.0),
+(4,1,1050926.46,1.0),
+(4,2,840083.15,1.0),
+(4,3,768427.65,1.0),
+(4,4,999999999.0,0.0),
+(4,5,754916.49,1.0),
+(4,6,1385304.13,1.0),
+(4,7,1101017.22,1.0),
+(4,8,1070352.45,1.0),
+(4,9,1142309.93,1.0),
+(4,10,678524.79,1.0),
+(5,1,1249935.4,1.0),
+(5,2,880764.38,1.0),
+(5,3,1017588.53,1.0),
+(5,4,754916.49,1.0),
+(5,5,999999999.0,0.0),
+(5,6,1035635.07,1.0),
+(5,7,887326.05,1.0),
+(5,8,854270.71,1.0),
+(5,9,815242.69,1.0),
+(5,10,911618.37,1.0),
+(6,1,1017065.44,1.0),
+(6,2,1273808.32,1.0),
+(6,3,989647.33,1.0),
+(6,4,1385304.13,1.0),
+(6,5,1035635.07,1.0),
+(6,6,999999999.0,0.0),
+(6,7,740285.71,1.0),
+(6,8,584381.37,1.0),
+(6,9,818365.11,1.0),
+(6,10,772762.18,1.0),
+(7,1,787216.22,1.0),
+(7,2,983841.9,1.0),
+(7,3,1218253.36,1.0),
+(7,4,1101017.22,1.0),
+(7,5,887326.05,1.0),
+(7,6,740285.71,1.0),
+(7,7,999999999.0,0.0),
+(7,8,1162653.8,1.0),
+(7,9,817314.26,1.0),
+(7,10,866164.8,1.0),
+(8,1,1237425.66,1.0),
+(8,2,1218291.76,1.0),
+(8,3,1116338.41,1.0),
+(8,4,1070352.45,1.0),
+(8,5,854270.71,1.0),
+(8,6,584381.37,1.0),
+(8,7,1162653.8,1.0),
+(8,8,999999999.0,0.0),
+(8,9,978441.92,1.0),
+(8,10,1152063.34,1.0),
+(9,1,737540.58,1.0),
+(9,2,1147098.63,1.0),
+(9,3,1227778.47,1.0),
+(9,4,1142309.93,1.0),
+(9,5,815242.69,1.0),
+(9,6,818365.11,1.0),
+(9,7,817314.26,1.0),
+(9,8,978441.92,1.0),
+(9,9,999999999.0,0.0),
+(9,10,738551.47,1.0),
+(10,1,842717.51,1.0),
+(10,2,779506.46,1.0),
+(10,3,1027354.24,1.0),
+(10,4,678524.79,1.0),
+(10,5,911618.37,1.0),
+(10,6,772762.18,1.0),
+(10,7,866164.8,1.0),
+(10,8,1152063.34,1.0),
+(10,9,738551.47,1.0),
+(10,10,999999999.0,0.0);
+---------------------------------------------------------------------------------
