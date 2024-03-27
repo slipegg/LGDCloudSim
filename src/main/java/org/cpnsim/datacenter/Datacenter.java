@@ -131,4 +131,70 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
      * @return the datacenter.
      */
     Datacenter setArchitecture(String architecture);
+
+    /**
+     * Get the host number of the datacenter.
+     * @return the host number of the datacenter.
+     */
+    long getHostNum();
+
+    /**
+     * Get the total CPU of the datacenter.
+     * @return the total CPU of the datacenter.
+     */
+    long getCpu();
+
+    /**
+     * Get the total memory of the datacenter.
+     * @return the total memory of the datacenter.
+     */
+    long getRam();
+
+    /**
+     * Get the total storage of the datacenter.
+     * @return the total storage of the datacenter.
+     */
+    long getStorage();
+
+    /**
+     * Get the total bandwidth of the datacenter.
+     * @return the total bandwidth of the datacenter.
+     */
+    long getBw();
+
+    /**
+     * Get the price per CPU of the datacenter.
+     * @return the price per CPU of the datacenter.
+     */
+    double getPricePerCPU();
+
+    /**
+     * Get the price per memory of the datacenter.
+     * @return the price per memory of the datacenter.
+     */
+    double getPricePerRAM();
+
+    /**
+     * Get the price per storage of the datacenter.
+     * @return the price per storage of the datacenter.
+     */
+    double getPricePerStorage();
+
+    /**
+     * Get the price per bandwidth of the datacenter.
+     * @return the price per bandwidth of the datacenter.
+     */
+    double getPricePerBW();
+
+    /**
+     * Get the price per rack of the datacenter.
+     * @return the price per rack of the datacenter.
+     */
+    double getPricePerRack();
+
+    /**
+     * Get the price per host of the datacenter.
+     * @return the price per host of the datacenter.
+     */
+    double getHostPerRack();
 }

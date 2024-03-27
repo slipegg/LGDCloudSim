@@ -277,4 +277,28 @@ public interface StatesManager {
      * @return the datacenter power on record.
      */
     DatacenterPowerOnRecord getDatacenterPowerOnRecord();
+
+    /**
+     * Get the total CPU capacity of the datacenter.
+     * @return the total CPU capacity of the datacenter.
+     */
+    long getTotalCPU();
+
+    /**
+     * Get the total RAM capacity of the datacenter.
+     * @return the total RAM capacity of the datacenter.
+     */
+    long getTotalRAM();
+
+    /**
+     * Get the total storage capacity of the datacenter.
+     * @return the total storage capacity of the datacenter.
+     */
+    long getTotalStorage();
+
+    /**
+     * Get the total bandwidth capacity of the datacenter.
+     * @return the total bandwidth capacity of the datacenter.
+     */
+    long getTotalBw();
 }

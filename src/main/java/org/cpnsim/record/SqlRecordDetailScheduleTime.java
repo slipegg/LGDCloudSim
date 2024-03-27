@@ -72,6 +72,11 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     private String interScheduleCostTimeTableName = null;
 
     /**
+     * The name of the datacenter table.
+     */
+    private String datacenterTableName = null;
+
+    /**
      * The name of the SQLite database.
      */
     private String dbName = null;
@@ -115,7 +120,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
      * @param dbName the name of the SQLite database
      */
     public SqlRecordDetailScheduleTime(String dbName) {
-        this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance");
+        this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance", "datacenter");
     }
 
     /**
@@ -127,8 +132,9 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
      * @param instanceGroupTableName      the name of the instance group table
      * @param instanceGroupGraphTableName the name of the instance group graph table
      * @param instanceTableName           the name of the instance table
+     * @param datacenterTableName         the name of the datacenter table
      */
-    public SqlRecordDetailScheduleTime(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName) {
+    public SqlRecordDetailScheduleTime(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName, String datacenterTableName) {
         this.dbDir = dbDir;
         this.dbName = dbName;
         Path folder = Paths.get(this.dbDir);
@@ -142,6 +148,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
         this.instanceGroupTableName = instanceGroupTableName;
         this.instanceGroupGraphTableName = instanceGroupGraphTableName;
         this.instanceTableName = instanceTableName;
+        this.datacenterTableName = datacenterTableName;
         this.conflictTableName = "conflict";
         this.interScheduleCostTimeTableName = "interScheduleCostTime";
         try {
@@ -162,6 +169,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             createInstanceTable();
             createConflictTable();
             createInterScheduleCostTimeTable();
+            createDatacenterTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -652,6 +660,53 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
         conn.commit();
     }
 
+
+    /**
+     * Create the datacenter table.
+     * The datacenter table has the following columns:
+     * <ul>
+     *     <li>id: int, primary key. It records the id of the data center.</li>
+     *     <li>region: char(50). It records the region of the data center.</li>
+     *     <li>location: char(50). It records the location of the data center.</li>
+     *     <li>architecture: char(50). It records the architecture of the data center.</li>
+     *     <li>hostNum: int. It records the number of the hosts of the data center.</li>
+     *     <li>cpu: int. It records the cpu of the data center.</li>
+     *     <li>ram: int. It records the ram of the data center.</li>
+     *     <li>storage: int. It records the storage of the data center.</li>
+     *     <li>bw: int. It records the bandwidth of the data center.</li>
+     *     <li>pricePerCPU: double. It records the price per cpu of the data center.</li>
+     *     <li>pricePerRAM: double. It records the price per ram of the data center.</li>
+     *     <li>pricePerStorage: double. It records the price per storage of the data center.</li>
+     *     <li>pricePerBW: double. It records the price per bandwidth of the data center.</li>
+     *     <li>PricePerRack: double. It records the price per rack of the data center.</li>
+     *     <li>HostPerRack: double. It records the host per rack of the data center.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
+    private void createDatacenterTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.datacenterTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.datacenterTableName + " " +
+                "(id INT PRIMARY KEY NOT NULL," +
+                " region CHAR(50), " +
+                " location CHAR(50), " +
+                " architecture CHAR(50), " +
+                " hostNum INT NOT NULL, " +
+                " cpu INT NOT NULL, " +
+                " ram INT NOT NULL, " +
+                " storage INT NOT NULL, " +
+                " bw INT NOT NULL, " +
+                " pricePerCPU DOUBLE NOT NULL, " +
+                " pricePerRAM DOUBLE NOT NULL, " +
+                " pricePerStorage DOUBLE NOT NULL, " +
+                " pricePerBW DOUBLE NOT NULL, " +
+                " PricePerRack DOUBLE NOT NULL, " +
+                " HostPerRack DOUBLE NOT NULL)";
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+
+
     @Override
     public void recordConflict(double time, int sum) {
         int tmpTime = (int) time / 10 * 10;
@@ -668,4 +723,42 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void recordDatacentersInfo(List<Datacenter> datacenters) {
+        //遍历Datacenters的value
+        for (Datacenter datacenter : datacenters) {
+            recordDatacentersInfo(datacenter);
+        }
+    }
+
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenter) {
+        try {
+            statement = conn.prepareStatement("INSERT INTO " + this.datacenterTableName +
+                    " (id, region, location, architecture, hostNum, cpu, ram, storage, bw, pricePerCPU, pricePerRAM, pricePerStorage, pricePerBW, PricePerRack, HostPerRack) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //设置Datacenter的value
+            statement.setInt(1, datacenter.getId());
+            statement.setString(2, datacenter.getRegion());
+            statement.setString(3, datacenter.getLocation() == null ? "null" : datacenter.getLocation().toString());
+            statement.setString(4, datacenter.getArchitecture());
+            statement.setLong(5, datacenter.getHostNum());
+            statement.setLong(6, datacenter.getCpu());
+            statement.setLong(7, datacenter.getRam());
+            statement.setLong(8, datacenter.getStorage());
+            statement.setLong(9, datacenter.getBw());
+            statement.setDouble(10, datacenter.getPricePerCPU());
+            statement.setDouble(11, datacenter.getPricePerRAM());
+            statement.setDouble(12, datacenter.getPricePerStorage());
+            statement.setDouble(13, datacenter.getPricePerBW());
+            statement.setDouble(14, datacenter.getPricePerRack());
+            statement.setDouble(15, datacenter.getHostPerRack());
+            statement.addBatch();
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

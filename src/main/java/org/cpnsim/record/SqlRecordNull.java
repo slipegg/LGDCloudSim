@@ -1,5 +1,6 @@
 package org.cpnsim.record;
 
+import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
@@ -88,6 +89,16 @@ public class SqlRecordNull implements SqlRecord {
 
     @Override
     public void recordConflict(double time, int sum) {
+
+    }
+
+    @Override
+    public void recordDatacentersInfo(List<Datacenter> datacenters) {
+
+    }
+
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenters) {
 
     }
 

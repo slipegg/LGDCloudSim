@@ -659,4 +659,14 @@ public class SqlRecordSimple implements SqlRecord {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void recordDatacentersInfo(List<Datacenter> datacenters) {
+
+    }
+    
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenters) {
+
+    }
 }

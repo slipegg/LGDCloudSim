@@ -285,6 +285,8 @@ public class CloudSim implements Simulation {
             System.out.printf("%s all has %d conflicts.\n", datacenter.getName(), conflictSum);
             DatacenterPowerOnRecord record = datacenter.getStatesManager().getDatacenterPowerOnRecord();
             System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
+
+            sqlRecord.recordDatacentersInfo(datacenter);
         }
         System.out.printf("All TCO = %f\n", allCost);
     }

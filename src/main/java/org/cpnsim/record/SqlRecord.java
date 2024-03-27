@@ -1,5 +1,6 @@
 package org.cpnsim.record;
 
+import org.cpnsim.datacenter.Datacenter;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.UserRequest;
@@ -141,6 +142,23 @@ public interface SqlRecord {
      * @param sum the sum of the conflicts.
      */
     void recordConflict(double time, int sum);
+
+    /**
+     * Record the data center information.
+     * It records the data center id, the name, the location, the cpu, the ram, the storage, the bandwidth and the cost.
+     * @param datacenters the data centers.
+     */
+    void recordDatacentersInfo(List<Datacenter> datacenters);
+
+    /**
+     * Record the data center information.
+     * It records the data center id, the name, the location, the cpu, the ram, the storage, the bandwidth and the cost.
+     * @param datacenter the data center.
+     */
+    void recordDatacentersInfo(Datacenter datacenter);
+
+
+    // void recordNetworkInfo()
 
     /**
      * Close the SQLite database.
