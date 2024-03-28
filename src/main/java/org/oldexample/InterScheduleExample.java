@@ -1,40 +1,39 @@
-package org.example;
+package org.oldexample;
 
 import ch.qos.logback.classic.Level;
 import org.lgdcloudsim.core.CloudSim;
 import org.lgdcloudsim.core.Factory;
 import org.lgdcloudsim.core.FactorySimple;
 import org.lgdcloudsim.core.Simulation;
-import org.lgdcloudsim.datacenter.InitDatacenter;
 import org.lgdcloudsim.network.NetworkTopology;
+import org.lgdcloudsim.network.NetworkTopologySimple;
+import org.lgdcloudsim.util.Log;
+import org.lgdcloudsim.datacenter.InitDatacenter;
 import org.lgdcloudsim.record.MemoryRecord;
 import org.lgdcloudsim.user.UserRequestManager;
 import org.lgdcloudsim.user.UserRequestManagerCsv;
 import org.lgdcloudsim.user.UserSimple;
-import org.lgdcloudsim.util.Log;
 
-public class ComparedWithCloudsimPlusExample {
+public class InterScheduleExample {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-
-    //"storageOfHost"
-    //"storageOfRequest"
-    //"storageOfRequestMultiDC"
-    String experiment = "storageOfRequestMultiDC";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/"+experiment+"/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/"+experiment+"/DatacentersConfig.json";
+    String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
+    String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
+    String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
+    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interScheduleExperiment/DatacentersConfig.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interScheduleExperiment/DatacentersConfigDistributeDirect.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/interScheduleExperiment/generateRequestParameter.csv";
 
     public static void main(String[] args) {
-        new ComparedWithCloudsimPlusExample();
+        new InterScheduleExample();
     }
 
-    private ComparedWithCloudsimPlusExample() {
+    private InterScheduleExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.OFF);
+        Log.setLevel(Level.ERROR);
         cpnSim = new CloudSim();
-        cpnSim.setIsSqlRecord(false);
         factory = new FactorySimple();
         initUser();
         initDatacenters();
@@ -50,7 +49,6 @@ public class ComparedWithCloudsimPlusExample {
         System.out.println("运行结果保存路径:" + cpnSim.getSqlRecord().getDbPath());
     }
 
-
     private void initUser() {
         userRequestManager = new UserRequestManagerCsv(USER_REQUEST_FILE);
         user = new UserSimple(cpnSim, userRequestManager);
@@ -61,6 +59,7 @@ public class ComparedWithCloudsimPlusExample {
     }
 
     private void initNetwork() {
-        cpnSim.setNetworkTopology(NetworkTopology.NULL);
+        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
+        cpnSim.setNetworkTopology(networkTopology);
     }
 }

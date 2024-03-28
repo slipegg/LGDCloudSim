@@ -1,4 +1,4 @@
-package org.example;
+package org.oldexample;
 
 import ch.qos.logback.classic.Level;
 import org.lgdcloudsim.core.CloudSim;
@@ -7,40 +7,34 @@ import org.lgdcloudsim.core.FactorySimple;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.datacenter.InitDatacenter;
 import org.lgdcloudsim.network.NetworkTopology;
-import org.lgdcloudsim.network.NetworkTopologySimple;
-import org.lgdcloudsim.network.RandomDelayDynamicModel;
 import org.lgdcloudsim.record.MemoryRecord;
 import org.lgdcloudsim.user.UserRequestManager;
 import org.lgdcloudsim.user.UserRequestManagerCsv;
 import org.lgdcloudsim.user.UserSimple;
 import org.lgdcloudsim.util.Log;
 
-public class InterFrameExample {
+public class ComparedWithCloudsimPlusExample {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
-    String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
-    String DATACENTER_BW_FILE = "./src/main/resources/experiment/interFrameExperiment/DatacenterBwConfig.csv";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrameExperiment/generateRequestParameter.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";
 
-    //    String DBNAME = "Centralized-one-stage";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
-//    String DBNAME = "Centralized-two-stage";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/dcInterToSelfAndForward/DatacentersConfig.json";
-//    String DBNAME = "Distributed-two-stage";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerToDcAndForward/DatacentersConfig.json";
-//    String DBNAME = "Hybrid-two-stage";
+    //"storageOfHost"
+    //"storageOfRequest"
+    //"storageOfRequestMultiDC"
+    String experiment = "storageOfRequestMultiDC";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/" + experiment + "/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/" + experiment + "/DatacentersConfig.json";
+
     public static void main(String[] args) {
-        new InterFrameExample();
+        new ComparedWithCloudsimPlusExample();
     }
 
-    private InterFrameExample() {
+    private ComparedWithCloudsimPlusExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.INFO);
+        Log.setLevel(Level.OFF);
         cpnSim = new CloudSim();
+        cpnSim.setIsSqlRecord(false);
         factory = new FactorySimple();
         initUser();
         initDatacenters();
@@ -67,8 +61,6 @@ public class InterFrameExample {
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
-        networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
-        cpnSim.setNetworkTopology(networkTopology);
+        cpnSim.setNetworkTopology(NetworkTopology.NULL);
     }
 }

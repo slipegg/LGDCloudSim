@@ -1,4 +1,4 @@
-package org.example;
+package org.oldexample;
 
 import ch.qos.logback.classic.Level;
 import org.lgdcloudsim.core.CloudSim;
@@ -7,49 +7,37 @@ import org.lgdcloudsim.core.FactorySimple;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.datacenter.InitDatacenter;
 import org.lgdcloudsim.network.NetworkTopology;
+import org.lgdcloudsim.network.NetworkTopologySimple;
+import org.lgdcloudsim.network.RandomDelayDynamicModel;
 import org.lgdcloudsim.record.MemoryRecord;
 import org.lgdcloudsim.user.UserRequestManager;
 import org.lgdcloudsim.user.UserRequestManagerCsv;
 import org.lgdcloudsim.user.UserSimple;
 import org.lgdcloudsim.util.Log;
 
-/**
- * A class to configure the simulation of setting the unit price of the datacenter via file.
- * When the lifecycle of the instance in your user request is infinite, you can set the long-term rental price of each CPU, Ram, Storage, and BW in the file.
- * When the lifecycle of the instances in your user requests is limited, you can set the price per second of renting each CPU, Ram, Storage, and BW in the file.
- * Of course, you can also set two at the same time.
- * You need to add the "resourceUnitPrice" field in the data center file.
- * If you do not customize it in the file, the default value will be used, as follows.
- * pricePerCpuPerSec = 1.0;
- * pricePerCpu = 1.0;
- * pricePerRamPerSec = 1.0;
- * pricePerRam = 1.0;
- * pricePerStoragePerSec = 1.0;
- * pricePerStorage = 1.0;
- * pricePerBwPerSec = 1.0;
- * pricePerBw = 1.0;
- * unitRackPrice = 100.0;
- * hostNumPerRack = 10;
- *
- * @author Jiawen Liu
- * @author VVsxmja
- * @since LGDCloudSim 1.0
- */
-public class UnitPriceConfiguration {
+public class InterFrameExample {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameterInfiniteLife.csv";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfigInfiniteLife.json";
+    String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
+    String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
+    String DATACENTER_BW_FILE = "./src/main/resources/experiment/interFrameExperiment/DatacenterBwConfig.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/interFrameExperiment/generateRequestParameter.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToHostSchedule/DatacentersConfig.json";
 
-    //    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameterLimitedLife.csv";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfigLimitedLife.json";
+    //    String DBNAME = "Centralized-one-stage";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerInterToDcNoForwardSchedule/DatacentersConfig.json";
+//    String DBNAME = "Centralized-two-stage";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/dcInterToSelfAndForward/DatacentersConfig.json";
+//    String DBNAME = "Distributed-two-stage";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interFrameExperiment/centerToDcAndForward/DatacentersConfig.json";
+//    String DBNAME = "Hybrid-two-stage";
     public static void main(String[] args) {
-        new UnitPriceConfiguration();
+        new InterFrameExample();
     }
 
-    private UnitPriceConfiguration() {
+    private InterFrameExample() {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
@@ -79,6 +67,8 @@ public class UnitPriceConfiguration {
     }
 
     private void initNetwork() {
-        cpnSim.setNetworkTopology(NetworkTopology.NULL);
+        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
+        networkTopology.setDelayDynamicModel(new RandomDelayDynamicModel());
+        cpnSim.setNetworkTopology(networkTopology);
     }
 }

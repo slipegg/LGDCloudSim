@@ -92,6 +92,11 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum number of requests per time.
      */
     private int RequestPerNumMax = -2;
+    /**
+     * The number of requests per time.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int RequestPerNum = -2;
 
     /**
      * The minimum time interval (ms) between two requests.
@@ -102,6 +107,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum time interval (ms) between two requests.
      */
     private int RequestTimeIntervalMax = -2;
+
+    /**
+     * The time interval (ms) between two requests.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int RequestTimeInterval = -2;
 
     /**
      * The number of times to send requests.
@@ -119,6 +130,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private double ScheduleDelayLimitMax = -2;
 
     /**
+     * The schedule delay limit (ms) of the requests.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private double ScheduleDelayLimit = -2;
+
+    /**
      * The minimum number of instance groups in a request.
      */
     private int RequestGroupNumMin = -2;
@@ -129,6 +146,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int RequestGroupNumMax = -2;
 
     /**
+     * The number of instance groups in a request.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int RequestGroupNum = -2;
+
+    /**
      * The minimum number of instances in an instance group.
      */
     private int GroupInstanceNumMin = -2;
@@ -137,6 +160,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum number of instances in an instance group.
      */
     private int GroupInstanceNumMax = -2;
+
+    /**
+     * The number of instances in an instance group.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int GroupInstanceNum = -2;
 
     /**
      * The percentage of instance groups that have access delay.
@@ -152,6 +181,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum access delay (ms) of the instance groups.
      */
     private int GroupAccessDelayMax = -2;
+
+    /**
+     * The access delay (ms) of the instance groups.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int GroupAccessDelay = -2;
 
     /**
      * The percentage that an instance group has edge constraints with other instance groups.
@@ -179,6 +214,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int GroupBwMax = -2;
 
     /**
+     * The bandwidth requirement in the edge constraints.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int GroupBw = -2;
+
+    /**
      * The percentage that an edge constraint contains a link delay constraint (ms).
      */
     private double GroupDelayPercent = -2;
@@ -194,6 +235,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int GroupDelayMax = -2;
 
     /**
+     * The link delay (ms) requirement in the edge constraints.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int GroupDelay = -2;
+
+    /**
      * The minimum retry times of the instance groups.
      */
     private int GroupRetryTimesMin = -2;
@@ -202,6 +249,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum retry times of the instance groups.
      */
     private int GroupRetryTimesMax = -2;
+
+    /**
+     * The retry times of the instance groups.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int GroupRetryTimes = -2;
 
     /**
      * The minimum number of cpu core in an instance.
@@ -214,6 +267,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceCpuNumMax = -2;
 
     /**
+     * The number of cpu core in an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceCpuNum = -2;
+
+    /**
      * The minimum number (GB) of ram in an instance.
      */
     private int InstanceRamNumMin = -2;
@@ -222,6 +281,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum number (GB) of ram in an instance.
      */
     private int InstanceRamNumMax = -2;
+
+    /**
+     * The number (GB) of ram in an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceRamNum = -2;
 
     /**
      * The minimum number (GB) of storage in an instance.
@@ -234,6 +299,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceStorageNumMax = -2;
 
     /**
+     * The number (GB) of storage in an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceStorageNum = -2;
+
+    /**
      * The minimum number (Mbps) of bw in an instance.
      */
     private int InstanceBwNumMin = -2;
@@ -242,6 +313,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum number (Mbps) of bw in an instance.
      */
     private int InstanceBwNumMax = -2;
+
+    /**
+     * The number (Mbps) of bw in an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceBwNum = -2;
 
     /**
      * The minimum lifecycle (ms) of an instance.
@@ -254,6 +331,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceLifeTimeMax = -2;
 
     /**
+     * The lifecycle (ms) of an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceLifeTime = -2;
+
+    /**
      * The minimum retry times of an instance.
      */
     private int InstanceRetryTimesMin = -2;
@@ -262,6 +345,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
      * The maximum retry times of an instance.
      */
     private int InstanceRetryTimesMax = -2;
+
+    /**
+     * The retry times of an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceRetryTimes = -2;
 
     /**
      * The id of the next instance.
@@ -317,47 +406,61 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "DcDistribution" -> stringToDistributionMap(csvRecord.get(1));
                     case "RequestPerNumMin" -> this.RequestPerNumMin = Integer.parseInt(csvRecord.get(1));
                     case "RequestPerNumMax" -> this.RequestPerNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "RequestPerNum" -> this.RequestPerNum = Integer.parseInt(csvRecord.get(1));
                     case "RequestTimeIntervalMin" -> this.RequestTimeIntervalMin = Integer.parseInt(csvRecord.get(1));
                     case "RequestTimeIntervalMax" -> this.RequestTimeIntervalMax = Integer.parseInt(csvRecord.get(1));
+                    case "RequestTimeInterval" -> this.RequestTimeInterval = Integer.parseInt(csvRecord.get(1));
                     case "RequestTimes" -> this.RequestTimes = Integer.parseInt(csvRecord.get(1));
                     case "ScheduleDelayLimitMin" -> this.ScheduleDelayLimitMin = Double.parseDouble(csvRecord.get(1));
                     case "ScheduleDelayLimitMax" -> this.ScheduleDelayLimitMax = Double.parseDouble(csvRecord.get(1));
+                    case "ScheduleDelayLimit" -> this.ScheduleDelayLimit = Double.parseDouble(csvRecord.get(1));
                     case "RequestGroupNumMin" -> this.RequestGroupNumMin = Integer.parseInt(csvRecord.get(1));
                     case "RequestGroupNumMax" -> this.RequestGroupNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "RequestGroupNum" -> this.RequestGroupNum = Integer.parseInt(csvRecord.get(1));
                     case "GroupInstanceNumMin" -> this.GroupInstanceNumMin = Integer.parseInt(csvRecord.get(1));
                     case "GroupInstanceNumMax" -> this.GroupInstanceNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "GroupInstanceNum" -> this.GroupInstanceNum = Integer.parseInt(csvRecord.get(1));
                     case "GroupAccessDelayPercent" ->
                             this.GroupAccessDelayPercent = Double.parseDouble(csvRecord.get(1));
                     case "GroupAccessDelayMin" -> this.GroupAccessDelayMin = Integer.parseInt(csvRecord.get(1));
                     case "GroupAccessDelayMax" -> this.GroupAccessDelayMax = Integer.parseInt(csvRecord.get(1));
+                    case "GroupAccessDelay" -> this.GroupAccessDelay = Integer.parseInt(csvRecord.get(1));
                     case "GroupEdgePercent" -> this.GroupEdgePercent = Double.parseDouble(csvRecord.get(1));
                     case "GroupEdgeIsDirected" -> this.GroupEdgeIsDirected = Integer.parseInt(csvRecord.get(1));
                     case "GroupBwPercent" -> this.GroupBwPercent = Double.parseDouble(csvRecord.get(1));
                     case "GroupBwMin" -> this.GroupBwMin = Integer.parseInt(csvRecord.get(1));
                     case "GroupBwMax" -> this.GroupBwMax = Integer.parseInt(csvRecord.get(1));
+                    case "GroupBw" -> this.GroupBw = Integer.parseInt(csvRecord.get(1));
                     case "GroupDelayPercent" -> this.GroupDelayPercent = Double.parseDouble(csvRecord.get(1));
                     case "GroupDelayMin" -> this.GroupDelayMin = Integer.parseInt(csvRecord.get(1));
                     case "GroupDelayMax" -> this.GroupDelayMax = Integer.parseInt(csvRecord.get(1));
+                    case "GroupDelay" -> this.GroupDelay = Integer.parseInt(csvRecord.get(1));
                     case "GroupRetryTimesMin" -> this.GroupRetryTimesMin = Integer.parseInt(csvRecord.get(1));
                     case "GroupRetryTimesMax" -> this.GroupRetryTimesMax = Integer.parseInt(csvRecord.get(1));
+                    case "GroupRetryTimes" -> this.GroupRetryTimes = Integer.parseInt(csvRecord.get(1));
                     case "InstanceCpuNumMin" -> this.InstanceCpuNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceCpuNumMax" -> this.InstanceCpuNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceCpuNum" -> this.InstanceCpuNum = Integer.parseInt(csvRecord.get(1));
                     case "InstanceRamNumMin" -> this.InstanceRamNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceRamNumMax" -> this.InstanceRamNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceRamNum" -> this.InstanceRamNum = Integer.parseInt(csvRecord.get(1));
                     case "InstanceStorageNumMin" -> this.InstanceStorageNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceStorageNumMax" -> this.InstanceStorageNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceStorageNum" -> this.InstanceStorageNum = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNumMin" -> this.InstanceBwNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNumMax" -> this.InstanceBwNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceBwNum" -> this.InstanceBwNum = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTimeMin" -> this.InstanceLifeTimeMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTimeMax" -> this.InstanceLifeTimeMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceLifeTime" -> this.InstanceLifeTime = Integer.parseInt(csvRecord.get(1));
                     case "InstanceRetryTimesMin" -> this.InstanceRetryTimesMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceRetryTimesMax" -> this.InstanceRetryTimesMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceRetryTimes" -> this.InstanceRetryTimes = Integer.parseInt(csvRecord.get(1));
                     default -> {
                         LOGGER.warn("The parameter name {} is not correct, please check the parameter name in the csv file", title);
                     }
                 }
             }
-          checkVars();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -374,12 +477,14 @@ public class UserRequestManagerCsv implements UserRequestManager {
         if (sendTimes >= RequestTimes) {
             return userRequestsMap;
         }
+
         List<UserRequest> userRequests = new ArrayList<>();
-        int requestNum = random.nextInt(RequestPerNumMax - RequestPerNumMin + 1) + RequestPerNumMin;
+        int requestNum = getExpectedValue(RequestPerNum, RequestPerNumMin, RequestPerNumMax);
         for (int i = 0; i < requestNum; i++) {
             UserRequest userRequest = generateAUserRequest();
             int belongDatacenterId = -1;
             String belongArea = null;
+
             double randomDouble = random.nextDouble(DcAreaDistributionSum);
             for (Map.Entry<Integer, TreeMap<String, Double>> entry : DcAreaDistribution.entrySet()) {
                 for (Map.Entry<String, Double> innerEntry : entry.getValue().entrySet()) {
@@ -389,22 +494,26 @@ public class UserRequestManagerCsv implements UserRequestManager {
                         break;
                     }
                 }
-                if(belongDatacenterId != -1) {
+                if (belongDatacenterId != -1) {
                     break;
                 }
             }
+
             userRequest.setBelongDatacenterId(belongDatacenterId);
             userRequest.setArea(belongArea);
             userRequest.setSubmitTime(nextSendTime);
-            double scheduleDelayLimit = random.nextDouble() * (ScheduleDelayLimitMax - ScheduleDelayLimitMin) + ScheduleDelayLimitMin;
+
+            double scheduleDelayLimit = getExpectedValue(ScheduleDelayLimit, ScheduleDelayLimitMin, ScheduleDelayLimitMax);
             userRequest.setScheduleDelayLimit(scheduleDelayLimit);
+
             userRequests.add(userRequest);
             if (!userRequestsMap.containsKey(belongDatacenterId)) {
                 userRequestsMap.put(belongDatacenterId, new ArrayList<>());
             }
             userRequestsMap.get(belongDatacenterId).add(userRequest);
         }
-        double nextSendInterval = random.nextDouble() * (RequestTimeIntervalMax - RequestTimeIntervalMin) + RequestTimeIntervalMin;
+
+        double nextSendInterval = getExpectedValue(RequestTimeInterval, RequestTimeIntervalMin, RequestTimeIntervalMax);
         nextSendTime += BigDecimal.valueOf(nextSendInterval).setScale(3, RoundingMode.HALF_UP).doubleValue();
         sendTimes += 1;
         return userRequestsMap;
@@ -412,70 +521,97 @@ public class UserRequestManagerCsv implements UserRequestManager {
 
     /**
      * Generate an instance.
+     *
      * @return an instance.
      */
     private Instance generateAnInstance() {
-        int cpuNum = random.nextInt(InstanceCpuNumMax - InstanceCpuNumMin + 1) + InstanceCpuNumMin;
-        int ramNum = random.nextInt(InstanceRamNumMax - InstanceRamNumMin + 1) + InstanceRamNumMin;
-        int storageNum = random.nextInt(InstanceStorageNumMax - InstanceStorageNumMin + 1) + InstanceStorageNumMin;
-        int bwNum = random.nextInt(InstanceBwNumMax - InstanceBwNumMin + 1) + InstanceBwNumMin;
+        int cpuNum = getExpectedValue(InstanceCpuNum, InstanceCpuNumMin, InstanceCpuNumMax);
+
+        int ramNum = getExpectedValue(InstanceRamNum, InstanceRamNumMin, InstanceRamNumMax);
+
+        int storageNum = getExpectedValue(InstanceStorageNum, InstanceStorageNumMin, InstanceStorageNumMax);
+
+        int bwNum = getExpectedValue(InstanceBwNum, InstanceBwNumMin, InstanceBwNumMax);
+
         int lifeTime = generateInstanceLifeTime();
         Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
-        int retryTimes = random.nextInt(InstanceRetryTimesMax - InstanceRetryTimesMin + 1) + InstanceRetryTimesMin;
+
+        int retryTimes = getExpectedValue(InstanceRetryTimes, InstanceRetryTimesMin, InstanceRetryTimesMax);
         instance.setRetryMaxNum(retryTimes);
+
         return instance;
     }
 
     /**
      * Generate the lifecycle of an instance.
-     * @return
+     *
+     * @return the lifecycle of an instance.
      */
     private int generateInstanceLifeTime() {
-        if (InstanceLifeTimeMax == -1 || InstanceLifeTimeMin==-1){
+        if (InstanceLifeTimeMax == -1 || InstanceLifeTimeMin == -1) {
             return -1;
         }
+        if (InstanceLifeTime != -2) {
+            return InstanceLifeTime;
+        }
+
         int lifeGap = InstanceLifeTimeMax - InstanceLifeTimeMin;
         int granularity = 10;
         int lifeSmallGapNum = lifeGap / granularity;
 
-        return random.nextInt(lifeSmallGapNum+1) * granularity + InstanceLifeTimeMin;
+        return random.nextInt(lifeSmallGapNum + 1) * granularity + InstanceLifeTimeMin;
     }
 
     /**
      * Generate an instance group.
+     *
      * @return an instance group.
      */
     private InstanceGroup generateAnInstanceGroup() {
-        int instanceNum = random.nextInt(GroupInstanceNumMax - GroupInstanceNumMin + 1) + GroupInstanceNumMin;
+        int instanceNum = getExpectedValue(GroupInstanceNum, GroupInstanceNumMin, GroupInstanceNumMax);
         List<Instance> instanceList = new ArrayList<>();
         for (int i = 0; i < instanceNum; i++) {
             instanceList.add(generateAnInstance());
         }
         InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupId++, instanceList);
-        if (random.nextDouble() < GroupAccessDelayPercent) {
-            double accessLatency = random.nextDouble() * (GroupAccessDelayMax - GroupAccessDelayMin) + GroupAccessDelayMin;
+        if (GroupAccessDelayPercent != 0 && GroupAccessDelayPercent != -2 && random.nextDouble() < GroupAccessDelayPercent) {
+            double accessLatency = getExpectedValue(GroupAccessDelay, GroupAccessDelayMin, GroupAccessDelayMax);
             instanceGroup.setAccessLatency(accessLatency);
         }
-        int retryTimes = random.nextInt(GroupRetryTimesMax - GroupRetryTimesMin + 1) + GroupRetryTimesMin;
+
+        int retryTimes = Math.max(1, getExpectedValue(GroupRetryTimes, GroupRetryTimesMin, GroupRetryTimesMax));
         instanceGroup.setRetryMaxNum(retryTimes);
         return instanceGroup;
     }
 
     /**
      * Generate an instance group graph.
+     *
      * @param instanceGroups the instance groups.
      * @return an instance group graph.
      */
     private InstanceGroupGraph generateAnInstanceGroupGraph(List<InstanceGroup> instanceGroups) {
         InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
+        if (GroupEdgePercent == 0 || GroupEdgePercent == -2 || instanceGroups.size() <= 1) {
+            return instanceGroupGraph;
+        }
+
         instanceGroupGraph.setDirected(GroupEdgeIsDirected == 1);
         for (int i = 0; i < instanceGroups.size(); i++) {
             int j = (GroupEdgeIsDirected == 1) ? 0 : i + 1;
             for (; j < instanceGroups.size(); j++) {
                 if (random.nextDouble() < GroupEdgePercent && j != i) {
-                    double bw = random.nextDouble() * (GroupBwMax - GroupBwMin) + GroupBwMin;
-                    bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                    double delay = random.nextDouble() * (GroupDelayMax - GroupDelayMin) + GroupDelayMin;
+                    double bw = 0;
+                    if (random.nextDouble() < GroupBwPercent) {
+                        bw = getExpectedValue(GroupBw, GroupBwMin, GroupBwMax);
+                        bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                    }
+                    double delay = 0;
+                    if (random.nextDouble() < GroupDelayPercent) {
+                        delay = getExpectedValue(GroupDelay, GroupDelayMin, GroupDelayMax);
+                        delay = BigDecimal.valueOf(delay).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                    }
+
                     instanceGroupGraph.addEdge(instanceGroups.get(i), instanceGroups.get(j), delay, bw);
                 }
             }
@@ -485,10 +621,11 @@ public class UserRequestManagerCsv implements UserRequestManager {
 
     /**
      * Generate a user request.
+     *
      * @return a user request.
      */
     private UserRequest generateAUserRequest() {
-        int groupNum = random.nextInt(RequestGroupNumMax - RequestGroupNumMin + 1) + RequestGroupNumMin;
+        int groupNum = getExpectedValue(RequestGroupNum, RequestGroupNumMin, RequestGroupNumMax);
         List<InstanceGroup> instanceGroups = new ArrayList<>();
         for (int i = 0; i < groupNum; i++) {
             instanceGroups.add(generateAnInstanceGroup());
@@ -497,8 +634,37 @@ public class UserRequestManagerCsv implements UserRequestManager {
         return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph);
     }
 
+    //    private <T extends Number & Comparable<T>> T getValue(T fixed, T min, T max) {
+//        if (fixed.compareTo(min) != -2) {
+//            return fixed;
+//        } else {
+//            // Generate a random value between min and max (inclusive)
+//            return (T) Integer.valueOf(random.nextInt(max.intValue() - min.intValue() + 1) + min.intValue());
+//        }
+//    }
+    private int getExpectedValue(int fixed, int min, int max) {
+        if (fixed != -2) {
+            return fixed;
+        } else {
+            // Generate a random value between min and max (inclusive)
+            return random.nextInt(max - min + 1) + min;
+        }
+    }
+
+    private double getExpectedValue(double fixed, double min, double max) {
+        if (fixed != -2) {
+            return fixed;
+        } else if (min == -2 && max == -2) {
+            // Generate a random value between min and max (inclusive)
+            return random.nextDouble() * (max - min) + min;
+        } else {
+            return -1;
+        }
+    }
+
     /**
      * Convert the JSON string to a distribution map.
+     *
      * @param jsonString the JSON string.
      * @throws IOException if the JSON string is not correct.
      */
@@ -521,111 +687,6 @@ public class UserRequestManagerCsv implements UserRequestManager {
             }
 
             DcAreaDistribution.put(outerKey, innerMap);
-        }
-    }
-
-    /**
-     * Check if all the variables have been initialized.
-     */
-    private void checkVars() {
-        List<String> uninitializedVars = new ArrayList<>();
-
-        if (RequestPerNumMin == -2) {
-            uninitializedVars.add("RequestPerNumMin");
-        }
-        if (RequestPerNumMax == -2) {
-            uninitializedVars.add("RequestPerNumMax");
-        }
-        if (RequestTimeIntervalMin == -2) {
-            uninitializedVars.add("RequestTimeIntervalMin");
-        }
-        if (RequestTimeIntervalMax == -2) {
-            uninitializedVars.add("RequestTimeIntervalMax");
-        }
-        if (RequestTimes == -2) {
-            uninitializedVars.add("RequestTimes");
-        }
-        if (ScheduleDelayLimitMin == -2) {
-            uninitializedVars.add("ScheduleDelayLimitMin");
-        }
-        if (ScheduleDelayLimitMax == -2) {
-            uninitializedVars.add("ScheduleDelayLimitMax");
-        }
-        if (RequestGroupNumMin == -2) {
-            uninitializedVars.add("RequestGroupNumMin");
-        }
-        if (RequestGroupNumMax == -2) {
-            uninitializedVars.add("RequestGroupNumMax");
-        }
-        if (GroupInstanceNumMin == -2) {
-            uninitializedVars.add("GroupInstanceNumMin");
-        }
-        if (GroupInstanceNumMax == -2) {
-            uninitializedVars.add("GroupInstanceNumMax");
-        }
-        if (GroupAccessDelayPercent == -2) {
-            uninitializedVars.add("GroupAccessDelayPercent");
-        }
-        if (GroupAccessDelayMin == -2) {
-            uninitializedVars.add("GroupAccessDelayMin");
-        }
-        if (GroupAccessDelayMax == -2) {
-            uninitializedVars.add("GroupAccessDelayMax");
-        }
-        if (GroupEdgePercent == -2) {
-            uninitializedVars.add("GroupEdgePercent");
-        }
-        if (GroupEdgeIsDirected == -2) {
-            uninitializedVars.add("GroupEdgeIsDirected");
-        }
-        if (GroupBwPercent == -2) {
-            uninitializedVars.add("GroupBwPercent");
-        }
-        if (GroupBwMin == -2) {
-            uninitializedVars.add("GroupBwMin");
-        }
-        if (GroupBwMax == -2) {
-            uninitializedVars.add("GroupBwMax");
-        }
-        if (GroupDelayPercent == -2) {
-            uninitializedVars.add("GroupDelayPercent");
-        }
-        if (GroupDelayMin == -2) {
-            uninitializedVars.add("GroupDelayMin");
-        }
-        if (GroupDelayMax == -2) {
-            uninitializedVars.add("GroupDelayMax");
-        }
-        if (InstanceCpuNumMin == -2) {
-            uninitializedVars.add("InstanceCpuNumMin");
-        }
-        if (InstanceCpuNumMax == -2) {
-            uninitializedVars.add("InstanceCpuNumMax");
-        }
-        if (InstanceRamNumMin == -2) {
-            uninitializedVars.add("InstanceRamNumMin");
-        }
-        if (InstanceRamNumMax == -2) {
-            uninitializedVars.add("InstanceRamNumMax");
-        }
-        if (InstanceStorageNumMin == -2) {
-            uninitializedVars.add("InstanceStorageNumMin");
-        }
-        if (InstanceStorageNumMax == -2) {
-            uninitializedVars.add("InstanceStorageNumMax");
-        }
-        if (InstanceBwNumMin == -2) {
-            uninitializedVars.add("InstanceBwNumMin");
-        }
-        if (InstanceBwNumMax == -2) {
-            uninitializedVars.add("InstanceBwNumMax");
-        }
-
-        if (uninitializedVars.isEmpty()) {
-            LOGGER.info("All variables have been initialized by {}.", this.fileName);
-        } else {
-            LOGGER.error("The following variables have not been initialized: {}", uninitializedVars);
-            throw new RuntimeException("The following variables have not been initialized: " + uninitializedVars);
         }
     }
 }

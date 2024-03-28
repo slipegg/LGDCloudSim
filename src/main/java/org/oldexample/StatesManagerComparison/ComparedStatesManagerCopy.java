@@ -1,4 +1,4 @@
-package org.example.statesmanagercomparison;
+package org.oldexample.StatesManagerComparison;
 
 import lombok.Getter;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
@@ -9,6 +9,8 @@ import org.lgdcloudsim.statemanager.PartitionRangesManager;
 import org.lgdcloudsim.statemanager.SynGapManager;
 
 import java.util.*;
+
+import static org.apache.commons.lang3.math.NumberUtils.max;
 
 public class ComparedStatesManagerCopy {
     double allTime = 5000;

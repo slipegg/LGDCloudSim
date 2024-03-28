@@ -1,4 +1,4 @@
-package org.example;
+package org.oldexample;
 
 import java.util.*;
 
@@ -10,7 +10,7 @@ public class Simple2 {
     List<Integer> ramRecordListInc;
     List<Integer> ramRecordListDec;
 
-    public Simple2(){
+    public Simple2() {
         this.cpuRecordListInc = getCpuRecordList();
         this.cpuRecordListDec = new ArrayList<>(cpuRecordListInc);
         Collections.reverse(cpuRecordListDec);
@@ -18,53 +18,53 @@ public class Simple2 {
         this.ramRecordListDec = new ArrayList<>(ramRecordListInc);
         Collections.reverse(ramRecordListDec);
 
-        this.cpuRamMap=new HashMap<>();
-        for(int cpu:cpuRecordListInc){
-            cpuRamMap.put(cpu,new HashMap<>());
-            for(int ram:ramRecordListInc){
-                cpuRamMap.get(cpu).put(ram,0);
+        this.cpuRamMap = new HashMap<>();
+        for (int cpu : cpuRecordListInc) {
+            cpuRamMap.put(cpu, new HashMap<>());
+            for (int ram : ramRecordListInc) {
+                cpuRamMap.get(cpu).put(ram, 0);
             }
         }
     }
 
-    public void addCpuRamRecord(int cpu,int ram){
-        int smallerCpu=getSmallerCpu(cpu);
-        int smallerRam=getSmallerRam(ram);
-        if(smallerCpu==-1||smallerRam==-1){
+    public void addCpuRamRecord(int cpu, int ram) {
+        int smallerCpu = getSmallerCpu(cpu);
+        int smallerRam = getSmallerRam(ram);
+        if (smallerCpu == -1 || smallerRam == -1) {
             return;
         }
-        int tmp=cpuRamMap.get(smallerCpu).get(smallerRam);
-        cpuRamMap.get(smallerCpu).put(smallerRam,tmp+1);
+        int tmp = cpuRamMap.get(smallerCpu).get(smallerRam);
+        cpuRamMap.get(smallerCpu).put(smallerRam, tmp + 1);
     }
 
-    public void  updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam){
-        int smallerCpu=getSmallerCpu(originCpu);
-        int smallerRam=getSmallerRam(originRam);
-        if(smallerCpu==-1||smallerRam==-1){
+    public void updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam) {
+        int smallerCpu = getSmallerCpu(originCpu);
+        int smallerRam = getSmallerRam(originRam);
+        if (smallerCpu == -1 || smallerRam == -1) {
             return;
         }
-        int tmp=cpuRamMap.get(smallerCpu).get(smallerRam);
-        cpuRamMap.get(smallerCpu).put(smallerRam,tmp-1);
+        int tmp = cpuRamMap.get(smallerCpu).get(smallerRam);
+        cpuRamMap.get(smallerCpu).put(smallerRam, tmp - 1);
         smallerCpu = getSmallerCpu(nowCpu);
         smallerRam = getSmallerRam(nowRam);
-        if(smallerCpu==-1||smallerRam==-1){
+        if (smallerCpu == -1 || smallerRam == -1) {
             return;
         }
-        tmp=cpuRamMap.get(smallerCpu).get(smallerRam);
-        cpuRamMap.get(smallerCpu).put(smallerRam,tmp+1);
+        tmp = cpuRamMap.get(smallerCpu).get(smallerRam);
+        cpuRamMap.get(smallerCpu).put(smallerRam, tmp + 1);
     }
 
     public int getCpuRamSum(int cpu, int ram) {
-        int sum=0;
-        for(int i=0;i<cpuRecordListDec.size();i++){
-            if(cpuRecordListDec.get(i)<cpu){
+        int sum = 0;
+        for (int i = 0; i < cpuRecordListDec.size(); i++) {
+            if (cpuRecordListDec.get(i) < cpu) {
                 break;
             }
-            for(int j=0;j<ramRecordListDec.size();j++){
-                if(ramRecordListDec.get(j)<ram){
+            for (int j = 0; j < ramRecordListDec.size(); j++) {
+                if (ramRecordListDec.get(j) < ram) {
                     break;
                 }
-                sum+=cpuRamMap.get(cpuRecordListDec.get(i)).get(ramRecordListDec.get(j));
+                sum += cpuRamMap.get(cpuRecordListDec.get(i)).get(ramRecordListDec.get(j));
             }
         }
         return sum;
@@ -119,6 +119,7 @@ public class Simple2 {
     private int getBiggerRam(int ram) {
         return ramRecordListInc.stream().filter(key -> key >= ram).findFirst().orElse(-1);
     }
+
     private int getSmallerCpu(int cpu) {
         return cpuRecordListDec.stream().filter(key -> key <= cpu).findFirst().orElse(-1);
     }

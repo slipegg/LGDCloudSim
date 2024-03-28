@@ -1,12 +1,9 @@
-package org.example.statesmanagercomparison;
+package org.oldexample.StatesManagerComparison;
 
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerSimple;
 import org.lgdcloudsim.record.MemoryRecord;
-import org.lgdcloudsim.statemanager.HostState;
-import org.lgdcloudsim.statemanager.PartitionRangesManager;
-import org.lgdcloudsim.statemanager.StatesManagerSimple;
-import org.lgdcloudsim.statemanager.SynGapManager;
+import org.lgdcloudsim.statemanager.*;
 
 import java.lang.reflect.Field;
 import java.util.*;

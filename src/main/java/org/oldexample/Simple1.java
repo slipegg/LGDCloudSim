@@ -1,6 +1,4 @@
-package org.example;
-
-import org.apache.commons.lang3.mutable.MutableInt;
+package org.oldexample;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,45 +6,45 @@ import java.util.List;
 import java.util.Map;
 
 public class Simple1 {
-    Map<Integer,Map<Integer, Integer>> cpuRamMap;//大于这个的有多少
+    Map<Integer, Map<Integer, Integer>> cpuRamMap;//大于这个的有多少
 
     public List<Integer> cpuRecordListInc;
     List<Integer> cpuRecordListDec;
     List<Integer> ramRecordListInc;
     List<Integer> ramRecordListDec;
 
-    public Simple1(){
+    public Simple1() {
         this.cpuRecordListInc = getCpuRecordList();
         this.ramRecordListInc = getRamRecordList();
-        this.cpuRamMap=new HashMap<>();
-        for(int cpu:cpuRecordListInc){
-            cpuRamMap.put(cpu,new HashMap<>());
-            for(int ram:ramRecordListInc){
-                cpuRamMap.get(cpu).put(ram,0);
+        this.cpuRamMap = new HashMap<>();
+        for (int cpu : cpuRecordListInc) {
+            cpuRamMap.put(cpu, new HashMap<>());
+            for (int ram : ramRecordListInc) {
+                cpuRamMap.get(cpu).put(ram, 0);
             }
         }
     }
 
-    public void addCpuRamRecord(int cpu,int ram){
-        for(int i=0;i<cpuRecordListInc.size()&&cpuRecordListInc.get(i)<cpu;i++){
-            for(int j=0;j<ramRecordListInc.size()&&ramRecordListInc.get(j)<ram;j++){
-                int tmp=cpuRamMap.get(cpuRecordListInc.get(i)).get(ramRecordListInc.get(j));
-                cpuRamMap.get(cpuRecordListInc.get(i)).put(ramRecordListInc.get(j),tmp+1);
+    public void addCpuRamRecord(int cpu, int ram) {
+        for (int i = 0; i < cpuRecordListInc.size() && cpuRecordListInc.get(i) < cpu; i++) {
+            for (int j = 0; j < ramRecordListInc.size() && ramRecordListInc.get(j) < ram; j++) {
+                int tmp = cpuRamMap.get(cpuRecordListInc.get(i)).get(ramRecordListInc.get(j));
+                cpuRamMap.get(cpuRecordListInc.get(i)).put(ramRecordListInc.get(j), tmp + 1);
             }
         }
     }
 
-    public void  updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam){
-        for(int i=0;i<cpuRecordListInc.size()&&cpuRecordListInc.get(i)<originCpu;i++){
-            for(int j=0;j<ramRecordListInc.size()&&ramRecordListInc.get(j)<originRam;j++){
-                int tmp=cpuRamMap.get((Integer)(cpuRecordListInc.get(i))).get((Integer)ramRecordListInc.get(j));
-                cpuRamMap.get((Integer)(cpuRecordListInc.get(i))).put(ramRecordListInc.get(j),tmp-1);
+    public void updateCpuRamMap(int originCpu, int originRam, int nowCpu, int nowRam) {
+        for (int i = 0; i < cpuRecordListInc.size() && cpuRecordListInc.get(i) < originCpu; i++) {
+            for (int j = 0; j < ramRecordListInc.size() && ramRecordListInc.get(j) < originRam; j++) {
+                int tmp = cpuRamMap.get((Integer) (cpuRecordListInc.get(i))).get((Integer) ramRecordListInc.get(j));
+                cpuRamMap.get((Integer) (cpuRecordListInc.get(i))).put(ramRecordListInc.get(j), tmp - 1);
             }
         }
-        for(int i=0;i<cpuRecordListInc.size()&&cpuRecordListInc.get(i)<nowCpu;i++){
-            for(int j=0;j<ramRecordListInc.size()&&ramRecordListInc.get(j)<nowRam;j++){
-                int tmp=cpuRamMap.get((Integer)(cpuRecordListInc.get(i))).get((Integer)ramRecordListInc.get(j));
-                cpuRamMap.get((Integer)(cpuRecordListInc.get(i))).put(ramRecordListInc.get(j),tmp+1);
+        for (int i = 0; i < cpuRecordListInc.size() && cpuRecordListInc.get(i) < nowCpu; i++) {
+            for (int j = 0; j < ramRecordListInc.size() && ramRecordListInc.get(j) < nowRam; j++) {
+                int tmp = cpuRamMap.get((Integer) (cpuRecordListInc.get(i))).get((Integer) ramRecordListInc.get(j));
+                cpuRamMap.get((Integer) (cpuRecordListInc.get(i))).put(ramRecordListInc.get(j), tmp + 1);
             }
         }
     }

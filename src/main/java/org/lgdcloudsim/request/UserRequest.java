@@ -212,12 +212,17 @@ public interface UserRequest extends ChangeableId {
      * Every instance of the user request must be scheduled within the schedule delay limit.
      * The schedule delay = the time the instance starts running on the host - the time the user request to which the instance belongs is submitted.
      * If the user request is not scheduled within the schedule delay limit, the user request is marked as failed.
+     * If the schedule delay limit <0, the user request is not limited by the schedule delay.
      * @return the schedule delay limit of the user request.
      */
     double getScheduleDelayLimit();
 
     /**
      * Set the schedule delay limit of the user request.
+     * Every instance of the user request must be scheduled within the schedule delay limit.
+     * The schedule delay = the time the instance starts running on the host - the time the user request to which the instance belongs is submitted.
+     * If the user request is not scheduled within the schedule delay limit, the user request is marked as failed.
+     * If the schedule delay limit <0, the user request is not limited by the schedule delay.
      * @param scheduleDelayLimit the schedule delay limit of the user request.
      * @return the user request itself.
      */

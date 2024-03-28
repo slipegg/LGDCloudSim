@@ -1,38 +1,37 @@
-package org.example;
+package org.oldexample;
 
 import ch.qos.logback.classic.Level;
 import org.lgdcloudsim.core.CloudSim;
 import org.lgdcloudsim.core.Factory;
 import org.lgdcloudsim.core.FactorySimple;
 import org.lgdcloudsim.core.Simulation;
-import org.lgdcloudsim.network.NetworkTopology;
-import org.lgdcloudsim.network.NetworkTopologySimple;
-import org.lgdcloudsim.util.Log;
 import org.lgdcloudsim.datacenter.InitDatacenter;
+import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.record.MemoryRecord;
 import org.lgdcloudsim.user.UserRequestManager;
 import org.lgdcloudsim.user.UserRequestManagerCsv;
 import org.lgdcloudsim.user.UserSimple;
+import org.lgdcloudsim.util.Log;
 
-public class InterScheduleExample {
+public class IntraFrameExample {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
-    String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
-    String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
-    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interScheduleExperiment/DatacentersConfig.json";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/interScheduleExperiment/DatacentersConfigDistributeDirect.json";
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/interScheduleExperiment/generateRequestParameter.csv";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraFrameSmall/generateRequestParameter.csv";
+    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/two-level/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-one-partition/DatacentersConfig.json";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/monolithic/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-mul-partitions-all-random/DatacentersConfig.json";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-mul-partitions-partition-random/DatacentersConfig.json";
 
     public static void main(String[] args) {
-        new InterScheduleExample();
+        new IntraFrameExample();
     }
 
-    private InterScheduleExample() {
+    private IntraFrameExample() {
         double start = System.currentTimeMillis();
-        Log.setLevel(Level.ERROR);
+        Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
         factory = new FactorySimple();
         initUser();
@@ -49,6 +48,7 @@ public class InterScheduleExample {
         System.out.println("运行结果保存路径:" + cpnSim.getSqlRecord().getDbPath());
     }
 
+
     private void initUser() {
         userRequestManager = new UserRequestManagerCsv(USER_REQUEST_FILE);
         user = new UserSimple(cpnSim, userRequestManager);
@@ -59,7 +59,6 @@ public class InterScheduleExample {
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
-        cpnSim.setNetworkTopology(networkTopology);
+        cpnSim.setNetworkTopology(NetworkTopology.NULL);
     }
 }

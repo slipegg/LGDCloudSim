@@ -1,4 +1,4 @@
-package org.example;
+package org.oldexample;
 
 import ch.qos.logback.classic.Level;
 import org.lgdcloudsim.core.CloudSim;
@@ -13,23 +13,43 @@ import org.lgdcloudsim.user.UserRequestManagerCsv;
 import org.lgdcloudsim.user.UserSimple;
 import org.lgdcloudsim.util.Log;
 
-public class IntraFrameExample {
+/**
+ * A class to configure the simulation of setting the unit price of the datacenter via file.
+ * When the lifecycle of the instance in your user request is infinite, you can set the long-term rental price of each CPU, Ram, Storage, and BW in the file.
+ * When the lifecycle of the instances in your user requests is limited, you can set the price per second of renting each CPU, Ram, Storage, and BW in the file.
+ * Of course, you can also set two at the same time.
+ * You need to add the "resourceUnitPrice" field in the data center file.
+ * If you do not customize it in the file, the default value will be used, as follows.
+ * pricePerCpuPerSec = 1.0;
+ * pricePerCpu = 1.0;
+ * pricePerRamPerSec = 1.0;
+ * pricePerRam = 1.0;
+ * pricePerStoragePerSec = 1.0;
+ * pricePerStorage = 1.0;
+ * pricePerBwPerSec = 1.0;
+ * pricePerBw = 1.0;
+ * unitRackPrice = 100.0;
+ * hostNumPerRack = 10;
+ *
+ * @author Jiawen Liu
+ * @author VVsxmja
+ * @since LGDCloudSim 1.0
+ */
+public class UnitPriceConfiguration {
     Simulation cpnSim;
     Factory factory;
     UserSimple user;
     UserRequestManager userRequestManager;
-    String USER_REQUEST_FILE = "./src/main/resources/experiment/intraFrameSmall/generateRequestParameter.csv";
-    //    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/two-level/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-one-partition/DatacentersConfig.json";
-    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/monolithic/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-mul-partitions-all-random/DatacentersConfig.json";
-//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/intraFrameSmall/shared-state-mul-partitions-partition-random/DatacentersConfig.json";
+    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameterInfiniteLife.csv";
+    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfigInfiniteLife.json";
 
+    //    String USER_REQUEST_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/generateRequestParameterLimitedLife.csv";
+//    String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/setUnitPriceViaFile/DatacentersConfigLimitedLife.json";
     public static void main(String[] args) {
-        new IntraFrameExample();
+        new UnitPriceConfiguration();
     }
 
-    private IntraFrameExample() {
+    private UnitPriceConfiguration() {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();

@@ -1,4 +1,4 @@
-package org.example;
+package org.oldexample;
 
 import ch.qos.logback.classic.Level;
 import org.lgdcloudsim.core.CloudSim;
@@ -66,9 +66,9 @@ public class GoogleTraceExample {
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
         cpnSim.setIsSqlRecord(true);
-        if (ACCESS_LATENCY_PERCENTAGE==0&&EDGE_PERCENTAGE==0){
+        if (ACCESS_LATENCY_PERCENTAGE == 0 && EDGE_PERCENTAGE == 0) {
             cpnSim.setDbName("cpnSim-com.db");
-        }else{
+        } else {
             cpnSim.setDbName("cpnSim-aff.db");
         }
         factory = new FactorySimple();
@@ -87,7 +87,7 @@ public class GoogleTraceExample {
     }
 
     private void initUser() {
-        userRequestManager = new UserRequestManagerGoogleTrace(GOOGLE_TRACE_REQUEST_FILE_DC_MAP, MAX_CPU_CAPACITY, MAX_RAM_CAPACITY, STORAGE_CAPACITY, BW_CAPACITY, LIFE_TIME_MEAN, LIFE_TIME_STD,INSTANCE_GROUP_RETRY_TIMES, INSTANCE_RETRY_TIMES,
+        userRequestManager = new UserRequestManagerGoogleTrace(GOOGLE_TRACE_REQUEST_FILE_DC_MAP, MAX_CPU_CAPACITY, MAX_RAM_CAPACITY, STORAGE_CAPACITY, BW_CAPACITY, LIFE_TIME_MEAN, LIFE_TIME_STD, INSTANCE_GROUP_RETRY_TIMES, INSTANCE_RETRY_TIMES,
                 ACCESS_LATENCY_PERCENTAGE, ACCESS_LATENCY_MEAN, ACCESS_LATENCY_STD, IS_EDGE_DIRECTED, EDGE_PERCENTAGE, EDGE_DELAY_MEAN, EDGE_DELAY_STD, EDGE_BW_MEAN, EDGE_BW_STD);
         user = new UserSimple(cpnSim, userRequestManager);
     }
