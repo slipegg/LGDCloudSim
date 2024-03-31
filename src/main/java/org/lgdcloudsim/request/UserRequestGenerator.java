@@ -3,7 +3,7 @@ package org.lgdcloudsim.request;
 /**
  * A simple user request generator to generate a user request.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface UserRequestGenerator {

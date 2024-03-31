@@ -9,7 +9,7 @@ import org.lgdcloudsim.request.Instance;
  * The state of a host is represented by four integers: cpu, ram, storage and bw.
  * The four integers are the amount of cpu, ram, storage and bw that are available on the host.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

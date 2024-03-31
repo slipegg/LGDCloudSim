@@ -13,7 +13,7 @@ import java.util.Set;
  * The result of the intra-scheduler scheduling.
  * It contains the intra-scheduler, the scheduled instances, the schedule time, and the failed instances.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

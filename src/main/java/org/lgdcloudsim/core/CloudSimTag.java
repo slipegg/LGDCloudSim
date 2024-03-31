@@ -16,7 +16,7 @@ import java.util.Set;
  * @author Rajkumar Buyya
  * @author Anthony Sulistio
  * @author Manoel Campos da Silva Filho
- * @author Jiawen Liu
+ * @author Anonymous
  * @since CloudSim Toolkit 1.0
  */
 public class CloudSimTag {

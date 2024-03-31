@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
  * The manager that manages the scored data centers.
  * It contains the priority queue of the scored data centers and the score data center history map.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class ScoredDatacentersManager {

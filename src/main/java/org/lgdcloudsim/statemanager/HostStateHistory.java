@@ -8,7 +8,7 @@ import lombok.Setter;
  * Note that it is inherited from {@link HostState}.
  * Compared with {@link HostState}, it has one more time attribute
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

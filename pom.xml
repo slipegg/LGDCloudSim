@@ -22,18 +22,6 @@
         </license>
     </licenses>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>LICENSE</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
-
-
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -14,7 +14,7 @@ import java.util.Set;
  * After the {@link Instance} arrives at the datacenter,
  * it is necessary to allocate each instance to each {@link IntraScheduler} through it.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface LoadBalancer extends DatacenterEntity {

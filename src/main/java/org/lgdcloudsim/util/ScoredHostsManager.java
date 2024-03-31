@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
  * The manager that manages the scored hosts.
  * It contains the priority queue of the scored hosts and the score host history map.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class ScoredHostsManager {

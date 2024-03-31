@@ -6,7 +6,7 @@ import java.util.Random;
  * A class to generate random host state.
  * Note that the range of randomly generated numbers here is: [min,max]
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

@@ -9,7 +9,7 @@ import org.lgdcloudsim.datacenter.Datacenter;
  * It contains the data center and the score of the data center.
  * The score is used to filter and sort the data centers.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

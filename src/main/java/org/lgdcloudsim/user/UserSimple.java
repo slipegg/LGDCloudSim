@@ -63,15 +63,17 @@ public class UserSimple extends CloudSimEntity {
     private void sendUserRequest() {
         double nowTime = getSimulation().clock();
         Map<Integer, List<UserRequest>> userRequestMap = userRequestManager.generateOnceUserRequests();
-        if (userRequestMap == null || userRequestMap.size() == 0) {
+        if (userRequestMap == null || userRequestMap.isEmpty()) {
             LOGGER.info("{}: {}: No user request to send.", getSimulation().clockStr(), getName());
             return;
         }
+
         for (Map.Entry<Integer, List<UserRequest>> entry : userRequestMap.entrySet()) {
             int datacenterId = entry.getKey();
             List<UserRequest> userRequests = entry.getValue();
-            if (userRequests.size() == 0)
+            if (userRequests.isEmpty())
                 continue;
+
             Datacenter datacenter = datacenterMap.get(datacenterId);
             if (datacenter.isCentralizedInterSchedule()) {
                 send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_SEND, userRequests);

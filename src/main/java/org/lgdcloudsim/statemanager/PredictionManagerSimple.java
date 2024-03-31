@@ -7,7 +7,7 @@ import java.util.List;
  * The prediction method is simple: the predicted state is the average of the historical state.
  * This class implements the interface {@link PredictionManager}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class PredictionManagerSimple implements PredictionManager {

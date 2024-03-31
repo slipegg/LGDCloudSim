@@ -28,7 +28,7 @@ import java.util.*;
  * It is recommended to generate some smaller values so as not to affect scheduling.
  * The life cycle of the instance also needs to be set by yourself.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class UserRequestManagerGoogleTrace implements UserRequestManager {

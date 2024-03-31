@@ -12,7 +12,7 @@ import java.util.List;
  * Every intra-scheduler has two queues, one stores the instances to be scheduled,
  * and the other stores the instances that need to be rescheduled.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface InstanceQueue {

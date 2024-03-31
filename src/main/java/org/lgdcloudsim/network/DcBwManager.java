@@ -18,7 +18,7 @@ import java.util.Map;
  * When the instance group ends running, the bandwidth between data centers is released.
  * It also calculates the total cost of rented bandwidth for all user requests.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class DcBwManager {

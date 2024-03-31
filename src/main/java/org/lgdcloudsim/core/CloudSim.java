@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  * @author Rodrigo N. Calheiros
  * @author Anton Beloglazov
  * @author Manoel Campos da Silva Filho
- * @author Jiawen Liu
+ * @author Anonymous
  * @since CloudSim Toolkit 1.0
  */
 public class CloudSim implements Simulation {
@@ -283,6 +283,7 @@ public class CloudSim implements Simulation {
             System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
         }
         System.out.printf("All TCO = %f\n", allCost);
+        System.out.printf("Database to save simulation results: %s\n", getSqlRecord().getDbPath());
     }
 
     @Override

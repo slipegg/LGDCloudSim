@@ -24,18 +24,18 @@ import java.util.*;
  * <p>
  * The schedule algorithm as follows:
  * <ul>
- * <li>scheduleToDatacenter algorithm: Randomly select one of all data centers that may have sufficient resources.
- * If the sum of the remaining resources in all data centers does not meet the resources required by the instance group, the instance group scheduling fails.</li>
- * <li>scheduleToHost algorithm: Randomly select a host from all data centers that may have sufficient resources and start traversing until a suitable host is found.
- * If all hosts are traversed and there is still no suitable one, the scheduling of this instance group fails.</li>
- * <li>scheduleMixed algorithm: It will first try to schedule all instance in the instance group to the hosts in the data center where the inter-scheduler is located.
- * The schedule algorithm is that randomly select a host from all hosts in the data center and start traversing until a suitable host is found.
- * If there is no suitable host in the data center, it will try to forward the instance group to other data centers.
- * The schedule algorithm is that randomly forward the instance group to one of the data centers that may have sufficient resources.
- * </li>
+ *      <li>scheduleToDatacenter algorithm: Randomly select one of all data centers that may have sufficient resources.
+ *      If the sum of the remaining resources in all data centers does not meet the resources required by the instance group, the instance group scheduling fails.</li>
+ *      <li>scheduleToHost algorithm: Randomly select a host from all data centers that may have sufficient resources and start traversing until a suitable host is found.
+ *      If all hosts are traversed and there is still no suitable one, the scheduling of this instance group fails.</li>
+ *      <li>scheduleMixed algorithm: It will first try to schedule all instance in the instance group to the hosts in the data center where the inter-scheduler is located.
+ *      The schedule algorithm is that randomly select a host from all hosts in the data center and start traversing until a suitable host is found.
+ *      If there is no suitable host in the data center, it will try to forward the instance group to other data centers.
+ *      The schedule algorithm is that randomly forward the instance group to one of the data centers that may have sufficient resources.
+ *      </li>
  * </ul>
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InterSchedulerSimple implements InterScheduler {

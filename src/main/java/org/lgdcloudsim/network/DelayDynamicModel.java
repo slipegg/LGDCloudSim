@@ -5,7 +5,7 @@ package org.lgdcloudsim.network;
  * Dynamic network delay is mainly used for information transfer between data centers or between data centers and cloud managers.
  * Note that it is necessary to ensure that the dynamic network delay between the same location at the same time is the same.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface DelayDynamicModel {

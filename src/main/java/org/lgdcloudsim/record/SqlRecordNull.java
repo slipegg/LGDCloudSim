@@ -11,7 +11,7 @@ import java.util.Map;
  * It is an implementation of the SqlRecord interface.
  * If you do not want to record the simulation information, you can use this class.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class SqlRecordNull implements SqlRecord {

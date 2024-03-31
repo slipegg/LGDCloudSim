@@ -31,7 +31,7 @@ import java.util.*;
  * managing the scope of each collaboration area through the Collaboration Manager,
  * and performing upper-layer centralized inter-data center scheduling in the collaboration area by maintaining the inter-scheduler of each collaboration area.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCSim 1.0
  */
 public class CloudInformationService extends CloudSimEntity {
@@ -355,12 +355,12 @@ public class CloudInformationService extends CloudSimEntity {
             }
         }
 
-        if (retryInstanceGroups.size() > 0) {
+        if (!retryInstanceGroups.isEmpty()) {
             InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
             interScheduler.addInstanceGroups(retryInstanceGroups, true);
         }
 
-        if (failedUserRequests.size() > 0) {
+        if (!failedUserRequests.isEmpty()) {
             send(this, 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
         }

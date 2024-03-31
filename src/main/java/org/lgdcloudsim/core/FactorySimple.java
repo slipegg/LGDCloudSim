@@ -13,7 +13,7 @@ import org.lgdcloudsim.statemanager.PredictionManagerSimple;
 /**
  * A simple factory that implements the {@link Factory} interface.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class FactorySimple implements Factory {

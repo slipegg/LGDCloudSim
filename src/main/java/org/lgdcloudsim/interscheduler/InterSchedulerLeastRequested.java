@@ -31,7 +31,7 @@ import java.util.*;
  * For scheduleMixed function, it will first try to schedule the instance to the host in the data center where the inter-scheduler is located.
  * If the scheduling fails, it will try to forward the instance to other data centers.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InterSchedulerLeastRequested extends InterSchedulerSimple {

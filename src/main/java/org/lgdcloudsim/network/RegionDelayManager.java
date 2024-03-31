@@ -24,7 +24,7 @@ import java.util.Set;
  * the delay between the data center and cloud manager({@link org.lgdcloudsim.core.CloudInformationService})
  * is the average delay between all regions.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class RegionDelayManager {

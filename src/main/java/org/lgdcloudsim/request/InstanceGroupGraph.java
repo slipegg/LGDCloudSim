@@ -10,7 +10,7 @@ import java.util.Set;
  * Each user request has a InstanceGroupGraph, which represents the relationship between instance groups.
  * Each InstanceGroupGraph is composed of a set of InstanceGroupEdges.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface InstanceGroupGraph extends RequestEntity{

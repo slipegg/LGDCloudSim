@@ -9,7 +9,7 @@ import org.lgdcloudsim.datacenter.Datacenter;
  * It contains the data center, the host id, and the score of the host.
  * The score is used to filter and sort the hosts.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

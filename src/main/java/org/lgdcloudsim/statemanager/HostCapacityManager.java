@@ -10,7 +10,7 @@ import java.util.List;
  * HostCapacityManager will record the CPU, memory, storage and bandwidth capacity of a certain type of host,
  * and then record the ID range of this type of host.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class HostCapacityManager {

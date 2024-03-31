@@ -13,8 +13,8 @@ import java.util.*;
  * Manage the collaboration among datacenters.
  * This class implements the interface {@link CollaborationManager}.
  *
- * @author Jiawen Liu
- * @author Xinlei Wei
+ * @author Anonymous
+ * @author Anonymous2
  * @since LGDCloudSim 1.0
  */
 public class CollaborationManagerSimple implements CollaborationManager {

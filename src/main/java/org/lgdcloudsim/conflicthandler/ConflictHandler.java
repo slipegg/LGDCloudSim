@@ -15,7 +15,7 @@ import java.util.Map;
  * it is necessary to select which {@link Instance}s are placed on the host
  * and which are not placed on the host through it.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface ConflictHandler extends DatacenterEntity {

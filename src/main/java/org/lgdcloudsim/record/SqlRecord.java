@@ -11,7 +11,7 @@ import java.util.Map;
  * SqlRecord is an interface for the record of the simulation through the SQLite database.
  * It records the information of the user requests, the instance groups, the instance group graph, the instances and the conflicts.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface SqlRecord {

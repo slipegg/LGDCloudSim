@@ -7,7 +7,7 @@ import lombok.Getter;
  * The reason why we need this class is that sometimes the number of partitions does not divide the synchronization interval.
  * In this case, additional judgments are needed to determine the synchronization time of each partition.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class SynGapManager {

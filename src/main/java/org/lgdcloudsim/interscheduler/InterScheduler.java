@@ -65,7 +65,7 @@ import java.util.Map;
  * including {@link InterSchedulerSimple#scheduleToHost}, {@link InterSchedulerSimple#scheduleToDatacenter}, and {@link InterSchedulerSimple#scheduleMixed}.
  * The {@link InterSchedulerLeastRequested} may be a good example for you to refer to.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface InterScheduler extends Nameable, DatacenterEntity {

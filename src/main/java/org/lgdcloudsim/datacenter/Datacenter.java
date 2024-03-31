@@ -18,7 +18,7 @@ import java.util.Set;
  * It extends {@link SimEntity} and {@link DatacenterPrice}.
  * The mainly components of a datacenter are the {@link InterScheduler}, {@link LoadBalancer}, {@link IntraScheduler}, {@link ConflictHandler}, and {@link StatesManager}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface Datacenter extends SimEntity, DatacenterPrice {

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * A class to record the power on hosts information of the datacenter.
@@ -12,7 +13,7 @@ import java.util.Map;
  * the number of hosts powered on now, and the total power on time of the all hosts.
  * It can be used to analyze the rental cost of the datacenter.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class DatacenterPowerOnRecord {
@@ -65,6 +66,7 @@ public class DatacenterPowerOnRecord {
     /**
      * When an instance is released from this host,
      * this function is called to record the relevant information
+     * TODO: Sometimes it happens that powerOnHostInstanceNum does not contain the host ID to be released and needs to be checked.
      */
     public void hostReleaseInstance(int hostId, double clock) {
         if (powerOnHostInstanceNum.get(hostId) == 1) {

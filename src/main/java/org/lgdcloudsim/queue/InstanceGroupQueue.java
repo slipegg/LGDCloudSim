@@ -11,7 +11,7 @@ import java.util.List;
  * Every inter-scheduler has two queues, one stores the instanceGroups to be scheduled,
  * and the other stores the instanceGroups that need to be rescheduled.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface InstanceGroupQueue {

@@ -32,7 +32,7 @@ import java.util.List;
  * and implement the key scheduling functions, including {@link IntraSchedulerSimple#scheduleInstances}.
  * The {@link IntraSchedulerLeastRequested} may be a good example for you to refer to.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface IntraScheduler extends Nameable, DatacenterEntity {

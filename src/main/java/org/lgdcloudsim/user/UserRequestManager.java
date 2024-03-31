@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * UserRequestManager is an interface for the user request manager.
  * It is responsible for sending a batch of user requests every once in a while
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface UserRequestManager {

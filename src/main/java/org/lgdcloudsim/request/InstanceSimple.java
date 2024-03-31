@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * InstanceSimple is a simple implementation of the {@link Instance} interface.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

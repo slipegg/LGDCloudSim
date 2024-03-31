@@ -9,7 +9,7 @@ import java.util.*;
  * The random intra-scheduler that extends the {@link IntraSchedulerSimple} class.
  * It will filter the suitable host from the first host id to the last host id.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class IntraSchedulerRandom extends IntraSchedulerSimple {

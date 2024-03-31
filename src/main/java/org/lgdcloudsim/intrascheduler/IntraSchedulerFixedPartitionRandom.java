@@ -9,7 +9,7 @@ import java.util.*;
  * The intra-scheduler that extends the {@link IntraSchedulerSimple} class
  * It will filter the suitable host from a fixed partition id which is related to the intra-scheduler id.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class IntraSchedulerFixedPartitionRandom extends IntraSchedulerSimple {

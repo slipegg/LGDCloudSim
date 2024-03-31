@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * MemoryRecord records the maximum used memory during the simulation.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class MemoryRecord {

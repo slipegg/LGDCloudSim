@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.math.NumberUtils.min;
  *     <li>nowHostStates: The actual state of all hosts in the datacenter.</li>
  * </ul>
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

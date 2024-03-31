@@ -12,7 +12,7 @@ import java.util.List;
  * When traversing the hosts in the partition, it will start from the last scheduled host id.
  * If there is no suitable host in the partition, it will try to find the suitable host from the next partition.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class IntraSchedulerFirstFit extends IntraSchedulerSimple {

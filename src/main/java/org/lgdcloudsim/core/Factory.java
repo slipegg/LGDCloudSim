@@ -15,7 +15,7 @@ import org.lgdcloudsim.statemanager.PredictionManager;
  * Current components are:
  * {@link IntraScheduler}, {@link PredictionManager}, {@link InterScheduler}, {@link LoadBalancer}, {@link ConflictHandler}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface Factory {

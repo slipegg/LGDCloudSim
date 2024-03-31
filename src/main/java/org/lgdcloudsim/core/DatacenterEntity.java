@@ -6,7 +6,7 @@ import org.lgdcloudsim.datacenter.Datacenter;
  * An interface to be implemented by classes that have a reference to a {@link Datacenter} object.
  * It is used by components that exist within the data center.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim
  */
 public interface DatacenterEntity {

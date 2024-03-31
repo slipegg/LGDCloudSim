@@ -15,7 +15,7 @@ import java.util.Map;
  * mainly for the convenience of the {@link IntraScheduler}
  * to synchronize the state of the hosts in the region on a regional basis
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class PartitionRangesManager {

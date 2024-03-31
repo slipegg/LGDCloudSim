@@ -12,7 +12,7 @@ import java.util.*;
  * A class to represent a instance queue with first in first out.
  * This class implements the interface {@link InstanceQueue}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InstanceQueueFifo implements InstanceQueue {

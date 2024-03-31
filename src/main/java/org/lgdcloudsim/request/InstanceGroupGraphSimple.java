@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * InstanceGroupGraphSimple is a simple implementation of the {@link InstanceGroupGraph} interface.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InstanceGroupGraphSimple implements InstanceGroupGraph {
