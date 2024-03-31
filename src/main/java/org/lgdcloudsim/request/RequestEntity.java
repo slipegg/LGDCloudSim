@@ -7,7 +7,7 @@ import org.lgdcloudsim.core.ChangeableId;
  * all need to extend this interface.
  * So that they can find the user request to which they belong and set their own id.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

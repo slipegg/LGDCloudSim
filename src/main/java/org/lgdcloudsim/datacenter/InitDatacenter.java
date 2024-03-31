@@ -108,7 +108,7 @@ import org.slf4j.Logger;
  *     ...// Other information for data centers which is similar to above.
  * }
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InitDatacenter {

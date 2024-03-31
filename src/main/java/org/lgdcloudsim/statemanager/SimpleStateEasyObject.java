@@ -18,7 +18,7 @@ import lombok.Setter;
  *     <li>The sum of the total bw capacity of all hosts in the datacenter</li>
  * </ul>
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

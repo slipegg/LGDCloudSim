@@ -27,7 +27,7 @@ import static java.util.Objects.requireNonNullElse;
  * send events to other entities.
  *
  * @author Marcos Dias de Assuncao
- * @author Jiawen Liu
+ * @author Anonymous
  * @since CloudSim Toolkit 1.0
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

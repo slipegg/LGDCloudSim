@@ -31,8 +31,8 @@ import org.lgdcloudsim.util.Log;
  * unitRackPrice = 100.0;
  * hostNumPerRack = 10;
  *
- * @author Jiawen Liu
- * @author VVsxmja
+ * @author Anonymous
+ * @author Anonymous3
  * @since LGDCloudSim 1.0
  */
 public class UnitPriceConfiguration {

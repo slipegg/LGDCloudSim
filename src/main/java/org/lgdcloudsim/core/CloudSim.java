@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  * @author Rodrigo N. Calheiros
  * @author Anton Beloglazov
  * @author Manoel Campos da Silva Filho
- * @author Jiawen Liu
+ * @author Anonymous
  * @since CloudSim Toolkit 1.0
  */
 public class CloudSim implements Simulation {

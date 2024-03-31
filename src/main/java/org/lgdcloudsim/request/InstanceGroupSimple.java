@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * InstanceGroupSimple is a simple implementation of the {@link InstanceGroup} interface.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

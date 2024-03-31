@@ -7,7 +7,7 @@ import org.lgdcloudsim.request.Instance;
  * Used to describe the status of a data center,
  * including the status of each host and the total resource status of the data center.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class DetailedDcStateSimple {

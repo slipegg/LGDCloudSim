@@ -20,7 +20,7 @@ import java.util.Set;
  * It is a NULL datacenter.
  * It is used to avoid NullPointerException.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class DatacenterNull implements Datacenter {

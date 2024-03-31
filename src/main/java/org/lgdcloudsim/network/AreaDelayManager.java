@@ -20,7 +20,7 @@ import java.util.Map;
  * the minimum value of (area to region with data + region with data to region without data)
  * The delay between the regions is managed by the {@link RegionDelayManager}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class AreaDelayManager {

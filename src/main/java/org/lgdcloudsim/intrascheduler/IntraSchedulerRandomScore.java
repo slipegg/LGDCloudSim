@@ -9,7 +9,7 @@ import org.lgdcloudsim.statemanager.SynState;
  * It has changed the score calculation method to random score.
  * So that the intra-scheduler is like schedule the instances to the suitable host randomly.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class IntraSchedulerRandomScore extends IntraSchedulerLeastRequested {

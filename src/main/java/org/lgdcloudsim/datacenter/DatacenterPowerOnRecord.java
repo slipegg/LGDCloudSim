@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * the number of hosts powered on now, and the total power on time of the all hosts.
  * It can be used to analyze the rental cost of the datacenter.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class DatacenterPowerOnRecord {

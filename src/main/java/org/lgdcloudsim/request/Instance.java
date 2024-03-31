@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Instances run on the host, and each instance occupies the host's resources, including CPU, memory, storage, and bandwidth.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

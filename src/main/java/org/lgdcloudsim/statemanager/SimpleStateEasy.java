@@ -9,7 +9,7 @@ import org.lgdcloudsim.request.Instance;
  * When synchronizing the state to the inter-scheduler,
  * it will generate a simple copy of the state, see {@link SimpleStateEasyObject}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

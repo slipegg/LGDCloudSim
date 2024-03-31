@@ -22,7 +22,7 @@ import java.util.*;
  *     and repeat the above steps until a suitable host is found.</li>
  * </ul>
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class IntraSchedulerPartitionMultiLevel extends IntraSchedulerSimple {

@@ -9,7 +9,7 @@ import org.lgdcloudsim.request.UserRequest;
 /**
  * NetworkTopologySimple is a simple implementation of the network topology.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class NetworkTopologySimple implements NetworkTopology {

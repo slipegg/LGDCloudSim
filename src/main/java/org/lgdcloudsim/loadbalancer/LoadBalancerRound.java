@@ -15,7 +15,7 @@ import java.util.Set;
  * This load balancer performs load balancing through cyclic allocation
  * This class implements the interface {@link LoadBalancer}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class LoadBalancerRound implements LoadBalancer {

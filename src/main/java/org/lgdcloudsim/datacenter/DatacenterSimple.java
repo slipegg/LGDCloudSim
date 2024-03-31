@@ -35,7 +35,7 @@ import java.util.*;
  * An interface to be implemented by each class that represents a datacenter.
  * See {@link DatacenterSimple} for an example of how to implement this interface.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class DatacenterSimple extends CloudSimEntity implements Datacenter {

@@ -5,7 +5,7 @@ import org.lgdcloudsim.request.Instance;
 /**
  * An interface to be implemented by each class that to record the price of the datacenter.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface DatacenterPrice {

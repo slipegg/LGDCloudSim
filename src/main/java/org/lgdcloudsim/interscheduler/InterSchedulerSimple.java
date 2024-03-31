@@ -35,7 +35,7 @@ import java.util.*;
  *      </li>
  * </ul>
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InterSchedulerSimple implements InterScheduler {

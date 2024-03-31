@@ -17,7 +17,7 @@ import org.lgdcloudsim.request.Instance;
  * When synchronizing the state to the inter-scheduler,
  * a simple copy of the state needs to be generated through the generate function to return to the inter-scheduler.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface SimpleState {

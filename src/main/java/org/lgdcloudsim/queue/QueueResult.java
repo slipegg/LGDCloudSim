@@ -13,7 +13,7 @@ import java.util.Set;
  * and the set of requests that has exceeded the maximum schedule delay limit and need to be marked as failed.
  *
  * @param <T> the type of the failed request. It can be {@link org.lgdcloudsim.request.Instance} or {@link org.lgdcloudsim.request.InstanceGroup}
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class QueueResult<T> {

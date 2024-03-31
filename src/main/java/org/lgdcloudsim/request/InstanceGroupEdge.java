@@ -5,7 +5,7 @@ package org.lgdcloudsim.request;
  * This connection can represent the bandwidth that needs to be leased between the instance groups in the affinity request
  * and the connection delay between the instance groups.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface InstanceGroupEdge {

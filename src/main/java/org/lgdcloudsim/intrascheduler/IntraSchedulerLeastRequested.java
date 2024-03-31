@@ -23,7 +23,7 @@ import java.util.*;
  * The score of a host that has met the requirements of the instance is calculated as follows:
  * Score = (cpu remaining resources * 10 / total cpu resources + ram remaining resources * 10 / total ram resources) / 2
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class IntraSchedulerLeastRequested extends IntraSchedulerSimple {

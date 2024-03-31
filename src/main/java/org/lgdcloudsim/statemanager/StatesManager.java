@@ -20,7 +20,7 @@ import java.util.List;
  * It also provides the ability to record the power-on time of the hosts in the datacenter, see {@link DatacenterPowerOnRecord}.
  * It also manages the schedule view of every intra-scheduler.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface StatesManager {

@@ -16,7 +16,7 @@ import java.util.Set;
  * It contains the success result that the instances are allocated to the host successfully,
  * and the failed result that the instances need to be rescheduled or be marked as failed.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class ConflictHandlerResult {

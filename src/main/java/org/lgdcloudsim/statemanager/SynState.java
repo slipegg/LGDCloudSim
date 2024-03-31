@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * The SynState contains the state of all hosts in the datacenter in the intra-scheduler's view.
  * The intra-scheduler will only use the SynState to schedule the instances.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface SynState {

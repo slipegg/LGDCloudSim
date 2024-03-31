@@ -15,7 +15,7 @@ import java.util.List;
  * represented by an instance group graph.
  * Each user request may also contain access delay constraints.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

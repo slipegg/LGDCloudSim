@@ -24,7 +24,7 @@ import java.util.Random;
  *     try to find the suitable host from the last two synchronization partitions and so on.</li>
  * </ul>
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class IntraSchedulerSimple implements IntraScheduler {

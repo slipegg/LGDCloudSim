@@ -6,7 +6,7 @@ import java.util.*;
  * A simple user request generator to randomly generate a user request.
  * It is the implementation of the {@link UserRequestGenerator} interface.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class RandomUserRequestGenerator implements UserRequestGenerator {

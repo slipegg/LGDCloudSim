@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * A class to manager the collaboration zones of the datacenters.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface CollaborationManager {

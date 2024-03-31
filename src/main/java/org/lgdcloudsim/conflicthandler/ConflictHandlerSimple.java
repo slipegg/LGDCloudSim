@@ -17,7 +17,7 @@ import java.util.*;
  * It will check in the order of the results to see if there are still resources available to allocate the instance
  * This class implements the interface {@link ConflictHandler}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class ConflictHandlerSimple implements ConflictHandler {

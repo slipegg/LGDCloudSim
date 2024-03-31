@@ -11,7 +11,7 @@ import java.util.Map;
  * UserRequestManagerSimple is a simple implementation of the {@link UserRequestManager} interface.
  * It uses RandomUserRequestGenerator to generate a batch of user requests every 100ms and sends them to the designated data center 1.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class UserRequestManagerSimple implements UserRequestManager {

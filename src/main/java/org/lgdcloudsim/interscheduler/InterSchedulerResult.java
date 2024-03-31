@@ -14,7 +14,7 @@ import java.util.*;
  * It contains the scheduling result of the instance groups and the failed instance groups.
  * It also contains the outdated user requests which are exceeded the schedule delay limit.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

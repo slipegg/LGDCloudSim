@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * InstanceGroupEdgeSimple is a simple implementation of the {@link InstanceGroupEdge} interface.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

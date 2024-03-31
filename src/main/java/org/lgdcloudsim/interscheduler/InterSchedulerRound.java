@@ -12,7 +12,7 @@ import java.util.List;
  * It changes the scheduleToDatacenter function to implement the round-robin scheduling strategy.
  * The scheduled data center is the next of last scheduled data center.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InterSchedulerRound extends InterSchedulerSimple {

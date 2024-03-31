@@ -64,7 +64,7 @@ import java.util.*;
  *     <li>InstanceRetryTimesMax: the maximum retry times of an instance.</li>
  * </ul>
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class UserRequestManagerCsv implements UserRequestManager {

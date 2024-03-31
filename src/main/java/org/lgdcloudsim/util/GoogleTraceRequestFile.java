@@ -7,7 +7,7 @@ import lombok.Setter;
  * A class that represents the Google trace request file.
  * It contains the google trace request CSV file path, the area where the request is from, and the row number of the file.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 @Getter

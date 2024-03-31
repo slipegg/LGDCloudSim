@@ -26,7 +26,7 @@ import static org.apache.commons.lang3.math.NumberUtils.max;
  * Therefore, each intra-scheduler also needs to maintain additional hash tables selfHostStateMap for each partition.
  * The hash tables document the state of the scheduled hosts from the intra-scheduler's own view before the next synchronization.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class StatesManagerSimple implements StatesManager {

@@ -6,7 +6,7 @@ import lombok.Setter;
 /**
  * A class to generate isomorphic host state.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 

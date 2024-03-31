@@ -8,7 +8,7 @@ import org.lgdcloudsim.request.UserRequest;
  * NetworkTopology is an interface for the network topology.
  * It contains the {@link AreaDelayManager}, {@link RegionDelayManager}, {@link DcBwManager} and {@link DelayDynamicModel}.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public interface NetworkTopology {

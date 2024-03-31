@@ -11,7 +11,7 @@ import java.util.List;
  * It limits the maximum network delay between the area where the user of the instance group belongs
  * and the region of the data center to which the instance group is scheduled.
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 
