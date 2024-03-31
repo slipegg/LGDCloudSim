@@ -19,10 +19,10 @@ public class ComparedWithCloudsimPlusExample {
     UserSimple user;
     UserRequestManager userRequestManager;
 
-    //"storageOfHost"
-    //"storageOfRequest"
-    //"storageOfRequestMultiDC"
-    String experiment = "storageOfRequestMultiDC";
+    //"TestHostOfSingleDC"
+    //"TestRequestOfSingleDC"
+    //"TestRequestOfMultiDC"
+    String experiment = "TestRequestOfMultiDC";
     String USER_REQUEST_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/" + experiment + "/generateRequestParameter.csv";
     String DATACENTER_CONFIG_FILE = "./src/main/resources/experiment/comparedWithCloudsimPlus/" + experiment + "/DatacentersConfig.json";
 
