@@ -177,10 +177,26 @@ public class InitDatacenter {
             if (target == InterSchedulerSimple.DC_TARGET) {
                 isSupportForward = collaborationJson.getJsonObject("centerScheduler").getBoolean("isSupportForward");
             }
+
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
                 JsonObject datacenterJson = collaborationJson.getJsonArray("datacenters").getJsonObject(j);
                 Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule, target, isSupportForward);
                 collaborationManager.addDatacenter(datacenter, collaborationId);
+            }
+        }
+
+        for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
+            JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
+            int collaborationId = collaborationJson.getInt("id");
+
+            boolean isCenterSchedule = collaborationJson.containsKey("centerScheduler");
+            int target = InterSchedulerSimple.NULL;
+            boolean isSupportForward = false;
+            if (isCenterSchedule) {
+                target = getInterScheduleTarget(collaborationJson.getJsonObject("centerScheduler"));
+            }
+            if (target == InterSchedulerSimple.DC_TARGET) {
+                isSupportForward = collaborationJson.getJsonObject("centerScheduler").getBoolean("isSupportForward");
             }
 
             if (isCenterSchedule) {
@@ -340,7 +356,7 @@ public class InitDatacenter {
 
         addRegionInfo(datacenter, datacenterJson);
 
-        if(datacenterJson.containsKey("architecture")){ //TODO 该参数在示例中没有提到
+        if (datacenterJson.containsKey("architecture")) {
             datacenter.setArchitecture(datacenterJson.getString("architecture"));
         }
 
@@ -430,15 +446,15 @@ public class InitDatacenter {
      */
     private static List<IntraScheduler> getIntraSchedulers(JsonObject datacenterJson, int partitionNum) {
         List<IntraScheduler> intraSchedulers = new ArrayList<>();
-        int firstPartitionId = 0;
+        int firstSynPartitionId = 0;
         for (int k = 0; k < datacenterJson.getJsonArray("intraSchedulers").size(); k++) {
             JsonObject schedulerJson = datacenterJson.getJsonArray("intraSchedulers").getJsonObject(k);
             if(schedulerJson.containsKey("firstPartitionId")){
-                firstPartitionId = schedulerJson.getInt("firstPartitionId");
+                firstSynPartitionId = schedulerJson.getInt("firstPartitionId");
             }else{
                 LOGGER.info("IntraScheduler {} Missing firstPartitionId, defaults to 0", k);
             }
-            IntraScheduler scheduler = factory.getIntraScheduler(schedulerJson.getString("type"), intraSchedulerId++, firstPartitionId, partitionNum);
+            IntraScheduler scheduler = factory.getIntraScheduler(schedulerJson.getString("type"), intraSchedulerId++, firstSynPartitionId, partitionNum);
             intraSchedulers.add(scheduler);
         }
         return intraSchedulers;

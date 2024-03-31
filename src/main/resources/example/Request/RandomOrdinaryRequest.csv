@@ -1,0 +1,27 @@
+  Parament Name,Parament
+DcDistribution,"{""1"":{""United States"":1},""2"":{""United Kingdom"":1},""3"":{""China"":1}}"
+RequestPerNumMin,5
+RequestPerNumMax,10
+RequestTimeIntervalMin,100
+RequestTimeIntervalMax,200
+RequestTimes,3
+ScheduleDelayLimitMin,800
+ScheduleDelayLimitMax,1500
+RequestGroupNumMin,3
+RequestGroupNumMax,5
+GroupInstanceNumMin,10
+GroupInstanceNumMax,20
+GroupRetryTimesMin,3
+GroupRetryTimesMax,5
+InstanceCpuNumMin,8
+InstanceCpuNumMax,16
+InstanceRamNumMin,12
+InstanceRamNumMax,20
+InstanceStorageNumMin,100
+InstanceStorageNumMax,200
+InstanceBwNumMin,25
+InstanceBwNumMax,100
+InstanceLifeTimeMin,1000
+InstanceLifeTimeMax,20000
+InstanceRetryTimesMin,3
+InstanceRetryTimesMax,5

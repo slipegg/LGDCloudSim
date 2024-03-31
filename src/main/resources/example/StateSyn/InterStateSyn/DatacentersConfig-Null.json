@@ -1,0 +1,106 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "centerScheduler": {
+        "type": "simple",
+        "target": "dc",
+        "isSupportForward": false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 1000,
+            "synStateType": "null"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 1000,
+            "synStateType": "null"
+          }
+        ]
+      },
+      "datacenters": [
+        {
+          "id": 1,
+          "region": "us-east1",
+          "hostNum": 400,
+          "partitions": [
+            {
+              "length": 200
+            },
+            {
+              "length": 200
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 400
+            }
+          ],
+          "synchronizationGap": 500,
+          "intraSchedulers": [
+            {
+              "firstPartitionId": 0,
+              "type": "simple"
+            },
+            {
+              "firstPartitionId": 1,
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 2,
+          "region": "northamerica-northeast1",
+          "hostNum": 200,
+          "partitions": [
+            {
+              "length": 100
+            },
+            {
+              "length": 100
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 200
+            }
+          ],
+          "synchronizationGap": 500,
+          "intraSchedulers": [
+            {
+              "firstPartitionId": 0,
+              "type": "simple"
+            },
+            {
+              "firstPartitionId": 1,
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        }
+      ]
+    }
+  ]
+}

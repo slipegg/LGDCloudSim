@@ -74,6 +74,19 @@ public class UserRequestSimple implements UserRequest {
         this.instanceGroupGraph = instanceGroupGraph;
     }
 
+    /**
+     * Construct a user request with the id, the instance groups, the instance group graph and the area.
+     *
+     * @param id                 the id of the user request.
+     * @param instanceGroups     the instance groups of the user request.
+     * @param instanceGroupGraph the instance group graph of the user request.
+     * @param area               the area of the user request.
+     */
+    public UserRequestSimple(int id, List<InstanceGroup> instanceGroups, InstanceGroupGraph instanceGroupGraph, String area) {
+        this(id, instanceGroups, instanceGroupGraph);
+        this.area = area;
+    }
+
     @Override
     public void setId(int id) {
         this.id = id;

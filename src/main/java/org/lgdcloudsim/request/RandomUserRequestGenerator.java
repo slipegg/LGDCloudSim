@@ -1,8 +1,6 @@
 package org.lgdcloudsim.request;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * A simple user request generator to randomly generate a user request.
@@ -34,7 +32,7 @@ public class RandomUserRequestGenerator implements UserRequestGenerator {
 
         InstanceGroupGraph instanceGroupGraph = generateInstanceGroupGraph(instanceGroups);
 
-        return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph);
+        return new UserRequestSimple(userRequestId++, instanceGroups, instanceGroupGraph, "China").setBelongDatacenterId(1);
     }
 
     /**
@@ -52,7 +50,7 @@ public class RandomUserRequestGenerator implements UserRequestGenerator {
             List<Instance> instances = generateInstances();
             instanceGroup.setInstances(instances);
 
-            instanceGroup.setAccessLatency(rand.nextDouble(10) + 2);
+            instanceGroup.setAccessLatency(rand.nextDouble(100) + 200);
 
             instanceGroups.add(instanceGroup);
         }
@@ -87,16 +85,24 @@ public class RandomUserRequestGenerator implements UserRequestGenerator {
         InstanceGroupGraph instanceGroupGraph = new InstanceGroupGraphSimple(false);
 
         int instanceGroupNum = instanceGroups.size();
-        int maxEdgeNum = instanceGroupNum * (instanceGroupNum - 1) / 2;
+        int maxEdgeNum = (instanceGroupNum - 1) * instanceGroupNum / 2;
 
-        if (maxEdgeNum <= 0) {
+        if (maxEdgeNum < 3) {
             return instanceGroupGraph;
         }
 
-        int edgeNum = rand.nextInt(maxEdgeNum) + 1;
+        int srcInstanceGroupId = rand.nextInt(instanceGroupNum);
+        Set<Integer> dstInstanceGroupIds = new HashSet<>();
 
-        for (int i = 0; i < edgeNum; i++) {
-            InstanceGroupEdge instanceGroupEdge = generateInstanceGroupEdge(instanceGroups);
+        for (int i = 0; i < 3; i++) {
+            int dstInstanceGroupId = rand.nextInt(instanceGroupNum);
+            while (dstInstanceGroupIds.contains(dstInstanceGroupId) || dstInstanceGroupId == srcInstanceGroupId) {
+                dstInstanceGroupId = rand.nextInt(instanceGroupNum);
+            }
+            dstInstanceGroupIds.add(dstInstanceGroupId);
+
+            InstanceGroupEdge instanceGroupEdge = generateInstanceGroupEdge(instanceGroups.get(srcInstanceGroupId),
+                    instanceGroups.get(dstInstanceGroupId));
             instanceGroupGraph.addEdge(instanceGroupEdge);
         }
 
@@ -106,17 +112,13 @@ public class RandomUserRequestGenerator implements UserRequestGenerator {
     /**
      * Generate an instance group edge between two instance groups.
      *
-     * @param instanceGroups the instance groups in the user request.
+     * @param src the source instance group.
+     * @param dst the destination instance group.
      * @return the instance group edge.
      */
-    private InstanceGroupEdge generateInstanceGroupEdge(List<InstanceGroup> instanceGroups) {
-        int from = rand.nextInt(instanceGroups.size());
-        int to = rand.nextInt(instanceGroups.size());
-        while (from == to) {
-            to = rand.nextInt(instanceGroups.size());
-        }
-        double bandwidth = rand.nextDouble(10);
-        double latency = rand.nextDouble(20) + 4;
-        return new InstanceGroupEdgeSimple(instanceGroups.get(from), instanceGroups.get(to), bandwidth, latency);
+    private InstanceGroupEdge generateInstanceGroupEdge(InstanceGroup src, InstanceGroup dst) {
+        double bandwidth = rand.nextDouble(100);
+        double latency = rand.nextDouble(200) + 400;
+        return new InstanceGroupEdgeSimple(src, dst, latency, bandwidth);
     }
 }

@@ -283,6 +283,7 @@ public class CloudSim implements Simulation {
             System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
         }
         System.out.printf("All TCO = %f\n", allCost);
+        System.out.printf("Database to save simulation results: %s\n", getSqlRecord().getDbPath());
     }
 
     @Override

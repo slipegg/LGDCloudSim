@@ -14,7 +14,7 @@ import org.lgdcloudsim.user.UserSimple;
 import org.lgdcloudsim.util.Log;
 
 /**
- * Here is an example on how to generate a fixed request from a file.
+ * Here is an example on how to generate fixed ordinary requests from a file.
  * See "./src/main/resources/example/Request/FixedOrdinaryRequest.csv".
  *
  * @author Anonymous

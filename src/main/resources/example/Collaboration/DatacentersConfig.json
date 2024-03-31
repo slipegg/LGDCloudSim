@@ -1,0 +1,196 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "centerScheduler": {
+        "type": "simple",
+        "target": "dc",
+        "isSupportForward": false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          }
+        ]
+      },
+      "datacenters": [
+        {
+          "id": 1,
+          "region": "us-east1",
+          "hostNum": 4000,
+          "partitions": [
+            {
+              "length": 4000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 4000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 2,
+          "region": "northamerica-northeast1",
+          "hostNum": 2000,
+          "partitions": [
+            {
+              "length": 2000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 2000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "centerScheduler": {
+        "type": "simple",
+        "target": "dc",
+        "isSupportForward": false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          }
+        ]
+      },
+      "datacenters": [
+        {
+          "id": 3,
+          "region": "us-west2",
+          "hostNum": 4000,
+          "partitions": [
+            {
+              "length": 4000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 4000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 4,
+          "region": "europe-west2",
+          "hostNum": 6000,
+          "partitions": [
+            {
+              "length": 6000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 6000
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "type": "simple"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        }
+      ]
+    }
+  ]
+}

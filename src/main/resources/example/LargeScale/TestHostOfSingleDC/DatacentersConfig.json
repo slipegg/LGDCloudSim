@@ -1,0 +1,32 @@
+{
+  "id": 1,
+  "hostNum": 100000000,
+  "partitions": [
+    {
+      "length": 100000000
+    }
+  ],
+  "hostStates": [
+    {
+      "cpu": 10,
+      "ram": 10,
+      "storage": 10,
+      "bw": 10,
+      "startId": 0,
+      "length": 100000000
+    }
+  ],
+  "synchronizationGap": 0,
+  "architecture": "monolithic",
+  "intraSchedulers": [
+    {
+      "type": "FirstFit"
+    }
+  ],
+  "loadBalancer": {
+    "type": "batch"
+  },
+  "resourceAllocateSelector": {
+    "type": "simple"
+  }
+}

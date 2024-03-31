@@ -29,7 +29,7 @@ import org.lgdcloudsim.util.Log;
  * and the instance life cycle is 5000ms.
  * More details can be found in the configuration file
  *
- * @author Jiawen Liu
+ * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class BasicFirstExample {

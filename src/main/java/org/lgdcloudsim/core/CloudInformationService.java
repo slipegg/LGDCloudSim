@@ -355,12 +355,12 @@ public class CloudInformationService extends CloudSimEntity {
             }
         }
 
-        if (retryInstanceGroups.size() > 0) {
+        if (!retryInstanceGroups.isEmpty()) {
             InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
             interScheduler.addInstanceGroups(retryInstanceGroups, true);
         }
 
-        if (failedUserRequests.size() > 0) {
+        if (!failedUserRequests.isEmpty()) {
             send(this, 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
         }
