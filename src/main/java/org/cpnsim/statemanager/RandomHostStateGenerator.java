@@ -7,7 +7,7 @@ import java.util.Random;
  * Note that the range of randomly generated numbers here is: [min,max]
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 
 public class RandomHostStateGenerator implements HostStateGenerator {
@@ -55,6 +55,19 @@ public class RandomHostStateGenerator implements HostStateGenerator {
         }
     }
 
+    /**
+     * Initialize a random host state generator.
+     *
+     * @param seed       the seed of the random number generator
+     * @param minCpu     the minimum amount of cpu that is available on the host
+     * @param maxCpu     the maximum amount of cpu that is available on the host
+     * @param minRam     the minimum amount of ram that is available on the host
+     * @param maxRam     the maximum amount of ram that is available on the host
+     * @param minStorage the minimum amount of storage that is available on the host
+     * @param maxStorage the maximum amount of storage that is available on the host
+     * @param minBw      the minimum amount of bw that is available on the host
+     * @param maxBw      the maximum amount of bw that is available on the host
+     */
     public RandomHostStateGenerator(int seed, int minCpu, int maxCpu, int minRam, int maxRam, int minStorage, int maxStorage, int minBw, int maxBw) {
         this(seed);
         this.minCpu = minCpu;

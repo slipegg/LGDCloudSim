@@ -71,8 +71,9 @@ public class largeScaleScheduling_xyh {
         double start = System.currentTimeMillis();
         Log.setLevel(Level.INFO);
         cpnSim = new CloudSim();
-        cpnSim.setDbName(DBNAME);
         factory = new FactorySimple();
+        cpnSim.setDbName(DBNAME);
+        cpnSim.setSqlRecord(factory.getSqlRecord("detailScheduleTime", DBNAME));
         initUser();
         initDatacenters();
         initNetwork();

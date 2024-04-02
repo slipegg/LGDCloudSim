@@ -350,7 +350,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
         sendWithoutNetwork(getSimulation().getCis(), 0, CloudSimTag.DC_REGISTRATION_REQUEST, this);
         if (statesManager.isSynCostTime()) {
-            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
+            send(this, statesManager.getNextPartitionSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
         }
 
         if (interScheduler != null) {
@@ -424,7 +424,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void processSynStateInDc() {
         statesManager.synAllState();
         if (statesManager.isSynCostTime()) {
-            send(this, statesManager.getNextSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
+            send(this, statesManager.getNextPartitionSynDelay(), CloudSimTag.SYN_STATE_IN_DC, null);
         }
 
         if (Objects.equals(this.architecture, "two-level")) {
@@ -680,7 +680,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             LOGGER.info("{}: {}'s {} ends scheduling instances.", getSimulation().clockStr(), getName(), intraScheduler.getName());
 
-            if (!statesManager.isInLatestSmallSynGap(intraSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
+            if (!statesManager.isInLatestPartitionSynGap(intraSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
                 statesManager.revertHostState(intraSchedulerResult);
             }
 
@@ -776,7 +776,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         intraScheduler.addInstance(instances, true);
 
         if (isNeedRevertSelfHostState) {
-            statesManager.revertSelftHostState(instances, intraScheduler);
+            statesManager.revertSelfHostState(instances, intraScheduler);
         }
 
         if(instances.size()>0){
@@ -1291,5 +1291,75 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public int compareTo(SimEntity o) {
         return Comparator.comparing(SimEntity::getId).compare(this, o);
+    }
+
+    @Override
+    public long getCpu() {
+        return statesManager.getTotalCPU();
+    }
+
+    @Override
+    public long getRam() {
+        return statesManager.getTotalRAM();
+    }
+
+    @Override
+    public long getStorage() {
+        return statesManager.getTotalStorage();
+    }
+
+    @Override
+    public long getBw() {
+        return statesManager.getTotalBw();
+    }
+
+    @Override
+    public double getPricePerCPU() {
+        return pricePerCpu;
+    }
+
+    @Override
+    public double getPricePerRAM() {
+        return pricePerRam;
+    }
+
+    @Override
+    public double getPricePerStorage() {
+        return pricePerStorage;
+    }
+
+    @Override
+    public double getPricePerBW() {
+        return pricePerBw;
+    }
+
+    @Override
+    public double getPricePerRack() {
+        return unitRackPrice;
+    }
+
+    @Override
+    public double getHostPerRack() {
+        return hostNumPerRack;
+    }
+
+    @Override
+    public long getHostNum() {
+        return statesManager.getHostNum();
+    }
+
+    @Override
+    public double getPricePerCpu() {
+        return pricePerCpu;
+    }
+
+    @Override
+    public double getPricePerRam() {
+        return pricePerRam;
+    }
+
+    @Override
+    public double getPricePerBw() {
+        return pricePerBw;
     }
 }

@@ -208,7 +208,7 @@ public interface DatacenterPrice {
      * <ul>
      *     <li>used: the cost of bandwidth will be calculated according the amount of network data used:(instance.getBw() * lifeTimeSec) / 8 / 1024 * bwUtilization * unitBwPrice </li>
      *     <li>fixed: the cost of bandwidth will be calculated according the network bandwidth speed and time used: instance.getBw() * unitBwPrice * lifeTimeSec</li>
-     * </ul
+     * </ul>
      *
      * @param bwBillingType the billing type of bandwidth
      * @return the datacenter

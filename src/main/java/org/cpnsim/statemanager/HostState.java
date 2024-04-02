@@ -10,7 +10,7 @@ import org.cpnsim.request.Instance;
  * The four integers are the amount of cpu, ram, storage and bw that are available on the host.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 @Getter
 @Setter
@@ -55,7 +55,7 @@ public class HostState {
     /**
      * Get the state of the host.
      *
-     * @return the state of the host.the state includes 4 integers: cpu, ram, storage and bw.
+     * @return the state of the host. The state includes 4 integers: cpu, ram, storage and bw.
      * */
     public int[] getStateArray() {
         int[] state = new int[4];
@@ -69,7 +69,7 @@ public class HostState {
     /**
      * Set the state of the host.
      *
-     * @param hostState the state of the host.the state includes 4 integers: cpu, ram, storage and bw.
+     * @param hostState the state of the host. The state includes 4 integers: cpu, ram, storage and bw.
      * */
     public void setState(HostState hostState) {
         this.cpu = hostState.getCpu();

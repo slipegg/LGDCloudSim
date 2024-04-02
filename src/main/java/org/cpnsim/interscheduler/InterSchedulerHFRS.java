@@ -16,9 +16,11 @@ public class InterSchedulerHFRS extends InterSchedulerSimple{
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
 
-        Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.heuristicFiltering(instanceGroups, allDatacenters, simulation, interScheduleSimpleStateMap);
+        for(InstanceGroup instanceGroup : instanceGroups){
+            Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = RandomAndHeuristicAlgorithm.heuristicFiltering(instanceGroup, allDatacenters, simulation, interScheduleSimpleStateMap);
 
-        RandomAndHeuristicAlgorithm.randomScoring(interSchedulerResult, instanceGroupAvailableDatacenters);
+            RandomAndHeuristicAlgorithm.randomScoring(interSchedulerResult, instanceGroupAvailableDatacenters, interScheduleSimpleStateMap);    
+        }
 
         return interSchedulerResult;
     }

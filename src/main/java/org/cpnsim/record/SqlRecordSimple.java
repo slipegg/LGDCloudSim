@@ -2,6 +2,7 @@ package org.cpnsim.record;
 
 import lombok.Getter;
 import org.cpnsim.datacenter.Datacenter;
+import org.cpnsim.network.NetworkTopology;
 import org.cpnsim.request.Instance;
 import org.cpnsim.request.InstanceGroup;
 import org.cpnsim.request.InstanceGroupEdge;
@@ -21,6 +22,9 @@ import java.util.Set;
 /**
  * It is an implementation of the SqlRecord interface.
  * It records the simulation information through the SQLite database.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
  */
 public class SqlRecordSimple implements SqlRecord {
     /**
@@ -655,5 +659,25 @@ public class SqlRecordSimple implements SqlRecord {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void recordDatacentersInfo(List<Datacenter> datacenters) {
+
+    }
+    
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenters) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(NetworkTopology networkTopology) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
+
     }
 }

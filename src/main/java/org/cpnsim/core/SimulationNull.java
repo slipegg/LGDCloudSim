@@ -146,4 +146,9 @@ public class SimulationNull implements Simulation {
     public String getDbName() {
         return null;
     }
+
+    @Override
+    public void setSqlRecord(SqlRecord sqlRecord) {
+
+    }
 }

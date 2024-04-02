@@ -62,9 +62,9 @@ public class ComparedStatesManagerCopy {
         }
 
         private void partitionSyn() {
-            synGapManager.synGapCountAddOne();
+            synGapManager.partitionSynGapCountAddOne();
             for (IntraScheduler intraScheduler : intraSchedulers) {
-                int synPartitionId = (intraScheduler.getFirstPartitionId() + synGapManager.getSmallSynGapCount()) % partitionRangesManager.getPartitionNum();
+                int synPartitionId = (intraScheduler.getFirstPartitionId() + synGapManager.getPartitionSynCount()) % partitionRangesManager.getPartitionNum();
                 selfHostStateMap.get(intraScheduler).put(synPartitionId, getPartitionHostStatesCopy(synPartitionId));
             }
         }
@@ -116,7 +116,7 @@ public class ComparedStatesManagerCopy {
 
     private void schedules() {
         while (true) {
-            double synTime = synGapManager.getSynTime(synGapManager.getSmallSynGapCount());
+            double synTime = synGapManager.getSynTime(synGapManager.getPartitionSynCount());
             if (synTime >= allTime) {
                 break;
             }

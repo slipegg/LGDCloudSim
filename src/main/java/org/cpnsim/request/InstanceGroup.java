@@ -214,4 +214,16 @@ public interface InstanceGroup extends RequestEntity {
      * @return whether the instance group has network restrictions.
      */
     boolean isNetworkLimited();
+
+    /**
+     * Get the interScheduleEndTime of the instance group.
+     * @return the interScheduleEndTime of the instance group.
+     */
+    double getInterScheduleEndTime();
+
+    /**
+     * Set the interScheduleTime of the instance group.
+     * @param interScheduleTime the interScheduleTime of the instance group.
+     */
+    InstanceGroup setInterScheduleEndTime(double interScheduleTime);
 }

@@ -6,7 +6,7 @@ import java.util.List;
  * An interface to be implemented by each class that predicts the state of a host.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 public interface PredictionManager {
     /**

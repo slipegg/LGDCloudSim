@@ -5,13 +5,36 @@ import org.cpnsim.statemanager.SynState;
 
 import java.util.*;
 
+/**
+ * The intra-scheduler that extends the {@link IntraSchedulerSimple} class
+ * It will filter the suitable host from a fixed partition id which is related to the intra-scheduler id.
+ *
+ * @author Jiawen Liu
+ * @since LGDCloudSim 1.0
+ */
 public class IntraSchedulerFixedPartitionRandom extends IntraSchedulerSimple {
+    /**
+     * The random object.
+     */
     Random random = new Random();
 
+    /**
+     * Construct the intra-scheduler with the id, the first partition id and the partition number.
+     *
+     * @param id               the intra-scheduler id.
+     * @param firstPartitionId the first synchronization partition id.
+     * @param partitionNum     the number of partitions in the data center.
+     */
     public IntraSchedulerFixedPartitionRandom(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
     }
 
+    /**
+     * Schedule the instances from a fixed partition id which is related to the intra-scheduler id.
+     * @param instances the instances to be scheduled.
+     * @param synState the synchronization state.
+     * @return the intra-scheduler result.
+     */
     @Override
     protected IntraSchedulerResult scheduleInstances(List<Instance> instances, SynState synState) {
         IntraSchedulerResult intraSchedulerResult = new IntraSchedulerResult(this, getDatacenter().getSimulation().clock());

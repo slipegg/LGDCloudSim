@@ -7,7 +7,7 @@ import lombok.Setter;
  * A class to generate isomorphic host state.
  *
  * @author Jiawen Liu
- * @since CPNSim 1.0
+ * @since LGDCloudSim 1.0
  */
 
 @Getter
@@ -25,6 +25,14 @@ public class IsomorphicHostStateGenerator implements HostStateGenerator {
     /** the amount of bw that is available on the host */
     int bw;
 
+    /**
+     * Create a IsomorphicHostStateGenerator object with the given 4 resource.
+     *
+     * @param cpu     the amount of cpu that is available on the host
+     * @param ram     the amount of ram that is available on the host
+     * @param storage the amount of storage that is available on the host
+     * @param bw      the amount of bw that is available on the host
+     */
     public IsomorphicHostStateGenerator(int cpu, int ram, int storage, int bw) {
         this.cpu = cpu;
         this.ram = ram;
@@ -32,6 +40,9 @@ public class IsomorphicHostStateGenerator implements HostStateGenerator {
         this.bw = bw;
     }
 
+    /**
+     * Create a IsomorphicHostStateGenerator object with the default 4 resource.
+     * */
     public IsomorphicHostStateGenerator() {
         this.cpu = 124;
         this.ram = 1024;
