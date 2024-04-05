@@ -1082,7 +1082,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      */
     private void processUserRequestsSend(final SimEvent evt) {
         if (evt.getData() instanceof List<?> userRequestsTmp) {
-            if (userRequestsTmp.size() == 0) {
+            if (userRequestsTmp.isEmpty()) {
                 return;
             }
 
@@ -1132,7 +1132,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         if (!isInterSchedulerBusy) {
             sendNow(this, CloudSimTag.INTER_SCHEDULE_BEGIN);
-            isInterSchedulerBusy = true;//放在这里可以防止同一时间多次触发
+            isInterSchedulerBusy = true; // To prevent multiple triggers at the same time
         }
     }
 
@@ -1199,16 +1199,27 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 List<InstanceGroup> instanceGroups = entry.getValue();
 
                 if (datacenter == this) {
-                    if (instanceGroups.size() > 0) {
+                    if (!instanceGroups.isEmpty()) {
                         send(this, 0, CloudSimTag.SCHEDULE_TO_DC_HOST, instanceGroups);
                         LOGGER.info("{}: {} sends {} instance groups to itself.", getSimulation().clockStr(), getName(), instanceGroups.size());
                     }
                 } else {
-                    if (instanceGroups.size() > 0) {
+                    if (!instanceGroups.isEmpty()) {
                         send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, instanceGroups);
                         addSelfInForwardHistory(instanceGroups);
                         LOGGER.info("{}: {} sends {} instance groups to other datacenter {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), datacenter.getName());
                     }
+                }
+            }
+        } else if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET) {
+            for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getScheduledResultMap().entrySet()) {
+                Datacenter datacenter = entry.getKey();
+                List<InstanceGroup> instanceGroups = entry.getValue();
+
+                if (!instanceGroups.isEmpty()) {
+                    send(datacenter, 0, CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD, instanceGroups);
+                    addSelfInForwardHistory(instanceGroups);
+                    LOGGER.info("{}: {} sends {} instance groups to datacenter {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), datacenter.getName());
                 }
             }
         }
@@ -1219,7 +1230,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param instanceGroups the instance groups
      */
     private void addSelfInForwardHistory(List<InstanceGroup> instanceGroups) {
-        instanceGroups.forEach(instanceGroup -> instanceGroup.addForwardDatacenterIdHistory(getId()));
+        instanceGroups.forEach(instanceGroup -> instanceGroup.addForwardDatacenterIdHistory(this.getId()));
     }
 
     /**
