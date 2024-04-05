@@ -261,7 +261,9 @@ public class InitDatacenter {
         if (target == InterSchedulerSimple.DC_TARGET) {
             isSupportForward = interSchedulerJson.getBoolean("isSupportForward");
         }
+
         InterScheduler interScheduler = factory.getInterScheduler(interSchedulerType, interSchedulerId++, LGDCloudSim, collaborationId, target, isSupportForward);
+
         Object[] dcStateSynIntervalAndType = getDcStateSynIntervalAndType(interSchedulerJson, collaborationManager);
         interScheduler.setDcStateSynInterval((Map<Datacenter, Double>) dcStateSynIntervalAndType[0]);
         interScheduler.setDcStateSynType((Map<Datacenter, String>) dcStateSynIntervalAndType[1]);
@@ -367,11 +369,6 @@ public class InitDatacenter {
         if (isCenterSchedule) {
             datacenter.setCentralizedInterScheduleFlag(true);
         }
-        if (isNeedInterSchedulerForDc(isCenterSchedule, target, isSupportForward)) {
-            InterScheduler interScheduler = factory.getInterScheduler(interSchedulerJson.getString("type"), interSchedulerId++, LGDCloudSim, collaborationId, target, false);
-            interScheduler.setDatacenter(datacenter);
-            datacenter.setInterScheduler(interScheduler);
-        }
 
         if (isNeedIntraScheduler(isCenterSchedule, target, isSupportForward)) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
@@ -429,7 +426,7 @@ public class InitDatacenter {
      * @param isCenterSchedule whether the center inter-scheduler is needed
      * @param target           the target of the center inter-scheduler
      * @param isSupportForward whether the center inter-scheduler supports forwarding
-     * @return
+     * @return whether the intra-scheduler is needed for the datacenter
      */
     private static boolean isNeedIntraScheduler(boolean isCenterSchedule, int target, boolean isSupportForward) {
         return !((isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET)
