@@ -44,12 +44,12 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /**
      * Set the {@link LoadBalancer}.
      **/
-    Datacenter setLoadBalancer(LoadBalancer loadBalancer);
+    Datacenter setIntraLoadBalancer(LoadBalancer intraLoadBalancer);
 
     /**
      * Get the {@link LoadBalancer}.
      **/
-    LoadBalancer getLoadBalancer();
+    LoadBalancer getIntraLoadBalancer();
 
     /**
      * Set the {@link ConflictHandler}.

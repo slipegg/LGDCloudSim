@@ -7,6 +7,7 @@ import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerSimple;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.statemanager.*;
 import org.slf4j.LoggerFactory;
 
@@ -371,8 +372,8 @@ public class InitDatacenter {
 
         if (isNeedIntraScheduler(isCenterSchedule, target, isSupportForward)) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
-            LoadBalancer loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
-            datacenter.setLoadBalancer(loadBalancer);
+            LoadBalancer<Instance, IntraScheduler> loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
+            datacenter.setIntraLoadBalancer(loadBalancer);
 
             List<IntraScheduler> intraSchedulers = getIntraSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
             datacenter.setIntraSchedulers(intraSchedulers);
