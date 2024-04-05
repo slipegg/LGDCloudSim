@@ -396,7 +396,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.SCHEDULE_TO_DC_HOST -> processScheduleToDcHost(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
-            case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);//负载均衡花费时间，不形成瓶颈
+            case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
             case CloudSimTag.INTRA_SCHEDULE_BEGIN -> processIntraScheduleBegin(evt);
             case CloudSimTag.INTRA_SCHEDULE_END -> processIntraScheduleEnd(evt);
             case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
@@ -1173,7 +1173,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      */
     private boolean isScheduleToSelfEmpty(InterSchedulerResult interSchedulerResult) {
         Map<Datacenter, List<InstanceGroup>> scheduledResultMap = interSchedulerResult.getScheduledResultMap();
-        return !scheduledResultMap.containsKey(this) || scheduledResultMap.get(this).size() == 0;
+        return !scheduledResultMap.containsKey(this) || scheduledResultMap.get(this).isEmpty();
     }
 
     /**
@@ -1247,7 +1247,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {
-            //如果重试次数增加了之后没有超过最大重试次数，那么就将其重新放入队列中等待下次调度
+            // If the number of retries does not exceed the maximum number of retries after increasing, then it will be put back into the queue to wait for the next schedule.
             instanceGroup.addRetryNum();
 
             if (instanceGroup.isFailed()) {

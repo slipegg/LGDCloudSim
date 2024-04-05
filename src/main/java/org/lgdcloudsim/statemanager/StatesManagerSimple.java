@@ -410,7 +410,7 @@ public class StatesManagerSimple implements StatesManager {
     public StatesManager revertSelfHostState(List<Instance> instances, IntraScheduler intraScheduler) {
         Map<Integer, Map<Integer, int[]>> selfHostState = selfHostStateMap.get(intraScheduler);
         for (Instance instance : instances) {
-            if (instance.getRetryHostIds() == null || instance.getRetryHostIds().size() == 0) {
+            if (instance.getRetryHostIds() == null || instance.getRetryHostIds().isEmpty()) {
                 LOGGER.error("{}: instance {} has no retry host id in revertSelftHostState function", getDatacenter().getSimulation().clockStr(), instance.getId());
                 System.exit(-1);
             }
