@@ -85,12 +85,12 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public Datacenter setLoadBalancer(LoadBalancer loadBalancer) {
+    public Datacenter setIntraLoadBalancer(LoadBalancer intraLoadBalancer) {
         return null;
     }
 
     @Override
-    public LoadBalancer getLoadBalancer() {
+    public LoadBalancer getIntraLoadBalancer() {
         return null;
     }
 

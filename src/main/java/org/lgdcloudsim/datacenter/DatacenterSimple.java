@@ -100,7 +100,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * See {@link LoadBalancer}.
      */
     @Getter
-    private LoadBalancer loadBalancer;
+    private LoadBalancer<Instance, IntraScheduler> intraLoadBalancer;
 
     /**
      * See {@link ConflictHandler}.
@@ -312,9 +312,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         return this;
     }
 
-    public Datacenter setLoadBalancer(LoadBalancer loadBalancer) {
-        this.loadBalancer = loadBalancer;
-        loadBalancer.setDatacenter(this);
+    public Datacenter setIntraLoadBalancer(LoadBalancer intraLoadBalancer) {
+        this.intraLoadBalancer = intraLoadBalancer;
+        intraLoadBalancer.setDatacenter(this);
         return this;
     }
 
@@ -793,20 +793,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     /**
-     * Retrieve instances from the {@link InstanceQueue} and publish them to various {@link IntraScheduler}s.
+     * Retrieve all instances from the {@link InstanceQueue} and distribute them to various {@link IntraScheduler}s by {@link LoadBalancer}.
      *
      * @param evt the event
      */
     private void processLoadBalanceSend(SimEvent evt) {
         List<Instance> instances = instanceQueue.getAllItem();
-        if (instances.size() != 0) {
-            Set<IntraScheduler> sentIntraScheduler = loadBalancer.sendInstances(instances);
-            if (instanceQueue.size() > 0) {
-                send(this, loadBalancer.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
+        if (!instances.isEmpty()) {
+            Map<IntraScheduler, List<Instance>> loadBalanceResult = intraLoadBalancer.loadBalance(instances, intraSchedulers);
+            if (!instanceQueue.isEmpty()) {
+                send(this, intraLoadBalancer.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
             }
-            for (IntraScheduler intraScheduler : sentIntraScheduler) {
-                if (!isIntraSchedulerBusy.containsKey(intraScheduler) || !isIntraSchedulerBusy.get(intraScheduler)) {
-                    send(this, loadBalancer.getLoadBalanceCostTime(), CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
+
+            for (Map.Entry<IntraScheduler, List<Instance>> entry : loadBalanceResult.entrySet()) {
+                IntraScheduler intraScheduler = entry.getKey();
+                List<Instance> instanceList = entry.getValue();
+
+                intraScheduler.addInstance(instanceList, false);
+                if ((!isIntraSchedulerBusy.containsKey(intraScheduler) || !isIntraSchedulerBusy.get(intraScheduler))
+                        && !intraScheduler.isQueuesEmpty()) {
+                    send(this, intraLoadBalancer.getLoadBalanceCostTime(), CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
                     isIntraSchedulerBusy.put(intraScheduler, true);
                 }
             }
