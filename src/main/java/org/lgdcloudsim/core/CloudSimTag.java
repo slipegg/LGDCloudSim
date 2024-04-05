@@ -132,7 +132,7 @@ public class CloudSimTag {
     /**
      * This event is used to respond to the {@link #SCHEDULE_TO_DC_HOST} event.
      * It indicates that there are conflicts or failures in scheduling the instances to the host.
-     * The {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a {@link FailedOutdatedResult < InstanceGroup >} object.
+     * The {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a {@link FailedOutdatedResult<InstanceGroup>} object.
      */
     public static final int SCHEDULE_TO_DC_HOST_CONFLICTED = SCHEDULE_TO_DC_HOST_OK + 1;
 
