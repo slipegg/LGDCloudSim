@@ -125,7 +125,7 @@ public class InstanceQueueFifo implements InstanceQueue {
 
     @Override
     public InstanceQueue add(List requests) {
-        if (requests.size() == 0) {
+        if (requests.isEmpty()) {
             return this;
         } else if (requests.get(0) instanceof Instance) {
             this.instances.addAll((List<Instance>) requests);

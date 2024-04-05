@@ -256,7 +256,7 @@ public class InterSchedulerSimple implements InterScheduler {
             InstanceGroup instanceGroupToBeScheduled = scheduleResEntry.getKey();
             List<Datacenter> availableDatacenters = scheduleResEntry.getValue();
 
-            if (availableDatacenters.size() == 0) {
+            if (availableDatacenters.isEmpty()) {
                 interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
             } else {
                 Datacenter scheduleResult = scheduleMixedInstanceGroup(instanceGroupToBeScheduled, availableDatacenters);
@@ -299,7 +299,7 @@ public class InterSchedulerSimple implements InterScheduler {
      * @return the data center where the instance group is scheduled
      */
     private Datacenter selectDcToForward(InstanceGroup instanceGroup, List<Datacenter> availableDatacenters) {
-        if (availableDatacenters.size() == 0) {
+        if (availableDatacenters.isEmpty()) {
             return Datacenter.NULL;
         }
 
@@ -362,8 +362,9 @@ public class InterSchedulerSimple implements InterScheduler {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
+
         for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleRes : instanceGroupAvailableDatacenters.entrySet()) {
-            if (scheduleRes.getValue().size() == 0) {
+            if (scheduleRes.getValue().isEmpty()) {
                 interSchedulerResult.getFailedInstanceGroups().add(scheduleRes.getKey());
             } else {
                 Datacenter target = scheduleRes.getValue().get(random.nextInt(scheduleRes.getValue().size()));
@@ -389,7 +390,7 @@ public class InterSchedulerSimple implements InterScheduler {
         for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleResEntry : instanceGroupAvailableDatacenters.entrySet()) {
             InstanceGroup instanceGroupToBeScheduled = scheduleResEntry.getKey();
             List<Datacenter> availableDatacenters = scheduleResEntry.getValue();
-            if (availableDatacenters.size() == 0) {
+            if (availableDatacenters.isEmpty()) {
                 interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
             } else {
                 Datacenter scheduledDc = scheduleForInstanceGroupAndInstance(instanceGroupToBeScheduled, availableDatacenters);
@@ -551,7 +552,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
     @Override
     public boolean isQueuesEmpty() {
-        return instanceGroupQueue.size() == 0 && retryInstanceGroupQueue.size() == 0;
+        return instanceGroupQueue.isEmpty() && retryInstanceGroupQueue.isEmpty();
     }
 
     @Override
