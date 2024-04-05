@@ -287,7 +287,7 @@ public class CloudInformationService extends CloudSimEntity {
             Datacenter datacenter = entry.getKey();
             List<InstanceGroup> instanceGroups = entry.getValue();
 
-            if (instanceGroups.size() > 0) {
+            if (!instanceGroups.isEmpty()) {
                 send(datacenter, 0, evtTag, instanceGroups);
             }
         }
@@ -478,7 +478,7 @@ public class CloudInformationService extends CloudSimEntity {
      */
     private void processUserRequestFail(SimEvent evt) {
         if (evt.getData() instanceof Set<?> userRequestsTmp) {
-            if (userRequestsTmp.size() > 0 && userRequestsTmp.iterator().next() instanceof UserRequest) {
+            if (!userRequestsTmp.isEmpty() && userRequestsTmp.iterator().next() instanceof UserRequest) {
                 Set<UserRequest> userRequests = (Set<UserRequest>) userRequestsTmp;
                 for (UserRequest userRequest : userRequests) {
                     processAUserRequestFail(userRequest);

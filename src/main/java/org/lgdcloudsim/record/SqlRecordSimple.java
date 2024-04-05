@@ -200,7 +200,7 @@ public class SqlRecordSimple implements SqlRecord {
 
     @Override
     public void recordInstanceGroupsReceivedInfo(List requests) {
-        if (requests.size() > 0) {
+        if (!requests.isEmpty()) {
             try {
                 if (requests.get(0) instanceof InstanceGroup) {
                     List<InstanceGroup> instanceGroups = requests;

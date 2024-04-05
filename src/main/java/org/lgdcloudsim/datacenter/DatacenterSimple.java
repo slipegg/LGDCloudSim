@@ -446,7 +446,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      */
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof List<?> list) {
-            if (list.size() > 0 && list.get(0) instanceof Instance) {
+            if (!list.isEmpty() && list.get(0) instanceof Instance) {
 //                LOGGER.info("{}: {} received {} instances to finish", getSimulation().clockStr(), getName(), list.size());
                 for (Instance instance : (List<Instance>) list) {
                     finishInstance(instance);
@@ -784,10 +784,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             statesManager.revertSelfHostState(instances, intraScheduler);
         }
 
-        if(instances.size()>0){
+        if (!instances.isEmpty()) {
             LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), intraScheduler.getName(), instances.size());
         }
-        if (failedUserRequests.size() > 0) {
+        if (!failedUserRequests.isEmpty()) {
             send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
         }
     }
@@ -863,7 +863,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             revertBwForInstanceGroups(allocateFailedInstanceGroups);
 
             SimEntity source = evt.getSource();
-            if (failedInstanceGroups.size() > 0 || conflictedRes.getOutdatedRequests().size() > 0) {
+            if (!failedInstanceGroups.isEmpty() || !conflictedRes.getOutdatedRequests().isEmpty()) {
                 send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, new FailedOutdatedResult<InstanceGroup>(failedInstanceGroups, outDatedUserRequests));
             } else {
                 send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_OK, null);
@@ -1265,11 +1265,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
 
-        if (retryInstanceGroups.size() > 0) {
+        if (!retryInstanceGroups.isEmpty()) {
             interScheduler.addInstanceGroups(retryInstanceGroups, true);
         }
 
-        if (failedUserRequests.size() > 0) {
+        if (!failedUserRequests.isEmpty()) {
             send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
         }
