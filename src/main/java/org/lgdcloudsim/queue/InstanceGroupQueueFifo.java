@@ -60,7 +60,7 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
      */
     @Override
     public InstanceGroupQueue add(List<?> userRequestsOrInstanceGroups) {
-        if (userRequestsOrInstanceGroups.size() != 0) {
+        if (!userRequestsOrInstanceGroups.isEmpty()) {
             if (userRequestsOrInstanceGroups.get(0) instanceof UserRequest) {
                 for (UserRequest userRequest : (List<UserRequest>) userRequestsOrInstanceGroups) {
                     add(userRequest);

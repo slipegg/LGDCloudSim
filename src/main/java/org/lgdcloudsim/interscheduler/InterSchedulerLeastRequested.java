@@ -518,7 +518,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
 
         List<InstanceGroup> forwardInstanceGroups = scheduleSameInstanceGroupsByScoredHostsMix(sameInstanceGroups, interSchedulerResult, scoredHostsManager);
 
-        if(forwardInstanceGroups.size() != 0){
+        if (!forwardInstanceGroups.isEmpty()) {
             availableDatacenters.remove(this.datacenter);
             removeHistoryForwardDatacenter(availableDatacenters, forwardInstanceGroups.get(0));
             scheduleForSameInstanceGroupsToDc(forwardInstanceGroups, interSchedulerResult, availableDatacenters);
