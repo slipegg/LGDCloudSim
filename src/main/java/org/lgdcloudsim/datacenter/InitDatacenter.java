@@ -29,9 +29,13 @@ import org.slf4j.Logger;
  *    [
  *      {
  *        "id": 1, // The id of the collaboration zone
+ *        "interLoadBalancer": {// The load balancer that is used to distribute the instanceGroups to the center inter-schedulers
+ *           "type": "round"
+ *        },
  *        "centerSchedulers": // The center inter-scheduler of the cloud administrator in the collaboration zone. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
  *        {
  *          "type": "centralized", // The type of the center inter-scheduler. Inter-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
+ *          "num": 2, // The number of center inter-schedulers
  *          "target": "dc", // The target of the center inter-scheduler.
  *                          // The value can be dc, host or mixed. If the value is dc, the center inter-scheduler only needs to distribute the instanceGroups to the datacenters.
  *                          // If the value is host, the center inter-scheduler needs to schedule all instances in instanceGroups to the hosts in the datacenter.
@@ -81,7 +85,7 @@ import org.slf4j.Logger;
  *                                       //and the intra-scheduler will synchronize the status of each partition in turn.
  *                "type": "simple", // The type of the intra-scheduler. Intra-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
  *              }],
- *              "loadBalancer": // The load balancer of the datacenter. When there are intra-schedulers in the datacenter, the load balancer is needed.
+ *              "intraLoadBalancer": // The load balancer of the datacenter. When there are intra-schedulers in the datacenter, the load balancer is needed.
  *              {
  *                "type": "batch" // The type of the load balancer. Load balancers with different scheduling algorithms need to be registered in the {@link Factory}.
  *              },
@@ -185,10 +189,6 @@ public class InitDatacenter {
                 isSupportForward = collaborationJson.getJsonObject("centerSchedulers").getBoolean("isSupportForward");
             }
 
-            JsonObject loadBalanceJson = collaborationJson.getJsonObject("loadBalancer");
-            LoadBalancer<InstanceGroup, InterScheduler> loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
-            collaborationManager.addLoadBalancer(collaborationId, loadBalancer);
-
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
                 JsonObject datacenterJson = collaborationJson.getJsonArray("datacenters").getJsonObject(j);
                 Datacenter datacenter = getDatacenter(datacenterJson, collaborationId, isCenterSchedule, target, isSupportForward);
@@ -219,17 +219,17 @@ public class InitDatacenter {
             }
 
             if (isCenterSchedule) {
-                JsonObject loadBalanceJson = collaborationJson.getJsonObject("loadBalancer");
+                JsonObject loadBalanceJson = collaborationJson.getJsonObject("interLoadBalancer");
                 LoadBalancer<InstanceGroup, InterScheduler> loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
-                collaborationManager.addLoadBalancer(collaborationId, loadBalancer);
+                collaborationManager.addInterLoadBalancer(collaborationId, loadBalancer);
 
                 JsonObject centerSchedulerJson = collaborationJson.getJsonObject("centerSchedulers");
-                List<InterScheduler> interSchedulers = initInterSchedulers(centerSchedulerJson, collaborationId, collaborationManager);
+                List<InterScheduler> interSchedulers = initInterSchedulers(centerSchedulerJson, collaborationId, collaborationManager, null);
                 collaborationManager.addCenterSchedulers(collaborationId, interSchedulers);
             }
 
             if (isNeedInterSchedulerForDc(isCenterSchedule, target, isSupportForward)) {
-                initInterSchedulersForDc(collaborationJson.getJsonArray("datacenters"), collaborationId, collaborationManager);
+                initInterSchedulersForDcs(collaborationJson.getJsonArray("datacenters"), collaborationId, collaborationManager);
             }
         }
     }
@@ -242,7 +242,7 @@ public class InitDatacenter {
      * @param collaborationManager the {@link CollaborationManager} object
      * @return a list of {@link InterScheduler} objects
      */
-    private static List<InterScheduler> initInterSchedulers(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
+    private static List<InterScheduler> initInterSchedulers(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager, Datacenter datacenter) {
         int num = 1;
         if (interSchedulerJson.containsKey("num")) {
             num = interSchedulerJson.getInt("num");
@@ -254,6 +254,9 @@ public class InitDatacenter {
         List<InterScheduler> interSchedulers = new ArrayList<>();
         for (int k = 0; k < num; k++) {
             InterScheduler interScheduler = initInterScheduler(interSchedulerJson, collaborationId, collaborationManager);
+            if (datacenter != null) {
+                interScheduler.setDatacenter(datacenter);
+            }
             interSchedulers.add(interScheduler);
         }
 
@@ -278,20 +281,23 @@ public class InitDatacenter {
      * @param collaborationId the id of the collaboration zone
      * @param collaborationManager the {@link CollaborationManager} object
      */
-    private static void initInterSchedulersForDc(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
+    private static void initInterSchedulersForDcs(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
         for (int j = 0; j < datacenters.size(); j++) {
             JsonObject datacenterJson = datacenters.getJsonObject(j);
             JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
             if (interSchedulerJson == null) {
                 throw new IllegalArgumentException("interScheduler should not be null");
             }
-
-            InterScheduler interScheduler = initInterScheduler(interSchedulerJson, collaborationId, collaborationManager);
-
             int datacenterId = datacenterJson.getInt("id");
             Datacenter datacenter = collaborationManager.getDatacenterById(datacenterId);
-            interScheduler.setDatacenter(datacenter);
-            datacenter.setInterScheduler(interScheduler);
+
+            JsonObject loadBalanceJson = datacenterJson.getJsonObject("interLoadBalancer");
+            LoadBalancer<InstanceGroup, InterScheduler> loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
+            datacenter.setInterLoadBalancer(loadBalancer);
+
+            List<InterScheduler> interSchedulers = initInterSchedulers(interSchedulerJson, collaborationId, collaborationManager, datacenter);
+
+            datacenter.setInterSchedulers(interSchedulers);
         }
     }
 

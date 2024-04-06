@@ -2,6 +2,67 @@
   "collaborations": [
     {
       "id": 1,
+      "interLoadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
+        "type": "leastRequested",
+        "num": 5,
+        "target": "dc",
+        "isSupportForward": true,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 5,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 6,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 7,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 8,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 9,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 10,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          }
+        ]
+      },
       "datacenters": [
         {
           "id": 1,
@@ -11,6 +72,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -81,6 +143,16 @@
               "length": 40000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -93,6 +165,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -163,6 +236,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -175,6 +258,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -246,6 +330,15 @@
             }
           ],
           "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -258,6 +351,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -328,6 +422,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -340,6 +444,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -410,6 +515,16 @@
               "length": 10000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -422,6 +537,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -492,6 +608,16 @@
               "length": 40000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -504,6 +630,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -574,6 +701,16 @@
               "length": 10000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -586,6 +723,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -656,6 +794,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -668,6 +816,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -738,6 +887,16 @@
               "length": 10000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -750,6 +909,7 @@
           },
           "interScheduler": {
             "type": "leastRequested",
+            "num": 5,
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -820,6 +980,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }

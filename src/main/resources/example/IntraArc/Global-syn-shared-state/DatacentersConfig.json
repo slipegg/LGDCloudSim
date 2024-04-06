@@ -80,7 +80,7 @@
       "type": "randomScore"
     }
   ],
-  "loadBalancer": {
+  "intraLoadBalancer": {
     "type": "batch"
   },
   "resourceAllocateSelector": {

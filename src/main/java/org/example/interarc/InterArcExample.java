@@ -48,13 +48,16 @@ import org.lgdcloudsim.util.Log;
  * @since LGDCloudSim 1.0
  */
 public class InterArcExample {
-    //    private static final String interArcType = "CentralizedOneStage";
-//    private static final String interArcType = "CentralizedOneStage-MultiInterScheduler";
-    private static final String interArcType = "CentralizedTwoStage";
-    //    private static final String interArcType = "CentralizedTwoStage-MultiInterScheduler";
+    private static final String interArcType = "CentralizedOneStage";
+    //    private static final String interArcType = "CentralizedOneStage-MultiInterSchedulers";
+//    private static final String interArcType = "CentralizedTwoStage";
+//    private static final String interArcType = "CentralizedTwoStage-MultiInterSchedulers";
 //    private static final String interArcType = "DistributedTwoStage";
+//    private static final String interArcType = "DistributedTwoStage-MultiInterSchedulers";
 //    private static final String interArcType = "HybridTwoStage";
+//    private static final String interArcType = "HybridTwoStage-MultiInterSchedulers";
 //    private static final String interArcType = "DistributedOnceForward";
+//    private static final String interArcType = "DistributedOnceForward-MultiInterSchedulers";
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/InterArc/" + interArcType + "/DatacentersConfig.json";
     private static final String USER_REQUEST_FILE = "./src/main/resources/example/InterArc/generateRequestParameter.csv";
     private static final String DATACENTER_BW_FILE = "./src/main/resources/example/InterArc/DatacenterBwConfig.csv";

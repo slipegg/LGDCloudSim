@@ -177,4 +177,19 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
      * @return the number of traversal times.
      */
     int getTraversalTime();
+
+    /**
+     * Get the target type of the inter-scheduler.
+     * See {@link org.lgdcloudsim.interscheduler.InterSchedulerSimple},
+     *
+     * @return the target id of the inter-scheduler.
+     */
+    int getTarget();
+
+    /**
+     * Get whether the inter-scheduler's scheduling results support forward.
+     *
+     * @return whether the inter-scheduler's scheduling results support forward.
+     */
+    boolean isSupportForward();
 }

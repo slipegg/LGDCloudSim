@@ -286,7 +286,7 @@ public class CloudInformationService extends CloudSimEntity {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             InterScheduler interScheduler = interSchedulerResult.getInterScheduler();
 
-            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET && !interSchedulerResult.getIsSupportForward()) {
+            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET && !interSchedulerResult.isSupportForward()) {
                 allocateBwForInterSchedulerResult(interSchedulerResult);
             }
 
@@ -359,7 +359,7 @@ public class CloudInformationService extends CloudSimEntity {
      */
     private int getEvtTagByInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
         if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET) {
-            if (interSchedulerResult.getIsSupportForward()) {
+            if (interSchedulerResult.isSupportForward()) {
                 return CloudSimTag.USER_REQUEST_SEND;
             } else {
                 return CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD;

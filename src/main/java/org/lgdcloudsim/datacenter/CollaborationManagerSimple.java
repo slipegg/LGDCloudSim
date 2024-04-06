@@ -282,7 +282,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
     }
 
     @Override
-    public CollaborationManager addLoadBalancer(int collaborationId, LoadBalancer<InstanceGroup, InterScheduler> loadBalancer) {
+    public CollaborationManager addInterLoadBalancer(int collaborationId, LoadBalancer<InstanceGroup, InterScheduler> loadBalancer) {
         this.loadBalancerMap.put(collaborationId, loadBalancer);
         return this;
     }
