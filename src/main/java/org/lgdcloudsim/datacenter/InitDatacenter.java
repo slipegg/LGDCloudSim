@@ -34,8 +34,8 @@ import org.slf4j.Logger;
  * },
  * "centerSchedulers": // The center inter-scheduler of the cloud administrator in the collaboration zone. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
  * {
- * "type": "centralized", // The type of the center inter-scheduler. Inter-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
- * "num": 2, // The number of center inter-schedulers
+ * "type": "simple", // The type of the center inter-scheduler. Inter-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
+ * // If you want to set multiple inter-schedulers, you can set the type to an array of strings, such as ["simple", "simple"].
  * "target": "dc", // The target of the center inter-scheduler.
  * // The value can be dc, host or mixed. If the value is dc, the center inter-scheduler only needs to distribute the instanceGroups to the datacenters.
  * // If the value is host, the center inter-scheduler needs to schedule all instances in instanceGroups to the hosts in the datacenter.
@@ -249,17 +249,22 @@ public class InitDatacenter {
      * @return a list of {@link InterScheduler} objects
      */
     private static List<InterScheduler> initInterSchedulers(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager, Datacenter datacenter) {
-        int num = 1;
-        if (interSchedulerJson.containsKey("num")) {
-            num = interSchedulerJson.getInt("num");
-            if (num <= 0) {
-                throw new IllegalArgumentException("num of interScheduler should be greater than 0");
-            }
-        }
-
         List<InterScheduler> interSchedulers = new ArrayList<>();
-        for (int k = 0; k < num; k++) {
-            InterScheduler interScheduler = initInterScheduler(interSchedulerJson, collaborationId, collaborationManager);
+        JsonObject.ValueType valueType = interSchedulerJson.get("type").getValueType();
+        String type;
+        if (valueType == JsonObject.ValueType.ARRAY) {
+            JsonArray interSchedulerTypesJson = interSchedulerJson.getJsonArray("type");
+            for (int i = 0; i < interSchedulerTypesJson.size(); i++) {
+                type = interSchedulerTypesJson.getString(i);
+                InterScheduler interScheduler = initInterScheduler(type, interSchedulerJson, collaborationId, collaborationManager);
+                if (datacenter != null) {
+                    interScheduler.setDatacenter(datacenter);
+                }
+                interSchedulers.add(interScheduler);
+            }
+        } else {
+            type = interSchedulerJson.getString("type");
+            InterScheduler interScheduler = initInterScheduler(type, interSchedulerJson, collaborationId, collaborationManager);
             if (datacenter != null) {
                 interScheduler.setDatacenter(datacenter);
             }
@@ -312,20 +317,20 @@ public class InitDatacenter {
     /**
      * Initialize the inter-scheduler.
      *
+     * @param type                the type of the inter-scheduler
      * @param interSchedulerJson   the json object of the inter-scheduler
      * @param collaborationId      the id of the collaboration zone
      * @param collaborationManager the {@link CollaborationManager} object
      * @return the {@link InterScheduler} object
      */
-    private static InterScheduler initInterScheduler(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
-        String interSchedulerType = interSchedulerJson.getString("type");
+    private static InterScheduler initInterScheduler(String type, JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
         int target = getInterScheduleTarget(interSchedulerJson);
         boolean isSupportForward = false;
         if (target == InterSchedulerSimple.DC_TARGET) {
             isSupportForward = interSchedulerJson.getBoolean("isSupportForward");
         }
 
-        InterScheduler interScheduler = factory.getInterScheduler(interSchedulerType, interSchedulerId++, LGDCloudSim, collaborationId, target, isSupportForward);
+        InterScheduler interScheduler = factory.getInterScheduler(type, interSchedulerId++, LGDCloudSim, collaborationId, target, isSupportForward);
 
         Object[] dcStateSynIntervalAndType = getDcStateSynIntervalAndType(interSchedulerJson, collaborationManager);
         interScheduler.setDcStateSynInterval((Map<Datacenter, Double>) dcStateSynIntervalAndType[0]);
