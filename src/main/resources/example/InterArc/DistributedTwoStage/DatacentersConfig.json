@@ -6,6 +6,9 @@
         {
           "id": 1,
           "region": "us-east1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -85,7 +88,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -95,6 +98,9 @@
         {
           "id": 2,
           "region": "northamerica-northeast1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -174,7 +180,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -184,6 +190,9 @@
         {
           "id": 3,
           "region": "us-west1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -263,7 +272,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -273,62 +282,65 @@
         {
           "id": 4,
           "region": "europe-west1",
-            "interScheduler": {
-                "type": "leastRequested",
-                "target": "mixed",
-                "dcStateSynInfo": [
-                {
-                    "dcId": 1,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 2,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 3,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 4,
-                    "synInterval": 0,
-                    "synStateType": "detailed"
-                },
-                {
-                    "dcId": 5,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 6,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 7,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 8,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 9,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 10,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                }
-                ]
-            },
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interScheduler": {
+            "type": "leastRequested",
+            "target": "mixed",
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "detailed"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 9,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 10,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
           "hostNum": 20000,
           "partitions": [
             {
@@ -352,7 +364,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -362,6 +374,9 @@
         {
           "id": 5,
           "region": "europe-west2",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -441,7 +456,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -451,6 +466,9 @@
         {
           "id": 6,
           "region": "asia-east1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -530,7 +548,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -540,6 +558,9 @@
         {
           "id": 7,
           "region": "asia-east1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -619,7 +640,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -629,6 +650,9 @@
         {
           "id": 8,
           "region": "asia-northeast1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -708,7 +732,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -718,6 +742,9 @@
         {
           "id": 9,
           "region": "asia-northeast2",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -797,7 +824,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -807,6 +834,9 @@
         {
           "id": 10,
           "region": "asia-southeast1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
           "interScheduler": {
             "type": "leastRequested",
             "target": "mixed",
@@ -886,7 +916,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {

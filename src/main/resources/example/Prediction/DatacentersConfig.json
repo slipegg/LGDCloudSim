@@ -28,7 +28,7 @@
       "type": "simple"
     }
   ],
-  "loadBalancer": {
+  "intraLoadBalancer": {
     "type": "batch"
   },
   "resourceAllocateSelector": {

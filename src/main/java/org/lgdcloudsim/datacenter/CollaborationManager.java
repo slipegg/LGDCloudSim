@@ -138,7 +138,7 @@ public interface CollaborationManager {
      * @param loadBalancer the load balancer to be added to the collaboration
      * @return the collaboration manager
      */
-    CollaborationManager addLoadBalancer(int collaborationId, LoadBalancer<InstanceGroup, InterScheduler> loadBalancer);
+    CollaborationManager addInterLoadBalancer(int collaborationId, LoadBalancer<InstanceGroup, InterScheduler> loadBalancer);
 
     /**
      * Get the load balancer with the given collaboration id.

@@ -2,7 +2,7 @@
   "collaborations": [
     {
       "id": 1,
-      "loadBalancer": {
+      "interLoadBalancer": {
         "type": "round"
       },
       "centerSchedulers": {

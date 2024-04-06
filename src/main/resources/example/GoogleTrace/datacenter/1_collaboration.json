@@ -2,7 +2,7 @@
   "collaborations": [
     {
       "id": 0,
-      "loadBalancer": {
+      "interLoadBalancer": {
         "type": "round"
       },
       "centerSchedulers": {
@@ -171,7 +171,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -282,7 +282,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -407,7 +407,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -518,7 +518,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -643,7 +643,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -754,7 +754,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -900,7 +900,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -1015,7 +1015,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {

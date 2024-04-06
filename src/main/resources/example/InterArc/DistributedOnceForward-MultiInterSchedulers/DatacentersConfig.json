@@ -2,66 +2,6 @@
   "collaborations": [
     {
       "id": 1,
-      "interLoadBalancer": {
-        "type": "round"
-      },
-      "centerSchedulers": {
-        "type": "leastRequested",
-        "target": "dc",
-        "isSupportForward":true,
-        "dcStateSynInfo": [
-          {
-            "dcId": 1,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 2,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 3,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 4,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 5,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 6,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 7,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 8,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 9,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          },
-          {
-            "dcId": 10,
-            "synInterval": 0,
-            "synStateType": "easySimple"
-          }
-        ]
-      },
       "datacenters": [
         {
           "id": 1,
@@ -71,12 +11,14 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 2,
@@ -163,7 +105,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -173,7 +117,7 @@
               {
                 "dcId": 2,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 3,
@@ -255,7 +199,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -270,7 +216,7 @@
               {
                 "dcId": 3,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 4,
@@ -345,62 +291,64 @@
           "interLoadBalancer": {
             "type": "round"
           },
-            "interScheduler": {
-                "type": "leastRequested",
-                "target": "mixed",
-                "dcStateSynInfo": [
-                {
-                    "dcId": 1,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 2,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 3,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 4,
-                    "synInterval": 0,
-                    "synStateType": "detailed"
-                },
-                {
-                    "dcId": 5,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 6,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 7,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 8,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 9,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 10,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                }
-                ]
-            },
+          "interScheduler": {
+            "type": "leastRequested",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 9,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 10,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
           "hostNum": 20000,
           "partitions": [
             {
@@ -439,7 +387,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -464,7 +414,7 @@
               {
                 "dcId": 5,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 6,
@@ -531,7 +481,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -561,7 +513,7 @@
               {
                 "dcId": 6,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 7,
@@ -623,7 +575,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -658,7 +612,7 @@
               {
                 "dcId": 7,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 8,
@@ -715,7 +669,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -755,7 +711,7 @@
               {
                 "dcId": 8,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 9,
@@ -807,7 +763,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -852,7 +810,7 @@
               {
                 "dcId": 9,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               },
               {
                 "dcId": 10,
@@ -899,7 +857,9 @@
           },
           "interScheduler": {
             "type": "leastRequested",
-            "target": "mixed",
+            "num": 5,
+            "target": "dc",
+            "isSupportForward": false,
             "dcStateSynInfo": [
               {
                 "dcId": 1,
@@ -949,7 +909,7 @@
               {
                 "dcId": 10,
                 "synInterval": 0,
-                "synStateType": "detailed"
+                "synStateType": "easySimple"
               }
             ]
           },

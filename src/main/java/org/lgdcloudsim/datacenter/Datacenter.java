@@ -31,26 +31,30 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Get the collaborationIds to which the datacenter belongs. **/
     Set<Integer> getCollaborationIds();
 
-    /** Set the {@link InterScheduler}. **/
-    Datacenter setInterScheduler(InterScheduler interScheduler);
+    /**
+     * Set the load balancer that is used to distribute the instances to the inter-schedulers.
+     */
+    Datacenter setInterLoadBalancer(LoadBalancer<InstanceGroup, InterScheduler> interLoadBalancer);
 
     /**
-     * Set the {@link IntraScheduler}.
+     * Set the {@link InterScheduler}s.
+     */
+    Datacenter setInterSchedulers(List<InterScheduler> interSchedulers);
+
+    /**
+     * Set the {@link IntraScheduler}s.
      **/
     Datacenter setIntraSchedulers(List<IntraScheduler> intraSchedulers);
 
-    /** Get the {@link InterScheduler}. **/
+    /**
+     * Get the {@link InterScheduler}s.
+     **/
     List<IntraScheduler> getIntraSchedulers();
 
     /**
      * Set the {@link LoadBalancer}.
      **/
     Datacenter setIntraLoadBalancer(LoadBalancer<Instance, IntraScheduler> intraLoadBalancer);
-
-    /**
-     * Get the {@link LoadBalancer}.
-     **/
-    LoadBalancer getIntraLoadBalancer();
 
     /**
      * Set the {@link ConflictHandler}.

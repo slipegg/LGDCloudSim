@@ -2,7 +2,7 @@
   "collaborations": [
     {
       "id": 1,
-      "loadBalancer": {
+      "interLoadBalancer": {
         "type": "round"
       },
       "centerSchedulers": {
@@ -89,7 +89,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -122,7 +122,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -155,7 +155,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -188,7 +188,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -221,7 +221,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -254,7 +254,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -287,7 +287,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -320,7 +320,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -353,7 +353,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -386,7 +386,7 @@
               "type": "leastRequested"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
