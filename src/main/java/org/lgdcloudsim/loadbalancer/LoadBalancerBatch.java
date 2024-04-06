@@ -19,12 +19,6 @@ import java.util.*;
  */
 public class LoadBalancerBatch<R, S> implements LoadBalancer<R, S> {
     /**
-     * the data center that the load balancer belongs to.
-     **/
-    @Getter
-    Datacenter datacenter;
-
-    /**
      * the load balance cost time.
      **/
     @Getter
@@ -64,15 +58,6 @@ public class LoadBalancerBatch<R, S> implements LoadBalancer<R, S> {
             startIndex = endIndex;
         }
 
-        LOGGER.info("{}: {}'s LoadBalancerBatch send {} requests to {} schedulers,On average, each scheduler receives around {} requests",
-                datacenter.getSimulation().clockStr(), datacenter.getName(), requests.size(),
-                schedulers.size(), requests.size() / schedulers.size());
-
         return resultMap;
-    }
-
-    @Override
-    public void setDatacenter(Datacenter datacenter) {
-        this.datacenter = datacenter;
     }
 }

@@ -10,6 +10,7 @@ import org.lgdcloudsim.core.CloudSimTag;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.core.events.SimEvent;
+import org.lgdcloudsim.interscheduler.InterSchedulerSendItem;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
@@ -314,7 +315,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     public Datacenter setIntraLoadBalancer(LoadBalancer intraLoadBalancer) {
         this.intraLoadBalancer = intraLoadBalancer;
-        intraLoadBalancer.setDatacenter(this);
         return this;
     }
 
@@ -712,6 +712,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (intraScheduler.isQueuesEmpty()) {
             isIntraSchedulerBusy.put(intraScheduler, false);
         } else if (!intraScheduler.isQueuesEmpty()) {
+            isIntraSchedulerBusy.put(intraScheduler, true);
             send(this, 0, CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
         }
     }
@@ -801,6 +802,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         List<Instance> instances = instanceQueue.getAllItem();
         if (!instances.isEmpty()) {
             Map<IntraScheduler, List<Instance>> loadBalanceResult = intraLoadBalancer.loadBalance(instances, intraSchedulers);
+            LOGGER.info("{}: {}'s LoadBalancerRound send {} instances to {} schedulers,On average, each scheduler receives around {} instances",
+                    getSimulation().clockStr(), getName(), instances.size(),
+                    loadBalanceResult.keySet().size(), instances.size() / loadBalanceResult.keySet().size());
+
             if (!instanceQueue.isEmpty()) {
                 send(this, intraLoadBalancer.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, null);
             }
@@ -837,14 +842,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     // TODO This part of the logic needs to be checked
-
     /**
      * Processes the scheduling results of the cloud administrator's centralized inter-scheduler scheduling specific to the hosts in the data center.
      * @param evt the event
      */
     private void processScheduleToDcHost(SimEvent evt) {
-        if (evt.getData() instanceof List<?> instanceGroupsTmp) {
-            List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupsTmp;
+        if (evt.getData() instanceof InterSchedulerSendItem interSchedulerSendItem) {
+            List<InstanceGroup> instanceGroups = interSchedulerSendItem.getInstanceGroups();
+            int originalSize = instanceGroups.size();
             instanceGroups.removeIf(instanceGroup -> instanceGroup.getUserRequest().getState() == UserRequest.FAILED);
 
             List<InstanceGroup> failedInstanceGroups = allocateBwForInstanceGroups(instanceGroups);
@@ -864,9 +869,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             SimEntity source = evt.getSource();
             if (!failedInstanceGroups.isEmpty() || !conflictedRes.getOutdatedRequests().isEmpty()) {
-                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, new FailedOutdatedResult<InstanceGroup>(failedInstanceGroups, outDatedUserRequests));
+                InterScheduler interScheduler = interSchedulerSendItem.getInterScheduler();
+                InterSchedulerSendItem sendItem = new InterSchedulerSendItem(interScheduler, new FailedOutdatedResult<InstanceGroup>(failedInstanceGroups, outDatedUserRequests));
+                send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED, sendItem);
+                LOGGER.info("{}: {} received {} scheduled instanceGroups from {},but {} instance group failed to schedule, {} user requests have exceeded the scheduling time limit",
+                        getSimulation().clockStr(), getName(), originalSize, interScheduler.getName(), failedInstanceGroups.size(), outDatedUserRequests.size());
             } else {
                 send(source, 0, CloudSimTag.SCHEDULE_TO_DC_HOST_OK, null);
+                LOGGER.info("{}: {} received {} scheduled instanceGroups from {},all instanceGroups have been successfully scheduled",
+                        getSimulation().clockStr(), getName(), originalSize, interSchedulerSendItem.getInterScheduler().getName());
             }
 
             if (source == this) {

@@ -7,57 +7,59 @@
       },
       "centerSchedulers": {
         "type": "leastRequested",
-        "target": "host",
+        "num": 5,
+        "target": "dc",
+        "isSupportForward": false,
         "dcStateSynInfo": [
           {
             "dcId": 1,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 2,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 3,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 4,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 5,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 6,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 7,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 8,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 9,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           },
           {
             "dcId": 10,
             "synInterval": 0,
-            "synStateType": "detailed"
+            "synStateType": "easySimple"
           }
         ]
       },
@@ -81,6 +83,16 @@
               "length": 40000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -104,6 +116,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -127,6 +149,16 @@
               "length": 10000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -150,6 +182,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -173,6 +215,16 @@
               "length": 10000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -196,6 +248,16 @@
               "length": 40000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -219,6 +281,16 @@
               "length": 10000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -242,6 +314,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -265,6 +347,16 @@
               "length": 10000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -288,6 +380,16 @@
               "length": 20000
             }
           ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "loadBalancer": {
+            "type": "batch"
+          },
           "resourceAllocateSelector": {
             "type": "simple"
           }

@@ -2,7 +2,10 @@
   "collaborations": [
     {
       "id": 1,
-      "centerScheduler": {
+      "loadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
         "type": "simple",
         "target": "dc",
         "isSupportForward": false,
@@ -98,7 +101,10 @@
     },
     {
       "id": 2,
-      "centerScheduler": {
+      "loadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
         "type": "simple",
         "target": "dc",
         "isSupportForward": false,

@@ -249,7 +249,7 @@ public class InterSchedulerSimple implements InterScheduler {
      */
     protected InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, target, isSupportForward, allDatacenters);
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
 
         for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleResEntry : instanceGroupAvailableDatacenters.entrySet()) {
@@ -360,7 +360,7 @@ public class InterSchedulerSimple implements InterScheduler {
      */
     protected InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, target, isSupportForward, allDatacenters);
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
 
         for (Map.Entry<InstanceGroup, List<Datacenter>> scheduleRes : instanceGroupAvailableDatacenters.entrySet()) {
@@ -383,7 +383,7 @@ public class InterSchedulerSimple implements InterScheduler {
      */
     protected InterSchedulerResult scheduleToHost(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, target, allDatacenters);
 
         Map<InstanceGroup, List<Datacenter>> instanceGroupAvailableDatacenters = filterSuitableDatacenterByNetwork(instanceGroups);
 

@@ -48,8 +48,10 @@ import org.lgdcloudsim.util.Log;
  * @since LGDCloudSim 1.0
  */
 public class InterArcExample {
-    private static final String interArcType = "CentralizedOneStage";
-    //        private static final String interArcType = "CentralizedTwoStage";
+    //    private static final String interArcType = "CentralizedOneStage";
+//    private static final String interArcType = "CentralizedOneStage-MultiInterScheduler";
+    private static final String interArcType = "CentralizedTwoStage";
+    //    private static final String interArcType = "CentralizedTwoStage-MultiInterScheduler";
 //    private static final String interArcType = "DistributedTwoStage";
 //    private static final String interArcType = "HybridTwoStage";
 //    private static final String interArcType = "DistributedOnceForward";

@@ -19,12 +19,7 @@ import java.util.Map;
  * @author Anonymous
  * @since LGDCloudSim 1.0
  */
-public interface LoadBalancer<R, S> extends DatacenterEntity {
-    /**
-     * The logger of the class.
-     */
-    Logger LOGGER = LoggerFactory.getLogger(LoadBalancer.class.getSimpleName());
-
+public interface LoadBalancer<R, S> {
     /**
      * Send instances to the datacenter.
      *

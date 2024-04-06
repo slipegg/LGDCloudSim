@@ -12,6 +12,9 @@ import lombok.NonNull;
 import org.lgdcloudsim.core.events.SimEvent;
 import org.lgdcloudsim.datacenter.CollaborationManager;
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.interscheduler.InterSchedulerSendItem;
+import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.queue.InstanceGroupQueue;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
@@ -69,19 +72,21 @@ public class CloudInformationService extends CloudSimEntity {
             sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
         }
 
-        for (InterScheduler interScheduler : collaborationManager.getCollaborationCenterSchedulerMap().values()) {
-            Map<Double, List<Datacenter>> initSynStateBetweenDcTargets = divideDcOnSynGap(interScheduler);
-
-            if (!initSynStateBetweenDcTargets.isEmpty()) {
-                for (Map.Entry<Double, List<Datacenter>> entry : initSynStateBetweenDcTargets.entrySet()) {
-                    sendWithoutNetwork(this, 0, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
+        for (int collaborationId : collaborationManager.getCollaborationIds()) {
+            List<InterScheduler> centerInterSchedulers = collaborationManager.getCenterSchedulers(collaborationId);
+            if (centerInterSchedulers != null && !centerInterSchedulers.isEmpty()) {
+                Map<Double, List<Datacenter>> initSynStateBetweenDcTargets = divideDcOnSynGap(centerInterSchedulers.get(0));
+                if (!initSynStateBetweenDcTargets.isEmpty()) {
+                    for (Map.Entry<Double, List<Datacenter>> entry : initSynStateBetweenDcTargets.entrySet()) {
+                        sendWithoutNetwork(this, 0, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
+                    }
                 }
             }
         }
     }
 
     /**
-     * Calculates the synchronization gap between data centers of the inter-scheduler.
+     * Put data centers with the same synchronization time interval together.
      *
      * @param interScheduler the inter-scheduler to calculate the synchronization gap
      * @return a map where the key is the synchronization gap and the value is a list of data centers that have the same synchronization gap
@@ -117,6 +122,7 @@ public class CloudInformationService extends CloudSimEntity {
             case CloudSimTag.USER_REQUEST_FAIL -> processUserRequestFail(evt);
             case CloudSimTag.CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
             case CloudSimTag.USER_REQUEST_SEND -> processUserRequestSend(evt);
+            case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
             case CloudSimTag.INTER_SCHEDULE_BEGIN -> processInterScheduleBegin(evt);
             case CloudSimTag.INTER_SCHEDULE_END -> processInterScheduleEnd(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
@@ -133,10 +139,13 @@ public class CloudInformationService extends CloudSimEntity {
             if (!synTargets.isEmpty() && synTargets.get(0) instanceof Datacenter) {
                 List<Datacenter> datacenters = (List<Datacenter>) synTargets;
                 int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(datacenters.get(0).getId());
-                InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
-                interScheduler.synBetweenDcState(datacenters);
+                for (InterScheduler interScheduler : getSimulation().getCollaborationManager().getCenterSchedulers(collaborationId)) {
+                    interScheduler.synBetweenDcState(datacenters);
+                }
+
                 //TODO Need to consider whether the synchronization time will change midway. If it does, we need to check it. If it never changes, don't change it.
-                sendWithoutNetwork(this, interScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
+                InterScheduler centerInterScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulersMap().get(collaborationId).get(0);
+                sendWithoutNetwork(this, centerInterScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
             }
         }
     }
@@ -156,28 +165,68 @@ public class CloudInformationService extends CloudSimEntity {
                 List<UserRequest> userRequests = (List<UserRequest>) userRequestsTmp;
                 int dcId = userRequests.get(0).getBelongDatacenterId();
                 collaborationId = collaborationManager.getOnlyCollaborationId(dcId);
-                InterScheduler interScheduler = collaborationManager.getCollaborationCenterSchedulerMap().get(collaborationId);
+                InstanceGroupQueue instanceGroupQueue = collaborationManager.getInstanceGroupQueue(collaborationId);
+                instanceGroupQueue.add(userRequests);
 
-                interScheduler.addUserRequests(userRequests);
-
-                LOGGER.info("{}: {} received {} user request.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), interScheduler.getNewQueueSize());
+                LOGGER.info("{}: {} received {} user request.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequests.size(), instanceGroupQueue.size());
             } else if (userRequestsTmp.get(0) instanceof InstanceGroup) {
                 List<InstanceGroup> instanceGroups = (List<InstanceGroup>) userRequestsTmp;
                 int dcId = instanceGroups.get(0).getUserRequest().getBelongDatacenterId();
                 collaborationId = collaborationManager.getOnlyCollaborationId(dcId);
-                InterScheduler interScheduler = collaborationManager.getCollaborationCenterSchedulerMap().get(collaborationId);
+                InstanceGroupQueue instanceGroupQueue = collaborationManager.getInstanceGroupQueue(collaborationId);
+                instanceGroupQueue.add(instanceGroups);
 
-                interScheduler.addInstanceGroups(instanceGroups, false);
-
-                LOGGER.info("{}: {} received {} instance group.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), interScheduler.getNewQueueSize());
+                LOGGER.info("{}: {} received {} instance group.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), instanceGroupQueue.size());
             } else {
                 throw new RuntimeException(String.format("%s: %s received an error data type,it is not List<UserRequest> or List<InstanceGroup>", getSimulation().clockStr(), getName()));
             }
 
-            if (!collaborationManager.getCenterSchedulerBusyMap().containsKey(collaborationId) ||
-                    (!collaborationManager.getCenterSchedulerBusyMap().get(collaborationId) && !collaborationManager.getCollaborationCenterSchedulerMap().get(collaborationId).isQueuesEmpty())) {
-                collaborationManager.getCenterSchedulerBusyMap().put(collaborationId, true);
-                send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, collaborationId);
+//            if (!collaborationManager.getCenterSchedulersBusyMap().containsKey(collaborationId) ||
+//                    (!collaborationManager.getCenterSchedulersBusyMap().get(collaborationId) && !collaborationManager.getCollaborationCenterSchedulersMap().get(collaborationId).isQueuesEmpty())) {
+//                collaborationManager.getCenterSchedulersBusyMap().put(collaborationId, true);
+//                send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, collaborationId);
+//            }
+            sendNow(this, CloudSimTag.LOAD_BALANCE_SEND, collaborationId);
+        }
+    }
+
+//    @Getter
+//    private class CollaborationAndInterSchedulerId {
+//        private final int collaborationId;
+//        private final int interSchedulerId;
+//
+//        public CollaborationAndInterSchedulerId(int collaborationId, int interSchedulerId){
+//            this.collaborationId = collaborationId;
+//            this.interSchedulerId = interSchedulerId;
+//        }
+//    }
+
+    private void processLoadBalanceSend(SimEvent evt) {
+        if (evt.getData() instanceof Integer collaborationId) {
+            CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
+            LoadBalancer<InstanceGroup, InterScheduler> loadBalancer = collaborationManager.getLoadBalancer(collaborationId);
+
+            InstanceGroupQueue instanceGroupQueue = collaborationManager.getInstanceGroupQueue(collaborationId);
+            List<InstanceGroup> instanceGroups = instanceGroupQueue.getAllItem();
+            Map<InterScheduler, List<InstanceGroup>> loadBalanceResult = loadBalancer.loadBalance(instanceGroups, collaborationManager.getCenterSchedulers(collaborationId));
+            LOGGER.info("{}: collaboration{}'s loadBalancer send {} instanceGroups to {} centerSchedulers. On average, each centerScheduler receives around {} instanceGroups.",
+                    getSimulation().clockStr(), collaborationId, instanceGroups.size(), loadBalanceResult.size(), instanceGroups.size() / loadBalanceResult.size());
+
+            if (!instanceGroupQueue.isEmpty()) {
+                send(this, loadBalancer.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, collaborationId);
+            }
+
+            Map<Integer, Boolean> centerSchedulersBusyMap = collaborationManager.getCenterSchedulersBusyMap(collaborationId);
+            for (Map.Entry<InterScheduler, List<InstanceGroup>> entry : loadBalanceResult.entrySet()) {
+                InterScheduler interScheduler = entry.getKey();
+                List<InstanceGroup> instanceGroupsTmp = entry.getValue();
+
+                interScheduler.addInstanceGroups(instanceGroupsTmp, false);
+                if (!centerSchedulersBusyMap.containsKey(interScheduler.getId()) || (!centerSchedulersBusyMap.get(interScheduler.getId())
+                        && !interScheduler.isQueuesEmpty())) {
+                    centerSchedulersBusyMap.put(interScheduler.getId(), true);
+                    send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, interScheduler);
+                }
             }
         }
     }
@@ -189,24 +238,24 @@ public class CloudInformationService extends CloudSimEntity {
      */
     private void processScheduleToDcHostResponse(SimEvent evt) {
         Datacenter sourceDc = (Datacenter) evt.getSource();
-        int collaborationId = getSimulation().getCollaborationManager().getOnlyCollaborationId(sourceDc.getId());
 
         if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
-            FailedOutdatedResult<InstanceGroup> failedOutdatedResult = (FailedOutdatedResult<InstanceGroup>) evt.getData();
-            handleFailedInterScheduling(collaborationId, failedOutdatedResult.getFailRes(), failedOutdatedResult.getOutdatedRequests());
+            InterSchedulerSendItem sendItem = (InterSchedulerSendItem) evt.getData();
+            FailedOutdatedResult<InstanceGroup> failedOutdatedResult = sendItem.getFailedOutdatedResult();
+            handleFailedInterScheduling(sendItem.getInterScheduler(), failedOutdatedResult.getFailRes(), failedOutdatedResult.getOutdatedRequests());
         }
     }
 
     /**
-     * Starts the inter-scheduling of the center inter-scheduler in the collaboration zone with the given id.
-     * @param collaborationId the collaboration id
+     * Starts the inter-scheduling of the center inter-scheduler in the collaboration zone.
+     * @param interScheduler the inter-scheduler
      */
-    private void startCenterInterScheduling(int collaborationId) {
-        InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
+    private void startCenterInterScheduling(InterScheduler interScheduler) {
         if (interScheduler.isQueuesEmpty()) {
-            getSimulation().getCollaborationManager().getCenterSchedulerBusyMap().put(collaborationId, false);
+            getSimulation().getCollaborationManager().getCenterSchedulersBusyMap(interScheduler.getCollaborationId()).put(interScheduler.getId(), false);
         } else {
-            send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, collaborationId);
+            getSimulation().getCollaborationManager().getCenterSchedulersBusyMap(interScheduler.getCollaborationId()).put(interScheduler.getId(), true);
+            send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, interScheduler);
         }
     }
 
@@ -217,15 +266,13 @@ public class CloudInformationService extends CloudSimEntity {
      * @param evt the event
      */
     private void processInterScheduleBegin(SimEvent evt) {
-        if (evt.getData() instanceof Integer collaborationId) {
-            CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
-            InterScheduler interScheduler = collaborationManager.getCollaborationCenterSchedulerMap().get(collaborationId);
-
+        if (evt.getData() instanceof InterScheduler interScheduler) {
             InterSchedulerResult interSchedulerResult = interScheduler.schedule();
 
             double scheduleTime = interScheduler.getScheduleTime();
             send(this, scheduleTime, CloudSimTag.INTER_SCHEDULE_END, interSchedulerResult);
-            LOGGER.info("{}: collaboration{}'s centerScheduler starts scheduling.It will cost {}ms", getSimulation().clockStr(), collaborationId, scheduleTime);
+            LOGGER.info("{}: {} starts scheduling.It will cost {}ms",
+                    getSimulation().clockStr(), interScheduler.getName(), scheduleTime);
         }
     }
 
@@ -237,7 +284,7 @@ public class CloudInformationService extends CloudSimEntity {
      */
     private void processInterScheduleEnd(SimEvent evt) {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
-            int collaborationId = interSchedulerResult.getCollaborationId();
+            InterScheduler interScheduler = interSchedulerResult.getInterScheduler();
 
             if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET && !interSchedulerResult.getIsSupportForward()) {
                 allocateBwForInterSchedulerResult(interSchedulerResult);
@@ -245,11 +292,12 @@ public class CloudInformationService extends CloudSimEntity {
 
             sendInterScheduleResult(interSchedulerResult);
 
-            handleFailedInterScheduling(interSchedulerResult.getCollaborationId(), interSchedulerResult.getFailedInstanceGroups(), interSchedulerResult.getOutDatedUserRequests());
+            handleFailedInterScheduling(interSchedulerResult.getInterScheduler(), interSchedulerResult.getFailedInstanceGroups(), interSchedulerResult.getOutDatedUserRequests());
 
-            startCenterInterScheduling(collaborationId);
+            startCenterInterScheduling(interScheduler);
 
-            LOGGER.info("{}: collaboration{}'s centerScheduler ends finding available Datacenters for {} instanceGroups.", getSimulation().clockStr(), collaborationId, interSchedulerResult.getInstanceGroupNum());
+            LOGGER.info("{}: {} ends finding available Datacenters for {} instanceGroups.",
+                    getSimulation().clockStr(), interScheduler.getName(), interSchedulerResult.getInstanceGroupNum());
         }
     }
 
@@ -288,7 +336,12 @@ public class CloudInformationService extends CloudSimEntity {
             List<InstanceGroup> instanceGroups = entry.getValue();
 
             if (!instanceGroups.isEmpty()) {
-                send(datacenter, 0, evtTag, instanceGroups);
+                if (evtTag == CloudSimTag.SCHEDULE_TO_DC_HOST) { //Because scheduling may fail, it needs to be sent back to the inter-scheduler for rescheduling.
+                    InterSchedulerSendItem sendItem = new InterSchedulerSendItem(interSchedulerResult.getInterScheduler(), instanceGroups);
+                    send(datacenter, 0, evtTag, sendItem);
+                } else {
+                    send(datacenter, 0, evtTag, instanceGroups);
+                }
             }
         }
     }
@@ -322,20 +375,20 @@ public class CloudInformationService extends CloudSimEntity {
     /**
      * Handles the failed instance groups after the inter-scheduling.
      * Note that the user request that exceeds the time limit are not included.
-     * @param collaborationId the collaboration id
+     * @param interScheduler the inter-scheduler
      * @param failedInstanceGroups the failed instance groups
      */
-    private void handleFailedInterScheduling(int collaborationId, List<InstanceGroup> failedInstanceGroups) {
-        handleFailedInterScheduling(collaborationId, failedInstanceGroups, new HashSet<>());
+    private void handleFailedInterScheduling(InterScheduler interScheduler, List<InstanceGroup> failedInstanceGroups) {
+        handleFailedInterScheduling(interScheduler, failedInstanceGroups, new HashSet<>());
     }
 
     /**
      * Handles the failed instance groups after the inter-scheduling.
-     * @param collaborationId the collaboration id
+     * @param interScheduler the inter-scheduler
      * @param failedInstanceGroups the failed instance groups
      * @param outDatedUserRequests the user requests that exceed the time limit
      */
-    private void handleFailedInterScheduling(int collaborationId, List<InstanceGroup> failedInstanceGroups, Set<UserRequest> outDatedUserRequests) {
+    private void handleFailedInterScheduling(InterScheduler interScheduler, List<InstanceGroup> failedInstanceGroups, Set<UserRequest> outDatedUserRequests) {
         List<InstanceGroup> retryInstanceGroups = new ArrayList<>();
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
         for (UserRequest userRequest : outDatedUserRequests) {
@@ -356,8 +409,8 @@ public class CloudInformationService extends CloudSimEntity {
         }
 
         if (!retryInstanceGroups.isEmpty()) {
-            InterScheduler interScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulerMap().get(collaborationId);
             interScheduler.addInstanceGroups(retryInstanceGroups, true);
+            startCenterInterScheduling(interScheduler);
         }
 
         if (!failedUserRequests.isEmpty()) {
