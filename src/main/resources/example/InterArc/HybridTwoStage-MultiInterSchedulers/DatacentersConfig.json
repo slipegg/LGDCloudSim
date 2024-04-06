@@ -70,7 +70,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -163,7 +163,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -256,7 +256,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -349,7 +349,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -442,7 +442,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -535,7 +535,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -628,7 +628,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -721,7 +721,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -814,7 +814,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",
@@ -907,7 +907,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "num": 5,
             "target": "mixed",

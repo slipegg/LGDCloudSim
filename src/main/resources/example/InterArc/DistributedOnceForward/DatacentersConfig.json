@@ -9,7 +9,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -102,7 +102,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -195,7 +195,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -288,7 +288,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -381,7 +381,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -474,7 +474,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -567,7 +567,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -660,7 +660,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -753,7 +753,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
@@ -846,7 +846,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "dc",
             "isSupportForward": false,
