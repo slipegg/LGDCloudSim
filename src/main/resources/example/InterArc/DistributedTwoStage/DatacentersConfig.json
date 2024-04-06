@@ -9,7 +9,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -101,7 +101,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -193,7 +193,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -285,7 +285,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -377,7 +377,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -469,7 +469,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -561,7 +561,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -653,7 +653,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -745,7 +745,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -837,7 +837,7 @@
           "interLoadBalancer": {
             "type": "round"
           },
-          "interScheduler": {
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [

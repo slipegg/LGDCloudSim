@@ -284,7 +284,7 @@ public class InitDatacenter {
     private static void initInterSchedulersForDcs(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
         for (int j = 0; j < datacenters.size(); j++) {
             JsonObject datacenterJson = datacenters.getJsonObject(j);
-            JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
+            JsonObject interSchedulerJson = datacenterJson.getJsonObject("interSchedulers");
             if (interSchedulerJson == null) {
                 throw new IllegalArgumentException("interScheduler should not be null");
             }
