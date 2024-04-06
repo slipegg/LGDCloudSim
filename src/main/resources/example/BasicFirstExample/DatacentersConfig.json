@@ -6,8 +6,10 @@
         "type": "round"
       },
       "centerSchedulers": {
-        "type": "simple",
-        "num": 2,
+        "type": [
+          "simple",
+          "simple"
+        ],
         "target": "host",
         "dcStateSynInfo": [
           {

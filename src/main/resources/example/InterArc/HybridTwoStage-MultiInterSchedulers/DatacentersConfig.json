@@ -6,8 +6,11 @@
         "type": "round"
       },
       "centerSchedulers": {
-        "type": "leastRequested",
-        "num": 5,
+        "type": [
+          "leastRequested",
+          "leastRequested",
+          "simple"
+        ],
         "target": "dc",
         "isSupportForward": true,
         "dcStateSynInfo": [
@@ -71,8 +74,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -164,8 +170,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -257,8 +266,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -350,8 +362,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -443,8 +458,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -536,8 +554,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -629,8 +650,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -722,8 +746,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -815,8 +842,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -908,8 +938,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
-            "num": 5,
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
