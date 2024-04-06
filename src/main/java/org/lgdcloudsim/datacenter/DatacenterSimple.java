@@ -409,7 +409,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
-
     /**
      * Synchronize the status of other data center.
      * And send a {@link CloudSimTag#SYN_STATE_BETWEEN_DC} event to itself after the specified synchronization interval.
@@ -461,6 +460,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
     }
 
+    /**
+     * Handles events after the instance ends running.
+     *
+     * @param instance the instance that has finished running
+     */
     private void finishInstance(Instance instance) {
         int hostId = instance.getHost();
         if (getSimulation().clock() - instance.getStartTime() >= instance.getLifecycle() - 0.01 && instance.getLifecycle() != -1) {

@@ -152,7 +152,8 @@ public class CloudInformationService extends CloudSimEntity {
 
     /**
      * Processes the user request to be sent.
-     * It will send all received user requests to the inter-scheduler.
+     * It will send all received user requests to the queue of the collaboration zone.
+     * And it will send the event to begin the load balance.
      * @param evt the event
      */
     private void processUserRequestSend(SimEvent evt) {
@@ -181,26 +182,17 @@ public class CloudInformationService extends CloudSimEntity {
                 throw new RuntimeException(String.format("%s: %s received an error data type,it is not List<UserRequest> or List<InstanceGroup>", getSimulation().clockStr(), getName()));
             }
 
-//            if (!collaborationManager.getCenterSchedulersBusyMap().containsKey(collaborationId) ||
-//                    (!collaborationManager.getCenterSchedulersBusyMap().get(collaborationId) && !collaborationManager.getCollaborationCenterSchedulersMap().get(collaborationId).isQueuesEmpty())) {
-//                collaborationManager.getCenterSchedulersBusyMap().put(collaborationId, true);
-//                send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, collaborationId);
-//            }
             sendNow(this, CloudSimTag.LOAD_BALANCE_SEND, collaborationId);
         }
     }
 
-//    @Getter
-//    private class CollaborationAndInterSchedulerId {
-//        private final int collaborationId;
-//        private final int interSchedulerId;
-//
-//        public CollaborationAndInterSchedulerId(int collaborationId, int interSchedulerId){
-//            this.collaborationId = collaborationId;
-//            this.interSchedulerId = interSchedulerId;
-//        }
-//    }
-
+    /**
+     * The load balancer in the corresponding collaboration zone in the event distributes all instance groups in the queue
+     * to each inter-scheduler in the collaboration zone.
+     * When the inter-scheduler is not busy, it will try to wake up the inter-scheduler for the next step of inter-scheduling.
+     *
+     * @param evt the event
+     */
     private void processLoadBalanceSend(SimEvent evt) {
         if (evt.getData() instanceof Integer collaborationId) {
             CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
@@ -458,6 +450,12 @@ public class CloudInformationService extends CloudSimEntity {
         return true;
     }
 
+    /**
+     * Tries to allocate the bandwidth for the instance group.
+     * @param instanceGroup the instance group
+     * @param receivedDatacenter the data center that the instance group is allocated to
+     * @return true if the bandwidth is allocated successfully; false otherwise
+     */
     private boolean tryAllocateBw(InstanceGroup instanceGroup, Datacenter receivedDatacenter) {
         Map<Datacenter, Map<Datacenter, Double>> allocatedBwTmp = new HashMap<>();
 

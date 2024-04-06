@@ -84,6 +84,9 @@ public class CollaborationManagerSimple implements CollaborationManager {
         simulation.setCollaborationManager(this);
     }
 
+    /**
+     * Construct a new CollaborationManagerSimple with the given datacenter and collaboration id.
+     */
     @Override
     public CollaborationManager addDatacenter(Datacenter datacenter, int collaborationId) {
         datacenterIdMap.put(datacenter.getId(), datacenter);
