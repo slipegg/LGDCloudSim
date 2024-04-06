@@ -15,11 +15,6 @@ import java.util.*;
  * @since LGDCloudSim 1.0
  */
 public class LoadBalancerRound<R, S> implements LoadBalancer<R, S> {
-    /**
-     * the data center that the load balancer belongs to.
-     **/
-    @Getter
-    Datacenter datacenter;
 
     /**
      * the load balance cost time.
@@ -63,15 +58,6 @@ public class LoadBalancerRound<R, S> implements LoadBalancer<R, S> {
         }
         lastDistributedId = (lastDistributedId + 1) % schedulers.size();
 
-        LOGGER.info("{}: {}'s LoadBalancerRound send {} requests to {} schedulers,On average, each scheduler receives around {} requests",
-                datacenter.getSimulation().clockStr(), datacenter.getName(), requests.size(),
-                schedulers.size(), requests.size() / schedulers.size());
-
         return resultMap;
-    }
-
-    @Override
-    public void setDatacenter(Datacenter datacenter) {
-        this.datacenter = datacenter;
     }
 }

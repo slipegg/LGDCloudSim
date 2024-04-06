@@ -73,7 +73,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
     @Override
     protected InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
         final List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, target, isSupportForward, allDatacenters);
         instanceGroups.sort(new CustomComparator().reversed());
 
         List<InstanceGroup> sameInstanceGroups = new ArrayList<>();
@@ -297,7 +297,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
     protected InterSchedulerResult scheduleToHost(List<InstanceGroup> instanceGroups) {
         scoreHostHistoryMap.clear();
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, target, allDatacenters);
         int allDatacentersHostLength = allDatacenters.stream()
                 .mapToInt(dc -> ((DetailedDcStateSimple) (interScheduleSimpleStateMap.get(dc))).getHostNum())
                 .sum();
@@ -477,7 +477,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
     @Override
     protected InterSchedulerResult scheduleMixed(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, target, isSupportForward, allDatacenters);
 
         instanceGroups.sort(new CustomComparator().reversed());
 

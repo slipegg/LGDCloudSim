@@ -8,6 +8,7 @@ import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerSimple;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.*;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import org.slf4j.Logger;
  *    [
  *      {
  *        "id": 1, // The id of the collaboration zone
- *        "centerScheduler": // The center inter-scheduler of the cloud administrator in the collaboration zone. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
+ *        "centerSchedulers": // The center inter-scheduler of the cloud administrator in the collaboration zone. If there is no center inter-scheduler in the cloud administrator, this parameter can be omitted.
  *        {
  *          "type": "centralized", // The type of the center inter-scheduler. Inter-schedulers with different scheduling algorithms need to be registered in the {@link Factory}.
  *          "target": "dc", // The target of the center inter-scheduler.
@@ -164,19 +165,29 @@ public class InitDatacenter {
      */
     private static void initMultiDatacenters(JsonObject jsonObject){
         CollaborationManager collaborationManager = new CollaborationManagerSimple(LGDCloudSim);
+
+        initDatacentersWithoutInterSchedulers(jsonObject, collaborationManager);
+        addInterSchedulers(jsonObject, collaborationManager);
+    }
+
+    private static void initDatacentersWithoutInterSchedulers(JsonObject jsonObject, CollaborationManager collaborationManager) {
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
             int collaborationId = collaborationJson.getInt("id");
 
-            boolean isCenterSchedule = collaborationJson.containsKey("centerScheduler");
+            boolean isCenterSchedule = collaborationJson.containsKey("centerSchedulers");
             int target = InterSchedulerSimple.NULL;
             boolean isSupportForward = false;
             if (isCenterSchedule) {
-                target = getInterScheduleTarget(collaborationJson.getJsonObject("centerScheduler"));
+                target = getInterScheduleTarget(collaborationJson.getJsonObject("centerSchedulers"));
             }
             if (target == InterSchedulerSimple.DC_TARGET) {
-                isSupportForward = collaborationJson.getJsonObject("centerScheduler").getBoolean("isSupportForward");
+                isSupportForward = collaborationJson.getJsonObject("centerSchedulers").getBoolean("isSupportForward");
             }
+
+            JsonObject loadBalanceJson = collaborationJson.getJsonObject("loadBalancer");
+            LoadBalancer<InstanceGroup, InterScheduler> loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
+            collaborationManager.addLoadBalancer(collaborationId, loadBalancer);
 
             for (int j = 0; j < collaborationJson.getJsonArray("datacenters").size(); j++) {
                 JsonObject datacenterJson = collaborationJson.getJsonArray("datacenters").getJsonObject(j);
@@ -184,32 +195,69 @@ public class InitDatacenter {
                 collaborationManager.addDatacenter(datacenter, collaborationId);
             }
         }
+    }
 
+    /**
+     * Add the center inter-schedulers to the collaboration zones.
+     *
+     * @param jsonObject           the json object of the collaboration zones
+     * @param collaborationManager the {@link CollaborationManager} object
+     */
+    private static void addInterSchedulers(JsonObject jsonObject, CollaborationManager collaborationManager) {
         for (int i = 0; i < jsonObject.getJsonArray("collaborations").size(); i++) {
             JsonObject collaborationJson = jsonObject.getJsonArray("collaborations").getJsonObject(i);
             int collaborationId = collaborationJson.getInt("id");
 
-            boolean isCenterSchedule = collaborationJson.containsKey("centerScheduler");
+            boolean isCenterSchedule = collaborationJson.containsKey("centerSchedulers");
             int target = InterSchedulerSimple.NULL;
             boolean isSupportForward = false;
             if (isCenterSchedule) {
-                target = getInterScheduleTarget(collaborationJson.getJsonObject("centerScheduler"));
+                target = getInterScheduleTarget(collaborationJson.getJsonObject("centerSchedulers"));
             }
             if (target == InterSchedulerSimple.DC_TARGET) {
-                isSupportForward = collaborationJson.getJsonObject("centerScheduler").getBoolean("isSupportForward");
+                isSupportForward = collaborationJson.getJsonObject("centerSchedulers").getBoolean("isSupportForward");
             }
 
             if (isCenterSchedule) {
-                JsonObject centerSchedulerJson = collaborationJson.getJsonObject("centerScheduler");
-                InterScheduler interScheduler = initInterScheduler(centerSchedulerJson, collaborationId, collaborationManager);
+                JsonObject loadBalanceJson = collaborationJson.getJsonObject("loadBalancer");
+                LoadBalancer<InstanceGroup, InterScheduler> loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
+                collaborationManager.addLoadBalancer(collaborationId, loadBalancer);
 
-                collaborationManager.addCenterScheduler(interScheduler);
+                JsonObject centerSchedulerJson = collaborationJson.getJsonObject("centerSchedulers");
+                List<InterScheduler> interSchedulers = initInterSchedulers(centerSchedulerJson, collaborationId, collaborationManager);
+                collaborationManager.addCenterSchedulers(collaborationId, interSchedulers);
             }
 
             if (isNeedInterSchedulerForDc(isCenterSchedule, target, isSupportForward)) {
-                initInterSchedulers(collaborationJson.getJsonArray("datacenters"), collaborationId, collaborationManager);
+                initInterSchedulersForDc(collaborationJson.getJsonArray("datacenters"), collaborationId, collaborationManager);
             }
         }
+    }
+
+    /**
+     * Initialize multiple inter-schedulers.
+     *
+     * @param interSchedulerJson   the json object of the inter-scheduler
+     * @param collaborationId      the id of the collaboration zone
+     * @param collaborationManager the {@link CollaborationManager} object
+     * @return a list of {@link InterScheduler} objects
+     */
+    private static List<InterScheduler> initInterSchedulers(JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
+        int num = 1;
+        if (interSchedulerJson.containsKey("num")) {
+            num = interSchedulerJson.getInt("num");
+            if (num <= 0) {
+                throw new IllegalArgumentException("num of interScheduler should be greater than 0");
+            }
+        }
+
+        List<InterScheduler> interSchedulers = new ArrayList<>();
+        for (int k = 0; k < num; k++) {
+            InterScheduler interScheduler = initInterScheduler(interSchedulerJson, collaborationId, collaborationManager);
+            interSchedulers.add(interScheduler);
+        }
+
+        return interSchedulers;
     }
 
     /**
@@ -230,7 +278,7 @@ public class InitDatacenter {
      * @param collaborationId the id of the collaboration zone
      * @param collaborationManager the {@link CollaborationManager} object
      */
-    private static void initInterSchedulers(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
+    private static void initInterSchedulersForDc(JsonArray datacenters, int collaborationId, CollaborationManager collaborationManager) {
         for (int j = 0; j < datacenters.size(); j++) {
             JsonObject datacenterJson = datacenters.getJsonObject(j);
             JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
@@ -367,7 +415,6 @@ public class InitDatacenter {
         StatesManager statesManager = getStatesManager(datacenterJson, isNeedIntraScheduler);
         datacenter.setStatesManager(statesManager);
 
-        JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
         if (isCenterSchedule) {
             datacenter.setCentralizedInterScheduleFlag(true);
         }

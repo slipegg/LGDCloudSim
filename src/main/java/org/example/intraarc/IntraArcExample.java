@@ -47,9 +47,9 @@ import org.lgdcloudsim.util.Log;
  * @since LGDCloudSim 1.0
  */
 public class IntraArcExample {
-    private static final String intraArcType = "Monolithic";
+    //    private static final String intraArcType = "Monolithic";
     //    private static final String intraArcType = "Two-level";
-//    private static final String intraArcType = "Global-syn-shared-state";
+    private static final String intraArcType = "Global-syn-shared-state";
 //    private static final String intraArcType = "Partition-syn-shared-state";
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/IntraArc/" + intraArcType + "/DatacentersConfig.json";
     private static final String USER_REQUEST_FILE = "./src/main/resources/example/IntraArc/generateRequestParameter.csv";

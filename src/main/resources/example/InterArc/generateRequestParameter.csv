@@ -4,7 +4,7 @@ RequestPerNumMin,1000
 RequestPerNumMax,1000
 RequestTimeIntervalMin,100
 RequestTimeIntervalMax,100
-RequestTimes,304
+RequestTimes,3
 ScheduleDelayLimitMin,1000
 ScheduleDelayLimitMax,1000
 RequestGroupNumMin,10

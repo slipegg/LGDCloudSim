@@ -2,7 +2,10 @@
   "collaborations": [
     {
       "id": 1,
-      "centerScheduler": {
+      "loadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
         "type": "leastRequested",
         "target": "dc",
         "isSupportForward":true,

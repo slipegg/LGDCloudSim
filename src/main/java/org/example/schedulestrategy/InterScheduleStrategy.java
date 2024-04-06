@@ -29,7 +29,7 @@ public class InterScheduleStrategy {
     //The "types" field of centerScheduler in different files are different,
     // and the scheduling algorithms called are also different.
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/ScheduleStrategy/InterScheduleStrategy/DatacentersConfig-" + scheduleStrategy + ".json";
-    private static final String USER_REQUEST_FILE = "./src/main/resources/example/ScheduleStrategy/generateRequestParameter.csv";
+    private static final String USER_REQUEST_FILE = "./src/main/resources/example/ScheduleStrategy/InterScheduleStrategy/generateRequestParameter.csv";
     private static final String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";

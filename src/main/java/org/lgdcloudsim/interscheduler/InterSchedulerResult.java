@@ -21,10 +21,9 @@ import java.util.*;
 @Setter
 public class InterSchedulerResult {
     /**
-     * The collaboration id of the inter-scheduler.
-     * It is used for the centralized inter-scheduler of the collaboration zone in CIS.
+     * The interScheduler of the result.
      */
-    private int collaborationId;
+    private InterScheduler interScheduler;
 
     /**
      * The target of the inter-scheduler.
@@ -61,13 +60,13 @@ public class InterSchedulerResult {
     /**
      * Create a new inter-scheduler result.
      *
-     * @param collaborationId  the collaboration id of the inter-scheduler.
+     * @param interScheduler  the inter-scheduler.
      * @param target           the target of the inter-scheduler.
      * @param isSupportForward whether the scheduled instance group results support forward again.
      * @param allDatacenters   all the datacenters in the collaboration zone.
      */
-    public InterSchedulerResult(int collaborationId, int target, Boolean isSupportForward, List<Datacenter> allDatacenters) {
-        this.collaborationId = collaborationId;
+    public InterSchedulerResult(InterScheduler interScheduler, int target, Boolean isSupportForward, List<Datacenter> allDatacenters) {
+        this.interScheduler = interScheduler;
         this.target = target;
         this.isSupportForward = isSupportForward;
         this.failedInstanceGroups = new ArrayList<>();
@@ -77,12 +76,12 @@ public class InterSchedulerResult {
     /**
      * Create a new inter-scheduler result.
      * IsSupportForward is set to false by default.
-     * @param collaborationId the collaboration id of the inter-scheduler.
+     * @param interScheduler the collaboration id of the inter-scheduler.
      * @param target the target of the inter-scheduler.
      * @param allDatacenters all the datacenters in the collaboration zone.
      */
-    public InterSchedulerResult(int collaborationId, int target, List<Datacenter> allDatacenters) {
-        this(collaborationId, target, false, allDatacenters);
+    public InterSchedulerResult(InterScheduler interScheduler, int target, List<Datacenter> allDatacenters) {
+        this(interScheduler, target, false, allDatacenters);
     }
 
     /**

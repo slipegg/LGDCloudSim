@@ -6,6 +6,7 @@ import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.queue.InstanceQueue;
+import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
@@ -44,7 +45,7 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /**
      * Set the {@link LoadBalancer}.
      **/
-    Datacenter setIntraLoadBalancer(LoadBalancer intraLoadBalancer);
+    Datacenter setIntraLoadBalancer(LoadBalancer<Instance, IntraScheduler> intraLoadBalancer);
 
     /**
      * Get the {@link LoadBalancer}.
