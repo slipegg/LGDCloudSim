@@ -2,20 +2,25 @@
   "collaborations": [
     {
       "id": 1,
-      "centerScheduler": {
-        "type": "simple",
-        "target": "dc",
-        "isSupportForward": false,
+      "interLoadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
+        "type": [
+          "simple",
+          "simple"
+        ],
+        "target": "host",
         "dcStateSynInfo": [
           {
             "dcId": 1,
             "synInterval": 0,
-            "synStateType": "easySimple"
+            "synStateType": "detailed"
           },
           {
             "dcId": 2,
             "synInterval": 0,
-            "synStateType": "easySimple"
+            "synStateType": "detailed"
           }
         ]
       },
@@ -43,9 +48,12 @@
           "intraSchedulers": [
             {
               "type": "simple"
+            },
+            {
+              "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -75,9 +83,12 @@
           "intraSchedulers": [
             {
               "type": "simple"
+            },
+            {
+              "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {

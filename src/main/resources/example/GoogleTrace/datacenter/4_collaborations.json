@@ -124,7 +124,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },
@@ -246,7 +246,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },
@@ -387,7 +387,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },
@@ -509,7 +509,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },
@@ -650,7 +650,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },
@@ -772,7 +772,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },
@@ -934,7 +934,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },
@@ -1056,7 +1056,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "minTCODirect",
             "isDirectSend": true
           },

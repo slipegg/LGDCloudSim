@@ -32,9 +32,6 @@ import org.lgdcloudsim.util.Log;
 public class PredictionExample {
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/Prediction/DatacentersConfig.json";
     private static final String USER_REQUEST_FILE = "./src/main/resources/example/Prediction/generateRequestParameter.csv";
-    private static final String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
-    private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
-    private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
 
     private final Simulation lgdcloudsim;
     private final Factory factory;
@@ -65,7 +62,6 @@ public class PredictionExample {
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
-        lgdcloudsim.setNetworkTopology(networkTopology);
+        lgdcloudsim.setNetworkTopology(NetworkTopology.NULL);
     }
 }

@@ -6,6 +6,7 @@ import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.queue.InstanceQueue;
+import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
@@ -30,26 +31,30 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Get the collaborationIds to which the datacenter belongs. **/
     Set<Integer> getCollaborationIds();
 
-    /** Set the {@link InterScheduler}. **/
-    Datacenter setInterScheduler(InterScheduler interScheduler);
+    /**
+     * Set the load balancer that is used to distribute the instances to the inter-schedulers.
+     */
+    Datacenter setInterLoadBalancer(LoadBalancer<InstanceGroup, InterScheduler> interLoadBalancer);
 
     /**
-     * Set the {@link IntraScheduler}.
+     * Set the {@link InterScheduler}s.
+     */
+    Datacenter setInterSchedulers(List<InterScheduler> interSchedulers);
+
+    /**
+     * Set the {@link IntraScheduler}s.
      **/
     Datacenter setIntraSchedulers(List<IntraScheduler> intraSchedulers);
 
-    /** Get the {@link InterScheduler}. **/
+    /**
+     * Get the {@link InterScheduler}s.
+     **/
     List<IntraScheduler> getIntraSchedulers();
 
     /**
      * Set the {@link LoadBalancer}.
      **/
-    Datacenter setLoadBalancer(LoadBalancer loadBalancer);
-
-    /**
-     * Get the {@link LoadBalancer}.
-     **/
-    LoadBalancer getLoadBalancer();
+    Datacenter setIntraLoadBalancer(LoadBalancer<Instance, IntraScheduler> intraLoadBalancer);
 
     /**
      * Set the {@link ConflictHandler}.

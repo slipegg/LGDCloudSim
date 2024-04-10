@@ -39,7 +39,7 @@
               "type": "simple"
             }
           ],
-          "interScheduler": {
+          "interSchedulers": {
             "type": "simple",
             "isDirectSend": false
           },

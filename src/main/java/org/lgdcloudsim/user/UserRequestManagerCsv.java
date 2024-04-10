@@ -654,9 +654,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private double getExpectedValue(double fixed, double min, double max) {
         if (fixed != -2) {
             return fixed;
-        } else if (min == -2 && max == -2) {
-            // Generate a random value between min and max (inclusive)
-            return random.nextDouble() * (max - min) + min;
+        } else if (min != -2 && max != -2) {
+            if (min == max) {
+                return min;
+            } else {
+                return random.nextDouble(max - min) + min;
+            }
         } else {
             return -1;
         }

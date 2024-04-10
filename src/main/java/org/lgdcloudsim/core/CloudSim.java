@@ -329,7 +329,7 @@ public class CloudSim implements Simulation {
      */
     private boolean isOnlySyn() {
         //TODO We can consider making a judgment in advance here.
-//        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size() + 1) {
+//        if (!cis.getDatacenterList().isEmpty() && future.size() > cis.getDatacenterList().size() + 1) {
 //            return false;
 //        }
         for (SimEvent simEvent : future.stream().toList()) {

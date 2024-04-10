@@ -6,9 +6,13 @@
         "type": "round"
       },
       "centerSchedulers": {
-        "type": "leastRequested",
+        "type": [
+          "leastRequested",
+          "leastRequested",
+          "simple"
+        ],
         "target": "dc",
-        "isSupportForward":false,
+        "isSupportForward": false,
         "dcStateSynInfo": [
           {
             "dcId": 1,

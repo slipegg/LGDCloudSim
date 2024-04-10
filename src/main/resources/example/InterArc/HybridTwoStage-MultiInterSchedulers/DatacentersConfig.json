@@ -2,6 +2,70 @@
   "collaborations": [
     {
       "id": 1,
+      "interLoadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
+        "type": [
+          "leastRequested",
+          "leastRequested",
+          "simple"
+        ],
+        "target": "dc",
+        "isSupportForward": true,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 5,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 6,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 7,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 8,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 9,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          },
+          {
+            "dcId": 10,
+            "synInterval": 0,
+            "synStateType": "easySimple"
+          }
+        ]
+      },
       "datacenters": [
         {
           "id": 1,
@@ -10,7 +74,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -102,7 +170,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -194,7 +266,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -286,7 +362,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -378,7 +458,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -470,7 +554,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -562,7 +650,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -654,7 +746,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -746,7 +842,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -838,7 +938,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {

@@ -45,7 +45,7 @@ public class InterSchedulerRound extends InterSchedulerSimple {
     @Override
     protected InterSchedulerResult scheduleToDatacenter(List<InstanceGroup> instanceGroups) {
         List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
-        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(collaborationId, target, isSupportForward, allDatacenters);
+        InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, allDatacenters);
         lastSendDCIndex = (lastSendDCIndex + 1) % allDatacenters.size();
         Datacenter targetDC = allDatacenters.get(lastSendDCIndex);
         for (InstanceGroup instanceGroup : instanceGroups) {

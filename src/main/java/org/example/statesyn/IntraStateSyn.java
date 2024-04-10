@@ -14,7 +14,7 @@ import org.lgdcloudsim.user.UserSimple;
 import org.lgdcloudsim.util.Log;
 
 /**
- * In this example, we set up two partitions per data center and two intra-schedulers per data center.
+ * In this example, we set up two partitions and two intra-schedulers in data center.
  * Each scheduler initially synchronizes different partitions.
  * The synchronization period of the data center is 500ms,
  * so each scheduler synchronizes a different partition every 250ms.
@@ -24,10 +24,7 @@ import org.lgdcloudsim.util.Log;
  */
 public class IntraStateSyn {
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/StateSyn/IntraStateSyn/DatacentersConfig.json";
-    private static final String USER_REQUEST_FILE = "./src/main/resources/example/StateSyn/generateRequestParameter.csv";
-    private static final String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
-    private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
-    private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
+    private static final String USER_REQUEST_FILE = "./src/main/resources/example/StateSyn/IntraStateSyn/generateRequestParameter.csv";
 
     private final Simulation lgdcloudsim;
     private final Factory factory;
@@ -58,7 +55,6 @@ public class IntraStateSyn {
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
-        lgdcloudsim.setNetworkTopology(networkTopology);
+        lgdcloudsim.setNetworkTopology(NetworkTopology.NULL);
     }
 }

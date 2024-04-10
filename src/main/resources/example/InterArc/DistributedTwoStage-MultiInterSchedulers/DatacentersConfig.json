@@ -10,7 +10,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -102,7 +106,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -194,7 +202,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -286,7 +298,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -378,7 +394,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -470,7 +490,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -562,7 +586,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -654,7 +682,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -746,7 +778,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
@@ -838,7 +874,11 @@
             "type": "round"
           },
           "interSchedulers": {
-            "type": "leastRequested",
+            "type": [
+              "leastRequested",
+              "leastRequested",
+              "simple"
+            ],
             "target": "mixed",
             "dcStateSynInfo": [
               {
