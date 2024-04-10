@@ -43,7 +43,7 @@
             "type": "simple",
             "isDirectSend": false
           },
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "round"
           },
           "resourceAllocateSelector": {
