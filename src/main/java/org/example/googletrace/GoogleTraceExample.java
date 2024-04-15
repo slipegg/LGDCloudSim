@@ -36,14 +36,14 @@ public class GoogleTraceExample {
     private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
     Map<Integer, GoogleTraceRequestFile> GOOGLE_TRACE_REQUEST_FILE_DC_MAP = new HashMap<>() {{
-        put(1, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_a_user_requests.csv", "United States", 5000));
-        put(2, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_b_user_requests.csv", "United States", 5000));
-        put(3, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_c_user_requests.csv", "United States", 5000));
-        put(4, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_d_user_requests.csv", "United States", 5000));
-        put(5, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_e_user_requests.csv", "United States", 5000));
-        put(6, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_f_user_requests.csv", "United States", 5000));
-        put(7, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_g_user_requests.csv", "United States", 5000));
-        put(8, new GoogleTraceRequestFile("./src/main/resources/experiment/googleTrace/userRequest/2019_h_user_requests.csv", "United States", 5000));
+        put(1, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_a_user_requests.csv", "United States", 5000));
+        put(2, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_b_user_requests.csv", "United States", 5000));
+        put(3, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_c_user_requests.csv", "United States", 5000));
+        put(4, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_d_user_requests.csv", "United States", 5000));
+        put(5, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_e_user_requests.csv", "United States", 5000));
+        put(6, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_f_user_requests.csv", "United States", 5000));
+        put(7, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_g_user_requests.csv", "United States", 5000));
+        put(8, new GoogleTraceRequestFile("./src/main/resources/example/googleTrace/userRequest/2019_h_user_requests.csv", "United States", 5000));
     }};
     int MAX_CPU_CAPACITY = 100000;
     int MAX_RAM_CAPACITY = 100000;

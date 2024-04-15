@@ -67,11 +67,6 @@ public class SqlRecordSimple implements SqlRecord {
     private String conflictTableName = null;
 
     /**
-     * The name of the inter schedule cost time table.
-     */
-    private String interScheduleCostTimeTableName = null;
-
-    /**
      * The name of the SQLite database.
      */
     private String dbName = null;
@@ -143,7 +138,6 @@ public class SqlRecordSimple implements SqlRecord {
         this.instanceGroupGraphTableName = instanceGroupGraphTableName;
         this.instanceTableName = instanceTableName;
         this.conflictTableName = "conflict";
-        this.interScheduleCostTimeTableName = "interScheduleCostTime";
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -161,7 +155,6 @@ public class SqlRecordSimple implements SqlRecord {
             createGroupGraphTable();
             createInstanceTable();
             createConflictTable();
-            createInterScheduleCostTimeTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -627,18 +620,6 @@ public class SqlRecordSimple implements SqlRecord {
         sql = "CREATE TABLE IF NOT EXISTS " + this.conflictTableName + " " +
                 "(time DOUBLE PRIMARY KEY NOT NULL," +
                 " conflictSum INT NOT NULL) ";
-        stmt.executeUpdate(sql);
-        conn.commit();
-    }
-
-
-    private void createInterScheduleCostTimeTable() throws SQLException {
-        sql = "DROP TABLE IF EXISTS " + this.interScheduleCostTimeTableName;
-        stmt.executeUpdate(sql);
-        sql = "CREATE TABLE IF NOT EXISTS " + this.interScheduleCostTimeTableName + " " +
-                "(time DOUBLE PRIMARY KEY NOT NULL," +
-                " costTime DOUBLE NOT NULL, " +
-                " traversalTime INT NOT NULL) ";
         stmt.executeUpdate(sql);
         conn.commit();
     }

@@ -360,7 +360,9 @@ public class InitDatacenter {
             datacenter.setArchitecture(datacenterJson.getString("architecture"));
         }
 
-        StatesManager statesManager = getStatesManager(datacenterJson, isCenterSchedule, target);
+        boolean isNeedIntraScheduler = isNeedIntraScheduler(isCenterSchedule, target, isSupportForward, datacenterJson);
+
+        StatesManager statesManager = getStatesManager(datacenterJson, isNeedIntraScheduler);
         datacenter.setStatesManager(statesManager);
 
         JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
@@ -373,7 +375,7 @@ public class InitDatacenter {
             datacenter.setInterScheduler(interScheduler);
         }
 
-        if (isNeedIntraScheduler(isCenterSchedule, target, isSupportForward)) {
+        if (isNeedIntraScheduler) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
             LoadBalancer loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
             datacenter.setLoadBalancer(loadBalancer);
@@ -429,12 +431,31 @@ public class InitDatacenter {
      * @param isCenterSchedule whether the center inter-scheduler is needed
      * @param target           the target of the center inter-scheduler
      * @param isSupportForward whether the center inter-scheduler supports forwarding
-     * @return
+     * @return whether the intra-scheduler is needed for the datacenter
      */
-    private static boolean isNeedIntraScheduler(boolean isCenterSchedule, int target, boolean isSupportForward) {
-        return !((isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET)
-                || (!isCenterSchedule && target == InterSchedulerSimple.MIXED_TARGET)
-                || (isCenterSchedule && target == InterSchedulerSimple.DC_TARGET && isSupportForward));
+    private static boolean isNeedIntraScheduler(boolean isCenterSchedule, int target, boolean isSupportForward, JsonObject datacenterJson) {
+//        return !((isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET)
+//                || (!isCenterSchedule && target == InterSchedulerSimple.MIXED_TARGET)
+//                || (isCenterSchedule && target == InterSchedulerSimple.DC_TARGET && isSupportForward));
+        if (isCenterSchedule) {
+            return switch (target) {
+                case InterSchedulerSimple.HOST_TARGET -> false;
+                case InterSchedulerSimple.DC_TARGET -> !isSupportForward;
+                default -> true;
+            };
+        } else {
+            if (datacenterJson.containsKey("interScheduler")) {
+                JsonObject interSchedulerJson = datacenterJson.getJsonObject("interScheduler");
+                int targetInDc = switchTarget(interSchedulerJson.getString("target"));
+                return switch (targetInDc) {
+                    case InterSchedulerSimple.HOST_TARGET, InterSchedulerSimple.MIXED_TARGET -> false;
+                    case InterSchedulerSimple.DC_TARGET -> !interSchedulerJson.getBoolean("isSupportForward");
+                    default -> true;
+                };
+            } else {
+                return true;
+            }
+        }
     }
 
     /**
@@ -465,14 +486,14 @@ public class InitDatacenter {
      *
      * @param datacenterJson a {@link JsonObject} object
      */
-    private static StatesManager getStatesManager(JsonObject datacenterJson, boolean isCenterSchedule, int target) {
+    private static StatesManager getStatesManager(JsonObject datacenterJson, boolean isNeedIntraScheduler) {
         int hostNum = datacenterJson.getInt("hostNum");
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
         double synchronizationGap;
-        if (isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET) {
-            synchronizationGap = 0;
-        } else {
+        if (isNeedIntraScheduler) {
             synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
+        } else {
+            synchronizationGap = 0;
         }
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
         StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);

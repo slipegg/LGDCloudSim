@@ -78,16 +78,6 @@
               "length": 40000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -167,16 +157,6 @@
               "length": 20000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -257,15 +237,6 @@
             }
           ],
           "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -345,16 +316,6 @@
               "length": 20000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -434,16 +395,6 @@
               "length": 10000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -523,16 +474,6 @@
               "length": 40000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -612,16 +553,6 @@
               "length": 10000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -701,16 +632,6 @@
               "length": 20000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -790,16 +711,6 @@
               "length": 10000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
@@ -879,16 +790,6 @@
               "length": 20000
             }
           ],
-          "synchronizationGap": 0,
-          "intraSchedulers": [
-            {
-              "firstPartitionIndex": 0,
-              "type": "leastRequested"
-            }
-          ],
-          "loadBalancer": {
-            "type": "batch"
-          },
           "resourceAllocateSelector": {
             "type": "simple"
           }
