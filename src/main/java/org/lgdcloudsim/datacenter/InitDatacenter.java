@@ -414,12 +414,12 @@ public class InitDatacenter {
      * @return a {@link StatesManager} object
      */
     private static Datacenter getDatacenter(JsonObject datacenterJson, int collaborationId, boolean isCenterSchedule, int target, boolean isSupportForward) {
-        int id = -1;
+        int id = 0;
         if (datacenterJson.containsKey("id")) {
             id = datacenterJson.getInt("id");
             datacenterId = id;
         } else {
-            id = datacenterId++;
+            id = ++datacenterId;
         }
 
         if (id == 0) {
