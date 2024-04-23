@@ -584,6 +584,7 @@ public class CloudInformationService extends CloudSimEntity {
                 userRequest.delAllocatedEdge(allocateEdge);
             }
             instanceGroupSrc.setReceiveDatacenter(Datacenter.NULL);
+            instanceGroupDst.setReceiveDatacenter(Datacenter.NULL);
         }
     }
 
