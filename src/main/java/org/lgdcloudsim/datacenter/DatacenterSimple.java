@@ -1097,7 +1097,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
 
-            sendNow(this, CloudSimTag.LOAD_BALANCE_SEND);
+            sendNow(this, CloudSimTag.LOAD_BALANCE_SEND, "intra");
         }
     }
 
