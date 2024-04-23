@@ -571,14 +571,20 @@ public class CloudInformationService extends CloudSimEntity {
      * @param userRequest the failed user request
      */
     private void releaseBwForFailedUserRequest(UserRequest userRequest) {
-        List<InstanceGroupEdge> allocateEdges = userRequest.getAllocatedEdges();
+        List<InstanceGroupEdge> allocateEdges = new ArrayList<>(userRequest.getAllocatedEdges());
         for (InstanceGroupEdge allocateEdge : allocateEdges) {
             double allocatedBw = allocateEdge.getRequiredBw();
+            InstanceGroup instanceGroupSrc = allocateEdge.getSrc();
+            InstanceGroup instanceGroupDst = allocateEdge.getDst();
             Datacenter src = allocateEdge.getSrc().getReceiveDatacenter();
             Datacenter dest = allocateEdge.getDst().getReceiveDatacenter();
             if (src != null && dest != null) {
                 getSimulation().getNetworkTopology().releaseBw(src, dest, allocatedBw);
+                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfoForFailedUserRequest(instanceGroupSrc.getId(), instanceGroupSrc.getId());
+                userRequest.delAllocatedEdge(allocateEdge);
             }
+            instanceGroupSrc.setReceiveDatacenter(Datacenter.NULL);
+            instanceGroupDst.setReceiveDatacenter(Datacenter.NULL);
         }
     }
 
