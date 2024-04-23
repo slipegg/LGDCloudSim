@@ -1284,7 +1284,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (interScheduler.isQueuesEmpty()) {
             isInterSchedulerBusy.put(interScheduler, false);
         } else {
-            send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, null);
+            send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, interScheduler);
         }
     }
 
