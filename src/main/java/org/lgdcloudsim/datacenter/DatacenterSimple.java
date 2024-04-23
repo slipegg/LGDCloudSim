@@ -1120,20 +1120,26 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     /**
-     * Allocate bandwidth for the instance group
+     * Allocate bandwidth for the instance group and records the allocation information in database.
      * @param instanceGroup the instance group
      * @param receiveDatacenter the data center that receives the instance group
      * @return whether the bandwidth allocation is successful
      */
-    private boolean allocateBwForGroup(InstanceGroup instanceGroup, Datacenter receiveDatacenter) {
+    private boolean allocateBwForGroup(InstanceGroup instanceGroup, Datacenter receivedDatacenter) {
+        if (!tryAllocateBw(instanceGroup, receivedDatacenter)) {
+            return false;
+        }
+
         UserRequest userRequest = instanceGroup.getUserRequest();
         List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
         for (InstanceGroup dst : dstInstanceGroups) {
             if (dst.getReceiveDatacenter() != Datacenter.NULL) {
                 InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dst);
-                if (!getSimulation().getNetworkTopology().allocateBw(receiveDatacenter, dst.getReceiveDatacenter(), edge.getRequiredBw())) {
-                    return false;
+                if (!getSimulation().getNetworkTopology().allocateBw(receivedDatacenter, dst.getReceiveDatacenter(), edge.getRequiredBw())) {
+                    return false;//After checking the tryAllocateBw function, there should be no failure to allocate bandwidth here.
                 }
+                
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(receivedDatacenter.getId(), instanceGroup.getId(), dst.getReceiveDatacenter().getId(), dst.getId(), edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
             }
         }
@@ -1141,10 +1147,67 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         for (InstanceGroup src : srcInstanceGroups) {
             if (src.getReceiveDatacenter() != Datacenter.NULL) {
                 InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
-                if (!getSimulation().getNetworkTopology().allocateBw(src.getReceiveDatacenter(), receiveDatacenter, edge.getRequiredBw())) {
-                    return false;
+                if (!getSimulation().getNetworkTopology().allocateBw(src.getReceiveDatacenter(), receivedDatacenter, edge.getRequiredBw())) {
+                    return false;//After checking the tryAllocateBw function, there should be no failure to allocate bandwidth here.
                 }
+
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(src.getReceiveDatacenter().getId(), src.getId(), receivedDatacenter.getId(), instanceGroup.getId(), edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
+            }
+        }
+        return true;
+    }
+
+        /**
+     * Tries to allocate the bandwidth for the instance group.
+     * @param instanceGroup the instance group
+     * @param receivedDatacenter the data center that the instance group is allocated to
+     * @return true if the bandwidth is allocated successfully; false otherwise
+     */
+    private boolean tryAllocateBw(InstanceGroup instanceGroup, Datacenter receivedDatacenter) {
+        Map<Datacenter, Map<Datacenter, Double>> allocatedBwTmp = new HashMap<>();
+
+        List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
+        for (InstanceGroup dst : dstInstanceGroups) {
+            if (dst.getReceiveDatacenter() != Datacenter.NULL) {
+                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dst);
+                double nowBw;
+                if (allocatedBwTmp.containsKey(receivedDatacenter) && allocatedBwTmp.get(receivedDatacenter).containsKey(dst.getReceiveDatacenter())) {
+                    nowBw = allocatedBwTmp.get(receivedDatacenter).get(dst.getReceiveDatacenter());
+                } else {
+                    nowBw = getSimulation().getNetworkTopology().getBw(receivedDatacenter, dst.getReceiveDatacenter());
+                }
+
+                if (nowBw < edge.getRequiredBw()) {
+                    return false;
+                } else {
+                    if (!allocatedBwTmp.containsKey(receivedDatacenter)) {
+                        allocatedBwTmp.put(receivedDatacenter, new HashMap<>());
+                    }
+                    allocatedBwTmp.get(receivedDatacenter).put(dst.getReceiveDatacenter(), nowBw - edge.getRequiredBw());
+                }
+            }
+        }
+
+        List<InstanceGroup> srcInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
+        for (InstanceGroup src : srcInstanceGroups) {
+            if (src.getReceiveDatacenter() != Datacenter.NULL) {
+                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
+                double nowBw;
+                if (allocatedBwTmp.containsKey(src.getReceiveDatacenter()) && allocatedBwTmp.get(src.getReceiveDatacenter()).containsKey(receivedDatacenter)) {
+                    nowBw = allocatedBwTmp.get(src.getReceiveDatacenter()).get(receivedDatacenter);
+                } else {
+                    nowBw = getSimulation().getNetworkTopology().getBw(src.getReceiveDatacenter(), receivedDatacenter);
+                }
+
+                if (nowBw < edge.getRequiredBw()) {
+                    return false;
+                } else {
+                    if (!allocatedBwTmp.containsKey(src.getReceiveDatacenter())) {
+                        allocatedBwTmp.put(src.getReceiveDatacenter(), new HashMap<>());
+                    }
+                    allocatedBwTmp.get(src.getReceiveDatacenter()).put(receivedDatacenter, nowBw - edge.getRequiredBw());
+                }
             }
         }
         return true;
