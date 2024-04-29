@@ -309,6 +309,18 @@ public class SqlRecordSimple implements SqlRecord {
     }
 
     @Override
+    public void recordInstanceGroupGraphReleaseInfoForFailedUserRequest(int srcInstanceGroupId, int dstInstanceGroupId) {
+        try {
+            sql = "DELETE FROM " + this.instanceGroupGraphTableName +
+                    " WHERE (srcInstanceGroupId = " + srcInstanceGroupId +
+                    " AND dstInstanceGroupId = " + dstInstanceGroupId + ");";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void recordInstanceGroupGraphReleaseInfo(int srcInstanceGroupId, int dstInstanceGroupId, double finishTime) {
         try {
             sql = "UPDATE " + this.instanceGroupGraphTableName +

@@ -91,6 +91,15 @@ public interface SqlRecord {
 
     /**
      * Record the instance group graph release information.
+     * It records the source data center id, the source instance group id, the destination data center id,
+     * the destination instance group id, the bandwidth and the start time.
+     * @param srcInstanceGroupId the source instance group id.
+     * @param dstInstanceGroupId the destination instance group id.
+     */
+    void recordInstanceGroupGraphReleaseInfoForFailedUserRequest(int srcInstanceGroupId, int dstInstanceGroupId);
+
+    /**
+     * Record the instance group graph release information.
      * It records the finish time.
      * @param srcInstanceGroupId the source instance group id.
      * @param dstInstanceGroupId the destination instance group id.

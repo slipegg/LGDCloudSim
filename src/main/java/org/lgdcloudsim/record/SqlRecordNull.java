@@ -64,6 +64,11 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
+    public void recordInstanceGroupGraphReleaseInfoForFailedUserRequest(int srcInstanceGroupId, int dstInstanceGroupId) {
+        
+    }
+
+    @Override
     public void recordInstanceGroupGraphReleaseInfo(int srcDcId, int dstDcId, double finishTime) {
 
     }
