@@ -571,7 +571,7 @@ public class CloudInformationService extends CloudSimEntity {
      * @param userRequest the failed user request
      */
     private void releaseBwForFailedUserRequest(UserRequest userRequest) {
-        List<InstanceGroupEdge> allocateEdges = userRequest.getAllocatedEdges();
+        List<InstanceGroupEdge> allocateEdges = new ArrayList<>(userRequest.getAllocatedEdges());
         for (InstanceGroupEdge allocateEdge : allocateEdges) {
             double allocatedBw = allocateEdge.getRequiredBw();
             InstanceGroup instanceGroupSrc = allocateEdge.getSrc();

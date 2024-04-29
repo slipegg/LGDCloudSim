@@ -372,7 +372,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
         try {
-            statement = conn.prepareStatement("INSERT INTO instance " +
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
                     "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
@@ -404,7 +404,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
         try {
-            statement = conn.prepareStatement("INSERT INTO instance " +
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
                     "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
@@ -436,7 +436,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesFinishInfo(List<Instance> instances) {
         try {
-            statement = conn.prepareStatement("UPDATE instance SET finishTime = ? WHERE id = ?");
+            statement = conn.prepareStatement("UPDATE " + this.instanceTableName + " SET finishTime = ? WHERE id = ?");
             for (Instance instance : instances) {
                 statement.setDouble(1, instance.getFinishTime());
                 statement.setInt(2, instance.getId());
@@ -451,7 +451,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesAllInfo(List<Instance> instances) {
         try {
-            statement = conn.prepareStatement("INSERT INTO instance " +
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
                     "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, finishTime) " + "VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             for (Instance instance : instances) {
                 statement.setInt(1, instance.getId());
