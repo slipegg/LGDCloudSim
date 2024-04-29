@@ -1218,6 +1218,29 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     }
 
     /**
+     * Allocates the bandwidth for the inter-scheduler result.
+     * @param interSchedulerResult the result of the inter-scheduler
+     */
+    //TODO: Check if there is a problem with bandwidth allocated elsewhere.
+    private void allocateBwForInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
+        for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getScheduledResultMap().entrySet()) {
+            Datacenter datacenter = entry.getKey();
+            List<InstanceGroup> instanceGroups = entry.getValue();
+            List<InstanceGroup> groupsToRemove = new ArrayList<>();
+            for (InstanceGroup instanceGroup : instanceGroups) {
+                if (!allocateBwForGroup(instanceGroup, datacenter)) {
+                    interSchedulerResult.addFailedInstanceGroup(instanceGroup);
+                    groupsToRemove.add(instanceGroup);
+                } else {
+                    instanceGroup.setState(UserRequest.SCHEDULING);
+                    instanceGroup.setReceiveDatacenter(datacenter);
+                }
+            }
+            instanceGroups.removeAll(groupsToRemove);
+        }
+    }
+
+    /**
      * Send instanceGroups to various datacenters based on the results.
      *
      * @param evt The data can be a Map of InstanceGroup and List of Datacenter.It is the result of {!link #processGroupFilterDcBegin()}.
@@ -1226,13 +1249,17 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof InterSchedulerResult interSchedulerResult) {
             InterScheduler interScheduler = interSchedulerResult.getInterScheduler();
 
+            if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET && !interSchedulerResult.isSupportForward()) {
+                allocateBwForInterSchedulerResult(interSchedulerResult);
+            }
+
             sendInterScheduleResult(interSchedulerResult);
 
             handleFailedInterScheduling(interScheduler, interSchedulerResult.getFailedInstanceGroups(), interSchedulerResult.getOutDatedUserRequests());
 
             LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getInstanceGroupNum());
 
-            if (isScheduleToSelfEmpty(interSchedulerResult)) {
+            if (interSchedulerResult.getTarget() != InterSchedulerSimple.MIXED_TARGET || isScheduleToSelfEmpty(interSchedulerResult)) {
                 startInterScheduling(interScheduler);
             }
         }
