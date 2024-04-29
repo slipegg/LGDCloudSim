@@ -989,6 +989,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (dst.getReceiveDatacenter() != Datacenter.NULL) {
                 InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dst);
                 getSimulation().getNetworkTopology().releaseBw(instanceGroup.getReceiveDatacenter(), dst.getReceiveDatacenter(), edge.getRequiredBw());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfoForFailedUserRequest(instanceGroup.getId(), dst.getId());
                 userRequest.delAllocatedEdge(edge);
             }
         }
@@ -998,6 +999,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (src.getReceiveDatacenter() != Datacenter.NULL) {
                 InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
                 getSimulation().getNetworkTopology().releaseBw(src.getReceiveDatacenter(), instanceGroup.getReceiveDatacenter(), edge.getRequiredBw());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfoForFailedUserRequest(src.getId(), instanceGroup.getId());
                 userRequest.delAllocatedEdge(edge);
             }
         }
