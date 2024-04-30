@@ -50,6 +50,13 @@ public class CloudInformationService extends CloudSimEntity {
     private final List<Datacenter> datacenterList;
 
     /**
+     * It contains all user requests that have not finished running.
+     * User requests are added as they are sent by {@link org.lgdcloudsim.user.UserSimple}, and removed when they are finished.
+     */
+    @Getter
+    private Set<UserRequest> runningUserRequests = new HashSet<>();
+
+    /**
      * Creates a new CIS entity.
      *
      * @param simulation The CloudSimPlus instance that represents the simulation the Entity belongs to
@@ -564,6 +571,7 @@ public class CloudInformationService extends CloudSimEntity {
         userRequest.setState(UserRequest.FAILED);
         userRequest.setFinishTime(getSimulation().clock());
         getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
+        getRunningUserRequests().remove(userRequest);
     }
 
     /**

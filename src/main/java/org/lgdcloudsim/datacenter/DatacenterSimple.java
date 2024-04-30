@@ -595,6 +595,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         userRequest.setFinishTime(getSimulation().clock());
         getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
+        getSimulation().getCis().getRunningUserRequests().remove(userRequest);
     }
 
     /**

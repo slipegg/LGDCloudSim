@@ -83,6 +83,7 @@ public class UserSimple extends CloudSimEntity {
                 LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
             }
             getSimulation().getSqlRecord().recordUserRequestsSubmitInfo(userRequests);
+            getSimulation().getCis().getRunningUserRequests().addAll(userRequests);
         }
         if (userRequestManager.getNextSendTime() != Double.MAX_VALUE) {
             send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);
