@@ -326,11 +326,17 @@ public class InitDatacenter {
     private static InterScheduler initInterScheduler(String type, JsonObject interSchedulerJson, int collaborationId, CollaborationManager collaborationManager) {
         int target = getInterScheduleTarget(interSchedulerJson);
         boolean isSupportForward = false;
+        boolean isSupportMigration = false;
         if (target == InterSchedulerSimple.DC_TARGET) {
-            isSupportForward = interSchedulerJson.getBoolean("isSupportForward");
+            if (interSchedulerJson.containsKey("isSupportForward")) {
+                isSupportForward = interSchedulerJson.getBoolean("isSupportForward");
+            }
+            if (interSchedulerJson.containsKey("isSupportMigration")) {
+                isSupportMigration = interSchedulerJson.getBoolean("isSupportMigration");
+            }
         }
 
-        InterScheduler interScheduler = factory.getInterScheduler(type, interSchedulerId++, LGDCloudSim, collaborationId, target, isSupportForward);
+        InterScheduler interScheduler = factory.getInterScheduler(type, interSchedulerId++, LGDCloudSim, collaborationId, target, isSupportForward, isSupportMigration);
 
         Object[] dcStateSynIntervalAndType = getDcStateSynIntervalAndType(interSchedulerJson, collaborationManager);
         interScheduler.setDcStateSynInterval((Map<Datacenter, Double>) dcStateSynIntervalAndType[0]);

@@ -82,6 +82,16 @@ public class InterSchedulerSimple implements InterScheduler {
     boolean isSupportForward;
 
     /**
+     * Currently supported situations:
+     * When the interScheduler is in the CIS, and the target of the interScheduler is DC,
+     * you can set isSupportMigration to true, so that the originally scheduled instanceGroups can be migrated to other data centers
+     * when the CIS performs scheduling.
+     * More details can be found in the {@link org.example.migration.MigrationExample}.
+     */
+    @Getter
+    boolean isSupportMigration;
+
+    /**
      * The simulation.
      */
     @Getter
@@ -177,12 +187,27 @@ public class InterSchedulerSimple implements InterScheduler {
      * @param isSupportForward whether the scheduled instance group by the inter-scheduler supports forward
      */
     public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
+        this(id, simulation, collaborationId, target, isSupportForward, false);
+    }
+
+    /**
+     * The constructor of the InterSchedulerSimple class.
+     *
+     * @param id                 the id of the inter-scheduler
+     * @param simulation         the simulation
+     * @param collaborationId    the collaboration zone id
+     * @param target             the target of the inter-scheduler, it can be set to {@link InterSchedulerSimple#HOST_TARGET}, {@link InterSchedulerSimple#DC_TARGET} or {@link InterSchedulerSimple#MIXED_TARGET}
+     * @param isSupportForward   whether the scheduled instance group by the inter-scheduler supports forward
+     * @param isSupportMigration whether the scheduled instance group by the inter-scheduler supports migration
+     */
+    public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward, boolean isSupportMigration) {
         this.id = id;
         this.name = "collaboration" + collaborationId + "-InterScheduler" + id;
         this.simulation = simulation;
         this.collaborationId = collaborationId;
         this.target = target;
         this.isSupportForward = isSupportForward;
+        this.isSupportMigration = isSupportMigration;
     }
 
     /**

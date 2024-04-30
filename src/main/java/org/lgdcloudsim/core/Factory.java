@@ -38,15 +38,17 @@ public interface Factory {
 
     /**
      * Get the {@link InterScheduler} by the type name and some parameters.
-     * @param type  the type name of the inter-scheduler.
-     * @param id the id of the inter-scheduler.
-     * @param simulation the simulation object.
-     * @param collaborationId the collaboration id of the inter-scheduler.
-     * @param target the target id of the inter-scheduler.
-     * @param isSupportForward whether the inter-scheduler supports forward.
+     *
+     * @param type               the type name of the inter-scheduler.
+     * @param id                 the id of the inter-scheduler.
+     * @param simulation         the simulation object.
+     * @param collaborationId    the collaboration id of the inter-scheduler.
+     * @param target             the target id of the inter-scheduler.
+     * @param isSupportForward   whether the inter-scheduler supports forward.
+     * @param isSupportMigration
      * @return the inter-scheduler.
      */
-    InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward);
+    InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward, boolean isSupportMigration);
 
     /**
      * Get the{@link LoadBalancer} by the type name.
