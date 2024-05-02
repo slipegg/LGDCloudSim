@@ -24,8 +24,16 @@ import java.util.Map;
 public class DcBwManager {
     /**
      * The map of the bandwidth between the data centers which is initialized through a csv file.
+     * The bandwidth can be requested by the instance groups.
      */
     private Map<Integer, Map<Integer, Double>> bwMap;
+
+    /**
+     * The map of the bandwidth between the data centers which is initialized through a csv file.
+     * The bandwidth is used to transfer data between the data centers.
+     * Now It is only used to calculate how fast instance image is transferred during migration.
+     */
+    private Map<Integer, Map<Integer, Double>> transferDataBwMap;
 
     /**
      * The map of the unit price of the bandwidth between the data centers which is initialized through a csv file.
@@ -47,6 +55,7 @@ public class DcBwManager {
     public DcBwManager(String fileName, boolean isDirected) {
         this.bwMap = new HashMap<>();
         this.unitPriceMap = new HashMap<>();
+        this.transferDataBwMap = new HashMap<>();
         readBwFile(fileName, isDirected);
         bwTCO = 0;
     }
@@ -80,6 +89,10 @@ public class DcBwManager {
                 String unitPriceString = record.get("unitPrice");
                 double unitPrice = (unitPriceString != null && !unitPriceString.isEmpty()) ? Double.parseDouble(unitPriceString) : 0.0;
 
+                // Check if "transferDataBandwidth" column exists and its value is not empty
+                String transferDataBandwidthString = record.get("transferDataBandwidth");
+                double transferDataBandwidth = (transferDataBandwidthString != null && !transferDataBandwidthString.isEmpty()) ? Double.parseDouble(transferDataBandwidthString) : 10;
+
                 // Update bwMap
                 bwMap.computeIfAbsent(srcDcId, k -> new HashMap<>()).put(dstDcId, bandwidth);
                 if (!isDirected) bwMap.computeIfAbsent(dstDcId, k -> new HashMap<>()).put(srcDcId, bandwidth);
@@ -87,6 +100,11 @@ public class DcBwManager {
                 // Update unitPriceMap
                 unitPriceMap.computeIfAbsent(srcDcId, k -> new HashMap<>()).put(dstDcId, unitPrice);
                 if (!isDirected) unitPriceMap.computeIfAbsent(dstDcId, k -> new HashMap<>()).put(srcDcId, unitPrice);
+
+                // Update transferDataBwMap
+                transferDataBwMap.computeIfAbsent(srcDcId, k -> new HashMap<>()).put(dstDcId, transferDataBandwidth);
+                if (!isDirected)
+                    transferDataBwMap.computeIfAbsent(dstDcId, k -> new HashMap<>()).put(srcDcId, transferDataBandwidth);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,5 +198,24 @@ public class DcBwManager {
 
         double bw = bwMap.get(srcDcId).get(dstDcId);
         bwMap.get(srcDcId).put(dstDcId, bw + releaseBw);
+    }
+
+    /**
+     * Get the bandwidth between the source data center and the destination data center for transferring data.
+     *
+     * @param srcDcId the source data center id.
+     * @param dstDcId the destination data center id.
+     * @return the bandwidth between the source data center and the destination data center for transferring data.
+     */
+    public double getTransferDataBw(int srcDcId, int dstDcId) {
+        if (!transferDataBwMap.containsKey(srcDcId)) {
+            throw new IllegalArgumentException("Source DC " + srcDcId + " does not exist.");
+        }
+
+        if (!transferDataBwMap.get(srcDcId).containsKey(dstDcId)) {
+            throw new IllegalArgumentException("Destination DC " + dstDcId + " does not exist.");
+        }
+
+        return transferDataBwMap.get(srcDcId).get(dstDcId);
     }
 }

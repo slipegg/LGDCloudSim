@@ -353,6 +353,22 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceRetryTimes = -2;
 
     /**
+     * The minimum image size of an instance.
+     */
+    private int InstanceImageSizeMin = -2;
+
+    /**
+     * The maximum image size of an instance.
+     */
+    private int InstanceImageSizeMax = -2;
+
+    /**
+     * The image size of an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceImageSize = -2;
+
+    /**
      * The id of the next instance.
      */
     private static int instanceId = 0;
@@ -450,6 +466,9 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "InstanceBwNumMin" -> this.InstanceBwNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNumMax" -> this.InstanceBwNumMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNum" -> this.InstanceBwNum = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceImageSizeMin" -> this.InstanceImageSizeMin = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceImageSizeMax" -> this.InstanceImageSizeMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceImageSize" -> this.InstanceImageSize = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTimeMin" -> this.InstanceLifeTimeMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTimeMax" -> this.InstanceLifeTimeMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTime" -> this.InstanceLifeTime = Integer.parseInt(csvRecord.get(1));
@@ -533,8 +552,11 @@ public class UserRequestManagerCsv implements UserRequestManager {
 
         int bwNum = getExpectedValue(InstanceBwNum, InstanceBwNumMin, InstanceBwNumMax);
 
+        int imageSize = getExpectedValue(InstanceImageSize, InstanceImageSizeMin, InstanceImageSizeMax);
+
         int lifeTime = generateInstanceLifeTime();
         Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
+        instance.setImageSize(imageSize);
 
         int retryTimes = getExpectedValue(InstanceRetryTimes, InstanceRetryTimesMin, InstanceRetryTimesMax);
         instance.setRetryMaxNum(retryTimes);
@@ -645,9 +667,11 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int getExpectedValue(int fixed, int min, int max) {
         if (fixed != -2) {
             return fixed;
-        } else {
+        } else if (min != -2 && max != -2) {
             // Generate a random value between min and max (inclusive)
             return random.nextInt(max - min + 1) + min;
+        } else {
+            return -1;
         }
     }
 

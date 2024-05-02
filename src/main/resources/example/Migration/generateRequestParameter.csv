@@ -2,11 +2,20 @@
 DcDistribution,"{""1"":{""United States"":1},""2"":{""United States"":1}}"
 RequestPerNum,2
 RequestTimeInterval,100
-RequestTimes,3
+RequestTimes,4
 RequestGroupNum,3
+GroupAccessDelayPercent,1
+GroupAccessDelay,2000
+GroupEdgePercent,1
+GroupEdgeIsDirected,0
+GroupBwPercent,1
+GroupBw,10
+GroupDelayPercent,1.0
+GroupDelay,2000
 GroupInstanceNum,10
 InstanceCpuNum,8
 InstanceRamNum,16
 InstanceStorageNum,100
 InstanceBwNum,50
+InstanceImageSize,100
 InstanceLifeTime,5000

@@ -78,6 +78,17 @@ public interface NetworkTopology {
     NetworkTopology releaseBw(SimEntity src, SimEntity dst, double releaseBw);
 
     /**
+     * Get the bandwidth between the source and the destination for transferring data.
+     * It is different from the bandwidth between the source and the destination.
+     * Now it is only used to migrate the instance between datacenters.
+     *
+     * @param src the source entity.
+     * @param dst the destination entity.
+     * @return the bandwidth between the source and the destination for transferring data.
+     */
+    double getTransferDataBw(SimEntity src, SimEntity dst);
+
+    /**
      * Get the total cost of the network bandwidth.
      *
      * @return the total cost of the network bandwidth.

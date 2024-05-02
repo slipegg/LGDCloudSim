@@ -248,4 +248,20 @@ public interface Instance extends RequestEntity {
      * @return the instance itself.
      */
     Instance setExpectedScheduleHostId(int expectedScheduleHostId);
+
+    /**
+     * Get the image size of instance.
+     *
+     * @return the image size of instance.
+     */
+    int getImageSize();
+
+    /**
+     * Set the image size of instance.
+     * It is used to calculate the migration time during migration.
+     *
+     * @param imageSize the image size of instance.
+     * @return the instance itself.
+     */
+    Instance setImageSize(int imageSize);
 }

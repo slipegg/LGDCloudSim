@@ -42,6 +42,11 @@ public class NetworkTopologyNull implements NetworkTopology {
     }
 
     @Override
+    public double getTransferDataBw(SimEntity src, SimEntity dst) {
+        return 0;
+    }
+
+    @Override
     public double getNetworkTCO() {
         return 0;
     }

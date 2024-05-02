@@ -61,6 +61,8 @@ public class InstanceSimple implements Instance {
 
     int expectedScheduleHostId;
 
+    int imageSize;
+
     /**
      * Create an instance with the specified id, CPU, memory, storage, and bandwidth.
      * The lifecycle of the instance is set to -1 by default, which means the instance will not be terminated automatically.
@@ -90,6 +92,8 @@ public class InstanceSimple implements Instance {
         this.finishTime = -1;
 
         this.state = UserRequest.WAITING;
+
+        this.imageSize = -1;
     }
 
     /**

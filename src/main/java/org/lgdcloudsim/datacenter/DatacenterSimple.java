@@ -452,6 +452,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      *
      * @param evt The data of the event is a list of instances.
      */
+    //TODO Note that if the instance ends during the migration process,
+    // the requested resources of the instance in the data center to which it was migrated in will never be released.
     private void processEndInstanceRun(SimEvent evt) {
         if (evt.getData() instanceof List<?> list) {
             if (!list.isEmpty() && list.get(0) instanceof Instance) {
@@ -480,12 +482,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (getSimulation().clock() - instance.getStartTime() >= instance.getLifecycle() - 0.01 && instance.getLifecycle() != -1) {
             instance.setState(UserRequest.SUCCESS);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}: {}'s Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+                LOGGER.debug("{}: {}'s InstanceGroup-{} Instance{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getInstanceGroup().getId(), instance.getId(), hostId);
             }
         } else {
             instance.setState(UserRequest.FAILED);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.warn("{}: {}'s Instance{} is terminated prematurely on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+                LOGGER.warn("{}: {}'s InstanceGroup-{} Instance{} is terminated prematurely on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getInstanceGroup().getId(), instance.getId(), hostId);
             }
         }
         instance.setFinishTime(getSimulation().clock());
@@ -788,7 +790,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     private void sendEvtForMigratingInstances(List<Instance> migratingInstances) {
         Map<Double, List<Instance>> migratedInInstances = new HashMap<>();
         for (Instance instance : migratingInstances) {
-            double migrateTime = MigrationTimeCounter.getMigrateTime(instance, instance.getInstanceGroup().getReceiveDatacenter(), this);
+            double migrateTime = MigrationTimeCounter.getMigrateTime(instance, instance.getInstanceGroup().getReceiveDatacenter(), this, getSimulation().getNetworkTopology());
             migratedInInstances.putIfAbsent(migrateTime, new ArrayList<>());
             migratedInInstances.get(migrateTime).add(instance);
         }

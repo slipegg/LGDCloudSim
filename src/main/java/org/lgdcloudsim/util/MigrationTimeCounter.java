@@ -1,6 +1,7 @@
 package org.lgdcloudsim.util;
 
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 
 public class MigrationTimeCounter {
@@ -12,7 +13,7 @@ public class MigrationTimeCounter {
      * @param dstDatacenter
      * @return
      */
-    static public double getMigrateTime(Instance instance, Datacenter srcDatacenter, Datacenter dstDatacenter) {
-        return 5;
+    static public double getMigrateTime(Instance instance, Datacenter srcDatacenter, Datacenter dstDatacenter, NetworkTopology networkTopology) {
+        return instance.getImageSize() / networkTopology.getTransferDataBw(srcDatacenter, dstDatacenter) * 1000;
     }
 }

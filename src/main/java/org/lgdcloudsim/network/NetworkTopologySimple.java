@@ -107,6 +107,11 @@ public class NetworkTopologySimple implements NetworkTopology {
     }
 
     @Override
+    public double getTransferDataBw(SimEntity src, SimEntity dst) {
+        return dcBwManager.getTransferDataBw(src.getId(), dst.getId());
+    }
+
+    @Override
     public double getNetworkTCO() {
         return dcBwManager.getBwTCO();
     }
