@@ -59,7 +59,13 @@ public class InstanceGroupSimple implements InstanceGroup {
 
     int successInstanceNum;
 
+    int runningInstanceNum;
+
     List<Integer> forwardDatacenterIdsHistory;
+
+    int migratedInstanceNum;
+
+    Datacenter migratedInDatacenter;
 
     /**
      * Create an instance group with the specified id.
@@ -78,8 +84,11 @@ public class InstanceGroupSimple implements InstanceGroup {
         this.receivedTime = -1;
         this.finishTime = -1;
         this.successInstanceNum = 0;
+        this.runningInstanceNum = 0;
         this.forwardDatacenterIdsHistory = new ArrayList<>();
         this.destDatacenterId = -1;
+        this.migratedInstanceNum = 0;
+        this.migratedInDatacenter = Datacenter.NULL;
     }
 
     /**
@@ -148,6 +157,17 @@ public class InstanceGroupSimple implements InstanceGroup {
         this.successInstanceNum++;
         if (this.successInstanceNum == this.instances.size()) {
             this.state = UserRequest.SUCCESS;
+            userRequest.addSuccessGroupNum();
+        }
+        return this;
+    }
+
+    @Override
+    public InstanceGroup addRunningInstanceNum() {
+        this.runningInstanceNum++;
+        if (this.runningInstanceNum == this.instances.size()) {
+            this.state = UserRequest.RUNNING;
+            userRequest.addRunningGroupNum();
         }
         return this;
     }

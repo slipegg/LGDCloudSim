@@ -162,9 +162,21 @@ public interface InstanceGroup extends RequestEntity {
     /**
      * Add the number of instances that have been successfully scheduled.
      * If all the instances in the instance group have been successfully scheduled, the instance group is marked as success.
+     * If the instance group is marked as success, the success instance group number of the user request is added.
+     * See {@link UserRequest#addSuccessGroupNum()}.
      * @return the instance group itself.
      */
     InstanceGroup addSuccessInstanceNum();
+
+    /**
+     * Add the number of instances that have been marked as running.
+     * If all the instances in the instance group have been marked as running, the instance group is marked as running.
+     * If the instance group is marked as running, the running instance group number of the user request is added.
+     * See {@link UserRequest#addRunningGroupNum()}.
+     *
+     * @return the instance group itself.
+     */
+    InstanceGroup addRunningInstanceNum();
 
     /**
      * Get the time when the instance group is received by the data center.
@@ -214,4 +226,36 @@ public interface InstanceGroup extends RequestEntity {
      * @return whether the instance group has network restrictions.
      */
     boolean isNetworkLimited();
+
+    /**
+     * Get the number of instances that have been migrated.
+     *
+     * @return the number of instances that have been migrated.
+     */
+    int getMigratedInstanceNum();
+
+    /**
+     * Set the number of instances that have been migrated.
+     *
+     * @param migratedInstanceNum the number of instances that have been migrated.
+     * @return the instance group itself.
+     */
+    InstanceGroup setMigratedInstanceNum(int migratedInstanceNum);
+
+    /**
+     * Get the data center where the instance group is migrated in.
+     * It is only used when the instance group is migrating.
+     *
+     * @return the data center where the instance group is migrated.
+     */
+    Datacenter getMigratedInDatacenter();
+
+    /**
+     * Set the data center where the instance group is migrated in.
+     * It is only used when the instance group is migrating.
+     *
+     * @param migratedInDatacenter the data center where the instance group is migrated.
+     * @return the instance group itself.
+     */
+    InstanceGroup setMigratedInDatacenter(Datacenter migratedInDatacenter);
 }

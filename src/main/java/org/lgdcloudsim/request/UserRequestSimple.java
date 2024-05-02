@@ -43,6 +43,8 @@ public class UserRequestSimple implements UserRequest {
 
     private int successGroupNum;
 
+    private int runningGroupNum;
+
     private double scheduleDelayLimit;
 
     /**
@@ -57,6 +59,7 @@ public class UserRequestSimple implements UserRequest {
         this.finishTime = -1;
         this.failReason = "";
         this.successGroupNum = 0;
+        this.runningGroupNum = 0;
         this.allocatedEdges = new ArrayList<>();
         this.scheduleDelayLimit = -1;
     }
@@ -116,6 +119,15 @@ public class UserRequestSimple implements UserRequest {
         successGroupNum++;
         if (successGroupNum == instanceGroups.size()) {
             state = UserRequest.SUCCESS;
+        }
+        return this;
+    }
+
+    @Override
+    public UserRequest addRunningGroupNum() {
+        runningGroupNum++;
+        if (runningGroupNum == instanceGroups.size()) {
+            state = UserRequest.RUNNING;
         }
         return this;
     }

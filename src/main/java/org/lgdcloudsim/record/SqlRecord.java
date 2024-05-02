@@ -5,7 +5,6 @@ import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * SqlRecord is an interface for the record of the simulation through the SQLite database.
@@ -101,21 +100,14 @@ public interface SqlRecord {
     /**
      * Record the instance group graph release information.
      * It records the finish time.
+     *
      * @param srcInstanceGroupId the source instance group id.
+     * @param srcDcId
      * @param dstInstanceGroupId the destination instance group id.
-     * @param finishTime the finish time.
+     * @param dstDcId
+     * @param finishTime         the finish time.
      */
-    void recordInstanceGroupGraphReleaseInfo(int srcInstanceGroupId, int dstInstanceGroupId, double finishTime);
-
-    /**
-     * Record the instances create information.
-     * It records the instance id, the id of the instance group where the instance belongs,
-     * the id of the user request where the instance belongs, the cpu, the ram, the storage, the bandwidth,
-     * the lifecycle, the retry times, the data center id where the instance is created,
-     * the host id where the instance is created and the start time.
-     * @param instances the instances.
-     */
-    void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances);
+    void recordInstanceGroupGraphReleaseInfo(int srcInstanceGroupId, int srcDcId, int dstInstanceGroupId, int dstDcId, double finishTime);
 
     /**
      * Record the instances finish information.
@@ -123,9 +115,9 @@ public interface SqlRecord {
      * the id of the user request where the instance belongs, the cpu, the ram, the storage, the bandwidth,
      * the lifecycle, the retry times, the data center id where the instance is created,
      * the host id where the instance is created and the start time.
-     * @param instanceGroups the instance groups.
+     * @param instancesOrInstanceGroups the instances or the instance groups.
      */
-    void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups);
+    void recordInstancesCreateInfo(List<?> instancesOrInstanceGroups);
 
     /**
      * Record the instances finish information.
@@ -150,6 +142,8 @@ public interface SqlRecord {
      * @param sum the sum of the conflicts.
      */
     void recordConflict(double time, int sum);
+
+    void updateMigratedInstanceGroupInfo(List<InstanceGroup> instanceGroups);
 
     /**
      * Close the SQLite database.

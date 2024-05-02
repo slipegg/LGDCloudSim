@@ -27,6 +27,7 @@ import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.statemanager.StatesManager;
 import org.lgdcloudsim.util.FailedOutdatedResult;
+import org.lgdcloudsim.util.MigrationTimeCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -396,13 +397,16 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
             case CloudSimTag.INTER_SCHEDULE_BEGIN -> processInterScheduleBegin(evt);
             case CloudSimTag.INTER_SCHEDULE_END -> processInterScheduleEnd(evt);
-            case CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD -> processScheduleToDcNoForward(evt);
+            case CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD, CloudSimTag.MIGRATE_INSTANCE_GROUP_IN ->
+                    processScheduleToDcNoForward(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST -> processScheduleToDcHost(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
             case CloudSimTag.INTRA_SCHEDULE_BEGIN -> processIntraScheduleBegin(evt);
             case CloudSimTag.INTRA_SCHEDULE_END -> processIntraScheduleEnd(evt);
             case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
+            case CloudSimTag.MIGRATE_INSTANCE_FINISH -> processMigrateInstanceFinish(evt);
+            case CloudSimTag.MIGRATE_INSTANCE_GROUP_OUT -> processMigrateInstanceGroupOut(evt);
             case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
@@ -452,7 +456,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof List<?> list) {
             if (!list.isEmpty() && list.get(0) instanceof Instance) {
 //                LOGGER.info("{}: {} received {} instances to finish", getSimulation().clockStr(), getName(), list.size());
-                for (Instance instance : (List<Instance>) list) {
+                Iterator<Instance> iterator = ((List<Instance>) list).iterator();
+                while (iterator.hasNext()) {
+                    Instance instance = iterator.next();
+                    if (instance.getInstanceGroup().getReceiveDatacenter() != this) { //The instance has been migrated out to other datacenter
+                        iterator.remove();
+                        continue;
+                    }
                     finishInstance(instance);
                 }
                 getSimulation().getSqlRecord().recordInstancesFinishInfo((List<Instance>) list);
@@ -545,7 +555,6 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         //If the InstanceGroup runs successfully, the UserRequest status information needs to be updated.
         UserRequest userRequest = instanceGroup.getUserRequest();
-        userRequest.addSuccessGroupNum();
         if (userRequest.getState() == UserRequest.SUCCESS) {
             updateUserRequestAfterSuccess(userRequest);
         }
@@ -564,22 +573,25 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instanceGroup.setFinishTime(getSimulation().clock());
         getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
 
+        releaseBwForInstanceGroup(instanceGroup);
+    }
+
+    private void releaseBwForInstanceGroup(InstanceGroup instanceGroup) {
         UserRequest userRequest = instanceGroup.getUserRequest();
-        //Release bandwidth resources
         List<InstanceGroup> dstInstanceGroups = userRequest.getInstanceGroupGraph().getDstList(instanceGroup);
         for (InstanceGroup dstInstanceGroup : dstInstanceGroups) {
-            if (dstInstanceGroup.getState() == UserRequest.SUCCESS) {
+            if (dstInstanceGroup.getState() == UserRequest.SUCCESS || instanceGroup.getState() == UserRequest.MIGRATING) {
                 double releaseBw = userRequest.getInstanceGroupGraph().getBw(instanceGroup, dstInstanceGroup);
                 getSimulation().getNetworkTopology().releaseBw(instanceGroup.getReceiveDatacenter(), dstInstanceGroup.getReceiveDatacenter(), releaseBw);
-                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(instanceGroup.getId(), dstInstanceGroup.getId(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(instanceGroup.getId(), instanceGroup.getReceiveDatacenter().getId(), dstInstanceGroup.getId(), dstInstanceGroup.getReceiveDatacenter().getId(), getSimulation().clock());
             }
         }
         List<InstanceGroup> srcInstanceGroups = userRequest.getInstanceGroupGraph().getSrcList(instanceGroup);
         for (InstanceGroup srcInstanceGroup : srcInstanceGroups) {
-            if (srcInstanceGroup.getState() == UserRequest.SUCCESS) {
+            if (srcInstanceGroup.getState() == UserRequest.SUCCESS || instanceGroup.getState() == UserRequest.MIGRATING) {
                 double releaseBw = userRequest.getInstanceGroupGraph().getBw(srcInstanceGroup, instanceGroup);
                 getSimulation().getNetworkTopology().releaseBw(srcInstanceGroup.getReceiveDatacenter(), instanceGroup.getReceiveDatacenter(), releaseBw);
-                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(srcInstanceGroup.getId(), instanceGroup.getId(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphReleaseInfo(srcInstanceGroup.getId(), srcInstanceGroup.getReceiveDatacenter().getId(), instanceGroup.getId(), instanceGroup.getReceiveDatacenter().getId(), getSimulation().clock());
             }
         }
     }
@@ -596,6 +608,73 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         userRequest.setFinishTime(getSimulation().clock());
         getSimulation().getSqlRecord().recordUserRequestFinishInfo(userRequest);
         getSimulation().getCis().getRunningUserRequests().remove(userRequest);
+    }
+
+    private void processMigrateInstanceGroupOut(SimEvent evt) {
+        if (evt.getData() instanceof List<?> instanceGroupTmp) {
+            List<InstanceGroup> instanceGroups = (List<InstanceGroup>) instanceGroupTmp;
+            Datacenter migratedInDc = (Datacenter) evt.getSource();
+            for (InstanceGroup instanceGroup : instanceGroups) {
+                if (instanceGroup.getState() != UserRequest.MIGRATING) {
+                    continue;
+                }
+                updateAfterMigratedInstanceGroup(instanceGroup, migratedInDc);
+            }
+            getSimulation().getSqlRecord().updateMigratedInstanceGroupInfo(instanceGroups);
+            LOGGER.info("{}: {}'s {} instance groups have been migrated from {} to {}.", getSimulation().clockStr(), getName(), instanceGroups.size(), getName(), migratedInDc.getName());
+        }
+    }
+
+    private void updateAfterMigratedInstanceGroup(InstanceGroup instanceGroup, Datacenter migratedInDc) {
+        releasedMigratedOutInstanceGroup(instanceGroup);
+
+        instanceGroup.setState(UserRequest.RUNNING);
+        instanceGroup.setReceiveDatacenter(migratedInDc);
+        instanceGroup.setMigratedInDatacenter(Datacenter.NULL);
+        instanceGroup.setMigratedInstanceNum(0);
+        for (Instance instance : instanceGroup.getInstances()) {
+            if (instance.getState() != UserRequest.RUNNING) {
+                continue;
+            }
+            instance.setHost(instance.getExpectedScheduleHostId());
+            instance.setExpectedScheduleHostId(-1);
+        }
+    }
+
+    private void releasedMigratedOutInstanceGroup(InstanceGroup instanceGroup) {
+        for (Instance instance : instanceGroup.getInstances()) {
+            if (instance.getState() != UserRequest.RUNNING) {
+                continue;
+            }
+            statesManager.release(instance.getHost(), instance);
+        }
+        releaseBwForInstanceGroup(instanceGroup);
+    }
+
+    private void processMigrateInstanceFinish(SimEvent evt) {
+        if (evt.getData() instanceof List<?> instancesTmp) {
+            List<Instance> instances = (List<Instance>) instancesTmp;
+            Map<Datacenter, List<InstanceGroup>> migratedInstanceGroups = new HashMap<>();
+            for (Instance instance : instances) {
+                InstanceGroup instanceGroup = instance.getInstanceGroup();
+                if (instanceGroup.getState() != UserRequest.MIGRATING || instance.getState() == UserRequest.FAILED || instance.getState() == UserRequest.SUCCESS) {
+                    continue;
+                }
+
+                instanceGroup.setMigratedInstanceNum(instanceGroup.getMigratedInstanceNum() + 1);
+                if (instanceGroup.getMigratedInstanceNum() == instanceGroup.getInstances().size()) {
+                    migratedInstanceGroups.putIfAbsent(instanceGroup.getReceiveDatacenter(), new ArrayList<>());
+                    migratedInstanceGroups.get(instanceGroup.getReceiveDatacenter()).add(instanceGroup);
+                }
+            }
+            int migratedInstanceGroupNum = migratedInstanceGroups.values().stream().mapToInt(List::size).sum();
+            if (migratedInstanceGroupNum > 0) {
+                LOGGER.info("{}: {} instanceGroups have been migrated in {}, they will be migrated out immediately.", getSimulation().clockStr(), migratedInstanceGroupNum, getName());
+                for (Map.Entry<Datacenter, List<InstanceGroup>> entry : migratedInstanceGroups.entrySet()) {
+                    send(entry.getKey(), 0, CloudSimTag.MIGRATE_INSTANCE_GROUP_OUT, entry.getValue());
+                }
+            }
+        }
     }
 
     /**
@@ -632,19 +711,21 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      */
     private Map<IntraScheduler, List<Instance>> allocateResource(Map<IntraScheduler, List<Instance>> allocatedResult) {
         LOGGER.info("{}: {} is allocate resource.", getSimulation().clockStr(), getName());
-        Map<Integer, List<Instance>> successAllocatedInstances = new HashMap<>();
+        Map<Double, List<Instance>> needEndInstances = new HashMap<>();
         Map<IntraScheduler, List<Instance>> failedInstances = new HashMap<>();
+        List<Instance> recordInstances = new ArrayList<>();
+        List<Instance> migratingInstances = new ArrayList<>();
 
         for (Map.Entry<IntraScheduler, List<Instance>> entry : allocatedResult.entrySet()) {
             IntraScheduler intraScheduler = entry.getKey();
             List<Instance> instances = entry.getValue();
             for (Instance instance : instances) {
-                if (instance.getUserRequest().getState() == UserRequest.FAILED) {
+                if (instance.getUserRequest().getState() == UserRequest.FAILED || instance.getUserRequest().getState() == UserRequest.SUCCESS) {
                     continue;
                 }
 
                 int allocatedHostId = instance.getExpectedScheduleHostId();
-                if (!statesManager.allocate(allocatedHostId, instance))//理论上到这里不会出现分配失败的情况
+                if (!statesManager.allocate(allocatedHostId, instance))//Theoretically, there will be no allocation failure here.
                 {
                     LOGGER.warn("{}: {}'s Instance{} failed to allocate resources on host{} after processPreAllocateResource", getSimulation().clockStr(), getName(), instance.getId(), instance.getExpectedScheduleHostId());
                     failedInstances.putIfAbsent(intraScheduler, new ArrayList<>());
@@ -653,9 +734,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
                 updateAfterInstanceAllocated(instance);
 
-                int lifeTime = instance.getLifecycle();
-                successAllocatedInstances.putIfAbsent(lifeTime, new ArrayList<>());
-                successAllocatedInstances.get(lifeTime).add(instance);
+                double lifeTime = getRemainingLife(instance);
+                needEndInstances.putIfAbsent(lifeTime, new ArrayList<>());
+                needEndInstances.get(lifeTime).add(instance);
+                if (instance.getInstanceGroup().getState() != UserRequest.MIGRATING) {
+                    recordInstances.add(instance);
+                } else {
+                    migratingInstances.add(instance);
+                }
 
                 if (lifeTime < 0) {
                     calculateCost(instance);
@@ -663,8 +749,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
 
-        getSimulation().getSqlRecord().recordInstancesCreateInfo(successAllocatedInstances);
-        sendFinishInstanceRunEvt(successAllocatedInstances);
+        getSimulation().getSqlRecord().recordInstancesCreateInfo(recordInstances);
+        sendEvtAfterAllocate(needEndInstances);
+        sendEvtForMigratingInstances(migratingInstances);
 
         return failedInstances;
     }
@@ -672,16 +759,42 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * Send the {@link CloudSimTag#END_INSTANCE_RUN} event to itself after the instance has been allocated.
      * Note that the same lifeTime instances are sent in the same event.
-     * @param finishInstances
+     * @param allocatedInstances the instances that have been allocated
      */
-    private void sendFinishInstanceRunEvt(Map<Integer, List<Instance>> finishInstances) {
-        for (Map.Entry<Integer, List<Instance>> entry : finishInstances.entrySet()) {
-            int lifeTime = entry.getKey();
+    private void sendEvtAfterAllocate(Map<Double, List<Instance>> allocatedInstances) {
+        for (Map.Entry<Double, List<Instance>> entry : allocatedInstances.entrySet()) {
+            double lifeTime = entry.getKey();
             List<Instance> instances = entry.getValue();
 
             if (lifeTime > 0) {
                 send(this, lifeTime, CloudSimTag.END_INSTANCE_RUN, instances);
+                if (LOGGER.isDebugEnabled()) {
+                    for (Instance instance : instances) {
+                        LOGGER.debug("{}: {}'s instance-{}, instanceGroup-{} will end running after {} ms", getSimulation().clockStr(), getName(), instance.getId(), instance.getInstanceGroup().getId(), lifeTime);
+                    }
+                }
             }
+        }
+    }
+
+    private double getRemainingLife(Instance instance) {
+        if (instance.getInstanceGroup().getState() != UserRequest.MIGRATING) {
+            return instance.getLifecycle();
+        } else {
+            return instance.getLifecycle() - (getSimulation().clock() - instance.getStartTime());
+        }
+    }
+
+    private void sendEvtForMigratingInstances(List<Instance> migratingInstances) {
+        Map<Double, List<Instance>> migratedInInstances = new HashMap<>();
+        for (Instance instance : migratingInstances) {
+            double migrateTime = MigrationTimeCounter.getMigrateTime(instance, instance.getInstanceGroup().getReceiveDatacenter(), this);
+            migratedInInstances.putIfAbsent(migrateTime, new ArrayList<>());
+            migratedInInstances.get(migrateTime).add(instance);
+        }
+
+        for (Map.Entry<Double, List<Instance>> entry : migratedInInstances.entrySet()) {
+            send(this, entry.getKey(), CloudSimTag.MIGRATE_INSTANCE_FINISH, entry.getValue());
         }
     }
 
@@ -766,6 +879,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param isNeedRevertSelfHostState whether to revert the state of the host
      * @param outDatedUserRequests the outdated user requests that has exceeded the scheduling time limit
      */
+    // TODO Now for instances in the instance group which is migrating,
+    //  if instance scheduling fails, the retry num will not be increased,
+    //  meaning it will keep retrying until a suitable host is found.
+    //  Optimization is required in the future.
     private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
         for (UserRequest userRequest : outDatedUserRequests) {
@@ -779,8 +896,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 instance.addRetryHostId(instance.getExpectedScheduleHostId());
                 instance.setExpectedScheduleHostId(-1);
             }
-
-            instance.addRetryNum();
+            if (instance.getInstanceGroup().getState() != UserRequest.MIGRATING) {
+                instance.addRetryNum();
+            }
             if (instance.isFailed()) {
                 UserRequest userRequest = instance.getUserRequest();
                 userRequest.addFailReason("instance" + instance.getId());
@@ -1040,7 +1158,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      */
     private List<InstanceGroup> allocateResourceForInstanceGroups(List<InstanceGroup> instanceGroups) {
         List<InstanceGroup> failedInstanceGroups = new ArrayList<>();
-        Map<Integer, List<Instance>> lifeInstancesMap = new HashMap<>();
+        Map<Double, List<Instance>> lifeInstancesMap = new HashMap<>();
 
         for (InstanceGroup instanceGroup : instanceGroups) {
             for (Instance instance : instanceGroup.getInstances()) {
@@ -1057,13 +1175,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
                 updateAfterInstanceAllocated(instance);
 
-                int lifeTime = instance.getLifecycle();
+                double lifeTime = getRemainingLife(instance);
                 lifeInstancesMap.putIfAbsent(lifeTime, new ArrayList<>());
                 lifeInstancesMap.get(lifeTime).add(instance);
             }
         }
 
-        sendFinishInstanceRunEvt(lifeInstancesMap);
+        sendEvtAfterAllocate(lifeInstancesMap);
 
         return failedInstanceGroups;
     }
@@ -1073,10 +1191,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param instance the instance
      */
     private void updateAfterInstanceAllocated(Instance instance) {
-        instance.setState(UserRequest.RUNNING);
-        instance.setStartTime(getSimulation().clock());
-        instance.setHost(instance.getExpectedScheduleHostId());
-        instance.setExpectedScheduleHostId(-1);
+        if (instance.getInstanceGroup().getState() != UserRequest.MIGRATING) {
+            instance.setState(UserRequest.RUNNING);
+            instance.setStartTime(getSimulation().clock());
+            instance.setHost(instance.getExpectedScheduleHostId());
+            instance.setExpectedScheduleHostId(-1);
+            instance.getInstanceGroup().addRunningInstanceNum();
+        }
     }
 
     /**
@@ -1091,14 +1212,23 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             instanceQueue.add(instanceGroups);
 
-            LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
-                    getSimulation().clockStr(),
-                    getName(),
-                    evt.getSource().getName(),
-                    instanceGroups.size(),
-                    instanceQueue.size());
+            if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD) {
+                LOGGER.info("{}: {} receives {}'s respond to employ {} InstanceGroups.Now the size of instanceQueue is {}.",
+                        getSimulation().clockStr(),
+                        getName(),
+                        evt.getSource().getName(),
+                        instanceGroups.size(),
+                        instanceQueue.size());
 
-            getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
+                getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(instanceGroups);
+            } else if (evt.getTag() == CloudSimTag.MIGRATE_INSTANCE_GROUP_IN) {
+                LOGGER.info("{}: {} receives {}'s respond to migrate {} InstanceGroups in.Now the size of instanceQueue is {}.",
+                        getSimulation().clockStr(),
+                        getName(),
+                        evt.getSource().getName(),
+                        instanceGroups.size(),
+                        instanceQueue.size());
+            }
 
             sendNow(this, CloudSimTag.LOAD_BALANCE_SEND, "intra");
         }
@@ -1112,10 +1242,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         Iterator<InstanceGroup> iterator = instanceGroups.iterator();
         while (iterator.hasNext()) {
             InstanceGroup instanceGroup = iterator.next();
-            if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED) {
+            if (instanceGroup.getUserRequest().getState() == UserRequest.FAILED || instanceGroup.getUserRequest().getState() == UserRequest.SUCCESS) {
                 iterator.remove();
             } else {
-                instanceGroup.setReceivedTime(getSimulation().clock());
+                if (instanceGroup.getState() != UserRequest.MIGRATING) {
+                    instanceGroup.setReceivedTime(getSimulation().clock());
+                }
             }
         }
     }
@@ -1123,7 +1255,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * Allocate bandwidth for the instance group and records the allocation information in database.
      * @param instanceGroup the instance group
-     * @param receiveDatacenter the data center that receives the instance group
+     * @param receivedDatacenter the data center that receives the instance group
      * @return whether the bandwidth allocation is successful
      */
     private boolean allocateBwForGroup(InstanceGroup instanceGroup, Datacenter receivedDatacenter) {
@@ -1323,7 +1455,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
             handleFailedInterScheduling(interScheduler, interSchedulerResult.getFailedInstanceGroups(), interSchedulerResult.getOutDatedUserRequests());
 
-            LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getInstanceGroupNum());
+            LOGGER.info("{}: {} ends finding available Datacenters for {} instance groups.", getSimulation().clockStr(), getName(), interSchedulerResult.getScheduledInstanceGroupNum());
 
             if (interSchedulerResult.getTarget() != InterSchedulerSimple.MIXED_TARGET || isScheduleToSelfEmpty(interSchedulerResult)) {
                 startInterScheduling(interScheduler);

@@ -295,8 +295,23 @@ public class CloudInformationService extends CloudSimEntity {
 
             startCenterInterScheduling(interScheduler);
 
-            LOGGER.info("{}: {} ends finding available Datacenters for {} instanceGroups.",
-                    getSimulation().clockStr(), interScheduler.getName(), interSchedulerResult.getInstanceGroupNum());
+            if (!interSchedulerResult.getInterScheduler().isSupportMigration()) {
+                LOGGER.info("{}: {} ends finding available Datacenters for {} instanceGroups.",
+                        getSimulation().clockStr(), interScheduler.getName(), interSchedulerResult.getScheduledInstanceGroupNum());
+            } else {
+                LOGGER.info("{}: {} ends finding available Datacenters for {} instanceGroups to schedule and {} InInstanceGroups to migrate.",
+                        getSimulation().clockStr(), interScheduler.getName(), interSchedulerResult.getScheduledInstanceGroupNum(), interSchedulerResult.getMigratedInInstanceGroupNum());
+                if (LOGGER.isDebugEnabled()) {
+                    for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getMigrateInInstanceGroups().entrySet()) {
+                        Datacenter destDc = entry.getKey();
+                        List<InstanceGroup> instanceGroups = entry.getValue();
+                        for (InstanceGroup instanceGroup : instanceGroups) {
+                            LOGGER.debug("{}: {} will migrate instanceGroup-{} from {} to {}.",
+                                    getSimulation().clockStr(), interScheduler.getName(), instanceGroup.getId(), instanceGroup.getReceiveDatacenter().getName(), destDc.getName());
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -321,6 +336,21 @@ public class CloudInformationService extends CloudSimEntity {
             }
             instanceGroups.removeAll(groupsToRemove);
         }
+        // TODO For the instance group that needs to be migrated,
+        //  if the bandwidth allocation fails, the migration will no longer be performed and no other action will be taken.
+        //  Need to determine whether this is reasonable.
+        for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getMigrateInInstanceGroups().entrySet()) {
+            Datacenter datacenter = entry.getKey();
+            List<InstanceGroup> instanceGroups = entry.getValue();
+            Set<InstanceGroup> groupsToRemove = new HashSet<>();
+            for (InstanceGroup instanceGroup : instanceGroups) {
+                if (!allocateBwForGroup(instanceGroup, datacenter)) {
+                    groupsToRemove.add(instanceGroup);
+                    instanceGroup.setState(UserRequest.RUNNING);
+                }
+            }
+            instanceGroups.removeAll(groupsToRemove);
+        }
     }
 
     /**
@@ -341,6 +371,14 @@ public class CloudInformationService extends CloudSimEntity {
                 } else {
                     send(datacenter, 0, evtTag, instanceGroups);
                 }
+            }
+        }
+
+        for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getMigrateInInstanceGroups().entrySet()) {
+            Datacenter datacenter = entry.getKey();
+            List<InstanceGroup> instanceGroups = entry.getValue();
+            if (!instanceGroups.isEmpty()) {
+                send(datacenter, 0, CloudSimTag.MIGRATE_INSTANCE_GROUP_IN, instanceGroups);
             }
         }
     }
@@ -431,26 +469,40 @@ public class CloudInformationService extends CloudSimEntity {
 
         UserRequest userRequest = instanceGroup.getUserRequest();
         List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
-        for (InstanceGroup dst : dstInstanceGroups) {
-            if (dst.getReceiveDatacenter() != Datacenter.NULL) {
-                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dst);
-                if (!getSimulation().getNetworkTopology().allocateBw(receivedDatacenter, dst.getReceiveDatacenter(), edge.getRequiredBw())) {
+        for (InstanceGroup dstGroup : dstInstanceGroups) {
+            if (dstGroup.getReceiveDatacenter() != Datacenter.NULL) {
+                Datacenter dstDatacenter;
+                if (dstGroup.getState() != UserRequest.MIGRATING) {
+                    dstDatacenter = dstGroup.getReceiveDatacenter();
+                } else {
+                    dstDatacenter = dstGroup.getMigratedInDatacenter();
+                }
+
+                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dstGroup);
+                if (!getSimulation().getNetworkTopology().allocateBw(receivedDatacenter, dstDatacenter, edge.getRequiredBw())) {
                     return false;//After checking the tryAllocateBw function, there should be no failure to allocate bandwidth here.
                 }
 
-                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(receivedDatacenter.getId(), instanceGroup.getId(), dst.getReceiveDatacenter().getId(), dst.getId(), edge.getRequiredBw(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(receivedDatacenter.getId(), instanceGroup.getId(), dstDatacenter.getId(), dstGroup.getId(), edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
             }
         }
         List<InstanceGroup> srcInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
-        for (InstanceGroup src : srcInstanceGroups) {
-            if (src.getReceiveDatacenter() != Datacenter.NULL) {
-                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
-                if (!getSimulation().getNetworkTopology().allocateBw(src.getReceiveDatacenter(), receivedDatacenter, edge.getRequiredBw())) {
+        for (InstanceGroup srcGroup : srcInstanceGroups) {
+            if (srcGroup.getReceiveDatacenter() != Datacenter.NULL) {
+                Datacenter srcDatacenter;
+                if (srcGroup.getState() != UserRequest.MIGRATING) {
+                    srcDatacenter = srcGroup.getReceiveDatacenter();
+                } else {
+                    srcDatacenter = srcGroup.getMigratedInDatacenter();
+                }
+
+                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(srcGroup, instanceGroup);
+                if (!getSimulation().getNetworkTopology().allocateBw(srcDatacenter, receivedDatacenter, edge.getRequiredBw())) {
                     return false;//After checking the tryAllocateBw function, there should be no failure to allocate bandwidth here.
                 }
 
-                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(src.getReceiveDatacenter().getId(), src.getId(), receivedDatacenter.getId(), instanceGroup.getId(), edge.getRequiredBw(), getSimulation().clock());
+                getSimulation().getSqlRecord().recordInstanceGroupGraphAllocateInfo(srcDatacenter.getId(), srcGroup.getId(), receivedDatacenter.getId(), instanceGroup.getId(), edge.getRequiredBw(), getSimulation().clock());
                 userRequest.addAllocatedEdge(edge);
             }
         }
@@ -467,14 +519,21 @@ public class CloudInformationService extends CloudSimEntity {
         Map<Datacenter, Map<Datacenter, Double>> allocatedBwTmp = new HashMap<>();
 
         List<InstanceGroup> dstInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup);
-        for (InstanceGroup dst : dstInstanceGroups) {
-            if (dst.getReceiveDatacenter() != Datacenter.NULL) {
-                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dst);
-                double nowBw;
-                if (allocatedBwTmp.containsKey(receivedDatacenter) && allocatedBwTmp.get(receivedDatacenter).containsKey(dst.getReceiveDatacenter())) {
-                    nowBw = allocatedBwTmp.get(receivedDatacenter).get(dst.getReceiveDatacenter());
+        for (InstanceGroup dstGroup : dstInstanceGroups) {
+            if (dstGroup.getReceiveDatacenter() != Datacenter.NULL) {
+                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(instanceGroup, dstGroup);
+                Datacenter dstDatacenter;
+                if (dstGroup.getState() != UserRequest.MIGRATING) {
+                    dstDatacenter = dstGroup.getReceiveDatacenter();
                 } else {
-                    nowBw = getSimulation().getNetworkTopology().getBw(receivedDatacenter, dst.getReceiveDatacenter());
+                    dstDatacenter = dstGroup.getMigratedInDatacenter();
+                }
+
+                double nowBw;
+                if (allocatedBwTmp.containsKey(receivedDatacenter) && allocatedBwTmp.get(receivedDatacenter).containsKey(dstDatacenter)) {
+                    nowBw = allocatedBwTmp.get(receivedDatacenter).get(dstDatacenter);
+                } else {
+                    nowBw = getSimulation().getNetworkTopology().getBw(receivedDatacenter, dstDatacenter);
                 }
 
                 if (nowBw < edge.getRequiredBw()) {
@@ -483,29 +542,36 @@ public class CloudInformationService extends CloudSimEntity {
                     if (!allocatedBwTmp.containsKey(receivedDatacenter)) {
                         allocatedBwTmp.put(receivedDatacenter, new HashMap<>());
                     }
-                    allocatedBwTmp.get(receivedDatacenter).put(dst.getReceiveDatacenter(), nowBw - edge.getRequiredBw());
+                    allocatedBwTmp.get(receivedDatacenter).put(dstDatacenter, nowBw - edge.getRequiredBw());
                 }
             }
         }
 
         List<InstanceGroup> srcInstanceGroups = instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup);
-        for (InstanceGroup src : srcInstanceGroups) {
-            if (src.getReceiveDatacenter() != Datacenter.NULL) {
-                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(src, instanceGroup);
-                double nowBw;
-                if (allocatedBwTmp.containsKey(src.getReceiveDatacenter()) && allocatedBwTmp.get(src.getReceiveDatacenter()).containsKey(receivedDatacenter)) {
-                    nowBw = allocatedBwTmp.get(src.getReceiveDatacenter()).get(receivedDatacenter);
+        for (InstanceGroup srcGroup : srcInstanceGroups) {
+            if (srcGroup.getReceiveDatacenter() != Datacenter.NULL) {
+                InstanceGroupEdge edge = instanceGroup.getUserRequest().getInstanceGroupGraph().getEdge(srcGroup, instanceGroup);
+                Datacenter srcDatacenter;
+                if (srcGroup.getState() != UserRequest.MIGRATING) {
+                    srcDatacenter = srcGroup.getReceiveDatacenter();
                 } else {
-                    nowBw = getSimulation().getNetworkTopology().getBw(src.getReceiveDatacenter(), receivedDatacenter);
+                    srcDatacenter = srcGroup.getMigratedInDatacenter();
+                }
+
+                double nowBw;
+                if (allocatedBwTmp.containsKey(srcDatacenter) && allocatedBwTmp.get(srcDatacenter).containsKey(receivedDatacenter)) {
+                    nowBw = allocatedBwTmp.get(srcDatacenter).get(receivedDatacenter);
+                } else {
+                    nowBw = getSimulation().getNetworkTopology().getBw(srcDatacenter, receivedDatacenter);
                 }
 
                 if (nowBw < edge.getRequiredBw()) {
                     return false;
                 } else {
-                    if (!allocatedBwTmp.containsKey(src.getReceiveDatacenter())) {
-                        allocatedBwTmp.put(src.getReceiveDatacenter(), new HashMap<>());
+                    if (!allocatedBwTmp.containsKey(srcDatacenter)) {
+                        allocatedBwTmp.put(srcDatacenter, new HashMap<>());
                     }
-                    allocatedBwTmp.get(src.getReceiveDatacenter()).put(receivedDatacenter, nowBw - edge.getRequiredBw());
+                    allocatedBwTmp.get(srcDatacenter).put(receivedDatacenter, nowBw - edge.getRequiredBw());
                 }
             }
         }

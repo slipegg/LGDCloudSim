@@ -33,14 +33,27 @@ public class InterSchedulerResult {
     private Map<Datacenter, List<InstanceGroup>> scheduledResultMap;
 
     /**
+     * The instance groups that need to be migrated out from the original datacenters to other datacenters.
+     * The key is the target datacenter for migrating in, and the value is the instance groups that need to be migrated in.
+     * The original datacenter is stored in the instance group's {@link InstanceGroup#getReceiveDatacenter()}.
+     * It only used when the {@link InterSchedulerSimple#isSupportMigration} is true.
+     */
+    private Map<Datacenter, List<InstanceGroup>> migrateInInstanceGroups;
+
+    /**
      * The failed instance groups.
      */
     private List<InstanceGroup> failedInstanceGroups;
 
     /**
-     * The number of the instance groups.
+     * The number of the instance groups to be scheduled.
      */
-    private int instanceGroupNum;
+    private int scheduledInstanceGroupNum;
+
+    /**
+     * The number of the instance groups that have been migrated.
+     */
+    private int migratedInInstanceGroupNum;
 
     /**
      * The outdated user requests which are exceeded the schedule delay limit.
@@ -63,9 +76,16 @@ public class InterSchedulerResult {
      * @param instanceGroup the scheduled instance group.
      * @param datacenter the datacenter where the instance group is scheduled.
      */
-    public void addDcResult(InstanceGroup instanceGroup, Datacenter datacenter) {
+    public void addScheduledResult(InstanceGroup instanceGroup, Datacenter datacenter) {
         this.scheduledResultMap.get(datacenter).add(instanceGroup);
-        this.instanceGroupNum++;
+        this.scheduledInstanceGroupNum++;
+    }
+
+    public void addMigrateInResult(InstanceGroup instanceGroup, Datacenter datacenter) {
+        this.migrateInInstanceGroups.get(datacenter).add(instanceGroup);
+        instanceGroup.setState(UserRequest.MIGRATING);
+        instanceGroup.setMigratedInDatacenter(datacenter);
+        this.migratedInInstanceGroupNum++;
     }
 
     /**
@@ -74,7 +94,7 @@ public class InterSchedulerResult {
      */
     public void addFailedInstanceGroup(InstanceGroup instanceGroup) {
         this.failedInstanceGroups.add(instanceGroup);
-        this.instanceGroupNum++;
+        this.scheduledInstanceGroupNum++;
     }
 
     /**
@@ -83,8 +103,12 @@ public class InterSchedulerResult {
      */
     private void initDcResultMap(List<Datacenter> datacenters) {
         this.scheduledResultMap = new HashMap<>();
+        this.migrateInInstanceGroups = new HashMap<>();
         for (Datacenter datacenter : datacenters) {
             this.scheduledResultMap.put(datacenter, new ArrayList<>());
+            if (interScheduler.isSupportMigration()) {
+                this.migrateInInstanceGroups.put(datacenter, new ArrayList<>());
+            }
         }
     }
 

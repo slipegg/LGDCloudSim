@@ -49,7 +49,7 @@ public class InterSchedulerRound extends InterSchedulerSimple {
         lastSendDCIndex = (lastSendDCIndex + 1) % allDatacenters.size();
         Datacenter targetDC = allDatacenters.get(lastSendDCIndex);
         for (InstanceGroup instanceGroup : instanceGroups) {
-            interSchedulerResult.addDcResult(instanceGroup, targetDC);
+            interSchedulerResult.addScheduledResult(instanceGroup, targetDC);
         }
         return interSchedulerResult;
     }

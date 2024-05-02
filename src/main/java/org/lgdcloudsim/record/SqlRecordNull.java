@@ -5,7 +5,6 @@ import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * It is an implementation of the SqlRecord interface.
@@ -69,16 +68,12 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
-    public void recordInstanceGroupGraphReleaseInfo(int srcDcId, int dstDcId, double finishTime) {
+    public void recordInstanceGroupGraphReleaseInfo(int srcInstanceGroupId, int srcDcId, int dstInstanceGroupId, int dstDcId, double finishTime) {
 
     }
 
     @Override
-    public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
-    }
-
-    @Override
-    public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
+    public void recordInstancesCreateInfo(List<?> instancesOrInstanceGroups) {
 
     }
 
@@ -93,6 +88,11 @@ public class SqlRecordNull implements SqlRecord {
 
     @Override
     public void recordConflict(double time, int sum) {
+
+    }
+
+    @Override
+    public void updateMigratedInstanceGroupInfo(List<InstanceGroup> instanceGroups) {
 
     }
 

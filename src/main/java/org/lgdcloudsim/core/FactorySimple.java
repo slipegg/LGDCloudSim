@@ -45,7 +45,7 @@ public class FactorySimple implements Factory {
     public InterScheduler getInterScheduler(String type, int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward, boolean isSupportMigration) {
         return switch (type) {
             case "simple", "Simple" ->
-                    new InterSchedulerSimple(id, simulation, collaborationId, target, isSupportForward);
+                    new InterSchedulerSimple(id, simulation, collaborationId, target, isSupportForward, isSupportMigration);
             case "leastRequested" ->
                     new InterSchedulerLeastRequested(id, simulation, collaborationId, target, isSupportForward);
             case "round" -> new InterSchedulerRound(id, simulation, collaborationId, target, isSupportForward);

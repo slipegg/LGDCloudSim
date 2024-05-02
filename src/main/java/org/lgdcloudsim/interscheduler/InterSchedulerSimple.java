@@ -180,10 +180,11 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * The constructor of the InterSchedulerSimple class.
-     * @param id the id of the inter-scheduler
-     * @param simulation the simulation
-     * @param collaborationId the collaboration zone id
-     * @param target the target of the inter-scheduler, it can be set to {@link InterSchedulerSimple#HOST_TARGET}, {@link InterSchedulerSimple#DC_TARGET} or {@link InterSchedulerSimple#MIXED_TARGET}
+     *
+     * @param id               the id of the inter-scheduler
+     * @param simulation       the simulation
+     * @param collaborationId  the collaboration zone id
+     * @param target           the target of the inter-scheduler, it can be set to {@link InterSchedulerSimple#HOST_TARGET}, {@link InterSchedulerSimple#DC_TARGET} or {@link InterSchedulerSimple#MIXED_TARGET}
      * @param isSupportForward whether the scheduled instance group by the inter-scheduler supports forward
      */
     public InterSchedulerSimple(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
@@ -251,7 +252,11 @@ public class InterSchedulerSimple implements InterScheduler {
         traversalTime = 0;
         double start = System.currentTimeMillis();
         if (target == DC_TARGET) {
-            interSchedulerResult = scheduleToDatacenter(waitSchedulingInstanceGroups);
+            if (!isSupportMigration) {
+                interSchedulerResult = scheduleToDatacenter(waitSchedulingInstanceGroups);
+            } else {
+                interSchedulerResult = scheduleToDatacenterWithMigration(waitSchedulingInstanceGroups);
+            }
         } else if (target == HOST_TARGET) {
             interSchedulerResult = scheduleToHost(waitSchedulingInstanceGroups);
         } else if (target == MIXED_TARGET) {
@@ -271,6 +276,7 @@ public class InterSchedulerSimple implements InterScheduler {
      * The schedule algorithm is that randomly select a host from all hosts in the data center and start traversing until a suitable host is found.
      * If there is no suitable host in the data center, it will try to forward the instance group to other data centers.
      * The schedule algorithm is that randomly forward the instance group to one of the data centers that may have sufficient resources.
+     *
      * @param instanceGroups the instance groups to be scheduled
      * @return the result of the inter-scheduler
      */
@@ -291,7 +297,7 @@ public class InterSchedulerSimple implements InterScheduler {
                 if (scheduleResult == Datacenter.NULL) {
                     interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
                 } else {
-                    interSchedulerResult.addDcResult(instanceGroupToBeScheduled, scheduleResult);
+                    interSchedulerResult.addScheduledResult(instanceGroupToBeScheduled, scheduleResult);
                 }
             }
         }
@@ -302,7 +308,8 @@ public class InterSchedulerSimple implements InterScheduler {
     /**
      * Try to schedule all instance in a instance group to the hosts in the data center where the inter-scheduler is located.
      * If any instance in the instance group is not scheduled successfully, it will try to forward the instance group to other data centers.
-     * @param instanceGroup the instance group to be scheduled
+     *
+     * @param instanceGroup        the instance group to be scheduled
      * @param availableDatacenters the available data centers
      * @return the data center where the instance group is scheduled
      */
@@ -321,7 +328,8 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Select an available data center to forward the instance group randomly.
-     * @param instanceGroup the instance group to be scheduled
+     *
+     * @param instanceGroup        the instance group to be scheduled
      * @param availableDatacenters the available data centers
      * @return the data center where the instance group is scheduled
      */
@@ -343,6 +351,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Get the instance groups that need to be scheduled from the instance group queues.
+     *
      * @return the result of the instance group queues
      */
     private QueueResult<InstanceGroup> getWaitSchedulingInstanceGroups() {
@@ -382,6 +391,7 @@ public class InterSchedulerSimple implements InterScheduler {
      * Randomly select one of all data centers that may have sufficient resources.
      * If the sum of the remaining resources in all data centers does not meet the resources required by the instance group,
      * the instance group scheduling fails.
+     *
      * @param instanceGroups the instance groups to be scheduled
      * @return the result of the inter-scheduler
      */
@@ -395,16 +405,49 @@ public class InterSchedulerSimple implements InterScheduler {
                 interSchedulerResult.getFailedInstanceGroups().add(scheduleRes.getKey());
             } else {
                 Datacenter target = scheduleRes.getValue().get(random.nextInt(scheduleRes.getValue().size()));
-                interSchedulerResult.addDcResult(scheduleRes.getKey(), target);
+                interSchedulerResult.addScheduledResult(scheduleRes.getKey(), target);
             }
         }
 
         return interSchedulerResult;
     }
 
+    protected InterSchedulerResult scheduleToDatacenterWithMigration(List<InstanceGroup> instanceGroups) {
+        InterSchedulerResult interSchedulerResult = scheduleToDatacenter(instanceGroups);
+
+        Set<UserRequest> runningUserRequests = getSimulation().getCis().getRunningUserRequests();
+        Set<InstanceGroup> instanceGroupsMigrateOut = randomSelect2InstanceGroupsMigrateOut(runningUserRequests);
+        for (InstanceGroup instanceGroup : instanceGroupsMigrateOut) {
+            Datacenter originDc = instanceGroup.getReceiveDatacenter();
+            for (Datacenter dc : getSimulation().getCollaborationManager().getDatacenters(originDc)) {
+                if (dc != originDc) {
+                    interSchedulerResult.addMigrateInResult(instanceGroup, dc);
+                }
+            }
+        }
+
+        return interSchedulerResult;
+    }
+
+    private Set<InstanceGroup> randomSelect2InstanceGroupsMigrateOut(Set<UserRequest> runningUserRequests) {
+        Set<InstanceGroup> instanceGroups = new HashSet<>();
+        for (UserRequest userRequest : runningUserRequests) {
+            for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
+                if (instanceGroup.getState() == UserRequest.RUNNING) {
+                    instanceGroups.add(instanceGroup);
+                    if (instanceGroups.size() >= 2) {
+                        return instanceGroups;
+                    }
+                }
+            }
+        }
+        return instanceGroups;
+    }
+
     /**
      * Randomly select one of all data centers that may have sufficient resources.
      * If the sum of the remaining resources in all data centers does not meet the resources required by the instance group, the instance group scheduling fails.
+     *
      * @param instanceGroups the instance groups to be scheduled
      * @return the result of the inter-scheduler
      */
@@ -425,7 +468,7 @@ public class InterSchedulerSimple implements InterScheduler {
                 if (scheduledDc == Datacenter.NULL) {
                     interSchedulerResult.getFailedInstanceGroups().add(instanceGroupToBeScheduled);
                 } else {
-                    interSchedulerResult.addDcResult(instanceGroupToBeScheduled, scheduledDc);
+                    interSchedulerResult.addScheduledResult(instanceGroupToBeScheduled, scheduledDc);
                 }
             }
         }
@@ -435,7 +478,8 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Schedule all instance in the instance group to the hosts in the available data centers.
-     * @param instanceGroup the instance group to be scheduled
+     *
+     * @param instanceGroup        the instance group to be scheduled
      * @param availableDatacenters the available data centers
      * @return the data center where the instance group is scheduled
      */
@@ -466,7 +510,8 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Get the data center id by the host index in all available data centers.
-     * @param hostIdInAll the host index in all available data centers
+     *
+     * @param hostIdInAll          the host index in all available data centers
      * @param availableDatacenters the available data centers
      * @return the data center id
      */
@@ -483,8 +528,9 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Schedule all instances of the instance group to the hosts in the data center.
+     *
      * @param instanceGroup the instance group to be scheduled
-     * @param datacenter the data center
+     * @param datacenter    the data center
      * @return whether the scheduling is successful
      */
     private boolean scheduleHostInDcForInstanceGroup(InstanceGroup instanceGroup, Datacenter datacenter) {
@@ -516,7 +562,8 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Randomly schedule the instance to the hosts in the data center.
-     * @param instance the instance to be scheduled
+     *
+     * @param instance              the instance to be scheduled
      * @param detailedDcStateSimple the state of the data center, See {@link DetailedDcStateSimple}
      * @return the host id where the instance is scheduled
      */
@@ -529,7 +576,7 @@ public class InterSchedulerSimple implements InterScheduler {
             HostState hostState = detailedDcStateSimple.getHostState(index);
 
             if (hostState.isSuitable(instance)) {
-                traversalTime += i+1;
+                traversalTime += i + 1;
                 return index;
             }
         }
@@ -540,6 +587,7 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Record the scheduled result in the instances.
+     *
      * @param scheduleResult the scheduled result
      */
     private void recordScheduledResultInInstances(Map<Instance, Integer> scheduleResult) {
@@ -594,8 +642,9 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Get the available data centers for the instance group by the network limitations and the simple state.
-     * @param instanceGroup the instance group
-     * @param allDatacenters all data centers
+     *
+     * @param instanceGroup   the instance group
+     * @param allDatacenters  all data centers
      * @param networkTopology the network topology
      * @return the available data centers
      */
@@ -610,8 +659,9 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Filter the data centers based on the access latency.
-     * @param instanceGroup the instance group
-     * @param allDatacenters all data centers
+     *
+     * @param instanceGroup   the instance group
+     * @param allDatacenters  all data centers
      * @param networkTopology the network topology
      */
     private void filterDatacentersByAccessLatency(InstanceGroup instanceGroup, List<Datacenter> allDatacenters, NetworkTopology networkTopology) {
@@ -622,7 +672,8 @@ public class InterSchedulerSimple implements InterScheduler {
 
     /**
      * Filter the data centers based on the simple state.
-     * @param instanceGroup the instance group
+     *
+     * @param instanceGroup  the instance group
      * @param allDatacenters all data centers
      */
     private void filterDatacentersByResourceSample(InstanceGroup instanceGroup, List<Datacenter> allDatacenters) {

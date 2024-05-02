@@ -137,11 +137,27 @@ public class CloudSimTag {
     public static final int SCHEDULE_TO_DC_HOST_CONFLICTED = SCHEDULE_TO_DC_HOST_OK + 1;
 
     /**
+     * This event is used to migrate some running instance groups to the target data center.
+     */
+    public static final int MIGRATE_INSTANCE_GROUP_IN = SCHEDULE_TO_DC_HOST_CONFLICTED + 1;
+
+    /**
+     * This event is used to migrate some running instance groups out of the data center
+     * after the instance group is successfully migrated in the other datacenter and scheduled to the host.
+     */
+    public static final int MIGRATE_INSTANCE_GROUP_OUT = MIGRATE_INSTANCE_GROUP_IN + 1;
+
+    /**
+     * This event is used to indicates that the instance has been completely migrated from one data center to another.
+     */
+    public static final int MIGRATE_INSTANCE_FINISH = MIGRATE_INSTANCE_GROUP_OUT + 1;
+
+    /**
      * Denotes the start of the load balancing process.
      * It is used by the {@link org.lgdcloudsim.datacenter.Datacenter}.
      * It will call the {@link LoadBalancer} to distribute the instances to the intra-schedulers.
      */
-    public static final int LOAD_BALANCE_SEND = SCHEDULE_TO_DC_HOST_CONFLICTED + 1;
+    public static final int LOAD_BALANCE_SEND = MIGRATE_INSTANCE_FINISH + 1;
 
     /**
      * Denotes the end of the {@link org.lgdcloudsim.intrascheduler.IntraScheduler} scheduling.
@@ -186,6 +202,9 @@ public class CloudSimTag {
             case SCHEDULE_TO_DC_HOST -> "SCHEDULE_TO_DC_HOST";
             case SCHEDULE_TO_DC_HOST_OK -> "SCHEDULE_TO_DC_HOST_OK";
             case SCHEDULE_TO_DC_HOST_CONFLICTED -> "SCHEDULE_TO_DC_HOST_CONFLICTED";
+            case MIGRATE_INSTANCE_GROUP_IN -> "MIGRATE_INSTANCE_GROUP_IN";
+            case MIGRATE_INSTANCE_GROUP_OUT -> "MIGRATE_INSTANCE_GROUP_OUT";
+            case MIGRATE_INSTANCE_FINISH -> "MIGRATE_INSTANCE_FINISH";
             case USER_REQUEST_FAIL -> "USER_REQUEST_FAIL";
             case DC_REGISTRATION_REQUEST -> "DC_REGISTRATION_REQUEST";
             case DC_LIST_REQUEST -> "DC_LIST_REQUEST";

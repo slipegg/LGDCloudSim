@@ -192,4 +192,11 @@ public interface InterScheduler extends Nameable, DatacenterEntity {
      * @return whether the inter-scheduler's scheduling results support forward.
      */
     boolean isSupportForward();
+
+    /**
+     * Get whether the inter-scheduler's scheduling results support migration.
+     *
+     * @return whether the inter-scheduler's scheduling results support migration.
+     */
+    boolean isSupportMigration();
 }

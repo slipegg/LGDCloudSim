@@ -50,11 +50,18 @@ public interface UserRequest extends ChangeableId {
     int RUNNING = 3;
 
     /**
+     * It is used for instance group.
+     * It means the instance group is migrating from the original data center to other data center.
+     */
+    int MIGRATING = 4;
+
+    /**
      * Convert the state of the user request entity to a string.
      *
      * @param state the state of the user request entity.
      * @return the string representation of the state of the user request entity.
      */
+    //TODO Only part of the status of user requests, instance groups and instances is maintained, which is not complete.
     static String stateToString(int state) {
         return switch (state) {
             case WAITING -> "WAITING";
@@ -62,6 +69,7 @@ public interface UserRequest extends ChangeableId {
             case SCHEDULING -> "SCHEDULING";
             case SUCCESS -> "SUCCESS";
             case RUNNING -> "RUNNING";
+            case MIGRATING -> "MIGRATING";
             default -> "UNKNOWN";
         };
     }
@@ -157,6 +165,14 @@ public interface UserRequest extends ChangeableId {
      * @return the user request itself.
      */
     UserRequest addSuccessGroupNum();
+
+    /**
+     * Add the number of instance groups that have been marked as running.
+     * If all the instance groups in the user request have been marked as running, the user request is marked as running.
+     *
+     * @return the user request itself.
+     */
+    UserRequest addRunningGroupNum();
 
     /**
      * Add the fail reason of the user request entity.
