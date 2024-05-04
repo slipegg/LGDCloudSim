@@ -422,6 +422,7 @@ public class InterSchedulerSimple implements InterScheduler {
             for (Datacenter dc : getSimulation().getCollaborationManager().getDatacenters(originDc)) {
                 if (dc != originDc) {
                     interSchedulerResult.addMigrateInResult(instanceGroup, dc);
+                    break;
                 }
             }
         }
