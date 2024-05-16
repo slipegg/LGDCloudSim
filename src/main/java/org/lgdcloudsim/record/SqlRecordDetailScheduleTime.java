@@ -371,6 +371,14 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
+            LOGGER.error("The instance group " + instanceGroup.getId() + " recorded error {}", e.getMessage());
+            try {
+                sql = "SELECT * FROM " + this.instanceGroupTableName + " WHERE id = " + instanceGroup.getId() + ";";
+                ResultSet rs = stmt.executeQuery(sql);
+                LOGGER.error("id: {}, userRequestId: {}, retryTimes: {}, receivedDc: {}, receivedTime: {}, finishTime: {}, instanceNum: {}, interScheduleEndTime: {}", rs.getInt("id"), rs.getInt("userRequestId"), rs.getInt("retryTimes"), rs.getInt("receivedDc"), rs.getDouble("receivedTime"), rs.getDouble("finishTime"), rs.getInt("instanceNum"), rs.getDouble("interScheduleEndTime"));
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
