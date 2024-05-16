@@ -108,6 +108,11 @@ public class SimulationNull implements Simulation {
     }
 
     @Override
+    public void setSqlRecord(SqlRecord sqlRecord) {
+
+    }
+
+    @Override
     public boolean isTerminationTimeSet() {
         return false;
     }

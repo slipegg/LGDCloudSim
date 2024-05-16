@@ -429,6 +429,10 @@ public class InitDatacenter {
 
         addRegionInfo(datacenter, datacenterJson);
 
+        if (datacenterJson.containsKey("name")) {
+            datacenter.setName(datacenterJson.getString("name"));
+        }
+
         if (datacenterJson.containsKey("architecture")) {
             datacenter.setArchitecture(datacenterJson.getString("architecture"));
         }
