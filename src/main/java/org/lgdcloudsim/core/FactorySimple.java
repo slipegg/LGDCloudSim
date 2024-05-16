@@ -8,7 +8,6 @@ import org.lgdcloudsim.interscheduler.*;
 import org.lgdcloudsim.loadbalancer.*;
 import org.lgdcloudsim.record.SqlRecordDetailScheduleTime;
 import org.lgdcloudsim.statemanager.*;
->>>>>>> c6e1f97... feature(SqlRecord): 增加记录详细调度时间的SqlRecord
 
 /**
  * A simple factory that implements the {@link Factory} interface.
