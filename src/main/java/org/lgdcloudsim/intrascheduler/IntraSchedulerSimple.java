@@ -173,15 +173,24 @@ public class IntraSchedulerSimple implements IntraScheduler {
         SynState synState = datacenter.getStatesManager().getSynState(this);
 
         QueueResult<Instance> queueResult = getWaitSchedulingInstances();
+        List<Instance> waitScheduledItems = queueResult.getWaitScheduledItems();
 
         double startTime = System.currentTimeMillis();
-        IntraSchedulerResult intraSchedulerResult = scheduleInstances(queueResult.getWaitScheduledItems(), synState);
+        IntraSchedulerResult intraSchedulerResult = scheduleInstances(waitScheduledItems, synState);
         double endTime = System.currentTimeMillis();
 
         this.scheduleCostTime = Math.max(0, (endTime - startTime) - excludeTime);//= BigDecimal.valueOf((instances.size() * 0.25)).setScale(datacenter.getSimulation().getSimulationAccuracy(), RoundingMode.HALF_UP).doubleValue();//* instances.size();//(endTime-startTime)/10;
 
+        setInstanceIntraScheduleTime(waitScheduledItems, this.scheduleCostTime);
+
         intraSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
         return intraSchedulerResult;
+    }
+
+    void setInstanceIntraScheduleTime(List<Instance> instances, double scheduleCostTime) {
+        for (Instance instance : instances) {
+            instance.setIntraScheduleTime(scheduleCostTime);
+        }
     }
 
     /**
