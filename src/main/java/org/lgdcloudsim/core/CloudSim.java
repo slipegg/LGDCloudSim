@@ -87,7 +87,9 @@ public class CloudSim implements Simulation {
     /**
      * The SQL record used to store the simulation data in a SQL database.
      */
-    SqlRecord sqlRecord = new SqlRecordNull();
+    @Getter
+    @Setter
+    private SqlRecord sqlRecord = new SqlRecordNull();
     /**
      * The simulation accuracy.
      */
@@ -211,14 +213,16 @@ public class CloudSim implements Simulation {
 
     @Override
     public double start() {
-        if (isSqlRecord) {
-            if(getDbName()==null || getDbName().isEmpty()){
-                this.sqlRecord = new SqlRecordSimple("LGDCloudSim" + collaborationManager.getDatacenterById(1).getArchitecture() + ".db");
-            }else{
-                this.sqlRecord = new SqlRecordSimple(getDbName());
+        if(this.sqlRecord==null) {
+            if (isSqlRecord) {
+                if(getDbName()==null || getDbName().isEmpty()){
+                    this.sqlRecord = new SqlRecordSimple("LGDCloudSim"+collaborationManager.getDatacenterById(1).getArchitecture()+".db");
+                }else{
+                    this.sqlRecord = new SqlRecordSimple(getDbName());
+                }
+            } else {
+                this.sqlRecord = new SqlRecordNull();
             }
-        } else {
-            this.sqlRecord = new SqlRecordNull();
         }
         startSync();
         MemoryRecord.recordMemory();
@@ -436,6 +440,11 @@ public class CloudSim implements Simulation {
     @Override
     public SqlRecord getSqlRecord() {
         return sqlRecord;
+    }
+
+    @Override
+    public void setSqlRecord(SqlRecord sqlRecord) {
+        this.sqlRecord = sqlRecord;
     }
 
     @Override

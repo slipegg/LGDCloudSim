@@ -3,6 +3,7 @@ package org.lgdcloudsim.core;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.conflicthandler.ConflictHandler;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
+import org.lgdcloudsim.record.SqlRecord;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.statemanager.PredictionManager;
 
@@ -61,4 +62,19 @@ public interface Factory {
      * @return the conflict handler.
      */
     ConflictHandler getResourceAllocateSelector(String type);
+
+    /**
+     * Get the {@link SqlRecord} by the type name.
+     * @param type the type name of the sql record.
+     * @return the sql record.
+     */
+    SqlRecord getSqlRecord(String type);
+
+    /**
+     * Get the {@link SqlRecord} by the type name and the database name.
+     * @param type the type name of the sql record.
+     * @param dbName the database name.
+     * @return the sql record.
+     */
+    SqlRecord getSqlRecord(String type, String dbName);
 }
