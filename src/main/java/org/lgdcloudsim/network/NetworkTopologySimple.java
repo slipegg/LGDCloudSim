@@ -1,6 +1,9 @@
 package org.lgdcloudsim.network;
 
 import lombok.Setter;
+
+import java.util.Set;
+
 import org.lgdcloudsim.core.CloudInformationService;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.datacenter.Datacenter;
@@ -91,8 +94,23 @@ public class NetworkTopologySimple implements NetworkTopology {
     }
 
     @Override
+    public double getBw(Integer src, Integer dst) {
+        return dcBwManager.getBw(src, dst);
+    }
+
+    @Override
     public double getBw(SimEntity src, SimEntity dst) {
         return dcBwManager.getBw(src.getId(), dst.getId());
+    }
+
+    @Override
+    public double getUnitPrice(Integer src, Integer dst) {
+        return dcBwManager.getUnitPrice(src, dst);
+    }
+
+    @Override
+    public double getUnitPrice(SimEntity src, SimEntity dst) {
+        return dcBwManager.getUnitPrice(src.getId(), dst.getId());
     }
 
     @Override
@@ -114,5 +132,10 @@ public class NetworkTopologySimple implements NetworkTopology {
     @Override
     public double getAccessLatency(UserRequest userRequest, Datacenter datacenter) {
         return areaDelayManager.getDelay(userRequest.getArea(), datacenter.getRegion());
+    }
+
+    @Override
+    public Set<Integer> getDcIdList() {
+        return dcBwManager.getDcIdList();
     }
 }
