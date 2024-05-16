@@ -1278,7 +1278,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             InterSchedulerResult interSchedulerResult = interScheduler.schedule();
             double filterSuitableDatacenterCostTime = interScheduler.getScheduleTime();
             send(this, filterSuitableDatacenterCostTime, CloudSimTag.INTER_SCHEDULE_END, interSchedulerResult);
-            LOGGER.info("{}: {} starts inter scheduling.It costs {}ms.", getSimulation().clockStr(), interScheduler.getName(), filterSuitableDatacenterCostTime);
+            LOGGER.info("{}: {} starts inter scheduling. It costs {}ms.", getSimulation().clockStr(), interScheduler.getName(), filterSuitableDatacenterCostTime);
         }
     }
 
