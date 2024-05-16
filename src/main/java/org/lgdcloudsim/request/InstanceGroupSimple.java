@@ -58,7 +58,7 @@ public class InstanceGroupSimple implements InstanceGroup {
     double finishTime;
 
     @Getter
-    double interScheduleTime;
+    double interScheduleEndTime;
 
     int successInstanceNum;
 
@@ -178,7 +178,8 @@ public class InstanceGroupSimple implements InstanceGroup {
     }
 
     @Override
-    public void setInterScheduleTime(double interScheduleTime) {
-        this.interScheduleTime += interScheduleTime;
+    public InstanceGroup setInterScheduleEndTime(double interScheduleEndTime) {
+        this.interScheduleEndTime = interScheduleEndTime;
+        return this;
     }
 }

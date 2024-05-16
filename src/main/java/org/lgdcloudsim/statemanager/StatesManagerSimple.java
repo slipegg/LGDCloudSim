@@ -535,4 +535,24 @@ public class StatesManagerSimple implements StatesManager {
             synStateMap.put(partitionId, partitionSynStateMap);
         }
     }
+
+    @Override
+    public long getTotalCPU() {
+        return hostCapacityManager.getCpuCapacitySum();
+    }
+
+    @Override
+    public long getTotalRAM() {
+        return hostCapacityManager.getRamCapacitySum();
+    }
+
+    @Override
+    public long getTotalStorage() {
+        return hostCapacityManager.getStorageCapacitySum();
+    }
+
+    @Override
+    public long getTotalBw() {
+        return hostCapacityManager.getBwCapacitySum();
+    }
 }

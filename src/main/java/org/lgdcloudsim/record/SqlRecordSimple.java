@@ -2,6 +2,7 @@ package org.lgdcloudsim.record;
 
 import lombok.Getter;
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
@@ -670,5 +671,25 @@ public class SqlRecordSimple implements SqlRecord {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void recordDatacentersInfo(List<Datacenter> datacenters) {
+
+    }
+    
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenters) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(NetworkTopology networkTopology) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
+
     }
 }
