@@ -1278,7 +1278,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             InterSchedulerResult interSchedulerResult = interScheduler.schedule();
             double filterSuitableDatacenterCostTime = interScheduler.getScheduleTime();
             send(this, filterSuitableDatacenterCostTime, CloudSimTag.INTER_SCHEDULE_END, interSchedulerResult);
-            LOGGER.info("{}: {} starts inter scheduling.It costs {}ms.", getSimulation().clockStr(), interScheduler.getName(), filterSuitableDatacenterCostTime);
+            LOGGER.info("{}: {} starts inter scheduling. It costs {}ms.", getSimulation().clockStr(), interScheduler.getName(), filterSuitableDatacenterCostTime);
         }
     }
 
@@ -1472,5 +1472,75 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Override
     public int compareTo(SimEntity o) {
         return Comparator.comparing(SimEntity::getId).compare(this, o);
+    }
+
+    @Override
+    public long getCpu() {
+        return statesManager.getTotalCPU();
+    }
+
+    @Override
+    public long getRam() {
+        return statesManager.getTotalRAM();
+    }
+
+    @Override
+    public long getStorage() {
+        return statesManager.getTotalStorage();
+    }
+
+    @Override
+    public long getBw() {
+        return statesManager.getTotalBw();
+    }
+
+    @Override
+    public double getPricePerCPU() {
+        return pricePerCpu;
+    }
+
+    @Override
+    public double getPricePerRAM() {
+        return pricePerRam;
+    }
+
+    @Override
+    public double getPricePerStorage() {
+        return pricePerStorage;
+    }
+
+    @Override
+    public double getPricePerBW() {
+        return pricePerBw;
+    }
+
+    @Override
+    public double getPricePerRack() {
+        return unitRackPrice;
+    }
+
+    @Override
+    public double getHostPerRack() {
+        return hostNumPerRack;
+    }
+
+    @Override
+    public long getHostNum() {
+        return statesManager.getHostNum();
+    }
+
+    @Override
+    public double getPricePerCpu() {
+        return pricePerCpu;
+    }
+
+    @Override
+    public double getPricePerRam() {
+        return pricePerRam;
+    }
+
+    @Override
+    public double getPricePerBw() {
+        return pricePerBw;
     }
 }

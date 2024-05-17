@@ -248,4 +248,16 @@ public interface Instance extends RequestEntity {
      * @return the instance itself.
      */
     Instance setExpectedScheduleHostId(int expectedScheduleHostId);
+
+    /**
+     * Get the intraScheduleEndTime of the instance.
+     * @return the intraScheduleEndTime of the instance.
+     */
+    double getIntraScheduleEndTime();
+
+    /**
+     * Set the intraScheduleEndTime of the instance.
+     * @param intraScheduleEndTime the intraScheduleEndTime of the instance.
+     */
+    Instance setIntraScheduleEndTime(double intraScheduleEndTime);
 }

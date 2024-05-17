@@ -1,5 +1,7 @@
 package org.lgdcloudsim.record;
 
+import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
@@ -150,6 +152,37 @@ public interface SqlRecord {
      * @param sum the sum of the conflicts.
      */
     void recordConflict(double time, int sum);
+
+    /**
+     * Record the data center information.
+     * It records the data center id, the name, the location, the cpu, the ram, the storage, the bandwidth and the cost.
+     * @param datacenters the data centers.
+     */
+    void recordDatacentersInfo(List<Datacenter> datacenters);
+
+    /**
+     * Record the data center information.
+     * It records the data center id, the name, the location, the cpu, the ram, the storage, the bandwidth and the cost.
+     * @param datacenter the data center.
+     */
+    void recordDatacentersInfo(Datacenter datacenter);
+
+    /**
+     * Record the network between DCs.
+     * It records the source data center id, the destination data center id, the bandwidth and the cost.
+     * @param networkTopology the network topology.
+     */
+    void recordDcNetworkInfo(NetworkTopology networkTopology);
+
+    /**
+     * Record the network between DCs.
+     * It records the source data center id, the destination data center id, the bandwidth and the cost.
+     * @param srcDcId the source data center id.
+     * @param dstDcId the destination data center id.
+     * @param bw the bandwidth.
+     * @param unitPrice the unit price.
+     */
+    void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice);
 
     /**
      * Close the SQLite database.

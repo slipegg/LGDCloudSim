@@ -237,8 +237,21 @@ public class InterSchedulerSimple implements InterScheduler {
         double end = System.currentTimeMillis();
 
         this.scheduleTime = Math.max(0.1, end - start);
+
+        setInstanceGroupInterScheduleEndTime(waitSchedulingInstanceGroups, getSimulation().clock() + this.scheduleTime);
+
+        if(end-start<0.1) {
+            LOGGER.warn("{}: interSchedule schedule time is less than 0.1 ms ({} ms).", simulation.clockStr(), end-start);
+        }
+
         interSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
         return interSchedulerResult;
+    }
+
+    private void setInstanceGroupInterScheduleEndTime(List<InstanceGroup> waitSchedulingInstanceGroups, double scheduleEndTime) {
+        for (InstanceGroup instanceGroup : waitSchedulingInstanceGroups) {
+            instanceGroup.setInterScheduleEndTime(scheduleEndTime);
+        }
     }
 
     /**
