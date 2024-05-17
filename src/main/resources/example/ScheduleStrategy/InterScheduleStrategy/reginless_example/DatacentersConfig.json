@@ -1,0 +1,424 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "datacenters": [
+        {
+          "id": 1,
+          "name": "DatacenterSimple1-west", 
+          "region": "us-east1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "wxl",
+            "target": "dc",
+            "enablePipeline": false,
+            "isSupportForward": false,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
+          "hostNum": 1000000,
+          "partitions": [
+            {
+              "length": 1000000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 100,
+              "ram": 200,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 1000000
+            }
+          ],
+          "synchronizationGap": 0,
+          "competeGap": 1000,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "FirstFit"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCpuPerSec": 0.52,
+            "pricePerCpu": 0.5,
+            "pricePerRamPerSec": 0.5,
+            "pricePerRam": 0.5,
+            "pricePerStoragePerSec": 0.51,
+            "pricePerStorage": 0.5,
+            "pricePerBwPerSec": 0.5,
+            "pricePerBw": 0.5,
+            "pricePerRack": 0.5,
+            "HostNumPerRack": 1000
+          }
+        },
+        {
+          "id": 2,
+          "name": "DatacenterSimple2-west",
+          "region": "asia-east2",
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "wxl",
+            "target": "dc",
+            "enablePipeline": false,
+            "isSupportForward": false,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
+          "hostNum": 1000000,
+          "partitions": [
+            {
+              "length": 1000000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 100,
+              "ram": 200,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 1000000
+            }
+          ],
+          "synchronizationGap": 0,
+          "competeGap": 1000,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "FirstFit"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCpuPerSec": 0.53,
+            "pricePerCpu": 0.5,
+            "pricePerRamPerSec": 0.5,
+            "pricePerRam": 0.5,
+            "pricePerStoragePerSec": 0.55,
+            "pricePerStorage": 0.5,
+            "pricePerBwPerSec": 0.5,
+            "pricePerBw": 0.5,
+            "pricePerRack": 0.5,
+            "HostNumPerRack": 1000
+          }
+        },
+        {
+          "id": 3,
+          "name": "DatacenterSimple3-east",
+          "region": "asia-northeast1",
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "wxl",
+            "target": "dc",
+            "enablePipeline": false,
+            "isSupportForward": false,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
+          "hostNum": 300000,
+          "partitions": [
+            {
+              "length": 300000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 100,
+              "ram": 200,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 300000
+            }
+          ],
+          "synchronizationGap": 0,
+          "competeGap": 1000,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "FirstFit"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCpuPerSec": 0.49,
+            "pricePerCpu": 0.5,
+            "pricePerRamPerSec": 0.5,
+            "pricePerRam": 1.0,
+            "pricePerStoragePerSec": 0.52,
+            "pricePerStorage": 1.0,
+            "pricePerBwPerSec": 1.0,
+            "pricePerBw": 1.0,
+            "pricePerRack": 1.0,
+            "HostNumPerRack": 1000
+          }
+        },
+        {
+          "id": 4,
+          "name": "DatacenterSimple4-east",
+          "region": "asia-northeast2",
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "wxl",
+            "target": "dc",
+            "enablePipeline": false,
+            "isSupportForward": false,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
+          "hostNum": 300000,
+          "partitions": [
+            {
+              "length": 300000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 100,
+              "ram": 200,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 300000
+            }
+          ],
+          "synchronizationGap": 0,
+          "competeGap": 1000,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "FirstFit"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCpuPerSec": 0.51,
+            "pricePerCpu": 0.5,
+            "pricePerRamPerSec": 0.5,
+            "pricePerRam": 1.0,
+            "pricePerStoragePerSec": 0.48,
+            "pricePerStorage": 1.0,
+            "pricePerBwPerSec": 1.0,
+            "pricePerBw": 1.0,
+            "pricePerRack": 1.0,
+            "HostNumPerRack": 1000
+          }
+        },
+        {
+          "id": 5,
+          "name": "DatacenterSimple5-east",
+          "region": "asia-northeast3",
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "wxl",
+            "target": "dc",
+            "enablePipeline": false,
+            "isSupportForward": false,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
+          "hostNum": 300000,
+          "partitions": [
+            {
+              "length": 300000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 100,
+              "ram": 200,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 300000
+            }
+          ],
+          "synchronizationGap": 0,
+          "competeGap": 1000,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "FirstFit"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "resourceUnitPrice": {
+            "pricePerCpuPerSec": 0.49,
+            "pricePerCpu": 0.5,
+            "pricePerRamPerSec": 0.5,
+            "pricePerRam": 1.0,
+            "pricePerStoragePerSec": 0.49,
+            "pricePerStorage": 1.0,
+            "pricePerBwPerSec": 1.0,
+            "pricePerBw": 1.0,
+            "pricePerRack": 1.0,
+            "HostNumPerRack": 1000
+          }
+        }
+      ]
+    }
+  ]
+}
