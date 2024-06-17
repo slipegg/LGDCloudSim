@@ -240,12 +240,57 @@ public class InterSchedulerSimple implements InterScheduler {
 
         setInstanceGroupInterScheduleEndTime(waitSchedulingInstanceGroups, getSimulation().clock() + this.scheduleTime);
 
+        interSchedulerResult = checkInstanceGroupScheduleResult(interSchedulerResult);
+
         if(end-start<0.1) {
             LOGGER.warn("{}: interSchedule schedule time is less than 0.1 ms ({} ms).", simulation.clockStr(), end-start);
         }
 
         interSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
         return interSchedulerResult;
+    }
+
+    private InterSchedulerResult checkInstanceGroupScheduleResult(InterSchedulerResult interSchedulerResult) {
+        InterSchedulerResult interSchedulerResultTmp = new InterSchedulerResult(this, simulation.getCollaborationManager().getDatacenters(collaborationId));
+        for(InstanceGroup failedInstanceGroup: interSchedulerResult.getFailedInstanceGroups()){
+            interSchedulerResultTmp.addFailedInstanceGroup(failedInstanceGroup);
+        }
+        for(Map.Entry<Datacenter, List<InstanceGroup>> dcResultEntry: interSchedulerResult.getScheduledResultMap().entrySet()) {
+            Datacenter datacenter = dcResultEntry.getKey();
+            for(InstanceGroup instanceGroup: dcResultEntry.getValue()){
+                if(checkInstanceGroupLimit(instanceGroup, datacenter, simulation.getNetworkTopology(), interSchedulerResult)){
+                    interSchedulerResultTmp.addDcResult(instanceGroup, datacenter);
+                } else {
+                    interSchedulerResultTmp.addFailedInstanceGroup(instanceGroup);
+                }
+            }
+        }
+        return interSchedulerResultTmp;
+    }
+
+    private boolean checkInstanceGroupLimit(InstanceGroup instanceGroup, Datacenter datacenter, NetworkTopology networkTopology, InterSchedulerResult interSchedulerResult) {
+        // 检查单点约束是否满足
+        if (instanceGroup.getAccessLatency() < networkTopology.getAccessLatency(instanceGroup.getUserRequest(), datacenter)) {
+            return false;
+        }
+        // 检查拓扑约束是否满足
+        for (InstanceGroup dstInstanceGroup : instanceGroup.getUserRequest().getInstanceGroupGraph().getDstList(instanceGroup)) {
+            Datacenter scheduledDatacenter = getPossibleScheduledDatacenter(dstInstanceGroup, interSchedulerResult);
+            if (scheduledDatacenter != Datacenter.NULL) {
+                if(networkTopology.getDelay(datacenter, scheduledDatacenter) > instanceGroup.getUserRequest().getInstanceGroupGraph().getDelay(instanceGroup, dstInstanceGroup)) {
+                    return false;
+                }
+            }
+        }
+        for (InstanceGroup srcInstanceGroup : instanceGroup.getUserRequest().getInstanceGroupGraph().getSrcList(instanceGroup)) {
+            Datacenter scheduledDatacenter = getPossibleScheduledDatacenter(srcInstanceGroup, interSchedulerResult);
+            if (scheduledDatacenter != Datacenter.NULL) {
+                if(networkTopology.getDelay(datacenter, scheduledDatacenter) > instanceGroup.getUserRequest().getInstanceGroupGraph().getDelay(srcInstanceGroup, instanceGroup)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void setInstanceGroupInterScheduleEndTime(List<InstanceGroup> waitSchedulingInstanceGroups, double scheduleEndTime) {
@@ -642,4 +687,19 @@ public class InterSchedulerSimple implements InterScheduler {
         this.datacenter = datacenter;
         this.name = "Datacenter" + datacenter.getId() + "-InterScheduler" + id;
     }
+
+    /**
+     * Get the possible scheduled data center from the previous scheduling result.
+     * @param instanceGroup the instance group.
+     * @param interSchedulerResult the result of the scheduling.
+     * @return the possible scheduled data center.
+     */
+    private static Datacenter getPossibleScheduledDatacenter(InstanceGroup instanceGroup, InterSchedulerResult interSchedulerResult) {
+        if (instanceGroup.getReceiveDatacenter() != Datacenter.NULL) {
+            return instanceGroup.getReceiveDatacenter();
+        } else {
+            return interSchedulerResult.getScheduledDatacenter(instanceGroup);
+        }
+    }
+
 }
