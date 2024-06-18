@@ -262,6 +262,7 @@ public class InterSchedulerSimple implements InterScheduler {
                     interSchedulerResultTmp.addDcResult(instanceGroup, datacenter);
                 } else {
                     interSchedulerResultTmp.addFailedInstanceGroup(instanceGroup);
+                    instanceGroup.getUserRequest().addFailReason("InstanceGroup" + instanceGroup.getId() + " scheduling failed in " + datacenter.getName() + " because of network topology constraints.");
                 }
             }
         }
