@@ -606,7 +606,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
                         bw = getExpectedValue(GroupBw, GroupBwMin, GroupBwMax);
                         bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
                     }
-                    double delay = 0;
+                    double delay = Double.MAX_VALUE;
                     if (random.nextDouble() < GroupDelayPercent) {
                         delay = getExpectedValue(GroupDelay, GroupDelayMin, GroupDelayMax);
                         delay = BigDecimal.valueOf(delay).setScale(2, RoundingMode.HALF_UP).doubleValue();
