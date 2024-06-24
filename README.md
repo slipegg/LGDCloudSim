@@ -34,6 +34,9 @@ LGDCloudSim has made a lot of efforts to support the simulation of larger-scale 
 After testing on a 16-core 32G server, LGDCloudSim can support a total number of hosts reaching **500 million** and concurrent requests reaching **10 million**.
 More details will be available in the code and in a future paper.
 
+> **Note**
+> The paper "LGDCloudSim: A resource management simulation system for large-scale geographically distributed cloud data center scenarios" has been accepted by IEEE CLOUD 2024. We will complete the citation as soon as the paper is published.
+
 ## Important
 
 * The development and maintenance of this project requires a considerable effort. Thus, any form of contribution is encouraged. We would be very grateful if you could give it a star ⭐ using the button at the top of the GitHub page👏.
