@@ -269,7 +269,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     @Override
     public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + " WHERE id = " + instanceGroup.getId() + ";";
+            sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + ", receivedDc = " + instanceGroup.getReceiveDatacenter().getId() + " WHERE id = " + instanceGroup.getId() + ";";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
