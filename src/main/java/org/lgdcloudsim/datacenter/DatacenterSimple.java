@@ -1409,7 +1409,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
 
         for (UserRequest userRequest : outDatedUserRequests) {
-            userRequest.addFailReason("outDated");
+            userRequest.addFailReason("interSchedule outDated");
         }
 
         for (InstanceGroup instanceGroup : failedInstanceGroups) {

@@ -558,6 +558,7 @@ public class CloudInformationService extends CloudSimEntity {
         // 避免在释放资源时，未申请Bw的InstanceGroup的ReceiveDatacenter未被清空
         for(InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
             instanceGroup.setReceiveDatacenter(Datacenter.NULL);
+            getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
         }
     }
 
