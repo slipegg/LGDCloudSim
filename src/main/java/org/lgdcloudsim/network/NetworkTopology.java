@@ -1,5 +1,7 @@
 package org.lgdcloudsim.network;
 
+import java.util.Set;
+
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.request.UserRequest;
@@ -56,6 +58,36 @@ public interface NetworkTopology {
     double getBw(SimEntity src, SimEntity dst);
 
     /**
+     * Get the bandwidth between the source and the destination.
+     * The entity of the source and the destination must be a data center.
+     *
+     * @param src the source data center id.
+     * @param dst the destination data center id.
+     * @return the bandwidth between the source and the destination.
+     */
+    double getBw(Integer src, Integer dst);
+
+    /**
+     * Get the unit price of the bandwidth between the source and the destination.
+     * The entity of the source and the destination must be a data center.
+     *
+     * @param src the source data center id.
+     * @param dst the destination data center id.
+     * @return the unit price of the bandwidth between the source and the destination.
+     */
+    double getUnitPrice(Integer src, Integer dst);
+
+    /**
+     * Get the unit price of the bandwidth between the source and the destination.
+     * The entity of the source and the destination must be a data center.
+     *
+     * @param src the source entity.
+     * @param dst the destination entity.
+     * @return the unit price of the bandwidth between the source and the destination.
+     */
+    double getUnitPrice(SimEntity src, SimEntity dst);
+
+    /**
      * Allocate the bandwidth between the source and the destination.
      * The entity of the source and the destination must be a data center.
      *
@@ -93,4 +125,11 @@ public interface NetworkTopology {
      * @return the access latency between the user request and the data center.
      */
     double getAccessLatency(UserRequest userRequest, Datacenter datacenter);
+
+    /**
+     * Get the data center id list.
+     *
+     * @return the data center id list.
+     */
+    Set<Integer> getDcIdList();
 }

@@ -333,4 +333,54 @@ public class DatacenterNull implements Datacenter {
     public double getBwUtilization() {
         return 0;
     }
+
+    @Override
+    public long getCpu() {
+        return 0;
+    }
+
+    @Override
+    public long getRam() {
+        return 0;
+    }
+
+    @Override
+    public long getStorage() {
+        return 0;
+    }
+
+    @Override
+    public long getBw() {
+        return 0;
+    }
+
+    @Override
+    public double getPricePerCPU() {
+        return 0;
+    }
+
+    @Override
+    public double getPricePerRAM() {
+        return 0;
+    }
+
+    @Override
+    public double getPricePerBW() {
+        return 0;
+    }
+
+    @Override
+    public double getPricePerRack() {
+        return 0;
+    }
+
+    @Override
+    public double getHostPerRack() {
+        return 0;
+    }
+
+    @Override
+    public long getHostNum() {
+        return 0;
+    }
 }

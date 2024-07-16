@@ -23,10 +23,10 @@ import java.util.Set;
  * It is an implementation of the SqlRecord interface.
  * It records the simulation information through the SQLite database.
  *
- * @author Anonymous
+ * @author Jiawen Liu
  * @since LGDCloudSim 1.0
  */
-public class SqlRecordSimple implements SqlRecord {
+public class SqlRecordDetailScheduleTime implements SqlRecord {
     /**
      * The Logger of the class.
      **/
@@ -73,6 +73,16 @@ public class SqlRecordSimple implements SqlRecord {
     private String interScheduleCostTimeTableName = null;
 
     /**
+     * The name of the datacenter table.
+     */
+    private String datacenterTableName = null;
+
+    /**
+     * The name of the dc network table.
+     */
+    private String dcNetworkTableName = null;
+
+    /**
      * The name of the SQLite database.
      */
     private String dbName = null;
@@ -104,10 +114,10 @@ public class SqlRecordSimple implements SqlRecord {
     private double lastRecordConflictTime = -1;
 
     /**
-     * Construct a SqlRecordSimple with the default database name "LGDCloudSim.db".
+     * Construct a SqlRecordSimple with the default database name "cpnSim.db".
      */
-    public SqlRecordSimple() {
-        this("LGDCloudSim.db");
+    public SqlRecordDetailScheduleTime() {
+        this("cpnSim.db");
     }
 
     /**
@@ -115,8 +125,8 @@ public class SqlRecordSimple implements SqlRecord {
      *
      * @param dbName the name of the SQLite database
      */
-    public SqlRecordSimple(String dbName) {
-        this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance");
+    public SqlRecordDetailScheduleTime(String dbName) {
+        this("./RecordDb", dbName, "userRequest", "instanceGroup", "instanceGroupGraph", "instance", "datacenter", "dcNetwork");
     }
 
     /**
@@ -128,8 +138,10 @@ public class SqlRecordSimple implements SqlRecord {
      * @param instanceGroupTableName      the name of the instance group table
      * @param instanceGroupGraphTableName the name of the instance group graph table
      * @param instanceTableName           the name of the instance table
+     * @param datacenterTableName         the name of the datacenter table
+     * @param dcNetworkTableName          the name of the dc network table
      */
-    public SqlRecordSimple(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName) {
+    public SqlRecordDetailScheduleTime(String dbDir, String dbName, String userRequestTableName, String instanceGroupTableName, String instanceGroupGraphTableName, String instanceTableName, String datacenterTableName, String dcNetworkTableName) {
         this.dbDir = dbDir;
         this.dbName = dbName;
         Path folder = Paths.get(this.dbDir);
@@ -143,6 +155,8 @@ public class SqlRecordSimple implements SqlRecord {
         this.instanceGroupTableName = instanceGroupTableName;
         this.instanceGroupGraphTableName = instanceGroupGraphTableName;
         this.instanceTableName = instanceTableName;
+        this.datacenterTableName = datacenterTableName;
+        this.dcNetworkTableName = dcNetworkTableName;
         this.conflictTableName = "conflict";
         this.interScheduleCostTimeTableName = "interScheduleCostTime";
         try {
@@ -163,6 +177,8 @@ public class SqlRecordSimple implements SqlRecord {
             createInstanceTable();
             createConflictTable();
             createInterScheduleCostTimeTable();
+            createDatacenterTable();
+            createDcNetworkTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -208,11 +224,11 @@ public class SqlRecordSimple implements SqlRecord {
 
     @Override
     public void recordInstanceGroupsReceivedInfo(List requests) {
-        if (!requests.isEmpty()) {
+        if (requests.size() > 0) {
             try {
                 if (requests.get(0) instanceof InstanceGroup) {
                     List<InstanceGroup> instanceGroups = requests;
-                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum) VALUES (?,?,?,?,?,?);");
+                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,interScheduleEndTime) VALUES (?,?,?,?,?,?,?);");
                     for (InstanceGroup instanceGroup : instanceGroups) {
                         addBatchInStatementForRecordInstanceGroupsReceivedInfo(instanceGroup);
                     }
@@ -220,7 +236,7 @@ public class SqlRecordSimple implements SqlRecord {
                 }
                 if (requests.get(0) instanceof UserRequest) {
                     List<UserRequest> userRequests = requests;
-                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum) VALUES (?,?,?,?,?,?);");
+                    statement = conn.prepareStatement("INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,instanceNum,interScheduleEndTime) VALUES (?,?,?,?,?,?,?);");
                     for (UserRequest userRequest : userRequests) {
                         for (InstanceGroup instanceGroup : userRequest.getInstanceGroups()) {
                             addBatchInStatementForRecordInstanceGroupsReceivedInfo(instanceGroup);
@@ -246,13 +262,14 @@ public class SqlRecordSimple implements SqlRecord {
         statement.setInt(4, instanceGroup.getReceiveDatacenter().getId());
         statement.setDouble(5, instanceGroup.getReceivedTime());
         statement.setInt(6, instanceGroup.getInstances().size());
+        statement.setDouble(7, instanceGroup.getInterScheduleEndTime());
         statement.addBatch();
     }
 
     @Override
     public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + " WHERE id = " + instanceGroup.getId() + ";";
+            sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + ", receivedDc = " + instanceGroup.getReceiveDatacenter().getId() + " WHERE id = " + instanceGroup.getId() + ";";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -344,26 +361,35 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstanceGroupAllInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum) VALUES ("
+            sql = "INSERT INTO " + this.instanceGroupTableName + " (id,userRequestId,retryTimes,receivedDc,receivedTime,finishTime,instanceNum,interScheduleEndTime) VALUES ("
                     + instanceGroup.getId() + "," + instanceGroup.getUserRequest().getId() + "," + instanceGroup.getRetryNum() + ","
                     + instanceGroup.getReceiveDatacenter().getId() + "," + instanceGroup.getReceivedTime() + ","
                     + instanceGroup.getFinishTime() + ","
-                    + instanceGroup.getInstances().size()
+                    + instanceGroup.getInstances().size() + ","
+                    + instanceGroup.getInterScheduleEndTime()
                     + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
+            LOGGER.error("The instance group " + instanceGroup.getId() + " recorded error {}", e.getMessage());
+            try {
+                sql = "SELECT * FROM " + this.instanceGroupTableName + " WHERE id = " + instanceGroup.getId() + ";";
+                ResultSet rs = stmt.executeQuery(sql);
+                LOGGER.error("id: {}, userRequestId: {}, retryTimes: {}, receivedDc: {}, receivedTime: {}, finishTime: {}, instanceNum: {}, interScheduleEndTime: {}", rs.getInt("id"), rs.getInt("userRequestId"), rs.getInt("retryTimes"), rs.getInt("receivedDc"), rs.getDouble("receivedTime"), rs.getDouble("finishTime"), rs.getInt("instanceNum"), rs.getDouble("interScheduleEndTime"));
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     public void recordInstanceCreateInfo(Instance instance) {
         try {
             sql = "INSERT INTO " + this.instanceTableName +
-                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime) VALUES ("
+                    " (id,instanceGroupId,userRequestId,cpu,ram,storage,bw,lifeTime,retryTimes,datacenter,host,startTime,intraScheduleEndTime) VALUES ("
                     + instance.getId() + "," + instance.getInstanceGroup().getId() + "," + instance.getUserRequest().getId() + ","
                     + instance.getCpu() + "," + instance.getRam() + "," + instance.getStorage() + "," + instance.getBw() + ","
                     + instance.getLifecycle() + "," + instance.getRetryNum() + "," + instance.getInstanceGroup().getReceiveDatacenter().getId() + "," + instance.getHost() + ","
-                    + instance.getStartTime() + ");";
+                    + instance.getStartTime() + "," + instance.getIntraScheduleEndTime() + ");";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -374,8 +400,8 @@ public class SqlRecordSimple implements SqlRecord {
     public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
         try {
             statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
-                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, intraScheduleEndTime) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
             for (List<Instance> instanceList : instances.values()) {
                 for (Instance instance : instanceList) {
@@ -392,6 +418,7 @@ public class SqlRecordSimple implements SqlRecord {
                         statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
                         statement.setInt(11, instance.getHost());
                         statement.setDouble(12, instance.getStartTime());
+                        statement.setDouble(13, instance.getIntraScheduleEndTime());
                         statement.addBatch();
                     }
                 }
@@ -406,8 +433,8 @@ public class SqlRecordSimple implements SqlRecord {
     public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
         try {
             statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
-                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, intraScheduleEndTime) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
             for (InstanceGroup instanceGroup : instanceGroups) {
                 for (Instance instance : instanceGroup.getInstances()) {
@@ -424,6 +451,7 @@ public class SqlRecordSimple implements SqlRecord {
                         statement.setInt(10, instance.getInstanceGroup().getReceiveDatacenter().getId());
                         statement.setInt(11, instance.getHost());
                         statement.setDouble(12, instance.getStartTime());
+                        statement.setDouble(13, instance.getIntraScheduleEndTime());
                         statement.addBatch();
                     }
                 }
@@ -453,7 +481,7 @@ public class SqlRecordSimple implements SqlRecord {
     public void recordInstancesAllInfo(List<Instance> instances) {
         try {
             statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
-                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, finishTime) " + "VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, finishTime, intraScheduleEndTime) " + "VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             for (Instance instance : instances) {
                 statement.setInt(1, instance.getId());
                 statement.setInt(2, instance.getInstanceGroup().getId());
@@ -468,6 +496,7 @@ public class SqlRecordSimple implements SqlRecord {
                 statement.setInt(11, instance.getHost());
                 statement.setDouble(12, instance.getStartTime());
                 statement.setDouble(13, instance.getFinishTime());
+                statement.setDouble(14, instance.getIntraScheduleEndTime());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -529,6 +558,7 @@ public class SqlRecordSimple implements SqlRecord {
      *     <li>receivedTime: double. It records the receiving time of the instance group.</li>
      *     <li>finishTime: double. It records the finish time of the instance group.</li>
      *     <li>instanceNum: int. It records the number of the instances of the instance group.</li>
+     *     <li>InterScheduleEndTime: double. It records the inter-schedule time of the instance group.</li>
      * </ul>
      * @throws SQLException the SQL exception
      */
@@ -543,6 +573,7 @@ public class SqlRecordSimple implements SqlRecord {
                 " receivedTime DOUBLE NOT NULL," +
                 " finishTime DOUBLE," +
                 " instanceNum INT NOT NULL, " +
+                " InterScheduleEndTime DOUBLE, " +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;
@@ -599,6 +630,7 @@ public class SqlRecordSimple implements SqlRecord {
      *     <li>host: int. It records the id of the host where the instance is placed.</li>
      *     <li>startTime: double. It records the start time of the instance.</li>
      *     <li>finishTime: double. It records the finish time of the instance.</li>
+     *     <li>IntraScheduleEndTime: double. It records the intra-schedule time of the instance.</li>
      * </ul>
      * @throws SQLException the SQL exception
      */
@@ -618,7 +650,8 @@ public class SqlRecordSimple implements SqlRecord {
                 " datacenter INT NOT NULL, " +
                 " host INT NOT NULL, " +
                 " startTime DOUBLE NOT NULL, " +
-                " finishTime DOUBLE," +
+                " finishTime DOUBLE, " +
+                " IntraScheduleEndTime DOUBLE, " +
                 " FOREIGN KEY(instanceGroupId) REFERENCES " + this.instanceGroupTableName + "(id)," +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
@@ -656,6 +689,78 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+
+    /**
+     * Create the datacenter table.
+     * The datacenter table has the following columns:
+     * <ul>
+     *     <li>id: int, primary key. It records the id of the data center.</li>
+     *     <li>region: char(50). It records the region of the data center.</li>
+     *     <li>location: char(50). It records the location of the data center.</li>
+     *     <li>architecture: char(50). It records the architecture of the data center.</li>
+     *     <li>hostNum: int. It records the number of the hosts of the data center.</li>
+     *     <li>cpu: int. It records the cpu of the data center.</li>
+     *     <li>ram: int. It records the ram of the data center.</li>
+     *     <li>storage: int. It records the storage of the data center.</li>
+     *     <li>bw: int. It records the bandwidth of the data center.</li>
+     *     <li>pricePerCPU: double. It records the price per cpu of the data center.</li>
+     *     <li>pricePerRAM: double. It records the price per ram of the data center.</li>
+     *     <li>pricePerStorage: double. It records the price per storage of the data center.</li>
+     *     <li>pricePerBW: double. It records the price per bandwidth of the data center.</li>
+     *     <li>PricePerRack: double. It records the price per rack of the data center.</li>
+     *     <li>HostPerRack: double. It records the host per rack of the data center.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
+    private void createDatacenterTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.datacenterTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.datacenterTableName + " " +
+                "(id INT PRIMARY KEY NOT NULL," +
+                " region CHAR(50), " +
+                " location CHAR(50), " +
+                " architecture CHAR(50), " +
+                " hostNum INT NOT NULL, " +
+                " cpu INT NOT NULL, " +
+                " ram INT NOT NULL, " +
+                " storage INT NOT NULL, " +
+                " bw INT NOT NULL, " +
+                " pricePerCPU DOUBLE NOT NULL, " +
+                " pricePerRAM DOUBLE NOT NULL, " +
+                " pricePerStorage DOUBLE NOT NULL, " +
+                " pricePerBW DOUBLE NOT NULL, " +
+                " PricePerRack DOUBLE NOT NULL, " +
+                " HostPerRack DOUBLE NOT NULL)";
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+
+    /**
+     * Create the dc network table.
+     * The dc network table has the following columns:
+     * <ul>
+     *     <li>srcDatacenterId: int, primary key. It records the id of the source data center.</li>
+     *     <li>dstDatacenterId: int, primary key. It records the id of the destination data center.</li>
+     *     <li>bw: double. It records the bandwidth between the source data center and the destination data center.</li>
+     *     <li>unitPrice: double. It records the unit price of the bandwidth between the source data center and the destination data center.</li>
+     * </ul>
+     * @throws SQLException the SQL exception
+     */
+    private void createDcNetworkTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.dcNetworkTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.dcNetworkTableName + " " +
+                "(srcDatacenterId INT NOT NULL, " +
+                " dstDatacenterId INT NOT NULL, " +
+                " bw DOUBLE NOT NULL, " +
+                " unitPrice DOUBLE NOT NULL," +
+                " PRIMARY KEY (srcDatacenterId, dstDatacenterId)," +
+                " FOREIGN KEY (srcDatacenterId) REFERENCES " + this.datacenterTableName + "(id)," +
+                " FOREIGN KEY (dstDatacenterId) REFERENCES " + this.datacenterTableName + "(id))";
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+
     @Override
     public void recordConflict(double time, int sum) {
         int tmpTime = (int) time / 10 * 10;
@@ -675,21 +780,67 @@ public class SqlRecordSimple implements SqlRecord {
 
     @Override
     public void recordDatacentersInfo(List<Datacenter> datacenters) {
-
+        //遍历Datacenters的value
+        for (Datacenter datacenter : datacenters) {
+            recordDatacentersInfo(datacenter);
+        }
     }
-    
-    @Override
-    public void recordDatacentersInfo(Datacenter datacenters) {
 
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenter) {
+        try {
+            statement = conn.prepareStatement("INSERT INTO " + this.datacenterTableName +
+                    " (id, region, location, architecture, hostNum, cpu, ram, storage, bw, pricePerCPU, pricePerRAM, pricePerStorage, pricePerBW, PricePerRack, HostPerRack) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //设置Datacenter的value
+            statement.setInt(1, datacenter.getId());
+            statement.setString(2, datacenter.getRegion());
+            statement.setString(3, datacenter.getLocation() == null ? "null" : datacenter.getLocation().toString());
+            statement.setString(4, datacenter.getArchitecture());
+            statement.setLong(5, datacenter.getHostNum());
+            statement.setLong(6, datacenter.getCpu());
+            statement.setLong(7, datacenter.getRam());
+            statement.setLong(8, datacenter.getStorage());
+            statement.setLong(9, datacenter.getBw());
+            statement.setDouble(10, datacenter.getPricePerCPU());
+            statement.setDouble(11, datacenter.getPricePerRAM());
+            statement.setDouble(12, datacenter.getPricePerStorage());
+            statement.setDouble(13, datacenter.getPricePerBW());
+            statement.setDouble(14, datacenter.getPricePerRack());
+            statement.setDouble(15, datacenter.getHostPerRack());
+            statement.addBatch();
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void recordDcNetworkInfo(NetworkTopology networkTopology) {
-
+        Set<Integer> dcIdList = networkTopology.getDcIdList();
+        for(Integer srcDcId: dcIdList) {
+            for(Integer dstDcId: dcIdList) {
+                try {
+                    recordDcNetworkInfo(srcDcId, dstDcId, networkTopology.getBw(srcDcId, dstDcId), networkTopology.getUnitPrice(srcDcId, dstDcId));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
     public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
-
+        try {
+            statement = conn.prepareStatement("INSERT INTO " + this.dcNetworkTableName + " (srcDatacenterId, dstDatacenterId, bw, unitPrice) VALUES (?, ?, ?, ?)");
+            statement.setInt(1, srcDcId);
+            statement.setInt(2, dstDcId);
+            statement.setDouble(3, bw);
+            statement.setDouble(4, unitPrice);
+            statement.addBatch();
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
