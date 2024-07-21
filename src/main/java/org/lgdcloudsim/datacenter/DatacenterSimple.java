@@ -703,10 +703,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (!intraSchedulerResult.isFailedInstancesEmpty()) {
                 retryNum = intraScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false, intraSchedulerResult.getOutDatedUserRequests());
             }
-            intraSchedulerResults.add(intraSchedulerResult);
             if (!intraSchedulerResult.isScheduledInstancesEmpty()) {
+                intraSchedulerResults.add(intraSchedulerResult);
                 send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, null);
             } else if (retryNum != 0){
+                LOGGER.info("{}: {}'s {} has {} instances need retry but no instance scheduled successful.", getSimulation().clockStr(), getName(), intraScheduler.getName(), retryNum);
                 startIntraScheduling(intraScheduler);
             } else {
                 isIntraSchedulerBusy.put(intraScheduler, false);
