@@ -569,7 +569,13 @@ public class InitDatacenter {
             synchronizationGap = 0;
         }
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
-        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
+
+        int heartbeatInterval = 0;
+        if (datacenterJson.containsKey("heartbeatInterval")) {
+            heartbeatInterval = datacenterJson.getInt("heartbeatInterval", 0);
+        }
+
+        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, heartbeatInterval, maxCpuRam[0], maxCpuRam[1]);
 
         setPrediction(statesManager, datacenterJson);
 
