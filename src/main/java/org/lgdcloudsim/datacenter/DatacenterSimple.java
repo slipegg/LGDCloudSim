@@ -699,12 +699,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 statesManager.revertHostState(intraSchedulerResult);
             }
 
+            int retryNum=0;
             if (!intraSchedulerResult.isFailedInstancesEmpty()) {
-                intraScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false, intraSchedulerResult.getOutDatedUserRequests());
+                retryNum = intraScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false, intraSchedulerResult.getOutDatedUserRequests());
             }
             intraSchedulerResults.add(intraSchedulerResult);
             if (!intraSchedulerResult.isScheduledInstancesEmpty()) {
                 send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, null);
+            } else if (retryNum != 0){
+                startIntraScheduling(intraScheduler);
             } else {
                 isIntraSchedulerBusy.put(intraScheduler, false);
             }
@@ -764,8 +767,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param intraScheduler the scheduler corresponding to this scheduling result
      * @param isNeedRevertSelfHostState whether to revert the state of the host
      * @param outDatedUserRequests the outdated user requests that has exceeded the scheduling time limit
+     * @return the number of retry instances
      */
-    private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
+    private int intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
         for (UserRequest userRequest : outDatedUserRequests) {
             userRequest.addFailReason("outDated");
@@ -800,6 +804,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (!failedUserRequests.isEmpty()) {
             send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
         }
+        return instances.size();
     }
 
     /**
