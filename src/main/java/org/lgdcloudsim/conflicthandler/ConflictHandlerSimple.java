@@ -83,7 +83,7 @@ public class ConflictHandlerSimple implements ConflictHandler {
             if (allocateHostStates.containsKey(hostId)) {
                 hostState = allocateHostStates.get(hostId);
             } else {
-                hostState = statesManager.getNowHostState(hostId);
+                hostState = statesManager.getCenterHostState(hostId);
                 allocateHostStates.put(hostId, hostState);
             }
 
@@ -128,7 +128,7 @@ public class ConflictHandlerSimple implements ConflictHandler {
                 if (hostStatesIfScheduled.containsKey(instance.getExpectedScheduleHostId())) {
                     hostState = hostStatesIfScheduled.get(instance.getExpectedScheduleHostId());
                 } else {
-                    hostState = getDatacenter().getStatesManager().getNowHostState(instance.getExpectedScheduleHostId());
+                    hostState = getDatacenter().getStatesManager().getActualHostState(instance.getExpectedScheduleHostId());
                 }
 
                 if (hostState.isSuitable(instance)) {

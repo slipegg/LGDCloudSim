@@ -243,7 +243,7 @@ public class InterSchedulerSimple implements InterScheduler {
         interSchedulerResult = checkInstanceGroupScheduleResult(interSchedulerResult);
 
         if(end-start<0.1) {
-            LOGGER.warn("{}: interSchedule schedule time is less than 0.1 ms ({} ms).", simulation.clockStr(), end-start);
+            LOGGER.debug("{}: interSchedule schedule time is less than 0.1 ms ({} ms).", simulation.clockStr(), end - start);
         }
 
         interSchedulerResult.setOutDatedUserRequests(queueResult.getOutDatedItems());
