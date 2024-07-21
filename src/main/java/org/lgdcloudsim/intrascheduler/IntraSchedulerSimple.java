@@ -170,7 +170,7 @@ public class IntraSchedulerSimple implements IntraScheduler {
      */
     @Override
     public IntraSchedulerResult schedule() {
-        SynState synState = datacenter.getStatesManager().getSynState(this);
+        SynState synState = datacenter.getStatesManager().getSynStateForIntraScheduler(this);
 
         QueueResult<Instance> queueResult = getWaitSchedulingInstances();
         List<Instance> waitScheduledItems = queueResult.getWaitScheduledItems();
