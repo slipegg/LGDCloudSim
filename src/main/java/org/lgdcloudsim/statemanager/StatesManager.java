@@ -79,7 +79,15 @@ public interface StatesManager {
      * @param hostId the id of the host.
      * @return the host state at the current moment.
      */
-    HostState getNowHostState(int hostId);
+    HostState getActualHostState(int hostId);
+
+    /**
+     * Get the host status maintained by the center state manager according to the host id.
+     *
+     * @param hostId the id of the host.
+     * @return the host state maintained by the center state manager.
+     */
+    HostState getCenterHostState(int hostId);
 
     /**
      * Allocate the instance on the host with hostId.
@@ -130,19 +138,45 @@ public interface StatesManager {
     StatesManager revertSelfHostState(List<Instance> instances, IntraScheduler intraScheduler);
 
     /**
+     * Is the heartbeat needed.
+     * If not, it means that the actual host status is always the same as the center host status.
+     *
+     * @return whether the heartbeat is needed.
+     */
+    boolean isNeedHeartbeat();
+
+    /**
+     * Get the next heartbeat time delay of the host.
+     *
+     * @param hostId      the id of the host.
+     * @param currentTime the current time.
+     * @return the next heartbeat time of the host.
+     */
+    double getNextHeartbeatDelay(int hostId, double currentTime);
+
+    /**
+     * In order to save space, heartbeat are only made when the host status changes.
+     * We need to synchronize the status of these changed hosts from actualHostStates to centerHostStates
+     *
+     * @param updatedHostIds the ids of the hosts that have changed and make heartbeat
+     * @return the StatesManager itself.
+     */
+    StatesManager synByHeartbeat(List<Integer> updatedHostIds);
+
+    /**
      * get the synchronization state of the intra-scheduler.
      *
      * @param intraScheduler the intra-scheduler.
      * @return the synchronization state of the intra-scheduler, see {@link SynState}.
      */
-    SynState getSynState(IntraScheduler intraScheduler);
+    SynState getSynStateForIntraScheduler(IntraScheduler intraScheduler);
 
     /**
      * Synchronize all state to the intra-scheduler.
      *
      * @return the StatesManager itself.
      */
-    StatesManager synAllState();
+    StatesManager synAllStateBetweenCenterAndIntraScheduler();
 
     /**
      * Get the {@link SimpleState}.

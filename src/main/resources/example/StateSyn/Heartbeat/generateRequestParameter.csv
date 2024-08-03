@@ -1,0 +1,20 @@
+  Parament Name,Parament
+DcDistribution,"{""1"":{""United States"":1}}"
+RequestPerNum,100
+RequestTimeInterval,2000
+RequestTimes,5
+ScheduleDelayLimitMin,1000
+ScheduleDelayLimitMax,1000
+RequestGroupNum,1
+GroupInstanceNum,1
+GroupAccessDelayPercent,0
+GroupEdgePercent,0
+GroupRetryTimesMin,1
+GroupRetryTimesMax,1
+InstanceCpuNum,128
+InstanceRamNum,256
+InstanceStorageNum,1600
+InstanceBwNum,800
+InstanceLifeTime,1000
+InstanceRetryTimesMin,4
+InstanceRetryTimesMax,4

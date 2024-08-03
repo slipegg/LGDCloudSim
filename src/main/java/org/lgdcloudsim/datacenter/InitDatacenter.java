@@ -540,14 +540,22 @@ public class InitDatacenter {
     private static StatesManager getStatesManager(JsonObject datacenterJson, boolean isCenterSchedule, int target) {
         int hostNum = datacenterJson.getInt("hostNum");
         PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
-        double synchronizationGap;
+        double synchronizationGap = 0;
         if (isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET) {
             synchronizationGap = 0;
         } else {
-            synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
+            if (datacenterJson.containsKey("synchronizationGap")) {
+                synchronizationGap = datacenterJson.getJsonNumber("synchronizationGap").doubleValue();
+            }
         }
         int[] maxCpuRam = getMaxCpuRam(datacenterJson);
-        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, maxCpuRam[0], maxCpuRam[1]);
+
+        int heartbeatInterval = 0;
+        if (datacenterJson.containsKey("heartbeatInterval")) {
+            heartbeatInterval = datacenterJson.getInt("heartbeatInterval", 0);
+        }
+
+        StatesManager statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synchronizationGap, heartbeatInterval, maxCpuRam[0], maxCpuRam[1]);
 
         setPrediction(statesManager, datacenterJson);
 

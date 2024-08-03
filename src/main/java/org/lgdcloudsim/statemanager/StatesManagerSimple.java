@@ -31,10 +31,40 @@ import static org.apache.commons.lang3.math.NumberUtils.max;
  */
 public class StatesManagerSimple implements StatesManager {
     /**
-     * The status of all hosts at the current time
+     * The actual status of all hosts at the current time
      **/
-    private int[] hostStates;
+    private int[] actualHostStates;
 
+    /**
+     * The status of all hosts maintained by the center state manager at the current time,
+     * such as etcd in k8s.
+     * When the heartbeatInterval <= 0, the actual host status is always synchronized with the center status,
+     * so we don't need to initialize the centerHostStates, we just use the actualHostStates as the centerHostStates.
+     **/
+    private int[] centerHostStates;
+
+    /**
+     * The interval of heartbeat synchronization.
+     * If heartbeatInterval <=0,it means that we do not use the heartbeat reporting mechanism,
+     * that is, the actual host status is always synchronized with the center status.
+     * The unit is ms.
+     * The default value is 0.
+     */
+    private int heartbeatInterval;
+
+    /**
+     * The time when the first heartbeat is sent during a heartbeat interval.
+     * The host id is the index of the array.
+     * The send time is the value of the array.
+     * Note that if the heartbeatInterval <= 0, the heartbeatSendTime is not used.
+     * The unit is ms.
+     */
+    private int[] heartbeatSendTime;
+
+    /**
+     * A random number generator of heartbeatSendTime
+     **/
+    private Random random;
     /**
      * Whether to enable prediction
      **/
@@ -99,6 +129,7 @@ public class StatesManagerSimple implements StatesManager {
      **/
     @Getter
     @Setter
+    //TODO 加入心跳后处理时机需要多多考虑
     private SimpleState simpleState;
 
     /**
@@ -130,21 +161,45 @@ public class StatesManagerSimple implements StatesManager {
     private Map<IntraScheduler, List<Integer>> intraSchedulerView;
 
     /**
+     * Initialize the StatesManagerSimple with a random seed.
+     *
+     * @param hostNum                the number of hosts in the datacenter.
+     * @param partitionRangesManager the partition ranges manager.
+     * @param synGap                 the synchronization gap.
+     * @param heartbeatInterval      the interval of heartbeat synchronization.
+     * @param maxCpuCapacity         the max cpu capacity among all hosts in the datacenter.
+     * @param maxRamCapacity         the max ram capacity among all hosts in the datacenter.
+     * @param randomSeed             the random seed.
+     */
+    public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int heartbeatInterval, int maxCpuCapacity, int maxRamCapacity, int randomSeed) {
+        this(hostNum, partitionRangesManager, synGap, heartbeatInterval, maxCpuCapacity, maxRamCapacity);
+        random = new Random(randomSeed);
+    }
+
+    /**
      * Initialize the StatesManagerSimple.
      *
      * @param hostNum                the number of hosts in the datacenter.
      * @param partitionRangesManager the partition ranges manager.
      * @param synGap                 the synchronization gap.
+     * @param heartbeatInterval      the interval of heartbeat synchronization.
      * @param maxCpuCapacity         the max cpu capacity among all hosts in the datacenter.
      * @param maxRamCapacity         the max ram capacity among all hosts in the datacenter.
      */
-    public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
+    public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int heartbeatInterval, int maxCpuCapacity, int maxRamCapacity) {
         this.hostNum = hostNum;
-        this.hostStates = new int[hostNum * HostState.STATE_NUM];
+        this.heartbeatInterval = heartbeatInterval;
         this.partitionRangesManager = partitionRangesManager;
         this.synGapManager = new SynGapManager(synGap, partitionRangesManager.getPartitionNum());
         this.maxCpuCapacity = maxCpuCapacity;
         this.maxRamCapacity = maxRamCapacity;
+        this.actualHostStates = new int[hostNum * HostState.STATE_NUM];
+        if (isNeedHeartbeat()) {
+            this.centerHostStates = new int[hostNum * HostState.STATE_NUM];
+            this.heartbeatSendTime = new int[hostNum];
+            random = new Random();
+            initHeartbeatSendTime();
+        }
         this.simpleState = new SimpleStateEasy(this);
         this.partitionNum = partitionRangesManager.getPartitionNum();
         this.selfHostStateMap = new HashMap<>();
@@ -156,12 +211,32 @@ public class StatesManagerSimple implements StatesManager {
 
     /**
      * Initialize the StatesManagerSimple.
+     *
+     * @param hostNum                the number of hosts in the datacenter.
+     * @param partitionRangesManager the partition ranges manager.
+     * @param synGap                 the synchronization gap.
+     * @param maxCpuCapacity         the max cpu capacity among all hosts in the datacenter.
+     * @param maxRamCapacity         the max ram capacity among all hosts in the datacenter.
+     */
+    public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap, int maxCpuCapacity, int maxRamCapacity) {
+        this(hostNum, partitionRangesManager, synGap, 0, maxCpuCapacity, maxRamCapacity);
+    }
+
+    /**
+     * Initialize the StatesManagerSimple.
      * @param hostNum the number of hosts in the datacenter.
      * @param partitionRangesManager the partition ranges manager.
      * @param synGap the synchronization gap.
      */
     public StatesManagerSimple(int hostNum, PartitionRangesManager partitionRangesManager, double synGap) {
         this(hostNum, partitionRangesManager, synGap, 128, 256);
+    }
+
+    private void initHeartbeatSendTime() {
+        for (int i = 0; i < hostNum; i++) {
+            int heartBeatSendTime = random.nextInt(heartbeatInterval);
+            heartbeatSendTime[i] = heartBeatSendTime;
+        }
     }
 
     /**
@@ -211,7 +286,10 @@ public class StatesManagerSimple implements StatesManager {
         if (state.length != HostState.STATE_NUM) {
             throw new IllegalArgumentException("Host state must be array of size " + HostState.STATE_NUM);
         }
-        System.arraycopy(state, 0, hostStates, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
+        System.arraycopy(state, 0, actualHostStates, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
+        if (isNeedHeartbeat()) {
+            System.arraycopy(state, 0, centerHostStates, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
+        }
         simpleState.initHostSimpleState(hostId, state);
     }
 
@@ -228,13 +306,31 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     /**
+     * In order to save space, heartbeat are only made when the host status changes.
+     * We need to synchronize the status of these changed hosts from actualHostStates to centerHostStates
+     *
+     * @param updatedHostIds the ids of the hosts that have changed and make heartbeat
+     * @return the StatesManager itself.
+     */
+    @Override
+    public StatesManager synByHeartbeat(List<Integer> updatedHostIds) {
+        if (!isNeedHeartbeat()) {
+            return this;
+        }
+        for (int hostId : updatedHostIds) {
+            System.arraycopy(actualHostStates, hostId * HostState.STATE_NUM, centerHostStates, hostId * HostState.STATE_NUM, HostState.STATE_NUM);
+        }
+        return this;
+    }
+
+    /**
      * Get the host state of the host with hostId in the intra-scheduler's view.
      * @see SynState
      * @param scheduler the intra-scheduler.
      * @return the host state.
      */
     @Override
-    public SynState getSynState(IntraScheduler scheduler) {
+    public SynState getSynStateForIntraScheduler(IntraScheduler scheduler) {
         Map<Integer, Map<Integer, int[]>> selfHostState;
         int[] partitionIds = partitionRangesManager.getPartitionIds();
 
@@ -245,14 +341,14 @@ public class StatesManagerSimple implements StatesManager {
             }
         }
         selfHostState = selfHostStateMap.get(scheduler);
-        return new SynStateSimple(synStateMap, hostStates, partitionRangesManager, selfHostState, scheduler, predictionManager, synGapManager, predictRecordNum, predictable);
+        return new SynStateSimple(synStateMap, getCenterHostStates(), partitionRangesManager, selfHostState, scheduler, predictionManager, synGapManager, predictRecordNum, predictable);
     }
 
     /**
      * Perform a partition synchronization for each {@link IntraScheduler}.
      */
     @Override
-    public StatesManager synAllState() {
+    public StatesManager synAllStateBetweenCenterAndIntraScheduler() {
         if (!isSynCostTime()) {
             return this;
         }
@@ -282,17 +378,26 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public boolean allocate(int hostId, Instance instance) {
         int[] beforeHostState = new int[HostState.STATE_NUM];
-        System.arraycopy(hostStates, hostId * HostState.STATE_NUM, beforeHostState, 0, HostState.STATE_NUM);
-        if (beforeHostState[0] < instance.getCpu() || beforeHostState[1] < instance.getRam() || beforeHostState[2] < instance.getStorage() || beforeHostState[3] < instance.getBw()) {
-            return false;//一般不会发生
+        System.arraycopy(getCenterHostStates(), hostId * HostState.STATE_NUM, beforeHostState, 0, HostState.STATE_NUM);
+        if (beforeHostState[0] < instance.getCpu() || beforeHostState[1] < instance.getRam() || beforeHostState[2] < instance.getStorage() || beforeHostState[3] < instance.getBw()
+                || actualHostStates[hostId * HostState.STATE_NUM] < instance.getCpu() || actualHostStates[hostId * HostState.STATE_NUM + 1] < instance.getRam()
+                || actualHostStates[hostId * HostState.STATE_NUM + 2] < instance.getStorage() || actualHostStates[hostId * HostState.STATE_NUM + 3] < instance.getBw()) {
+            return false; //This usually doesn't happen because the previous conflict handler has already checked it.
         }
 
         updateSynStateMap(hostId, beforeHostState);
 
-        hostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
-        hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
-        hostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
-        hostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+        actualHostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
+        actualHostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
+        actualHostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
+        actualHostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+
+        if (isNeedHeartbeat()) {
+            centerHostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
+            centerHostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
+            centerHostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
+            centerHostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+        }
 
         simpleState.updateSimpleStateAllocated(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostAllocateInstance(hostId, datacenter.getSimulation().clock());
@@ -308,16 +413,16 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public StatesManager release(int hostId, Instance instance) {
         int[] beforeHostState = new int[HostState.STATE_NUM];
-        System.arraycopy(hostStates, hostId * HostState.STATE_NUM, beforeHostState, 0, HostState.STATE_NUM);
+        System.arraycopy(actualHostStates, hostId * HostState.STATE_NUM, beforeHostState, 0, HostState.STATE_NUM);
 
         updateSynStateMap(hostId, beforeHostState);
 
-        hostStates[hostId * HostState.STATE_NUM] += instance.getCpu();
-        hostStates[hostId * HostState.STATE_NUM + 1] += instance.getRam();
-        hostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
-        hostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
+        actualHostStates[hostId * HostState.STATE_NUM] += instance.getCpu();
+        actualHostStates[hostId * HostState.STATE_NUM + 1] += instance.getRam();
+        actualHostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
+        actualHostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
 
-        simpleState.updateSimpleStateReleased(hostId, beforeHostState, instance);
+//        simpleState.updateSimpleStateReleased(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostReleaseInstance(hostId, datacenter.getSimulation().clock());
         return this;
     }
@@ -325,7 +430,8 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public Object getStateByType(String type) {
         return switch (type) {
-            case "detailed" -> new DetailedDcStateSimple(hostStates,hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
+            case "detailed" ->
+                    new DetailedDcStateSimple(getCenterHostStates(), hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
             case "easySimple" -> simpleState.generate();
             case "null" -> null;
             default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
@@ -344,13 +450,22 @@ public class StatesManagerSimple implements StatesManager {
     }
 
     @Override
-    public HostState getNowHostState(int hostId) {
-        HostState hostState = new HostState(
+    public HostState getActualHostState(int hostId) {
+        return new HostState(
+                actualHostStates[hostId * HostState.STATE_NUM],
+                actualHostStates[hostId * HostState.STATE_NUM + 1],
+                actualHostStates[hostId * HostState.STATE_NUM + 2],
+                actualHostStates[hostId * HostState.STATE_NUM + 3]);
+    }
+
+    @Override
+    public HostState getCenterHostState(int hostId) {
+        int[] hostStates = getCenterHostStates();
+        return new HostState(
                 hostStates[hostId * HostState.STATE_NUM],
                 hostStates[hostId * HostState.STATE_NUM + 1],
                 hostStates[hostId * HostState.STATE_NUM + 2],
                 hostStates[hostId * HostState.STATE_NUM + 3]);
-        return hostState;
     }
 
     @Override
@@ -401,7 +516,7 @@ public class StatesManagerSimple implements StatesManager {
             return partitionSynState.get(hostId);
         } else {
             int[] hostState = new int[HostState.STATE_NUM];
-            System.arraycopy(hostStates, hostId * HostState.STATE_NUM, hostState, 0, HostState.STATE_NUM);
+            System.arraycopy(getCenterHostStates(), hostId * HostState.STATE_NUM, hostState, 0, HostState.STATE_NUM);
             return hostState;
         }
     }
@@ -422,6 +537,16 @@ public class StatesManagerSimple implements StatesManager {
             hostState[3] += instance.getBw();
         }
         return this;
+    }
+
+    @Override
+    public double getNextHeartbeatDelay(int hostId, double currentTime) {
+        if (!isNeedHeartbeat()) {
+            return 0;
+        }
+        int heartBeatInitSendTime = heartbeatSendTime[hostId];
+        int nextHeartBeatTime = (int) ((currentTime - heartBeatInitSendTime) / heartbeatInterval) * heartbeatInterval + heartbeatInterval + heartBeatInitSendTime;
+        return nextHeartBeatTime - currentTime;
     }
 
     @Override
@@ -475,8 +600,8 @@ public class StatesManagerSimple implements StatesManager {
         int startIndex = 0;
         int innerSchedulerId = 0;
         long tmpCpuAvailableSum = 0;
-        for(int hostId = 0; hostId<hostNum && innerSchedulerId < innerSchedulerNum-1;hostId++){
-            tmpCpuAvailableSum+=getNowHostState(hostId).getCpu();
+        for(int hostId = 0; hostId<hostNum && innerSchedulerId < innerSchedulerNum-1;hostId++) {
+            tmpCpuAvailableSum += getActualHostState(hostId).getCpu();
             if(tmpCpuAvailableSum>=averageCpuAvailable){
                 IntraScheduler intraScheduler = getDatacenter().getIntraSchedulers().get(innerSchedulerId);
                 intraSchedulerView.putIfAbsent(intraScheduler, List.of(startIndex, hostId));
@@ -534,6 +659,19 @@ public class StatesManagerSimple implements StatesManager {
             partitionSynStateMap.put(0.0, new HashMap<>());
             synStateMap.put(partitionId, partitionSynStateMap);
         }
+    }
+
+    private int[] getCenterHostStates() {
+        if (isNeedHeartbeat()) {
+            return centerHostStates;
+        } else {
+            return actualHostStates;
+        }
+    }
+
+    @Override
+    public boolean isNeedHeartbeat() {
+        return heartbeatInterval > 0;
     }
 
     @Override

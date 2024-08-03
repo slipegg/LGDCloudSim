@@ -28,40 +28,6 @@ public class CloudSimTag {
     private static final int BASE = 0;
 
     /**
-     * Denotes a request from a Datacenter to register itself. This tag is normally used
-     * between {@link CloudInformationService} and Datacenter entities.
-     * When such a {@link org.lgdcloudsim.core.events.SimEvent} is sent, the {@link org.lgdcloudsim.core.events.SimEvent#getData()}
-     * must be a {@link org.lgdcloudsim.datacenter.Datacenter} object.
-     */
-    public static final int DC_REGISTRATION_REQUEST = BASE - 7;
-
-    /**
-     * Periodically modify the scope of each collaboration zone.
-     * This tag is used to notify the {@link CloudInformationService} to change the collaboration zone.
-     */
-    public static final int CHANGE_COLLABORATION_SYN = BASE - 6;
-
-    /**
-     * Denotes the end of the execution of instances.
-     * This tag is used by the {@link org.lgdcloudsim.datacenter.Datacenter}.
-     * the {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a list of {@link org.lgdcloudsim.request.Instance} objects
-     * which are finishing at the same time.
-     */
-    public static final int END_INSTANCE_RUN = -5;
-
-    /**
-     * Synchronize host states to intra-scheduler in the data center.
-     * It will be executed periodically.
-     */
-    public static final int SYN_STATE_IN_DC = BASE - 4;
-
-    /**
-     * Synchronize host states to inter-scheduler between data centers.
-     * It will be executed periodically.
-     */
-    public static final int SYN_STATE_BETWEEN_DC = BASE - 3;
-
-    /**
      * Denotes that some user request has failed.
      * This event will be sent to {@link CloudInformationService} for processing.
      * The {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a set of {@link org.lgdcloudsim.request.UserRequest} object.
@@ -69,10 +35,52 @@ public class CloudSimTag {
     public static final int USER_REQUEST_FAIL = BASE - 1;
 
     /**
+     * Synchronize host states to inter-scheduler between data centers.
+     * It will be executed periodically.
+     */
+    public static final int SYN_STATE_BETWEEN_DC = USER_REQUEST_FAIL - 1;
+
+    /**
+     * Synchronize host states to intra-scheduler in the data center.
+     * It will be executed periodically.
+     */
+    public static final int SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC = SYN_STATE_BETWEEN_DC - 1;
+
+    /**
+     * Denotes the end of the execution of instances.
+     * This tag is used by the {@link org.lgdcloudsim.datacenter.Datacenter}.
+     * the {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a list of {@link org.lgdcloudsim.request.Instance} objects
+     * which are finishing at the same time.
+     */
+    public static final int SYN_STATE_BY_HEARTBEAT_IN_DC = SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC - 1;
+
+    /**
+     * Denotes the end of the execution of instances.
+     * This tag is used by the {@link org.lgdcloudsim.datacenter.Datacenter}.
+     * the {@link org.lgdcloudsim.core.events.SimEvent#getData()} must be a list of {@link org.lgdcloudsim.request.Instance} objects
+     * which are finishing at the same time.
+     */
+    public static final int END_INSTANCE_RUN = SYN_STATE_BY_HEARTBEAT_IN_DC - 1;
+
+    /**
+     * Periodically modify the scope of each collaboration zone.
+     * This tag is used to notify the {@link CloudInformationService} to change the collaboration zone.
+     */
+    public static final int CHANGE_COLLABORATION_SYN = END_INSTANCE_RUN - 1;
+
+    /**
+     * Denotes a request from a Datacenter to register itself. This tag is normally used
+     * between {@link CloudInformationService} and Datacenter entities.
+     * When such a {@link org.lgdcloudsim.core.events.SimEvent} is sent, the {@link org.lgdcloudsim.core.events.SimEvent#getData()}
+     * must be a {@link org.lgdcloudsim.datacenter.Datacenter} object.
+     */
+    public static final int DC_REGISTRATION_REQUEST = CHANGE_COLLABORATION_SYN - 1;
+
+    /**
      * Denotes a request from the {@link org.lgdcloudsim.user.UserSimple} to a {@link CloudInformationService} to get
      * the list of all Datacenters which are registered with the CloudInformationService.
      */
-    public static final int DC_LIST_REQUEST = BASE + 2;
+    public static final int DC_LIST_REQUEST = BASE + 1;
 
     /**
      * Denotes a request from the {@link org.lgdcloudsim.user.UserSimple} to send.
@@ -81,12 +89,12 @@ public class CloudSimTag {
      * It also can be the {@link org.lgdcloudsim.interscheduler.InterScheduler} scheduling result.
      * In this case, the instanceGroups can be forwarded to other data centers.
      */
-    public static final int USER_REQUEST_SEND = BASE + 3;
+    public static final int USER_REQUEST_SEND = DC_LIST_REQUEST + 1;
 
     /**
      * Denotes that there are still user requests that need to be sent by the {@link org.lgdcloudsim.user.UserSimple}.
      */
-    public static final int NEED_SEND_USER_REQUEST = BASE + 4;
+    public static final int NEED_SEND_USER_REQUEST = USER_REQUEST_SEND + 1;
 
     /**
      * Denotes the start of inter-scheduler scheduling.
@@ -94,7 +102,7 @@ public class CloudSimTag {
      * Therefore, when two events arrive at the same time,
      * the user request can be placed in the queue first, and then inter-scheduler scheduling can be started.
      */
-    public static final int INTER_SCHEDULE_BEGIN = BASE + 5;
+    public static final int INTER_SCHEDULE_BEGIN = NEED_SEND_USER_REQUEST + 1;
 
     /**
      * Denotes the end of inter-scheduler scheduling.
@@ -162,14 +170,14 @@ public class CloudSimTag {
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.
      */
-    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, PRE_ALLOCATE_RESOURCE);
+    public static final Set<Integer> UNIQUE_TAG = Set.of(LOAD_BALANCE_SEND, PRE_ALLOCATE_RESOURCE, SYN_STATE_BY_HEARTBEAT_IN_DC);
 
     /**
      * Tags that exist in cycles.
      * If only these tags are left in all events,
      * it means that there are no new events that need to be executed, and the simulation can be ended.
      */
-    public static final Set<Integer> LOOP_TAG = Set.of(SYN_STATE_BETWEEN_DC, SYN_STATE_IN_DC, CHANGE_COLLABORATION_SYN);
+    public static final Set<Integer> LOOP_TAG = Set.of(SYN_STATE_BETWEEN_DC, SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC, CHANGE_COLLABORATION_SYN);
 
     /**
      * Convert the tag to a string.
@@ -180,7 +188,9 @@ public class CloudSimTag {
     public static String tagToString(int tag) {
         return switch (tag) {
             case CHANGE_COLLABORATION_SYN -> "CHANGE_COLLABORATION_SYN";
-            case SYN_STATE_IN_DC -> "SYN_STATE_IN_DC";
+            case SYN_STATE_BY_HEARTBEAT_IN_DC -> "SYN_STATE_BY_HEARTBEAT_IN_DC";
+            case SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC ->
+                    "SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC";
             case SYN_STATE_BETWEEN_DC -> "SYN_STATE_BETWEEN_DC";
             case SCHEDULE_TO_DC_NO_FORWARD -> "SCHEDULE_TO_DC_NO_FORWARD";
             case SCHEDULE_TO_DC_HOST -> "SCHEDULE_TO_DC_HOST";
