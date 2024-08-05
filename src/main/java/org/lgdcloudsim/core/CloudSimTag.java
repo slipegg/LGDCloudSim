@@ -167,6 +167,8 @@ public class CloudSimTag {
      */
     public static final int INTRA_SCHEDULE_BEGIN = PRE_ALLOCATE_RESOURCE + 1;
 
+    public static final int SCHEDULE_SR_REQUESTS_BEGIN = INTRA_SCHEDULE_BEGIN + 1;
+
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.
      */
@@ -208,6 +210,7 @@ public class CloudSimTag {
             case INTRA_SCHEDULE_END -> "INTRA_SCHEDULE_END";
             case PRE_ALLOCATE_RESOURCE -> "PRE_ALLOCATE_RESOURCE";
             case END_INSTANCE_RUN -> "END_INSTANCE_RUN";
+            case SCHEDULE_SR_REQUESTS_BEGIN -> "SCHEDULE_SR_REQUESTS_BEGIN";
             case NONE -> "NONE";
             case BASE -> "Base";
             default -> "UNKNOWN";

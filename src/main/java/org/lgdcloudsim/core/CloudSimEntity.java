@@ -198,7 +198,7 @@ public abstract class CloudSimEntity implements SimEntity {
             delay = 0;
         }
         if (!((this instanceof UserSimple) || (dest instanceof UserSimple))) {
-            if (dest.getId() != getId()) {
+            if (dest.getId() != this.getId()) {
                 delay += getNetworkDelay(this, dest);
             }
         }

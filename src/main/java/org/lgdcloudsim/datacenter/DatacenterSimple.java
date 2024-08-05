@@ -25,6 +25,10 @@ import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
+import org.lgdcloudsim.shadowresource.filter.SRRequestFilter;
+import org.lgdcloudsim.shadowresource.requestmapper.MapCoordinator;
+import org.lgdcloudsim.shadowresource.requestmapper.PartitionSRRequestMapper;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.statemanager.StatesManager;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.slf4j.Logger;
@@ -32,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.geom.Point2D;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * An interface to be implemented by each class that represents a datacenter.
@@ -274,6 +279,11 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      **/
     private Map<IntraScheduler, Boolean> isIntraSchedulerBusy = new HashMap<>();
 
+    @Setter
+    private SRRequestFilter srRequestFilter;
+
+    private MapCoordinator mapCoordinator;
+
     /**
      * Create a new instance of DatacenterSimple with the given simulation.
      *
@@ -406,8 +416,22 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.INTRA_SCHEDULE_END -> processIntraScheduleEnd(evt);
             case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
             case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
+            case CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN -> processScheduleSRRequests(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
+        }
+    }
+
+    private void processScheduleSRRequests(SimEvent evt) {
+        if (evt.getData() instanceof List<?> distributedScheduleRequestMapIdsTmp) {
+            if (!distributedScheduleRequestMapIdsTmp.isEmpty() && distributedScheduleRequestMapIdsTmp.get(0) instanceof Integer) {
+                List<Integer> distributedScheduleRequestMapIds = (List<Integer>) distributedScheduleRequestMapIdsTmp;
+                for(Integer partitionId : distributedScheduleRequestMapIds){
+                    PartitionSRRequestMapper partitionSRRequestMapper = mapCoordinator.getPartitionSRRequestMapper(partitionId);
+
+
+                }
+            }
         }
     }
 
@@ -1168,7 +1192,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     /**
      * Allocate bandwidth for the instance group and records the allocation information in database.
      * @param instanceGroup the instance group
-     * @param receiveDatacenter the data center that receives the instance group
+     * @param receivedDatacenter the data center that receives the instance group
      * @return whether the bandwidth allocation is successful
      */
     private boolean allocateBwForGroup(InstanceGroup instanceGroup, Datacenter receivedDatacenter) {
@@ -1286,12 +1310,30 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param userRequests the user requests need to be accepted
      */
     private void acceptUserRequestForSingleDatacenter(List<UserRequest> userRequests){
-        instanceQueue.add(userRequests);
         userRequests.forEach(userRequest -> {
             userRequest.getInstanceGroups().forEach(instanceGroup -> {
                 instanceGroup.setReceiveDatacenter(this).setReceivedTime(getSimulation().clock()).setState(UserRequest.SCHEDULING);
             });
         });
+
+        List<Instance> instances = userRequests.stream().flatMap(userRequest -> userRequest.getInstanceGroups().stream()).flatMap(instanceGroup -> instanceGroup.getInstances().stream()).collect(Collectors.toList());
+        List<SRRequest> srRequests = new ArrayList<>();
+
+        for( Instance instance : instances){
+            SRRequest srRequest = srRequestFilter.filter(instance);
+            if(srRequest != null){
+                srRequests.add(srRequest);
+            }else{
+                instanceQueue.add(instance);
+            }
+        }
+
+        if (!srRequests.isEmpty()){
+            List<Integer> distributedScheduleRequestMapIds = mapCoordinator.receiveSRRequest(srRequests);
+            if(!distributedScheduleRequestMapIds.isEmpty()){
+                send(this,0,CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, distributedScheduleRequestMapIds);
+            }
+        }
 
         getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(userRequests);
 
