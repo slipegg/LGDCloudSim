@@ -5,6 +5,7 @@ import org.lgdcloudsim.datacenter.DatacenterPowerOnRecord;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -335,4 +336,10 @@ public interface StatesManager {
      * @return the total bandwidth capacity of the datacenter.
      */
     long getTotalBw();
+
+    HostState getHostStateWithSRRequest(int hostId);
+
+    boolean allocate(SRRequest srRequest);
+
+    StatesManager release(SRRequest srRequest);
 }

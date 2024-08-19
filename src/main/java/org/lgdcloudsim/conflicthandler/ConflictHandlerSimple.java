@@ -6,6 +6,8 @@ import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
+import org.lgdcloudsim.shadowresource.util.SRConflictHandlerResult;
 import org.lgdcloudsim.statemanager.HostState;
 import org.lgdcloudsim.statemanager.StatesManager;
 import org.lgdcloudsim.util.FailedOutdatedResult;
@@ -32,6 +34,33 @@ public class ConflictHandlerSimple implements ConflictHandler {
      **/
     @Getter
     Map<Integer, Integer> partitionConflicts = new HashMap<>();
+
+    public SRConflictHandlerResult filterConflictedSRRequest(List<SRRequest> srRequests){
+        SRConflictHandlerResult srConflictHandlerResult = new SRConflictHandlerResult();
+        Map<Integer, HostState> allocateHostStates = new HashMap<>();
+        
+        for(SRRequest srRequest : srRequests){
+            int hostId = srRequest.getInstance().getExpectedScheduleHostId();
+            StatesManager statesManager = datacenter.getStatesManager();            
+            HostState hostState;
+            if (allocateHostStates.containsKey(hostId)) {
+                hostState = allocateHostStates.get(hostId);
+            } else {
+                hostState = statesManager.getCenterHostState(hostId);
+                allocateHostStates.put(hostId, hostState);
+            }
+
+            Instance instance = srRequest.getInstance();
+            if (hostState.isSuitable(instance)) {
+                hostState.allocate(instance);
+                srConflictHandlerResult.getSuccessSRRequests().add(srRequest);
+            } else {
+                srConflictHandlerResult.getFaileSRRequests().add(srRequest);
+            }
+        }
+
+        return srConflictHandlerResult;
+    }
 
     @Override
     public ConflictHandlerResult filterConflictedInstance(List<IntraSchedulerResult> intraSchedulerResults) {

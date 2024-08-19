@@ -4,6 +4,8 @@ import org.lgdcloudsim.core.DatacenterEntity;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
+import org.lgdcloudsim.shadowresource.util.SRConflictHandlerResult;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.Map;
  * @since LGDCloudSim 1.0
  */
 public interface ConflictHandler extends DatacenterEntity {
+    SRConflictHandlerResult filterConflictedSRRequest(List<SRRequest> srRequests);
+
     /**
      * Select the {@link Instance}s to be placed on the host.
      * It is processing the scheduling results of intra-scheduler.

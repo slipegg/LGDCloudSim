@@ -9,6 +9,7 @@ import org.lgdcloudsim.core.CloudSimEntity;
 import org.lgdcloudsim.core.CloudSimTag;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
+import org.lgdcloudsim.core.events.CloudSimEvent;
 import org.lgdcloudsim.core.events.SimEvent;
 import org.lgdcloudsim.interscheduler.InterSchedulerSendItem;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
@@ -26,9 +27,15 @@ import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.shadowresource.filter.SRRequestFilter;
-import org.lgdcloudsim.shadowresource.requestmapper.MapCoordinator;
+import org.lgdcloudsim.shadowresource.filter.SRRequestFilterRes;
+import org.lgdcloudsim.shadowresource.hostsrmapper.HostSRMapperManager;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequestMapCoordinator;
 import org.lgdcloudsim.shadowresource.requestmapper.PartitionSRRequestMapper;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
+import org.lgdcloudsim.shadowresource.util.SRConflictHandlerResult;
+import org.lgdcloudsim.shadowresource.util.SRRequestScheduledRes;
+import org.lgdcloudsim.shadowresource.util.SRScheduleEventData;
+import org.lgdcloudsim.shadowresource.util.SRScheduleRes;
 import org.lgdcloudsim.statemanager.StatesManager;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.slf4j.Logger;
@@ -282,7 +289,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     @Setter
     private SRRequestFilter srRequestFilter;
 
-    private MapCoordinator mapCoordinator;
+    private SRRequestMapCoordinator srRequestmapCoordinator;
+
+    private HostSRMapperManager hostSRMapperManager;
 
     /**
      * Create a new instance of DatacenterSimple with the given simulation.
@@ -414,22 +423,76 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     processScheduleToDcHostResponse(evt);
             case CloudSimTag.INTRA_SCHEDULE_BEGIN -> processIntraScheduleBegin(evt);
             case CloudSimTag.INTRA_SCHEDULE_END -> processIntraScheduleEnd(evt);
-            case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
-            case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
-            case CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN -> processScheduleSRRequests(evt);
+            case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);//TODO 考虑调度与影子调度冲突了，需要将影子任务作为失败处理放回正常调度队列去
+            case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);//TODO 考虑正常任务结束运行后进行影子资源的上报
+            case CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN -> processScheduleSRRequestsBegin(evt);
+            case CloudSimTag.SCHEDULE_SR_REQUESTS_END -> processScheduleSRRequestsEnd(evt);
+            case CloudSimTag.SCHEDULE_HOST_SR_BEGIN -> processScheduleHostSRBegin(evt);
+            case CloudSimTag.SCHEDULE_HOST_SR_END -> processScheduleHostSREnd(evt);
+            case CloudSimTag.BALANCE_SR_REQUEST_MAPPER -> processBalanceSRRequestMapper(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
         }
+    } 
+
+    private void processBalanceSRRequestMapper(SimEvent evt){
+        if (evt.getData() instanceof Integer partitionId){// 有一个SRRequestMapper空了，需要问global要request CONTINUE 8.1515:44,后续需要补充balance逻辑
+            
+        }
     }
 
-    private void processScheduleSRRequests(SimEvent evt) {
-        if (evt.getData() instanceof List<?> distributedScheduleRequestMapIdsTmp) {
-            if (!distributedScheduleRequestMapIdsTmp.isEmpty() && distributedScheduleRequestMapIdsTmp.get(0) instanceof Integer) {
-                List<Integer> distributedScheduleRequestMapIds = (List<Integer>) distributedScheduleRequestMapIdsTmp;
-                for(Integer partitionId : distributedScheduleRequestMapIds){
-                    PartitionSRRequestMapper partitionSRRequestMapper = mapCoordinator.getPartitionSRRequestMapper(partitionId);
+    private void processScheduleHostSREnd(SimEvent evt){
+        if (evt.getData() instanceof SRRequestScheduledRes srRequestScheduledRes){
+            if (!srRequestScheduledRes.getScheduledSRRequest().isEmpty()){
+                send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, srRequestScheduledRes.getScheduledSRRequest());
+            }
 
+            if (hostSRMapperManager.isContinueSchedule(srRequestScheduledRes.getPartitionId())){
+                send(this, 0, CloudSimTag.SCHEDULE_HOST_SR_BEGIN, srRequestScheduledRes.getPartitionId());
+            }else{
+                hostSRMapperManager.stopSchedule(srRequestScheduledRes.getPartitionId());
+            }
+        }
+    }
 
+    private void processScheduleHostSRBegin(SimEvent evt){
+        if (evt.getData() instanceof Integer partitionId){
+            SRRequestScheduledRes srRequestScheduledRes = hostSRMapperManager.scheduleForNewHostSR(partitionId);
+            send(this, srRequestScheduledRes.getCost(), CloudSimTag.SCHEDULE_HOST_SR_END, srRequestScheduledRes);
+        }
+    }
+
+    private void handleFailedSRRequest(List<SRRequest> srRequests){
+        for(SRRequest srRequest : srRequests){
+            srRequest.setSRRequest(false);
+            Instance instance = srRequest.getInstance();
+            instance.setExpectedScheduleHostId(-1);
+        }
+        send(this, 0, CloudSimTag.USER_REQUEST_SEND, srRequests);
+    }
+
+    private void processScheduleSRRequestsEnd(SimEvent evt) {
+        if (evt.getData() instanceof SRRequestScheduledRes srRequestScheduledRes) {
+            if (!srRequestScheduledRes.getScheduledSRRequest().isEmpty()){
+                send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, srRequestScheduledRes.getScheduledSRRequest());
+            }
+
+            if (srRequestmapCoordinator.isContinueSchedule(srRequestScheduledRes.getPartitionId())){
+                send(this, 0, CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, srRequestScheduledRes.getPartitionId());
+            } else {
+                srRequestmapCoordinator.stopSchedule(srRequestScheduledRes.getPartitionId());
+
+                send(this, 0, CloudSimTag.BALANCE_SR_REQUEST_MAPPER, srRequestScheduledRes.getPartitionId());
+            }
+        }
+    }
+
+    private void processScheduleSRRequestsBegin(SimEvent evt) {
+        if (evt.getData() instanceof List<?> partitionIds){
+            if (!partitionIds.isEmpty() && partitionIds.get(0) instanceof Integer){
+                List<SRRequestScheduledRes> srRequestScheduledResList = srRequestmapCoordinator.scheduleForNewSRRequests((List<Integer>)partitionIds);
+                for (SRRequestScheduledRes srRequestScheduledRes : srRequestScheduledResList){
+                    send(this, srRequestScheduledRes.getCost(), CloudSimTag.SCHEDULE_SR_REQUESTS_END, srRequestScheduledRes);
                 }
             }
         }
@@ -493,11 +556,34 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 }
                 getSimulation().getSqlRecord().recordInstancesFinishInfo((List<Instance>) list);
 
-                if (statesManager.isNeedHeartbeat()) {
-                    sendHeartbeat((List<Instance>) list);
-                }
+                // if (statesManager.isNeedHeartbeat()) {// TODO 确认是不是真的需要注释掉
+                //     sendHeartbeat((List<Instance>) list);
+                // }
             }
+        } else if (evt.getData() instanceof SRRequest srRequest) {
+            finishSRRequest(srRequest);
         }
+    }
+
+    private void finishSRRequest(SRRequest srRequest) {
+        Instance instance = srRequest.getInstance();
+        int hostId = instance.getHost();
+        if (getSimulation().clock() - instance.getStartTime() >= instance.getLifecycle() - 0.01 && instance.getLifecycle() != -1) {
+            instance.setState(UserRequest.SUCCESS);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("{}: {}'s SRRequest{} successfully completed running on host{} and resources have been released", getSimulation().clockStr(), getName(), instance.getId(), hostId);
+            }
+
+            calculateCost(instance);
+            instance.setFinishTime(getSimulation().clock());
+            statesManager.release(srRequest);
+            updateGroupAndUserRequestState(instance);
+
+            getSimulation().getSqlRecord().recordInstancesFinishInfo(List.of(srRequest.getInstance()));
+        } else {
+            // TODO 提前被终止如何处理
+        }
+
     }
 
     /**
@@ -505,7 +591,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      *
      * @param instance the instance that has finished running
      */
-    private void finishInstance(Instance instance) {
+    private void finishInstance(Instance instance) {// TODO处理有问题，如果一个结束的instance的原本结束的事件过来了，应该如何处理
         int hostId = instance.getHost();
         if (getSimulation().clock() - instance.getStartTime() >= instance.getLifecycle() - 0.01 && instance.getLifecycle() != -1) {
             instance.setState(UserRequest.SUCCESS);
@@ -520,9 +606,14 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         }
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
+        
+        int scheduledHostSR = hostSRMapperManager.collectSR(hostId, statesManager.getActualHostState(hostId), statesManager.getHostCapacity(hostId), instance, statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock() ));
+        if (scheduledHostSR != HostSRMapperManager.NO_SCHEDULE){
+            send(this, 0, CloudSimTag.SCHEDULE_HOST_SR_BEGIN, scheduledHostSR);
+        }
 
         if (statesManager.isNeedHeartbeat()) {
-            sendWithoutNetwork(this, statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock()), CloudSimTag.SYN_STATE_BY_HEARTBEAT_IN_DC, List.of(hostId));
+            sendWithoutNetwork(this, statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock()), CloudSimTag.SYN_STATE_BY_HEARTBEAT_IN_DC, List.of(hostId));// 有两个发送心跳的地方，有问题
         }
 
         calculateCost(instance);
@@ -666,6 +757,34 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param evt the event
      */
     private void processPreAllocateResource(SimEvent evt) {
+        if (evt.getData() == null) {
+            preAllocateResourceForNormalRequest();
+        } else if (evt.getData() instanceof List<?> list) {
+            if (!list.isEmpty() && list.get(0) instanceof SRRequest) {
+                preAllocateResourceForSRRequest((List<SRRequest>)(list));
+            }
+        }
+    }
+    
+    private void preAllocateResourceForSRRequest(List<SRRequest> srRequests){
+        SRConflictHandlerResult srConflictHandlerResult = conflictHandler.filterConflictedSRRequest(srRequests);
+        List<SRRequest> failedSRRequests = srConflictHandlerResult.getFaileSRRequests();
+        for(SRRequest srRequest : srConflictHandlerResult.getSuccessSRRequests()){
+            if (!statesManager.allocate(srRequest)){
+                failedSRRequests.add(srRequest);
+            } else{
+                send(this, srRequest.getInstance().getLifecycle(), CloudSimTag.END_INSTANCE_RUN, srRequest);
+                
+                Instance instance = srRequest.getInstance();
+                instance.setHost(instance.getExpectedScheduleHostId());
+                instance.setExpectedScheduleHostId(-1);
+            }
+        }
+
+        handleFailedSRRequest(failedSRRequests);
+    }
+
+    private void preAllocateResourceForNormalRequest(){
         LOGGER.info("{}: {}'s all intraScheduler results have been collected.it is dealing with scheduling conflicts...", getSimulation().clockStr(), getName());
         ConflictHandlerResult allocateResult = conflictHandler.filterConflictedInstance(this.intraSchedulerResults);
 
@@ -1295,14 +1414,41 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
 
             if(getSimulation().isSingleDatacenterFlag()){
-                acceptUserRequestForSingleDatacenter((List<UserRequest>)userRequestsTmp);
-                LOGGER.info("{}: {} received {} userRequests from {}.The size of Instance queue is {}.", getSimulation().clockStr(), getName(), userRequestsTmp.size(), evt.getSource().getName(), instanceQueue.size());
+                if (userRequestsTmp.get(0) instanceof UserRequest) {
+                    acceptUserRequestForSingleDatacenter((List<UserRequest>)userRequestsTmp);
+                    LOGGER.info("{}: {} received {} userRequests from {}.The size of Instance queue is {}.", getSimulation().clockStr(), getName(), userRequestsTmp.size(), evt.getSource().getName(), instanceQueue.size());
+                } else if(userRequestsTmp.get(0) instanceof SRRequest){
+                    acceptSRRequestForSingleDatacenter((List<SRRequest>)userRequestsTmp);
+                    LOGGER.info("{}: {} received {} userRequests from {}.The size of Instance queue is {}.", getSimulation().clockStr(), getName(), userRequestsTmp.size(), evt.getSource().getName(), instanceQueue.size());
+                }
             }else{
                 acceptUserRequestForMultiDatacenters(userRequestsTmp);
                 LOGGER.info("{}: {} received {} userRequests from {}.The size of InstanceGroup queue is {}.", getSimulation().clockStr(), getName(), userRequestsTmp.size(), evt.getSource().getName(), instanceGroupQueue.size());
             }
         }
     }
+
+    private void acceptSRRequestForSingleDatacenter(List<SRRequest> srRequests){
+        List<SRRequest> realSRRequests = srRequests.stream().filter(srRequest -> srRequest.isSRRequest()).collect(Collectors.toList());
+
+        List<Instance> instances = srRequests.stream()
+            .filter(srRequest -> !srRequest.isSRRequest())
+            .map(srRequest -> srRequest.getInstance())
+            .collect(Collectors.toList());
+
+        if (!instances.isEmpty()){
+            instanceQueue.add(instances);
+            send(this, 0, CloudSimTag.LOAD_BALANCE_SEND, "intra");
+        }
+        if (!realSRRequests.isEmpty()){
+            Map<Integer, List<SRRequest>> distributedScheduleRequestMap = srRequestmapCoordinator.receiveSRRequest(realSRRequests);
+            if(!distributedScheduleRequestMap.isEmpty()){
+                SRScheduleEventData srScheduleEvent = new SRScheduleEventData(SRScheduleEventData.SR_REQUEST_SEND,distributedScheduleRequestMap);
+                send(this,0,CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, srScheduleEvent);
+            }
+    
+        }
+}
 
     /**
      * When experimenting in a single data center scenario, user requests are accepted.
@@ -1317,22 +1463,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         });
 
         List<Instance> instances = userRequests.stream().flatMap(userRequest -> userRequest.getInstanceGroups().stream()).flatMap(instanceGroup -> instanceGroup.getInstances().stream()).collect(Collectors.toList());
-        List<SRRequest> srRequests = new ArrayList<>();
-
-        for( Instance instance : instances){
-            SRRequest srRequest = srRequestFilter.filter(instance);
-            if(srRequest != null){
-                srRequests.add(srRequest);
-            }else{
-                instanceQueue.add(instance);
-            }
-        }
-
-        if (!srRequests.isEmpty()){
-            List<Integer> distributedScheduleRequestMapIds = mapCoordinator.receiveSRRequest(srRequests);
-            if(!distributedScheduleRequestMapIds.isEmpty()){
-                send(this,0,CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, distributedScheduleRequestMapIds);
-            }
+        
+        SRRequestFilterRes srRequestFilterRes = srRequestFilter.filter(instances);
+        instanceQueue.add(srRequestFilterRes.getNormalInstances());
+        
+        List<Integer> needStartScheduledPartitionIds  = srRequestmapCoordinator.receiveSRRequests(srRequestFilterRes.getSRInstacnes());
+        if(!needStartScheduledPartitionIds.isEmpty()){
+            send(this,0,CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, needStartScheduledPartitionIds);
         }
 
         getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(userRequests);

@@ -7,6 +7,8 @@ import org.lgdcloudsim.datacenter.DatacenterPowerOnRecord;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
+import org.lgdcloudsim.shadowresource.util.ScheduledSRRequestRecorder;
 
 import java.util.*;
 
@@ -160,6 +162,8 @@ public class StatesManagerSimple implements StatesManager {
      */
     private Map<IntraScheduler, List<Integer>> intraSchedulerView;
 
+    private ScheduledSRRequestRecorder scheduledSRRequestRecorder;
+
     /**
      * Initialize the StatesManagerSimple with a random seed.
      *
@@ -206,6 +210,7 @@ public class StatesManagerSimple implements StatesManager {
         this.datacenterPowerOnRecord = new DatacenterPowerOnRecord();
         this.hostCapacityManager = new HostCapacityManager();
         this.intraSchedulerView = new HashMap<>();
+        this.scheduledSRRequestRecorder = new ScheduledSRRequestRecorder();
         initSynStateMap();
     }
 
@@ -692,5 +697,32 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public long getTotalBw() {
         return hostCapacityManager.getBwCapacitySum();
+    }
+
+    public HostState getHostStateWithSRRequest(int hostId){
+        HostState hostState = getActualHostState(hostId);
+        int srUsedCpu = scheduledSRRequestRecorder.getSRUsedCpu(hostId);
+        int srUsedMemory = scheduledSRRequestRecorder.getSRUsedMemory(hostId);
+
+        hostState.setCpu(hostState.getCpu() - srUsedCpu);
+        hostState.setRam(hostState.getRam() - srUsedMemory);
+
+        return hostState;
+    }
+
+    public boolean allocate(SRRequest srRequest) {
+        HostState hostState = getHostStateWithSRRequest(srRequest.getInstance().getExpectedScheduleHostId());
+        if (hostState.getCpu() < srRequest.getInstance().getCpu() || hostState.getRam() < srRequest.getInstance().getRam()) {
+            return false;
+        }
+
+        scheduledSRRequestRecorder.addScheduledSRRequest(srRequest);
+        return true;
+    }
+
+    public StatesManager release(SRRequest srRequest){
+        scheduledSRRequestRecorder.removeScheduledSRRequest(srRequest);
+
+        return this;
     }
 }

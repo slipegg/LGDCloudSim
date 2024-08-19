@@ -169,6 +169,14 @@ public class CloudSimTag {
 
     public static final int SCHEDULE_SR_REQUESTS_BEGIN = INTRA_SCHEDULE_BEGIN + 1;
 
+    public static final int SCHEDULE_SR_REQUESTS_END = SCHEDULE_SR_REQUESTS_BEGIN + 1;
+
+    public static final int SCHEDULE_HOST_SR_BEGIN = SCHEDULE_SR_REQUESTS_END + 1;
+
+    public static final int SCHEDULE_HOST_SR_END = SCHEDULE_HOST_SR_BEGIN + 1;
+
+    public static final int BALANCE_SR_REQUEST_MAPPER = SCHEDULE_HOST_SR_END + 1;
+
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.
      */
@@ -211,6 +219,10 @@ public class CloudSimTag {
             case PRE_ALLOCATE_RESOURCE -> "PRE_ALLOCATE_RESOURCE";
             case END_INSTANCE_RUN -> "END_INSTANCE_RUN";
             case SCHEDULE_SR_REQUESTS_BEGIN -> "SCHEDULE_SR_REQUESTS_BEGIN";
+            case SCHEDULE_SR_REQUESTS_END -> "SCHEDULE_SR_REQUESTS_END";
+            case SCHEDULE_HOST_SR_BEGIN -> "SCHEDULE_HOST_SR_BEGIN";
+            case SCHEDULE_HOST_SR_END -> "SCHEDULE_HOST_SR_END";
+            case BALANCE_SR_REQUEST_MAPPER -> "BALANCE_SR_REQUEST_MAPPER";
             case NONE -> "NONE";
             case BASE -> "Base";
             default -> "UNKNOWN";
