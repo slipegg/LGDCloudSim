@@ -9,9 +9,11 @@ import org.lgdcloudsim.request.Instance;
 public class SRRequest {
     private double predictLife;
     private Instance instance;
+    private boolean isSRRequest;
 
     public SRRequest(Instance instance, double  predictLife) {
         this.predictLife = predictLife;
         this.instance = instance;
+        this.isSRRequest = true;
     }
 }

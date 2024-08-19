@@ -13,6 +13,8 @@ public interface SRRequestMapper {
 
     List<SRRequest> schedule(HostSR hostSR);
 
+    void scheduleBySRRequestSend(List<SRRequest> srRequests);
+
     int size();
 
     long SRRequestCpuTotal();

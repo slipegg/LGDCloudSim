@@ -9,13 +9,13 @@ public class HostSR {
     private int hostId;
     private int SRCpu;
     private int SRMemory;
-    private int SRLife;
+    private double SRLife;
     private int availableCpu;
     private int availableMemory;
     private int cpuCapacity;
     private int memoryCapacity;
 
-    public HostSR(int hostId, int SRCpu, int SRMemory, int SRLife, int availableCpu, int availableMemory, int cpuCapacity, int memoryCapacity) {
+    public HostSR(int hostId, int SRCpu, int SRMemory, double SRLife, int availableCpu, int availableMemory, int cpuCapacity, int memoryCapacity) {
         this.hostId = hostId;
         this.SRCpu = SRCpu;
         this.SRMemory = SRMemory;

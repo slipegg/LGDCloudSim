@@ -2,7 +2,7 @@ package org.lgdcloudsim.shadowresource.filter;
 
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.shadowresource.lifepredictor.LifePredictor;
-import org.lgdcloudsim.shadowresource.requestmapper.MapCoordinator;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequestMapCoordinator;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 
 import java.util.List;
@@ -12,10 +12,37 @@ public class SRRequestFilterSimple implements SRRequestFilter {
     Random random;
     LifePredictor lifePredictor;
 
-    MapCoordinator mapCoordinator;
+    SRRequestMapCoordinator mapCoordinator;
 
     @Override
-    public SRRequest filter(Instance instance) {
+    public SRRequestFilterRes filter(Instance instance) {
+        SRRequestFilterRes res = new SRRequestFilterRes();
+
+        SRRequest srRequest = isChangeToSRRequest(instance);
+        if (srRequest != null) {
+            res.add(srRequest);
+        }else {
+            res.add(instance);
+        }
+
+        return res;
+    }
+
+    @Override
+    public SRRequestFilterRes filter(List<Instance> instances) {
+        SRRequestFilterRes res = new SRRequestFilterRes();
+        for (Instance instance : instances) {
+            SRRequest srRequest = isChangeToSRRequest(instance);
+            if (srRequest != null) {
+                res.add(srRequest);
+            }else {
+                res.add(instance);
+            }
+        }
+        return res;
+    }
+
+    private SRRequest isChangeToSRRequest(Instance instance) {
         double predictLife = lifePredictor.predictLife(instance);
         if(predictLife<3 && mapCoordinator.getSRRequestCpuTotal() < 1000) {
             return new SRRequest(instance, predictLife);
@@ -24,12 +51,7 @@ public class SRRequestFilterSimple implements SRRequestFilter {
         }
     }
 
-    @Override
-    public List<SRRequest> filter(List<Instance> instances) {
-        return instances.stream().map(this::filter).toList();
-    }
-
-    public SRRequestFilterSimple(LifePredictor lifePredictor, MapCoordinator mapCoordinator) {
+    public SRRequestFilterSimple(LifePredictor lifePredictor, SRRequestMapCoordinator mapCoordinator) {
         random = new Random();
         this.lifePredictor = lifePredictor;
         this.mapCoordinator = mapCoordinator;

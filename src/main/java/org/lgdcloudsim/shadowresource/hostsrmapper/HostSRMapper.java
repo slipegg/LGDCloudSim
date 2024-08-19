@@ -15,7 +15,7 @@ public interface HostSRMapper {
 
     HostSR poll(int cpu, int memory);
 
-    int schedule(SRRequest srRequest);
+    int schedule(SRRequest srRequest);// TODO 调整，不应该出现在Mapper里面
 
     int size();
 

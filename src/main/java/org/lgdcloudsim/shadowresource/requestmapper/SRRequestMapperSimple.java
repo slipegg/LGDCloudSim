@@ -178,4 +178,9 @@ public class SRRequestMapperSimple implements SRRequestMapper {
 
         return scheduledSRRequests;
     }
+
+    @Override
+    public List<SRRequest> getSRRequests(int cpu, int memory) {
+        return requestMap.get(cpu).get(memory);    
+    }
 }

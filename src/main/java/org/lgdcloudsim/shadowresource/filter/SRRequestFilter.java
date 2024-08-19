@@ -6,7 +6,7 @@ import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import java.util.List;
 
 public interface SRRequestFilter {
-    SRRequest filter(Instance instance);
+    SRRequestFilterRes filter(Instance instance);
 
-    List<SRRequest> filter(List<Instance> instances);
+    SRRequestFilterRes filter(List<Instance> instances);
 }

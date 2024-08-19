@@ -1,11 +1,15 @@
 package org.lgdcloudsim.shadowresource.requestmapper;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.lgdcloudsim.core.Nameable;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.shadowresource.hostsrmapper.HostSR;
-import org.lgdcloudsim.shadowresource.hostsrmapper.PartitionHostSRMapperSimple;
+import org.lgdcloudsim.shadowresource.hostsrmapper.PartitionHostSRMapper;
+import org.lgdcloudsim.shadowresource.util.Queue;
+import org.lgdcloudsim.shadowresource.util.QueueFifo;
+import org.lgdcloudsim.shadowresource.util.SRScheduleRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,20 +30,28 @@ public class PartitionSRRequestMapper implements Nameable{
 
     SRRequestMapper srRequestMapper;
 
-    MapCoordinator mapCoordinator;
+    SRRequestMapCoordinator mapCoordinator;
 
     @Setter
-    PartitionHostSRMapperSimple partitionHostSRMapperSimple;
+    PartitionHostSRMapper partitionHostSRMapper;
 
     Random random ;
 
-    public PartitionSRRequestMapper( MapCoordinator mapCoordinator, Simulation simulation, int partitionId) {
+    Queue<SRRequest> srRequestQueue;
+
+    @Getter
+    @Setter
+    private boolean isBusy;
+
+    public PartitionSRRequestMapper( SRRequestMapCoordinator mapCoordinator, Simulation simulation, int partitionId) {
         super();
         this.simulation = simulation;
         this.partitionId = partitionId;
         this.mapCoordinator = mapCoordinator;
         srRequestMapper = new SRRequestMapperSimple();
         random = new Random();
+        srRequestQueue = new QueueFifo<>();
+        this.isBusy = false;
     }
 
 //    public int receiveRequest(SRRequest srRequest) {
@@ -55,8 +67,8 @@ public class PartitionSRRequestMapper implements Nameable{
         return this;
     }
 
-    public PartitionSRRequestMapper addRequests(List<SRRequest> srRequests) {
-        srRequestMapper.push(srRequests);
+    public PartitionSRRequestMapper addSRRequestToQueue(List<SRRequest> srRequests) {
+        srRequestQueue.add(srRequests);
         return this;
     }
 
@@ -68,15 +80,9 @@ public class PartitionSRRequestMapper implements Nameable{
         }
     }
 
-    public List<Instance> scheduleForHostSR(HostSR hostSR) {
+    public List<SRRequest> scheduleForHostSR(HostSR hostSR) {
         List<SRRequest> srRequests = srRequestMapper.schedule(hostSR);
-        if(srRequests.isEmpty()){
-            // TODO 进行Mapper间调整
-            mapCoordinator.recordMissing(partitionId, hostSR);
-        }
-        return srRequests.stream()
-                .map(SRRequest::getInstance)
-                .collect(Collectors.toList());
+        return srRequests;
     }
 
     public int getSize() {
@@ -94,6 +100,10 @@ public class PartitionSRRequestMapper implements Nameable{
     public boolean isEmpty(){
         return srRequestMapper.size() == 0;
     }
+    
+    public boolean isQueueEmpty(){
+        return srRequestQueue.isEmpty();
+    }
 
     public List<SRRequest> popRandom(long popCpuSum, long popMemorySum){
         List<SRRequest> srRequests = new ArrayList<>();
@@ -108,6 +118,31 @@ public class PartitionSRRequestMapper implements Nameable{
             popMemorySum -= randomMemory;
         }
         return srRequests;
+    }
+
+    public SRScheduleRes scheduleBySRRequestSend(List<SRRequest> srRequests) {
+        SRScheduleRes srScheduleRes = partitionHostSRMapper.scheduleForSRRequest(srRequests);
+        return srScheduleRes;
+    }
+
+    public List<SRRequest> scheduleForNewSRRequests(){
+        List<SRRequest> scheduledRequests = new ArrayList<>();
+
+        List<SRRequest> srRequests = srRequestQueue.getBatchItem();
+        if (srRequests.isEmpty()) {
+            return scheduledRequests;
+        }
+
+        for (SRRequest srRequest : srRequests) {
+            SRRequest scheduledSrRequest = partitionHostSRMapper.scheduleForSRRequest(srRequest);
+            if (scheduledSrRequest != null) {
+                scheduledRequests.add(scheduledSrRequest);
+            }else{
+                srRequestMapper.push(srRequest);
+            }
+        }
+
+        return scheduledRequests;
     }
 
     @Override
