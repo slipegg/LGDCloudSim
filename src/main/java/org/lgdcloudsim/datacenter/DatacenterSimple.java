@@ -28,11 +28,13 @@ import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.shadowresource.filter.SRRequestFilter;
 import org.lgdcloudsim.shadowresource.filter.SRRequestFilterRes;
-import org.lgdcloudsim.shadowresource.partitionmanager.PartitionManagerSimple;
+import org.lgdcloudsim.shadowresource.hostsrmapper.HostSR;
+import org.lgdcloudsim.shadowresource.partitionmanager.PartitionManager;
 import org.lgdcloudsim.shadowresource.partitionmanager.SRCoordinator;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.shadowresource.util.SRConflictHandlerResult;
 import org.lgdcloudsim.shadowresource.util.SRRequestScheduledRes;
+import org.lgdcloudsim.statemanager.HostState;
 import org.lgdcloudsim.statemanager.StatesManager;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.slf4j.Logger;
@@ -433,18 +435,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
 
             int partitionId = srRequestScheduledRes.getPartitionId();
-            PartitionManagerSimple partitionManagerSimple = srCoordinator.getPartitionManagerByPartitionId(partitionId);
-            if (partitionManagerSimple.isContinueHostSRSchedule(srRequestScheduledRes.getPartitionId())){
+            PartitionManager partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
+            if (partitionManager.isContinueHostSRSchedule(srRequestScheduledRes.getPartitionId())){
                 send(this, 0, CloudSimTag.SCHEDULE_HOST_SR_BEGIN, srRequestScheduledRes.getPartitionId());
             }else{
-                partitionManagerSimple.setHostSRScheduleBusy(false);
+                partitionManager.setHostSRScheduleBusy(false);
             }
         }
     }
 
     private void processScheduleHostSRBegin(SimEvent evt){
         if (evt.getData() instanceof Integer partitionId){
-            PartitionManagerSimple partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
+            PartitionManager partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
             SRRequestScheduledRes srRequestScheduledRes = partitionManager.scheduleForNewHostSR();
             send(this, srRequestScheduledRes.getCost(), CloudSimTag.SCHEDULE_HOST_SR_END, srRequestScheduledRes);
         }
@@ -466,18 +468,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
 
             int partitionId = srRequestScheduledRes.getPartitionId();
-            PartitionManagerSimple partitionManagerSimple = srCoordinator.getPartitionManagerByPartitionId(partitionId);
-            if (partitionManagerSimple.isContinueSRRequestSchedule(partitionId)){
+            PartitionManager partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
+            if (partitionManager.isContinueSRRequestSchedule(partitionId)){
                 send(this, 0, CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, partitionId);
             } else {
-                partitionManagerSimple.setSRRequestScheduleBusy(false);
+                partitionManager.setSRRequestScheduleBusy(false);
             }
         }
     }
 
     private void processScheduleSRRequestsBegin(SimEvent evt) {
         if (evt.getData() instanceof Integer partitionId){
-            PartitionManagerSimple partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
+            PartitionManager partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
             SRRequestScheduledRes srRequestScheduledRes = partitionManager.scheduleForNewSRRequest();
             send(this, srRequestScheduledRes.getCost(), CloudSimTag.SCHEDULE_SR_REQUESTS_END, srRequestScheduledRes);
         }
@@ -607,9 +609,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
         
-        PartitionManagerSimple partitionManager = srCoordinator.getPartitionManagerByHostId(hostId);
-        int partitionId = partitionManager.collectSR(hostId, statesManager.getActualHostState(hostId), statesManager.getHostCapacity(hostId), instance, statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock() ));
-        if (partitionId != PartitionManagerSimple.LAST_NO_SCHEDULE){
+        PartitionManager partitionManager = srCoordinator.getPartitionManagerByHostId(hostId);
+        HostState hostState = statesManager.getHostStateWithSRRequest(hostId);
+        int[] hostCapacity = statesManager.getHostCapacity(hostId);
+        HostSR hostSR = new HostSR(hostId, instance.getCpu(), instance.getRam(), statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock() ),  
+                                    hostState.getCpu(), hostState.getRam(), hostCapacity[0], hostCapacity[1]);
+        int partitionId = partitionManager.collectSR(hostSR);
+        if (partitionId != PartitionManager.LAST_NO_SCHEDULE){
             send(this, 0, CloudSimTag.SCHEDULE_HOST_SR_BEGIN, partitionId);
         }
 

@@ -27,7 +27,7 @@ public class SRCoordinator implements Nameable {
 
     private PartitionRangesManager partitionRangesManager;
 
-    Map<Integer, PartitionManagerSimple> partitionManagerMap;
+    Map<Integer, PartitionManager> partitionManagerMap;
 
     public SRCoordinator(SRRequestFilter srRequestFilter, PartitionRangesManager partitionRangesManager, Simulation simulation, int id) {
         this.simulation = simulation;
@@ -41,11 +41,11 @@ public class SRCoordinator implements Nameable {
         }
     }
     
-    public PartitionManagerSimple getPartitionManagerByPartitionId(int partitionId) {
+    public PartitionManager getPartitionManagerByPartitionId(int partitionId) {
         return partitionManagerMap.get(partitionId);
     }
 
-    public PartitionManagerSimple getPartitionManagerByHostId(int hostId) {
+    public PartitionManager getPartitionManagerByHostId(int hostId) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         return partitionManagerMap.get(partitionId);
     }
@@ -63,7 +63,7 @@ public class SRCoordinator implements Nameable {
             int partitionId = entry.getKey();
             List<SRRequest> partitionSRRequests = entry.getValue();
 
-            PartitionManagerSimple partitionManager = partitionManagerMap.get(partitionId);
+            PartitionManager partitionManager = partitionManagerMap.get(partitionId);
             if (!partitionSRRequests.isEmpty()) {
                 partitionManager.addToQueue(partitionSRRequests);
                 if (!partitionManager.isSRRequestScheduleBusy()) {
@@ -92,7 +92,7 @@ public class SRCoordinator implements Nameable {
 
         List<partitionItem> partitionItems = new ArrayList<>();
         for (int partitionId : partitionManagerMap.keySet()) {
-            PartitionManagerSimple partitionManager = partitionManagerMap.get(partitionId);
+            PartitionManager partitionManager = partitionManagerMap.get(partitionId);
             long remainedCpu = partitionManager.getTotalHostSRCpu() - partitionManager.getTotalSRRequestedCpu();
             partitionItems.add(new partitionItem(partitionId, remainedCpu));
         }

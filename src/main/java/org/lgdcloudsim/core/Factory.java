@@ -77,4 +77,6 @@ public interface Factory {
      * @return the sql record.
      */
     SqlRecord getSqlRecord(String type, String dbName);
+
+    
 }

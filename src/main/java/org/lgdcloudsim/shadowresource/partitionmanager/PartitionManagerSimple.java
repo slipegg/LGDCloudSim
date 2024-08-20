@@ -21,9 +21,7 @@ import org.slf4j.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PartitionManagerSimple  implements Nameable{
-    public static final int LAST_NO_SCHEDULE = -1;
-
+public class PartitionManagerSimple  implements PartitionManager, Nameable{
     /**
      * the Logger.
      **/
@@ -57,21 +55,19 @@ public class PartitionManagerSimple  implements Nameable{
         isHostSRScheduleBusy = false;
     }
 
+    @Override
     public PartitionManagerSimple addToQueue(List<SRRequest> srRequests) {
         srRequestQueue.add(srRequests);
         return this;
     }
 
+    @Override
     public PartitionManagerSimple addToQueue(HostSR hostSR) {
         hostSRQueue.add(hostSR);
         return this;
     }
 
-    public List<SRRequest> scheduleForHostSR(HostSR hostSR) {
-        List<SRRequest> srRequests = srRequestMapper.schedule(hostSR);
-        return srRequests;
-    }
-
+    @Override
     public SRRequestScheduledRes scheduleForNewSRRequest(){
         double startTime = System.currentTimeMillis();
         
@@ -91,7 +87,7 @@ public class PartitionManagerSimple  implements Nameable{
         return new SRRequestScheduledRes(partitionId, scheduledRequests, endTime - startTime);
     }
 
-    public SRRequest scheduleForSRRequest(SRRequest srRequest) {
+    private SRRequest scheduleForSRRequest(SRRequest srRequest) {
         int id = hostSRMapper.schedule(srRequest);
         if (id == -1) {
             return null;
@@ -101,8 +97,8 @@ public class PartitionManagerSimple  implements Nameable{
         }
     }
 
-    public int collectSR(int hostId, HostState hostState, int[] hostCapacity, Instance releasedInstance, double SRLife) {
-        HostSR hostSR = new HostSR(hostId, releasedInstance.getCpu(), releasedInstance.getRam(), SRLife,  hostState.getCpu(), hostState.getRam(), hostCapacity[0], hostCapacity[1]);
+    @Override
+    public int collectSR(HostSR hostSR) {
         hostSRQueue.add(hostSR);
 
         if (!isHostSRScheduleBusy) {
