@@ -27,7 +27,7 @@ public class SRCoordinator implements Nameable {
 
     private PartitionRangesManager partitionRangesManager;
 
-    Map<Integer, PartitionManager> partitionManagerMap;
+    Map<Integer, SRPartitionManager> partitionManagerMap;
 
     public SRCoordinator(SRRequestFilter srRequestFilter, PartitionRangesManager partitionRangesManager, Simulation simulation, int id) {
         this.simulation = simulation;
@@ -37,15 +37,15 @@ public class SRCoordinator implements Nameable {
         this.partitionManagerMap = new HashMap<>();
         int[] partitionIds = partitionRangesManager.getPartitionIds();
         for (int partitionId : partitionIds) {
-            partitionManagerMap.put(partitionId, new PartitionManagerSimple(partitionId));
+            partitionManagerMap.put(partitionId, new SRPartitionManagerSimple(partitionId));
         }
     }
     
-    public PartitionManager getPartitionManagerByPartitionId(int partitionId) {
+    public SRPartitionManager getPartitionManagerByPartitionId(int partitionId) {
         return partitionManagerMap.get(partitionId);
     }
 
-    public PartitionManager getPartitionManagerByHostId(int hostId) {
+    public SRPartitionManager getPartitionManagerByHostId(int hostId) {
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         return partitionManagerMap.get(partitionId);
     }
@@ -63,7 +63,7 @@ public class SRCoordinator implements Nameable {
             int partitionId = entry.getKey();
             List<SRRequest> partitionSRRequests = entry.getValue();
 
-            PartitionManager partitionManager = partitionManagerMap.get(partitionId);
+            SRPartitionManager partitionManager = partitionManagerMap.get(partitionId);
             if (!partitionSRRequests.isEmpty()) {
                 partitionManager.addToQueue(partitionSRRequests);
                 if (!partitionManager.isSRRequestScheduleBusy()) {
@@ -92,7 +92,7 @@ public class SRCoordinator implements Nameable {
 
         List<partitionItem> partitionItems = new ArrayList<>();
         for (int partitionId : partitionManagerMap.keySet()) {
-            PartitionManager partitionManager = partitionManagerMap.get(partitionId);
+            SRPartitionManager partitionManager = partitionManagerMap.get(partitionId);
             long remainedCpu = partitionManager.getTotalHostSRCpu() - partitionManager.getTotalSRRequestedCpu();
             partitionItems.add(new partitionItem(partitionId, remainedCpu));
         }

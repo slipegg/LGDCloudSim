@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lgdcloudsim.core.Nameable;
-import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.shadowresource.hostsrmapper.HostSR;
 import org.lgdcloudsim.shadowresource.hostsrmapper.HostSRMapper;
 import org.lgdcloudsim.shadowresource.hostsrmapper.HostSRMapperSimple;
 import org.lgdcloudsim.shadowresource.util.Queue;
 import org.lgdcloudsim.shadowresource.util.QueueFifo;
 import org.lgdcloudsim.shadowresource.util.SRRequestScheduledRes;
-import org.lgdcloudsim.statemanager.HostState;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequestMapper;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequestMapperSimple;
@@ -21,11 +19,11 @@ import org.slf4j.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PartitionManagerSimple  implements PartitionManager, Nameable{
+public class SRPartitionManagerSimple  implements SRPartitionManager, Nameable{
     /**
      * the Logger.
      **/
-    private Logger LOGGER = LoggerFactory.getLogger(PartitionManagerSimple.class.getSimpleName());
+    private Logger LOGGER = LoggerFactory.getLogger(SRPartitionManagerSimple.class.getSimpleName());
 
     private int partitionId;
 
@@ -45,7 +43,7 @@ public class PartitionManagerSimple  implements PartitionManager, Nameable{
     @Setter
     private boolean isHostSRScheduleBusy;
 
-    public PartitionManagerSimple(int partitionId) {
+    public SRPartitionManagerSimple(int partitionId) {
         this.partitionId = partitionId;
         srRequestQueue = new QueueFifo<SRRequest>();
         hostSRQueue = new QueueFifo<HostSR>();
@@ -56,13 +54,13 @@ public class PartitionManagerSimple  implements PartitionManager, Nameable{
     }
 
     @Override
-    public PartitionManagerSimple addToQueue(List<SRRequest> srRequests) {
+    public SRPartitionManagerSimple addToQueue(List<SRRequest> srRequests) {
         srRequestQueue.add(srRequests);
         return this;
     }
 
     @Override
-    public PartitionManagerSimple addToQueue(HostSR hostSR) {
+    public SRPartitionManagerSimple addToQueue(HostSR hostSR) {
         hostSRQueue.add(hostSR);
         return this;
     }

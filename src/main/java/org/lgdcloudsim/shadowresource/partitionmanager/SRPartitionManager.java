@@ -6,12 +6,12 @@ import org.lgdcloudsim.shadowresource.hostsrmapper.HostSR;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.shadowresource.util.SRRequestScheduledRes;
 
-public interface PartitionManager {
+public interface SRPartitionManager {
     public static final int LAST_NO_SCHEDULE = -1;
+
+    SRPartitionManager addToQueue(List<SRRequest> srRequests);
     
-    PartitionManager addToQueue(List<SRRequest> srRequests);
-    
-    PartitionManager addToQueue(HostSR hostSR);
+    SRPartitionManager addToQueue(HostSR hostSR);
 
     SRRequestScheduledRes scheduleForNewSRRequest();
 
@@ -29,9 +29,9 @@ public interface PartitionManager {
 
     boolean isSRRequestScheduleBusy();
 
-    PartitionManager setSRRequestScheduleBusy(boolean isSRRequestScheduleBusy);
+    SRPartitionManager setSRRequestScheduleBusy(boolean isSRRequestScheduleBusy);
 
     boolean isHostSRScheduleBusy();
 
-    PartitionManager setHostSRScheduleBusy(boolean isHostSRScheduleBusy);
+    SRPartitionManager setHostSRScheduleBusy(boolean isHostSRScheduleBusy);
 }
