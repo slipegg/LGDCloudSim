@@ -16,4 +16,6 @@ public interface Queue<T> {
     Queue<T> add(List<T> hostSRs);
 
     boolean isEmpty();
+
+    List<T> getList();
 }

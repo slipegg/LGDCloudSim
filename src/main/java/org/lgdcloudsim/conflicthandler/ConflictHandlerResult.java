@@ -4,8 +4,10 @@ import lombok.Getter;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.UserRequest;
+import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +35,16 @@ public class ConflictHandlerResult {
     @Getter
     private Map<IntraScheduler, FailedOutdatedResult> failedOutdatedResultMap;
 
+    @Getter
+    private List<SRRequest> preemptedSRRequests;
+
     /**
      * Construct a new ConflictHandlerResult.
      */
     public ConflictHandlerResult() {
         this.successRes = new HashMap<>();
         this.failedOutdatedResultMap = new HashMap<>();
+        this.preemptedSRRequests = new ArrayList<>();
     }
 
     /**
@@ -74,5 +80,9 @@ public class ConflictHandlerResult {
      */
     public void addFailRes(IntraScheduler intraScheduler, List<Instance> instances, Set<UserRequest> userRequests) {
         this.failedOutdatedResultMap.put(intraScheduler, new FailedOutdatedResult(instances, userRequests));
+    }
+
+    public void addPreemptedSRRequests(List<SRRequest> preemptedSRRequests) {
+        this.preemptedSRRequests.addAll(preemptedSRRequests);
     }
 }

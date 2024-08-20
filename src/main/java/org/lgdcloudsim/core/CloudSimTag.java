@@ -175,8 +175,6 @@ public class CloudSimTag {
 
     public static final int SCHEDULE_HOST_SR_END = SCHEDULE_HOST_SR_BEGIN + 1;
 
-    public static final int BALANCE_SR_REQUEST_MAPPER = SCHEDULE_HOST_SR_END + 1;
-
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.
      */

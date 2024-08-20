@@ -145,14 +145,4 @@ public class HostSRMapperSimple implements HostSRMapper{
     public long HostSRMemoryTotal() {
         return HostSRMemoryTotal;
     }
-
-    @Override
-    public List<Integer> getCPUList() {
-        return new ArrayList<>(hostSRMap.keySet());
-    }
-
-    @Override
-    public List<Integer> getMemoryList(int cpu) {
-        return new ArrayList<>(hostSRMap.get(cpu).keySet());
-    }
 }

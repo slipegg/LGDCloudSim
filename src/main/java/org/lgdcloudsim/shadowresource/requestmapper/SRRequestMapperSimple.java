@@ -79,19 +79,6 @@ public class SRRequestMapperSimple implements SRRequestMapper {
         return SRMemoryTotal;
     }
 
-    @Override
-    public List<Integer> getCPUList() {
-        return new ArrayList<>(requestMap.keySet());
-    }
-
-    @Override
-    public List<Integer> getMemoryList(int cpu) {
-        if (requestMap.containsKey(cpu)) {
-            return new ArrayList<>(requestMap.get(cpu).keySet());
-        }
-        return new ArrayList<>();
-    }
-
     private boolean isAnyRequestSatisfiedShadowResource(HostSR hostSR){
         // TODO 后面需要考虑如果最小请求和最大可用请求相差不大，是否可以继续更加激进地调度
         if (requestMap.isEmpty()) {
@@ -177,10 +164,5 @@ public class SRRequestMapperSimple implements SRRequestMapper {
         }
 
         return scheduledSRRequests;
-    }
-
-    @Override
-    public List<SRRequest> getSRRequests(int cpu, int memory) {
-        return requestMap.get(cpu).get(memory);    
     }
 }

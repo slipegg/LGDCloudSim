@@ -13,17 +13,9 @@ public interface SRRequestMapper {
 
     List<SRRequest> schedule(HostSR hostSR);
 
-    void scheduleBySRRequestSend(List<SRRequest> srRequests);
-
     int size();
 
     long SRRequestCpuTotal();
 
     long SRRequestMemoryTotal();
-
-    List<Integer> getCPUList();
-
-    List<Integer> getMemoryList(int cpu);
-
-    List<SRRequest> getSRRequests(int cpu, int memory);
 }

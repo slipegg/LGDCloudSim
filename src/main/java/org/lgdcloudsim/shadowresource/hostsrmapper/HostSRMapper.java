@@ -15,15 +15,11 @@ public interface HostSRMapper {
 
     HostSR poll(int cpu, int memory);
 
-    int schedule(SRRequest srRequest);// TODO 调整，不应该出现在Mapper里面
+    int schedule(SRRequest srRequest);
 
     int size();
 
     long HostSRCpuTotal();
 
     long HostSRMemoryTotal();
-
-    List<Integer> getCPUList();
-
-    List<Integer> getMemoryList(int cpu);
 }

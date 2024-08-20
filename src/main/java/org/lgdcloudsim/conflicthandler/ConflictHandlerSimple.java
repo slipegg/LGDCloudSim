@@ -8,6 +8,7 @@ import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.shadowresource.util.SRConflictHandlerResult;
+import org.lgdcloudsim.shadowresource.util.ScheduledSRRequestRecorder;
 import org.lgdcloudsim.statemanager.HostState;
 import org.lgdcloudsim.statemanager.StatesManager;
 import org.lgdcloudsim.util.FailedOutdatedResult;
@@ -46,7 +47,7 @@ public class ConflictHandlerSimple implements ConflictHandler {
             if (allocateHostStates.containsKey(hostId)) {
                 hostState = allocateHostStates.get(hostId);
             } else {
-                hostState = statesManager.getCenterHostState(hostId);
+                hostState = statesManager.getHostStateWithSRRequest(hostId);
                 allocateHostStates.put(hostId, hostState);
             }
 
@@ -72,9 +73,11 @@ public class ConflictHandlerSimple implements ConflictHandler {
             List<Instance> successRes = new ArrayList<>();
             List<Instance> failRes = new ArrayList<>();
             Set<UserRequest> outdatedRequests = new HashSet<>();
-            conflictSum += dealConflictInstance(intraSchedulerResult.getScheduledInstances(), successRes, failRes, outdatedRequests, allocateHostStates, allocateHostStates);
+            List<SRRequest> preemptedSRRequests = new ArrayList<>();
+            conflictSum += dealConflictInstance(intraSchedulerResult.getScheduledInstances(), successRes, failRes, outdatedRequests, allocateHostStates, allocateHostStates, preemptedSRRequests);
             conflictHandlerResult.addSuccessRes(intraSchedulerResult.getIntraScheduler(), successRes);
             conflictHandlerResult.addFailRes(intraSchedulerResult.getIntraScheduler(), failRes, outdatedRequests);
+            conflictHandlerResult.addPreemptedSRRequests(preemptedSRRequests);
         }
         if (conflictSum != 0) {
             getDatacenter().getSimulation().getSqlRecord().recordConflict(getDatacenter().getSimulation().clock(), conflictSum);
@@ -93,8 +96,9 @@ public class ConflictHandlerSimple implements ConflictHandler {
      * @param allocateHostStates    the host states if the instances are allocated.
      * @return the number of conflicts when resource allocating.
      */
-    private int dealConflictInstance(List<Instance> scheduledInstances, List<Instance> successInstances, List<Instance> failedInstances, Set<UserRequest> outdatedRequests, Map<Integer, HostState> hostStatesIfScheduled, Map<Integer, HostState> allocateHostStates) {
+    private int dealConflictInstance(List<Instance> scheduledInstances, List<Instance> successInstances, List<Instance> failedInstances, Set<UserRequest> outdatedRequests, Map<Integer, HostState> hostStatesIfScheduled, Map<Integer, HostState> allocateHostStates, List<SRRequest> preemptedSRRequestsRes) {
         StatesManager statesManager = datacenter.getStatesManager();
+        Map<Integer, List<SRRequest>> preemptedSRRequestMap = new HashMap<>();
         int conflictSum = 0;
         for (Instance instance : scheduledInstances) {
             if (instance.getUserRequest().getState() == UserRequest.FAILED) {
@@ -119,6 +123,9 @@ public class ConflictHandlerSimple implements ConflictHandler {
             if (hostState.isSuitable(instance)) {
                 hostState.allocate(instance);
                 successInstances.add(instance);
+
+                List<SRRequest> preemptedSRRequest = preemptSRRequest(hostId, hostState, preemptedSRRequestMap.get(hostId));
+                preemptedSRRequestMap.put(hostId, preemptedSRRequest);
             } else {
                 failedInstances.add(instance);
 
@@ -132,7 +139,31 @@ public class ConflictHandlerSimple implements ConflictHandler {
             }
         }
 
+        for (Map.Entry<Integer, List<SRRequest>> entry : preemptedSRRequestMap.entrySet()) {
+            preemptedSRRequestsRes.addAll(entry.getValue());
+        }
         return conflictSum;
+    }
+
+    private List<SRRequest> preemptSRRequest(int hostId, HostState hostState, List<SRRequest> preemptedSRRequests) {
+        StatesManager statesManager = datacenter.getStatesManager();
+        ScheduledSRRequestRecorder scheduledSRRequestRecorder = statesManager.getScheduledSRRequestRecorder();
+        
+        List<SRRequest> scheduledSRRequests = scheduledSRRequestRecorder.getScheduledSRRequests(hostId);
+        scheduledSRRequests.removeAll(preemptedSRRequests);
+        int srRequestedCpu = scheduledSRRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getCpu()).sum();
+        int srRequestMemory = scheduledSRRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getRam()).sum();
+
+        while(hostState.getCpu()-srRequestedCpu<0||hostState.getRam()-srRequestMemory<0) {
+            SRRequest newPreemptedRequest = scheduledSRRequests.remove(0);
+            preemptedSRRequests.add(newPreemptedRequest);
+
+            srRequestedCpu = scheduledSRRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getCpu()).sum();
+            srRequestMemory = scheduledSRRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getRam()).sum();
+        }
+
+
+        return preemptedSRRequests;
     }
 
     @Override

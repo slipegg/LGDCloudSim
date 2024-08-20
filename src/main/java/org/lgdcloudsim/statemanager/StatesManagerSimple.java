@@ -12,8 +12,6 @@ import org.lgdcloudsim.shadowresource.util.ScheduledSRRequestRecorder;
 
 import java.util.*;
 
-import static org.apache.commons.lang3.math.NumberUtils.max;
-
 /**
  * A class to manage the states of datacenter.
  * This class implements the interface {@link StatesManager}.
@@ -162,6 +160,7 @@ public class StatesManagerSimple implements StatesManager {
      */
     private Map<IntraScheduler, List<Integer>> intraSchedulerView;
 
+    @Getter
     private ScheduledSRRequestRecorder scheduledSRRequestRecorder;
 
     /**

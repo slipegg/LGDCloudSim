@@ -38,6 +38,10 @@ public class ScheduledSRRequestRecorder {
         return this;
     }
 
+    public List<SRRequest> getScheduledSRRequests(int hostId) {
+        return scheduledSRRequestMap.getOrDefault(hostId, List.of());
+    }
+
     public int getSRUsedCpu(int hostId) {
         return SRRequestUsedCpuMap.getOrDefault(hostId, 0);
     }

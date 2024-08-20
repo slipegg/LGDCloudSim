@@ -62,5 +62,10 @@ public class QueueFifo<T> implements Queue<T> {
     @Override
     public boolean isEmpty() {
         return items.isEmpty();
+    }
+
+    @Override
+    public List<T> getList() {
+        return items;
     }   
 }

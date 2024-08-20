@@ -6,6 +6,7 @@ import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
+import org.lgdcloudsim.shadowresource.util.ScheduledSRRequestRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -342,4 +343,6 @@ public interface StatesManager {
     boolean allocate(SRRequest srRequest);
 
     StatesManager release(SRRequest srRequest);
+
+    ScheduledSRRequestRecorder getScheduledSRRequestRecorder();
 }

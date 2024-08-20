@@ -2,7 +2,7 @@ package org.lgdcloudsim.shadowresource.filter;
 
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.shadowresource.lifepredictor.LifePredictor;
-import org.lgdcloudsim.shadowresource.requestmapper.SRRequestMapCoordinator;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRCoordinator;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class SRRequestFilterSimple implements SRRequestFilter {
     Random random;
     LifePredictor lifePredictor;
 
-    SRRequestMapCoordinator mapCoordinator;
+    SRCoordinator mapCoordinator;
 
     @Override
     public SRRequestFilterRes filter(Instance instance) {
@@ -51,7 +51,7 @@ public class SRRequestFilterSimple implements SRRequestFilter {
         }
     }
 
-    public SRRequestFilterSimple(LifePredictor lifePredictor, SRRequestMapCoordinator mapCoordinator) {
+    public SRRequestFilterSimple(LifePredictor lifePredictor, SRCoordinator mapCoordinator) {
         random = new Random();
         this.lifePredictor = lifePredictor;
         this.mapCoordinator = mapCoordinator;
