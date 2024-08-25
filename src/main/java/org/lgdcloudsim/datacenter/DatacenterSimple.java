@@ -843,8 +843,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             intraScheduleFailed(failedInstances, intraScheduler, true, outDatedUserRequests);
         }
 
-        send(this, 0, CloudSimTag.END_INSTANCE_RUN, allocateResult.getPreemptedSRRequests());
-
+        if (!allocateResult.getPreemptedSRRequests().isEmpty()) {
+            send(this, 0, CloudSimTag.END_INSTANCE_RUN, allocateResult.getPreemptedSRRequests());
+        }
+        
         for (IntraSchedulerResult intraSchedulerResult : this.intraSchedulerResults) {
             IntraScheduler intraScheduler = intraSchedulerResult.getIntraScheduler();
             startIntraScheduling(intraScheduler);

@@ -189,7 +189,7 @@ public class CloudSimTag {
      * If only these tags are left in all events,
      * it means that there are no new events that need to be executed, and the simulation can be ended.
      */
-    public static final Set<Integer> LOOP_TAG = Set.of(SYN_STATE_BETWEEN_DC, SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC, CHANGE_COLLABORATION_SYN);
+    public static final Set<Integer> LOOP_TAG = Set.of(SYN_STATE_BETWEEN_DC, SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC, CHANGE_COLLABORATION_SYN, RECORD_DC_UNTILIZATION);
 
     /**
      * Convert the tag to a string.

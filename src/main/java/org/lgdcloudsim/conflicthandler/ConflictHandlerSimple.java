@@ -124,8 +124,10 @@ public class ConflictHandlerSimple implements ConflictHandler {
                 hostState.allocate(instance);
                 successInstances.add(instance);
 
-                List<SRRequest> preemptedSRRequest = preemptSRRequest(hostId, hostState, preemptedSRRequestMap.get(hostId));
-                preemptedSRRequestMap.put(hostId, preemptedSRRequest);
+                List<SRRequest> preemptedSRRequest = preemptSRRequest(hostId, hostState, preemptedSRRequestMap.getOrDefault(hostId, List.of()));
+                if (preemptedSRRequest.isEmpty()) {
+                    preemptedSRRequestMap.put(hostId, preemptedSRRequest);
+                }
             } else {
                 failedInstances.add(instance);
 
@@ -150,6 +152,9 @@ public class ConflictHandlerSimple implements ConflictHandler {
         ScheduledSRRequestRecorder scheduledSRRequestRecorder = statesManager.getScheduledSRRequestRecorder();
         
         List<SRRequest> scheduledSRRequests = scheduledSRRequestRecorder.getScheduledSRRequests(hostId);
+        if (scheduledSRRequests.isEmpty()) {
+            return preemptedSRRequests;
+        }
         scheduledSRRequests.removeAll(preemptedSRRequests);
         int srRequestedCpu = scheduledSRRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getCpu()).sum();
         int srRequestMemory = scheduledSRRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getRam()).sum();
