@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import sqlite3
 
 # 连接到SQLite数据库
-name = "heartbeat"
+# name = "noDelay"
+# name = "heartbeat"
+name = "shadowResource"
 conn = sqlite3.connect('RecordDb/'+name+'.db')
 
 # 执行SQL查询
@@ -59,7 +61,7 @@ ax.legend()
 ax.grid(True)
 
 # 保存图形
-plt.savefig(name + 'resource_utilization.png')
+plt.savefig('RecordDb/output/' + name + '_resource_utilization.png')
 
 # 显示图形
 plt.show()
