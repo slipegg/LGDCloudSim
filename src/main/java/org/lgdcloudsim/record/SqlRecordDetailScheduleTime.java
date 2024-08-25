@@ -843,4 +843,30 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization,
+            double storageUtilization, double bwUtilization) {
+
+    }
+
+    @Override
+    public boolean isNeedRecordDatacenterUtilization() {
+        return false;
+    }
+
+    @Override
+    public SqlRecord setNeedRecordDatacenterUtilization(boolean needRecordDatacenterUtilization) {
+        return this;
+    }
+
+    @Override
+    public double getRecordDatacenterUtilizationInterval(){
+        return 5;
+    }
+
+    @Override
+    public SqlRecord setRecordDatacenterUtilizationInterval(double recordDatacenterUtilizationInterval) {
+        return this;
+    }
 }

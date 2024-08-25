@@ -33,6 +33,7 @@ public class StatesManagerSimple implements StatesManager {
     /**
      * The actual status of all hosts at the current time
      **/
+    @Getter
     private int[] actualHostStates;
 
     /**

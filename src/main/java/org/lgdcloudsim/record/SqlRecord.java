@@ -184,6 +184,15 @@ public interface SqlRecord {
      */
     void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice);
 
+    void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization, double storageUtilization, double bwUtilization);
+
+    boolean isNeedRecordDatacenterUtilization();
+
+    SqlRecord setNeedRecordDatacenterUtilization(boolean needRecordDatacenterUtilization);
+
+    double getRecordDatacenterUtilizationInterval();
+
+    SqlRecord setRecordDatacenterUtilizationInterval(double recordDatacenterUtilizationInterval);
     /**
      * Close the SQLite database.
      */

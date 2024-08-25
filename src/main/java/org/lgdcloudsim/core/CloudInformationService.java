@@ -23,10 +23,13 @@ import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
+import org.lgdcloudsim.statemanager.HostCapacityManager;
+import org.lgdcloudsim.statemanager.StatesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * A Cloud Information Service (CIS) also named as cloud administrator, It is the overall administrator of the system and the cloud administrator of each collaboration zone.
@@ -70,6 +73,10 @@ public class CloudInformationService extends CloudSimEntity {
         CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
         if (collaborationManager.getIsChangeCollaborationSyn()) {
             sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
+        }
+
+        if (getSimulation().getSqlRecord().isNeedRecordDatacenterUtilization()){
+            sendWithoutNetwork(this, getSimulation().getSqlRecord().getRecordDatacenterUtilizationInterval(), CloudSimTag.RECORD_DC_UNTILIZATION, null);
         }
 
         for (int collaborationId : collaborationManager.getCollaborationIds()) {
@@ -127,7 +134,39 @@ public class CloudInformationService extends CloudSimEntity {
             case CloudSimTag.INTER_SCHEDULE_END -> processInterScheduleEnd(evt);
             case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
+            case CloudSimTag.RECORD_DC_UNTILIZATION -> processRecordDcUtilization(evt);
         }
+    }
+
+    private void processRecordDcUtilization(SimEvent evt) {
+        for (Datacenter datacenter : datacenterList) {
+            double[] dcUtilization = generateDcUtilization(datacenter);
+            getSimulation().getSqlRecord().recordDatacenterUtilizationInfo(datacenter.getId(), getSimulation().clock(), dcUtilization[0], dcUtilization[1], dcUtilization[2], dcUtilization[3]);
+        }
+        sendWithoutNetwork(this, getSimulation().getSqlRecord().getRecordDatacenterUtilizationInterval(), CloudSimTag.RECORD_DC_UNTILIZATION, null);
+    }
+
+    private double[] generateDcUtilization(Datacenter datacenter) {
+        StatesManager statesManager = datacenter.getStatesManager();
+        HostCapacityManager hostCapacityManager = statesManager.getHostCapacityManager();
+        int[] hostStates = statesManager.getActualHostStates();
+        int numHosts = statesManager.getHostNum();
+
+        double[] totalRemaining = IntStream.range(0, 4)
+            .mapToDouble(i -> IntStream.range(0, numHosts)
+                .map(j -> hostStates[j * 4 + i])
+                .sum())
+            .toArray();
+
+        double[] totalCapacity = new double[4];
+        totalCapacity[0] = hostCapacityManager.getCpuCapacitySum();
+        totalCapacity[1] = hostCapacityManager.getRamCapacitySum();
+        totalCapacity[2] = hostCapacityManager.getStorageCapacitySum();
+        totalCapacity[3] = hostCapacityManager.getBwCapacitySum();
+
+        return IntStream.range(0, 4)
+            .mapToDouble(i -> 1.0 - (totalRemaining[i] / totalCapacity[i]))
+            .toArray();
     }
 
     /**

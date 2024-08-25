@@ -83,6 +83,8 @@ public interface StatesManager {
      */
     HostState getActualHostState(int hostId);
 
+    int[] getActualHostStates();
+
     /**
      * Get the host status maintained by the center state manager according to the host id.
      *

@@ -177,6 +177,8 @@ public class CloudSimTag {
 
     public static final int CANCEL_SR_RESOURCE = REPORT_SR_RESOURCE + 1;
 
+    public static final int RECORD_DC_UNTILIZATION = CANCEL_SR_RESOURCE + 1;
+
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.
      */
@@ -224,6 +226,7 @@ public class CloudSimTag {
             case SCHEDULE_HOST_SR_END -> "SCHEDULE_HOST_SR_END";
             case REPORT_SR_RESOURCE -> "REPORT_SR_RESOURCE";
             case CANCEL_SR_RESOURCE -> "CANCEL_SR_RESOURCE";
+            case RECORD_DC_UNTILIZATION -> "RECORD_DC_UNTILIZATION";
             case NONE -> "NONE";
             case BASE -> "BASE";
             default -> "UNKNOWN";
