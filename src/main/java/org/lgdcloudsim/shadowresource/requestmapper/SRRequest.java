@@ -11,13 +11,11 @@ public class SRRequest {
     public static int NORMAL = 0;
     private double predictLife;
     private Instance instance;
-    private boolean isSRRequest;
     private int state;
 
     public SRRequest(Instance instance, double  predictLife) {
         this.predictLife = predictLife;
         this.instance = instance;
-        this.isSRRequest = true;
         this.state = NORMAL;
     }
 }

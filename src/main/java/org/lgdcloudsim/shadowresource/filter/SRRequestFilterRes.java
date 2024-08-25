@@ -1,7 +1,9 @@
 package org.lgdcloudsim.shadowresource.filter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
@@ -13,16 +15,16 @@ import lombok.Setter;
 @Setter
 public class SRRequestFilterRes {
     private List<Instance> normalInstances;
-    private List<SRRequest> SRInstacnes;
+    private Map<Integer, List<SRRequest>> distributedSRMap;
 
-    public SRRequestFilterRes(List<Instance> normalInstances, List<SRRequest> SRInstacnes) {
+    public SRRequestFilterRes(List<Instance> normalInstances, Map<Integer, List<SRRequest>> distributedSRMap) {
         this.normalInstances = normalInstances;
-        this.SRInstacnes = SRInstacnes;
+        this.distributedSRMap = distributedSRMap;
     }
 
     public SRRequestFilterRes() {
         normalInstances = new ArrayList<>();
-        SRInstacnes = new ArrayList<>();
+        distributedSRMap = new HashMap<>();
     }
 
     public SRRequestFilterRes add(Instance instance) {
@@ -30,8 +32,9 @@ public class SRRequestFilterRes {
         return this;
     }
 
-    public SRRequestFilterRes add(SRRequest srRequest) {
-        SRInstacnes.add(srRequest);
+    public SRRequestFilterRes add(int partitionId, List<SRRequest> srRequests) {
+        distributedSRMap.putIfAbsent(partitionId, new ArrayList<>());
+        distributedSRMap.get(partitionId).addAll(srRequests);
         return this;
     }
 }

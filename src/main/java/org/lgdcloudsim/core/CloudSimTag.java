@@ -169,7 +169,9 @@ public class CloudSimTag {
 
     public static final int CANCEL_SR_RESOURCE = REPORT_SR_RESOURCE + 1;
 
-    public static final int SCHEDULE_SR_REQUESTS_BEGIN = CANCEL_SR_RESOURCE + 1;
+    public static final int RECEIVE_SR_REQUEST = CANCEL_SR_RESOURCE + 1;
+
+    public static final int SCHEDULE_SR_REQUESTS_BEGIN = RECEIVE_SR_REQUEST + 1;
 
     public static final int SCHEDULE_SR_REQUESTS_END = SCHEDULE_SR_REQUESTS_BEGIN + 1;
 

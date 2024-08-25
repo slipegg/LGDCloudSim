@@ -2,7 +2,7 @@
 DcDistribution,"{""1"":{""United States"":1}}"
 RequestPerNum,304
 RequestTimeInterval,10
-RequestTimes,3000
+RequestTimes,1500
 RequestGroupNum,1
 GroupInstanceNum,1
 InstanceCpuNum,4
