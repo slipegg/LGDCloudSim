@@ -173,6 +173,10 @@ public class CloudSimTag {
 
     public static final int SCHEDULE_HOST_SR_END = SCHEDULE_HOST_SR_BEGIN + 1;
 
+    public static final int REPORT_SR_RESOURCE = SCHEDULE_HOST_SR_END + 1;
+
+    public static final int CANCEL_SR_RESOURCE = REPORT_SR_RESOURCE + 1;
+
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.
      */

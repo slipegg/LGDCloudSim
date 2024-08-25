@@ -25,6 +25,7 @@ public class SRPartitionManagerSimple  implements SRPartitionManager, Nameable{
      **/
     private Logger LOGGER = LoggerFactory.getLogger(SRPartitionManagerSimple.class.getSimpleName());
 
+    @Getter
     private int partitionId;
 
     private Queue<SRRequest> srRequestQueue;
@@ -101,9 +102,9 @@ public class SRPartitionManagerSimple  implements SRPartitionManager, Nameable{
 
         if (!isHostSRScheduleBusy) {
             setHostSRScheduleBusy(true);
-            return partitionId;
+            return NEED_START_SCHEDULE;
         }
-        return LAST_NO_SCHEDULE;
+        return ALREADY_IN_SCHEDULE;
     }
 
     
@@ -165,6 +166,11 @@ public class SRPartitionManagerSimple  implements SRPartitionManager, Nameable{
     @Override
     public String getName() {
         return "PartitionManagerSimple"+partitionId;
+    }
+
+    @Override
+    public void cancelHostSR(int hostId) {
+        hostSRMapper.remove(hostId);
     }
     
 }

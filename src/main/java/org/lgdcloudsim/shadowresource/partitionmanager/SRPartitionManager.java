@@ -7,7 +7,8 @@ import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.shadowresource.util.SRRequestScheduledRes;
 
 public interface SRPartitionManager {
-    public static final int LAST_NO_SCHEDULE = -1;
+    public static final int ALREADY_IN_SCHEDULE = -1;
+    public static final int NEED_START_SCHEDULE = -2;
 
     SRPartitionManager addToQueue(List<SRRequest> srRequests);
     
@@ -22,6 +23,10 @@ public interface SRPartitionManager {
     boolean isContinueHostSRSchedule(int partitionId);
 
     int collectSR(HostSR hostSR);
+
+    void cancelHostSR(int hostId);
+
+    int getPartitionId();
 
     long getTotalSRRequestedCpu();
 

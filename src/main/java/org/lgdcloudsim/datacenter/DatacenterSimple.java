@@ -9,7 +9,6 @@ import org.lgdcloudsim.core.CloudSimEntity;
 import org.lgdcloudsim.core.CloudSimTag;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
-import org.lgdcloudsim.core.events.CloudSimEvent;
 import org.lgdcloudsim.core.events.SimEvent;
 import org.lgdcloudsim.interscheduler.InterSchedulerSendItem;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
@@ -26,7 +25,6 @@ import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
-import org.lgdcloudsim.shadowresource.filter.SRRequestFilter;
 import org.lgdcloudsim.shadowresource.filter.SRRequestFilterRes;
 import org.lgdcloudsim.shadowresource.hostsrmapper.HostSR;
 import org.lgdcloudsim.shadowresource.partitionmanager.SRPartitionManager;
@@ -424,10 +422,32 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             case CloudSimTag.SCHEDULE_SR_REQUESTS_END -> processScheduleSRRequestsEnd(evt);
             case CloudSimTag.SCHEDULE_HOST_SR_BEGIN -> processScheduleHostSRBegin(evt);
             case CloudSimTag.SCHEDULE_HOST_SR_END -> processScheduleHostSREnd(evt);
+            case CloudSimTag.REPORT_SR_RESOURCE -> processReportSRResource(evt);
+            case CloudSimTag.CANCEL_SR_RESOURCE -> processCancelSRResource(evt);
             default ->
                     LOGGER.warn("{}: {} received unknown event {}", getSimulation().clockStr(), getName(), evt.getTag());
         }
     } 
+    
+    private void processCancelSRResource(SimEvent evt) {
+        if (evt.getData() instanceof Integer hostId){
+            SRPartitionManager partitionManager = srCoordinator.getPartitionManagerByHostId(hostId);
+            partitionManager.cancelHostSR(hostId);
+        }
+    }
+
+    private void processReportSRResource(SimEvent evt) {
+        if (evt.getData() instanceof HostSR hostSR){
+            SRPartitionManager partitionManager = srCoordinator.getPartitionManagerByHostId(hostSR.getHostId());
+            int flag = partitionManager.collectSR(hostSR);
+            if (flag == SRPartitionManager.NEED_START_SCHEDULE){
+                send(this, 0, CloudSimTag.SCHEDULE_HOST_SR_BEGIN, partitionManager.getPartitionId());
+            }
+
+            double nextHeartbeatDelay = statesManager.getNextHeartbeatDelay(hostSR.getHostId(), getSimulation().clock());
+            send(this, nextHeartbeatDelay, CloudSimTag.CANCEL_SR_RESOURCE, hostSR.getHostId());
+        }
+    }
 
     private void processScheduleHostSREnd(SimEvent evt){
         if (evt.getData() instanceof SRRequestScheduledRes srRequestScheduledRes){
@@ -610,15 +630,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
         
-        SRPartitionManager partitionManager = srCoordinator.getPartitionManagerByHostId(hostId);
-        HostState hostState = statesManager.getHostStateWithSRRequest(hostId);
-        int[] hostCapacity = statesManager.getHostCapacity(hostId);
-        HostSR hostSR = new HostSR(hostId, instance.getCpu(), instance.getRam(), statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock() ),  
-                                    hostState.getCpu(), hostState.getRam(), hostCapacity[0], hostCapacity[1]);
-        int partitionId = partitionManager.collectSR(hostSR);
-        if (partitionId != SRPartitionManager.LAST_NO_SCHEDULE){
-            send(this, 0, CloudSimTag.SCHEDULE_HOST_SR_BEGIN, partitionId);
-        }
+        updateHostSR(hostId, instance);
 
         if (statesManager.isNeedHeartbeat()) {
             sendWithoutNetwork(this, statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock()), CloudSimTag.SYN_STATE_BY_HEARTBEAT_IN_DC, List.of(hostId));// 有两个发送心跳的地方，有问题
@@ -626,6 +638,15 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         calculateCost(instance);
         updateGroupAndUserRequestState(instance);
+    }
+
+    private void updateHostSR(int hostId, Instance instance) {
+        HostState hostState = statesManager.getHostStateWithSRRequest(hostId);
+        int[] hostCapacity = statesManager.getHostCapacity(hostId);
+        HostSR hostSR = new HostSR(hostId, instance.getCpu(), instance.getRam(), statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock() ),  
+                                    hostState.getCpu(), hostState.getRam(), hostCapacity[0], hostCapacity[1]);
+
+        send(this, 0, CloudSimTag.REPORT_SR_RESOURCE, hostSR);
     }
 
     /**
