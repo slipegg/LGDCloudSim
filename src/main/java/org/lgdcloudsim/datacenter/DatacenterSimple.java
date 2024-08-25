@@ -456,6 +456,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processScheduleHostSREnd(SimEvent evt){
         if (evt.getData() instanceof SRRequestScheduledRes srRequestScheduledRes){
+            LOGGER.info("{}: {}'s SRPartitionManager-{} end scheduling hostSR, it has scheduled {} SRRequests", getSimulation().clockStr(), getName(), srRequestScheduledRes.getPartitionId(), srRequestScheduledRes.getScheduledSRRequest().size());
             if (!srRequestScheduledRes.getScheduledSRRequest().isEmpty()){
                 send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, srRequestScheduledRes.getScheduledSRRequest());
             }
@@ -474,11 +475,13 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof Integer partitionId){
             SRPartitionManager partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
             SRRequestScheduledRes srRequestScheduledRes = partitionManager.scheduleForNewHostSR();
+            LOGGER.info("{}: {}'s SRPartitionManager-{} starts scheduling hostSR, it has scheduled {} SRRequests, cost {} ms", getSimulation().clockStr(), getName(), partitionManager.getPartitionId(), srRequestScheduledRes.getScheduledSRRequest().size(), srRequestScheduledRes.getCost());
             send(this, srRequestScheduledRes.getCost(), CloudSimTag.SCHEDULE_HOST_SR_END, srRequestScheduledRes);
         }
     }
 
     private void handleFailedSRRequest(List<SRRequest> srRequests){
+        LOGGER.info("{}: {}'s {} SRRequests failed to schedule, they will be scheduled as normal requests", getSimulation().clockStr(), getName(), srRequests.size());
         for(SRRequest srRequest : srRequests){
             srRequest.setSRRequest(false);
             Instance instance = srRequest.getInstance();
@@ -489,6 +492,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
     private void processScheduleSRRequestsEnd(SimEvent evt) {
         if (evt.getData() instanceof SRRequestScheduledRes srRequestScheduledRes) {
+            LOGGER.info("{}: {}'s SRPartitionManager-{} end scheduling {} SRRequests", getSimulation().clockStr(), getName(), srRequestScheduledRes.getPartitionId(), srRequestScheduledRes.getScheduledSRRequest().size());
             if (!srRequestScheduledRes.getScheduledSRRequest().isEmpty()){
                 send(this, 0, CloudSimTag.PRE_ALLOCATE_RESOURCE, srRequestScheduledRes.getScheduledSRRequest());
             }
@@ -507,6 +511,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof Integer partitionId){
             SRPartitionManager partitionManager = srCoordinator.getPartitionManagerByPartitionId(partitionId);
             SRRequestScheduledRes srRequestScheduledRes = partitionManager.scheduleForNewSRRequest();
+            LOGGER.info("{}: {}'s SRPartitionManager-{} starts scheduling {} SRRequests, cost {} ms", getSimulation().clockStr(), getName(), partitionManager.getPartitionId(), srRequestScheduledRes.getScheduledSRRequest().size(), srRequestScheduledRes.getCost());
             send(this, srRequestScheduledRes.getCost(), CloudSimTag.SCHEDULE_SR_REQUESTS_END, srRequestScheduledRes);
         }
     }
@@ -846,7 +851,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (!allocateResult.getPreemptedSRRequests().isEmpty()) {
             send(this, 0, CloudSimTag.END_INSTANCE_RUN, allocateResult.getPreemptedSRRequests());
         }
-        
+
         for (IntraSchedulerResult intraSchedulerResult : this.intraSchedulerResults) {
             IntraScheduler intraScheduler = intraSchedulerResult.getIntraScheduler();
             startIntraScheduling(intraScheduler);
@@ -1514,8 +1519,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
 
         if (isNeedDealWithShadowResource) {
             List<Instance> instances = userRequests.stream().flatMap(userRequest -> userRequest.getInstanceGroups().stream()).flatMap(instanceGroup -> instanceGroup.getInstances().stream()).collect(Collectors.toList());
-            
+
             SRRequestFilterRes srRequestFilterRes = srCoordinator.getSrRequestFilter().filter(instances);
+            LOGGER.info("{}: {}'s SRFilter filter {} instances to SRRequests, {} instances to normal instances.", getSimulation().clockStr(), getName(), srRequestFilterRes.getSRInstacnes().size(), srRequestFilterRes.getNormalInstances().size());
             instanceQueue.add(srRequestFilterRes.getNormalInstances());
             
             List<Integer> needStartScheduledPartitionIds  = srCoordinator.receiveSRRequests(srRequestFilterRes.getSRInstacnes());
