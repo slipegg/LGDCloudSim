@@ -211,8 +211,8 @@ public class CloudSimTag {
             case DC_LIST_REQUEST -> "DC_LIST_REQUEST";
             case USER_REQUEST_SEND -> "USER_REQUEST_SEND";
             case NEED_SEND_USER_REQUEST -> "NEED_SEND_USER_REQUEST";
-            case INTER_SCHEDULE_BEGIN -> "GROUP_FILTER_DC_BEGIN";
-            case INTER_SCHEDULE_END -> "GROUP_FILTER_DC_END";
+            case INTER_SCHEDULE_BEGIN -> "INTER_SCHEDULE_BEGIN";
+            case INTER_SCHEDULE_END -> "INTER_SCHEDULE_END";
             case LOAD_BALANCE_SEND -> "LOAD_BALANCE_SEND";
             case INTRA_SCHEDULE_BEGIN -> "INTRA_SCHEDULE_BEGIN";
             case INTRA_SCHEDULE_END -> "INTRA_SCHEDULE_END";
@@ -222,8 +222,10 @@ public class CloudSimTag {
             case SCHEDULE_SR_REQUESTS_END -> "SCHEDULE_SR_REQUESTS_END";
             case SCHEDULE_HOST_SR_BEGIN -> "SCHEDULE_HOST_SR_BEGIN";
             case SCHEDULE_HOST_SR_END -> "SCHEDULE_HOST_SR_END";
+            case REPORT_SR_RESOURCE -> "REPORT_SR_RESOURCE";
+            case CANCEL_SR_RESOURCE -> "CANCEL_SR_RESOURCE";
             case NONE -> "NONE";
-            case BASE -> "Base";
+            case BASE -> "BASE";
             default -> "UNKNOWN";
         };
     }
