@@ -124,8 +124,8 @@ public class ConflictHandlerSimple implements ConflictHandler {
                 hostState.allocate(instance);
                 successInstances.add(instance);
 
-                List<SRRequest> preemptedSRRequest = preemptSRRequest(hostId, hostState, preemptedSRRequestMap.getOrDefault(hostId, List.of()));
-                if (preemptedSRRequest.isEmpty()) {
+                List<SRRequest> preemptedSRRequest = preemptSRRequest(hostId, hostState, preemptedSRRequestMap.getOrDefault(hostId, new ArrayList<>()));
+                if (!preemptedSRRequest.isEmpty()) {
                     preemptedSRRequestMap.put(hostId, preemptedSRRequest);
                 }
             } else {

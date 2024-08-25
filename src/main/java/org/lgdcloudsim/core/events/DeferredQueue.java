@@ -174,8 +174,14 @@ public class DeferredQueue implements EventQueue {
     public boolean isExistSameEvent(SimEntity dst, int tag, Object data) {
         //TODO 可以进行时间优化 对于高频幂等的操作是否还需要进行唯一性检查，如Heartbeat
         for (SimEvent event : eventList) {
-            if (event.getDestination().equals(dst) && event.getTag() == tag && (event.getData() == null && data == null || event.getData().equals(data))) {
-                return true;
+            if (event.getDestination().equals(dst) && event.getTag() == tag) {
+                // 处理 null 值的情况
+                if (event.getData() == null && data == null) {
+                    return true;
+                }
+                if (event.getData() != null && event.getData().equals(data)) {
+                    return true;
+                }
             }
         }
         return false;

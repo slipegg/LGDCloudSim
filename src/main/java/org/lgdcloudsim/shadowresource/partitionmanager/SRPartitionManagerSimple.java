@@ -103,8 +103,9 @@ public class SRPartitionManagerSimple  implements SRPartitionManager, Nameable{
         if (!isHostSRScheduleBusy) {
             setHostSRScheduleBusy(true);
             return NEED_START_SCHEDULE;
+        } else {
+            return ALREADY_IN_SCHEDULE;
         }
-        return ALREADY_IN_SCHEDULE;
     }
 
     
@@ -118,6 +119,8 @@ public class SRPartitionManagerSimple  implements SRPartitionManager, Nameable{
         for (HostSR hostSR : hostSRs) {
             List<SRRequest> srRequests = srRequestMapper.schedule(hostSR);
             if (srRequests != null && !srRequests.isEmpty()) {
+                // 将所有的SRRequest的ExpectedScheduleHostId设置为hostSR.getId()
+                srRequests.forEach(srRequest -> srRequest.getInstance().setExpectedScheduleHostId(hostSR.getHostId()));
                 hostSR.setSRCpu(hostSR.getSRCpu() - srRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getCpu()).sum());
                 hostSR.setSRMemory(hostSR.getSRMemory() - srRequests.stream().mapToInt(srRequest -> srRequest.getInstance().getRam()).sum());
             }
@@ -133,11 +136,11 @@ public class SRPartitionManagerSimple  implements SRPartitionManager, Nameable{
     }
 
     public boolean isContinueSRRequestSchedule(int partitionId){
-        return srRequestQueue.isEmpty();
+        return !srRequestQueue.isEmpty();
     }
 
     public boolean isContinueHostSRSchedule(int partitionId){
-        return hostSRQueue.isEmpty();
+        return !hostSRQueue.isEmpty();
     }
     
     public long getTotalSRRequestedCpu() {

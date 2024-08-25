@@ -1,5 +1,6 @@
 package org.lgdcloudsim.shadowresource.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +21,7 @@ public class ScheduledSRRequestRecorder {
 
     public ScheduledSRRequestRecorder addScheduledSRRequest(SRRequest srRequest) {
         Instance instance = srRequest.getInstance();
-        if (scheduledSRRequestMap.containsKey(instance.getExpectedScheduleHostId())) {
-            scheduledSRRequestMap.get(instance.getExpectedScheduleHostId()).add(srRequest);
-        } else {
-            scheduledSRRequestMap.put(instance.getExpectedScheduleHostId(), List.of(srRequest));
-        }
+        scheduledSRRequestMap.computeIfAbsent(instance.getExpectedScheduleHostId(), k -> new ArrayList<>()).add(srRequest);
 
         updateUsedCpuMemory(srRequest, 1);
         return this;
@@ -39,7 +36,7 @@ public class ScheduledSRRequestRecorder {
     }
 
     public List<SRRequest> getScheduledSRRequests(int hostId) {
-        return scheduledSRRequestMap.getOrDefault(hostId, List.of());
+        return scheduledSRRequestMap.getOrDefault(hostId, new ArrayList<>());
     }
 
     public int getSRUsedCpu(int hostId) {

@@ -165,7 +165,11 @@ public class CloudSimTag {
      */
     public static final int INTRA_SCHEDULE_BEGIN = PRE_ALLOCATE_RESOURCE + 1;
 
-    public static final int SCHEDULE_SR_REQUESTS_BEGIN = INTRA_SCHEDULE_BEGIN + 1;
+    public static final int REPORT_SR_RESOURCE = INTRA_SCHEDULE_BEGIN + 1;// 需要在SCHEDULE_HOST_SR_BEGIN前面，从而保证在SCHEDULE_HOST_SR_BEGIN之前hostSR资源都收集好了
+
+    public static final int CANCEL_SR_RESOURCE = REPORT_SR_RESOURCE + 1;
+
+    public static final int SCHEDULE_SR_REQUESTS_BEGIN = CANCEL_SR_RESOURCE + 1;
 
     public static final int SCHEDULE_SR_REQUESTS_END = SCHEDULE_SR_REQUESTS_BEGIN + 1;
 
@@ -173,11 +177,7 @@ public class CloudSimTag {
 
     public static final int SCHEDULE_HOST_SR_END = SCHEDULE_HOST_SR_BEGIN + 1;
 
-    public static final int REPORT_SR_RESOURCE = SCHEDULE_HOST_SR_END + 1;
-
-    public static final int CANCEL_SR_RESOURCE = REPORT_SR_RESOURCE + 1;
-
-    public static final int RECORD_DC_UNTILIZATION = CANCEL_SR_RESOURCE + 1;
+    public static final int RECORD_DC_UNTILIZATION = SCHEDULE_HOST_SR_END + 1;
 
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.

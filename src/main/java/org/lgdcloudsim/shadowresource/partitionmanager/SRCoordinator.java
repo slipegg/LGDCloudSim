@@ -49,7 +49,7 @@ public class SRCoordinator implements Nameable {
     public List<Integer> receiveSRRequests(List<SRRequest> srRequests) {
         List<Integer> needStartScheduledPartitionIds = new ArrayList<>();
         int size = srRequests.size();
-        if (size>0){
+        if (size==0){
             return needStartScheduledPartitionIds;
         }
 
@@ -105,10 +105,8 @@ public class SRCoordinator implements Nameable {
             remainedCpuArray[i] = (int) partitionItems.get(i).remainedCpu;
         }
     
-        int totalCpu = 0;
-        for (SRRequest request : newSRRequests) {
-            totalCpu += request.getInstance().getCpu();
-        }
+        // stream优化上面的代码
+        int totalCpu = newSRRequests.stream().mapToInt(request -> request.getInstance().getCpu()).sum();
     
         int[] distributedResources = distributeCpuResources(remainedCpuArray, totalCpu);
     
@@ -118,14 +116,13 @@ public class SRCoordinator implements Nameable {
             int partitionId = partitionItems.get(i).partitionId;
     
             // 分配请求到每个分区
-            while (endIndex < newSRRequests.size() && (distributedResources[i] > 0 && i != partitionItems.size() - 1)) {
+            while (endIndex < newSRRequests.size() && (distributedResources[i] > 0 || i == partitionItems.size() - 1)) {
                 SRRequest request = newSRRequests.get(endIndex);
                 distributedResources[i] -= request.getInstance().getCpu();
                 endIndex++;
             }
 
-            scheduleRequestMap.put(partitionId, newSRRequests.subList(startIndex, endIndex+1));
-            endIndex++;
+            scheduleRequestMap.put(partitionId, newSRRequests.subList(startIndex, endIndex));
             startIndex = endIndex;
         }
 
