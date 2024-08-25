@@ -6,7 +6,13 @@ import org.lgdcloudsim.intrascheduler.*;
 import org.lgdcloudsim.record.*;
 import org.lgdcloudsim.interscheduler.*;
 import org.lgdcloudsim.loadbalancer.*;
-import org.lgdcloudsim.record.SqlRecordDetailScheduleTime;
+import org.lgdcloudsim.shadowresource.filter.SRRequestFilter;
+import org.lgdcloudsim.shadowresource.filter.SRRequestFilterSimple;
+import org.lgdcloudsim.shadowresource.lifepredictor.LifePredictor;
+import org.lgdcloudsim.shadowresource.lifepredictor.LifePredictorAccurate;
+import org.lgdcloudsim.shadowresource.lifepredictor.LifePredictorRandom;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRPartitionManager;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRPartitionManagerSimple;
 import org.lgdcloudsim.statemanager.*;
 
 /**
@@ -85,6 +91,31 @@ public class FactorySimple implements Factory {
             case "simple", "Simple" -> new SqlRecordSimple(dbName);
             case "detailscheduletime", "detailScheduleTime", "DetailScheduleTime" -> new SqlRecordDetailScheduleTime(dbName);
             case "Null", "NULL", "null" -> new SqlRecordNull();
+            default -> null;
+        };
+    }
+
+    @Override
+    public SRPartitionManager getSRPartitionManager(String type, int partitionId) {
+        return switch (type) {
+            case "simple", "Simple" -> new SRPartitionManagerSimple(partitionId);
+            default -> null;
+        };
+    }
+
+    @Override
+    public SRRequestFilter getSRRequestFilter(String type, LifePredictor lifePredictor) {
+        return switch (type) {
+            case "simple", "Simple" -> new SRRequestFilterSimple(lifePredictor);
+            default -> null;
+        };
+    }
+
+    @Override
+    public LifePredictor getLifePredictor(String type) {
+        return switch (type) {
+            case "accurate", "Accurate" -> new LifePredictorAccurate();
+            case "random", "Random" -> new LifePredictorRandom();
             default -> null;
         };
     }

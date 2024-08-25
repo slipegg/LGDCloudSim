@@ -29,16 +29,12 @@ public class SRCoordinator implements Nameable {
 
     Map<Integer, SRPartitionManager> partitionManagerMap;
 
-    public SRCoordinator(SRRequestFilter srRequestFilter, PartitionRangesManager partitionRangesManager, Simulation simulation, int id) {
+    public SRCoordinator(SRRequestFilter srRequestFilter, PartitionRangesManager partitionRangesManager, Map<Integer, SRPartitionManager> partitionManagerMap, Simulation simulation) {
         this.simulation = simulation;
-        this.id = id;
+        this.id = 0;
         this.srRequestFilter = srRequestFilter;
         this.partitionRangesManager = partitionRangesManager;
-        this.partitionManagerMap = new HashMap<>();
-        int[] partitionIds = partitionRangesManager.getPartitionIds();
-        for (int partitionId : partitionIds) {
-            partitionManagerMap.put(partitionId, new SRPartitionManagerSimple(partitionId));
-        }
+        this.partitionManagerMap = partitionManagerMap;
     }
     
     public SRPartitionManager getPartitionManagerByPartitionId(int partitionId) {

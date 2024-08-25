@@ -2,8 +2,6 @@ package org.lgdcloudsim.core;
 
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
-import org.lgdcloudsim.request.InstanceGroup;
-import org.lgdcloudsim.util.FailedOutdatedResult;
 
 import java.util.Set;
 
@@ -220,7 +218,6 @@ public class CloudSimTag {
             case SCHEDULE_SR_REQUESTS_END -> "SCHEDULE_SR_REQUESTS_END";
             case SCHEDULE_HOST_SR_BEGIN -> "SCHEDULE_HOST_SR_BEGIN";
             case SCHEDULE_HOST_SR_END -> "SCHEDULE_HOST_SR_END";
-            case BALANCE_SR_REQUEST_MAPPER -> "BALANCE_SR_REQUEST_MAPPER";
             case NONE -> "NONE";
             case BASE -> "Base";
             default -> "UNKNOWN";

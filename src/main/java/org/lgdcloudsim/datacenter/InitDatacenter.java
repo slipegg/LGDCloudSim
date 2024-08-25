@@ -9,6 +9,10 @@ import org.lgdcloudsim.interscheduler.InterSchedulerSimple;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.shadowresource.filter.SRRequestFilter;
+import org.lgdcloudsim.shadowresource.lifepredictor.LifePredictor;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRCoordinator;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRPartitionManager;
 import org.lgdcloudsim.statemanager.*;
 import org.slf4j.LoggerFactory;
 
@@ -437,6 +441,10 @@ public class InitDatacenter {
             datacenter.setArchitecture(datacenterJson.getString("architecture"));
         }
 
+        if (datacenterJson.containsKey("shadowResource")) {
+            datacenter.setSrCoordinator(getSRCoordinator(datacenterJson.getJsonObject("shadowResource")));
+        }
+
         StatesManager statesManager = getStatesManager(datacenterJson, isCenterSchedule, target);
         datacenter.setStatesManager(statesManager);
 
@@ -460,6 +468,21 @@ public class InitDatacenter {
         setDatacenterResourceUnitPrice(datacenter, unitPriceJson);
 
         return datacenter;
+    }
+
+    private static SRCoordinator getSRCoordinator(JsonObject srCoordinatorJson) {
+        PartitionRangesManager partitionRangesManager = getPartitionRangesManager(srCoordinatorJson.getJsonArray("partitions"));
+        JsonArray partitionManager = srCoordinatorJson.getJsonArray("partitionManager");
+        Map<Integer, SRPartitionManager> partitionManagerMap = new HashMap<>();
+        for (int i = 0; i < partitionManager.size(); i++) {
+            SRPartitionManager srPartitionManager = factory.getSRPartitionManager(partitionManager.getJsonObject(i).getString("type"), i);
+            partitionManagerMap.put(i, srPartitionManager);
+        }
+
+        LifePredictor lifePredictor = factory.getLifePredictor(srCoordinatorJson.getString("lifePredictor"));
+        SRRequestFilter srRequestFilter = factory.getSRRequestFilter(srCoordinatorJson.getString("filter"), lifePredictor);
+
+        return new SRCoordinator(srRequestFilter, partitionRangesManager, partitionManagerMap, InitDatacenter.LGDCloudSim);
     }
 
     /**
@@ -539,7 +562,7 @@ public class InitDatacenter {
      */
     private static StatesManager getStatesManager(JsonObject datacenterJson, boolean isCenterSchedule, int target) {
         int hostNum = datacenterJson.getInt("hostNum");
-        PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson);
+        PartitionRangesManager partitionRangesManager = getPartitionRangesManager(datacenterJson.getJsonArray("partitions"));
         double synchronizationGap = 0;
         if (isCenterSchedule && target == InterSchedulerSimple.HOST_TARGET) {
             synchronizationGap = 0;
@@ -590,14 +613,14 @@ public class InitDatacenter {
     /**
      * From a {@link JsonObject} object to get a {@link PartitionRangesManager} object.
      *
-     * @param datacenterJson a {@link JsonObject} object
+     * @param partitionJson a {@link JsonObject} object
      */
-    private static PartitionRangesManager getPartitionRangesManager(JsonObject datacenterJson) {
+    private static PartitionRangesManager getPartitionRangesManager(JsonArray partitionJson) {
         int startId = 0;
         int partitionId = 0;
         Map<Integer, int[]> ranges = new HashMap<>();
-        for (int k = 0; k < datacenterJson.getJsonArray("partitions").size(); k++) {
-            JsonObject partition = datacenterJson.getJsonArray("partitions").getJsonObject(k);
+        for (int k = 0; k < partitionJson.size(); k++) {
+            JsonObject partition = partitionJson.getJsonObject(k);
             ranges.put(partitionId, new int[]{startId, startId + partition.getInt("length") - 1});
             startId += partition.getInt("length");
             partitionId++;

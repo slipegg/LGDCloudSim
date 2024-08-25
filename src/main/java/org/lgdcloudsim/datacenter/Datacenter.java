@@ -8,6 +8,7 @@ import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.queue.InstanceQueue;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRCoordinator;
 import org.lgdcloudsim.statemanager.StatesManager;
 
 import java.awt.geom.Point2D;
@@ -209,4 +210,9 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
      * @return the price per host of the datacenter.
      */
     double getHostPerRack();
+
+    /**
+     * 
+     */
+    Datacenter setSrCoordinator(SRCoordinator srCoordinator);
 }

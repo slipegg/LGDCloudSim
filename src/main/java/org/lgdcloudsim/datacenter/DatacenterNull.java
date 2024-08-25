@@ -10,6 +10,7 @@ import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.queue.InstanceQueue;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRCoordinator;
 import org.lgdcloudsim.statemanager.StatesManager;
 
 import java.awt.geom.Point2D;
@@ -382,5 +383,10 @@ public class DatacenterNull implements Datacenter {
     @Override
     public long getHostNum() {
         return 0;
+    }
+
+    @Override
+    public Datacenter setSrCoordinator(SRCoordinator srCoordinator) {
+        return this;
     }
 }

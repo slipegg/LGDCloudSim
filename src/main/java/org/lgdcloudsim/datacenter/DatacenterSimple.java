@@ -285,6 +285,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      **/
     private Map<IntraScheduler, Boolean> isIntraSchedulerBusy = new HashMap<>();
 
+    @Setter
     private SRCoordinator srCoordinator;
 
     /**

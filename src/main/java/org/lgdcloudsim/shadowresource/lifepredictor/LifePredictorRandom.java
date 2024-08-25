@@ -11,7 +11,11 @@ public class LifePredictorRandom implements LifePredictor{
     Random random;
     @Override
     public double predictLife(Instance instance) {
-        return random.nextGaussian()*stdLife+avgLife;
+        return Math.min(random.nextGaussian()*stdLife+avgLife, 0.1);
+    }
+
+    public LifePredictorRandom() {
+        this(5,5);
     }
 
     public LifePredictorRandom(double avgLife, double stdLife) {

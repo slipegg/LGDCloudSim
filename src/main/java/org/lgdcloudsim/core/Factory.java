@@ -4,6 +4,9 @@ import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.conflicthandler.ConflictHandler;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.record.SqlRecord;
+import org.lgdcloudsim.shadowresource.filter.SRRequestFilter;
+import org.lgdcloudsim.shadowresource.lifepredictor.LifePredictor;
+import org.lgdcloudsim.shadowresource.partitionmanager.SRPartitionManager;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.statemanager.PredictionManager;
 
@@ -78,5 +81,9 @@ public interface Factory {
      */
     SqlRecord getSqlRecord(String type, String dbName);
 
-    
+    SRPartitionManager getSRPartitionManager(String type, int partitionId);
+
+    SRRequestFilter getSRRequestFilter(String type, LifePredictor lifePredictor);
+
+    LifePredictor getLifePredictor(String type);
 }
