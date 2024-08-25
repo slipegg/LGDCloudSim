@@ -1,0 +1,41 @@
+{
+  "id": 1,
+  "hostNum": 10000,
+  "partitions": [
+    {
+      "length": 10000
+    }
+  ],
+  "hostStates": [
+    {
+      "cpu": 128,
+      "ram": 256,
+      "storage": 1600,
+      "bw": 800,
+      "startId": 0,
+      "length": 10000
+    }
+  ],
+  "heartbeatInterval": 3000,
+  "synchronizationGap": 0,
+  "intraSchedulers": [
+    {
+      "type": "randomScore"
+    },
+    {
+      "type": "randomScore"
+    },
+    {
+      "type": "randomScore"
+    },
+    {
+      "type": "randomScore"
+    }
+  ],
+  "intraLoadBalancer": {
+    "type": "batch"
+  },
+  "resourceAllocateSelector": {
+    "type": "simple"
+  }
+}

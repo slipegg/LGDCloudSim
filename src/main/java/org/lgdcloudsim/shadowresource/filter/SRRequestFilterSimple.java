@@ -46,7 +46,7 @@ public class SRRequestFilterSimple implements SRRequestFilter {
 
     private SRRequest isChangeToSRRequest(Instance instance) {
         double predictLife = lifePredictor.predictLife(instance);
-        if(predictLife<3 && random.nextDouble()<0.2){
+        if(random.nextDouble()<0.15){
             return new SRRequest(instance, predictLife);
         }else{
             return null;

@@ -482,8 +482,9 @@ public class InitDatacenter {
             partitionManagerMap.put(i, srPartitionManager);
         }
 
-        LifePredictor lifePredictor = factory.getLifePredictor(srCoordinatorJson.getString("lifePredictor"));
-        SRRequestFilter srRequestFilter = factory.getSRRequestFilter(srCoordinatorJson.getString("filter"), lifePredictor);
+        JsonObject filterJsonObject = srCoordinatorJson.getJsonObject("filter");
+        LifePredictor lifePredictor = factory.getLifePredictor(filterJsonObject.getString("lifePredictor"));
+        SRRequestFilter srRequestFilter = factory.getSRRequestFilter(filterJsonObject.getString("type"), lifePredictor);
 
         return new SRCoordinator(srRequestFilter, partitionRangesManager, partitionManagerMap, InitDatacenter.LGDCloudSim);
     }

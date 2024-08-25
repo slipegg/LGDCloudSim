@@ -1,0 +1,12 @@
+  Parament Name,Parament
+DcDistribution,"{""1"":{""United States"":1}}"
+RequestPerNum,304
+RequestTimeInterval,10
+RequestTimes,3000
+RequestGroupNum,1
+GroupInstanceNum,1
+InstanceCpuNum,4
+InstanceRamNum,8
+InstanceStorageNum,0
+InstanceBwNum,0
+InstanceLifeTime,10000
