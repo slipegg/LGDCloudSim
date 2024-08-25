@@ -389,4 +389,14 @@ public class DatacenterNull implements Datacenter {
     public Datacenter setSrCoordinator(SRCoordinator srCoordinator) {
         return this;
     }
+
+    @Override
+    public Datacenter setNeedDealWithShadowResource(boolean needDealWithShadowResource) {
+        return this;
+    }
+
+    @Override
+    public boolean isNeedDealWithShadowResource() {
+        return false;
+    }
 }

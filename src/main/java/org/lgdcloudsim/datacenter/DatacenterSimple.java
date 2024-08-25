@@ -283,6 +283,10 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      **/
     private Map<IntraScheduler, Boolean> isIntraSchedulerBusy = new HashMap<>();
 
+    @Getter
+    @Setter
+    private boolean isNeedDealWithShadowResource;
+
     @Setter
     private SRCoordinator srCoordinator;
 
@@ -311,6 +315,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         this.ramCost = 0.0;
         this.storageCost = 0.0;
         this.bwCost = 0.0;
+        this.isNeedDealWithShadowResource = false;
     }
 
     /**
@@ -416,8 +421,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     processScheduleToDcHostResponse(evt);
             case CloudSimTag.INTRA_SCHEDULE_BEGIN -> processIntraScheduleBegin(evt);
             case CloudSimTag.INTRA_SCHEDULE_END -> processIntraScheduleEnd(evt);
-            case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);//TODO 考虑调度与影子调度冲突了，需要将影子任务作为失败处理放回正常调度队列去
-            case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);//TODO 考虑正常任务结束运行后进行影子资源的上报
+            case CloudSimTag.PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
+            case CloudSimTag.END_INSTANCE_RUN -> processEndInstanceRun(evt);
             case CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN -> processScheduleSRRequestsBegin(evt);
             case CloudSimTag.SCHEDULE_SR_REQUESTS_END -> processScheduleSRRequestsEnd(evt);
             case CloudSimTag.SCHEDULE_HOST_SR_BEGIN -> processScheduleHostSRBegin(evt);
@@ -630,7 +635,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
         
-        updateHostSR(hostId, instance);
+        if (isNeedDealWithShadowResource) {
+            updateHostSR(hostId, instance);
+        }
 
         if (statesManager.isNeedHeartbeat()) {
             sendWithoutNetwork(this, statesManager.getNextHeartbeatDelay(hostId, getSimulation().clock()), CloudSimTag.SYN_STATE_BY_HEARTBEAT_IN_DC, List.of(hostId));// 有两个发送心跳的地方，有问题
@@ -1503,16 +1510,20 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             });
         });
 
-        List<Instance> instances = userRequests.stream().flatMap(userRequest -> userRequest.getInstanceGroups().stream()).flatMap(instanceGroup -> instanceGroup.getInstances().stream()).collect(Collectors.toList());
-        
-        SRRequestFilterRes srRequestFilterRes = srCoordinator.getSrRequestFilter().filter(instances);
-        instanceQueue.add(srRequestFilterRes.getNormalInstances());
-        
-        List<Integer> needStartScheduledPartitionIds  = srCoordinator.receiveSRRequests(srRequestFilterRes.getSRInstacnes());
-        if(!needStartScheduledPartitionIds.isEmpty()){
-            for (int partitionId : needStartScheduledPartitionIds) {
-                send(this,0,CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, partitionId);
+        if (isNeedDealWithShadowResource) {
+            List<Instance> instances = userRequests.stream().flatMap(userRequest -> userRequest.getInstanceGroups().stream()).flatMap(instanceGroup -> instanceGroup.getInstances().stream()).collect(Collectors.toList());
+            
+            SRRequestFilterRes srRequestFilterRes = srCoordinator.getSrRequestFilter().filter(instances);
+            instanceQueue.add(srRequestFilterRes.getNormalInstances());
+            
+            List<Integer> needStartScheduledPartitionIds  = srCoordinator.receiveSRRequests(srRequestFilterRes.getSRInstacnes());
+            if(!needStartScheduledPartitionIds.isEmpty()){
+                for (int partitionId : needStartScheduledPartitionIds) {
+                    send(this,0,CloudSimTag.SCHEDULE_SR_REQUESTS_BEGIN, partitionId);
+                }
             }
+        } else {
+            instanceQueue.add(userRequests);
         }
 
         getSimulation().getSqlRecord().recordInstanceGroupsReceivedInfo(userRequests);

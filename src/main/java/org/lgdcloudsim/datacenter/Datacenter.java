@@ -215,4 +215,9 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
      * 
      */
     Datacenter setSrCoordinator(SRCoordinator srCoordinator);
+
+    // Whether the datacenter need to deal with the shadow resource.
+    Datacenter setNeedDealWithShadowResource(boolean needDealWithShadowResource);
+
+    boolean isNeedDealWithShadowResource();
 }

@@ -443,6 +443,9 @@ public class InitDatacenter {
 
         if (datacenterJson.containsKey("shadowResource")) {
             datacenter.setSrCoordinator(getSRCoordinator(datacenterJson.getJsonObject("shadowResource")));
+            datacenter.setNeedDealWithShadowResource(true);
+        } else {
+            datacenter.setNeedDealWithShadowResource(false);
         }
 
         StatesManager statesManager = getStatesManager(datacenterJson, isCenterSchedule, target);
