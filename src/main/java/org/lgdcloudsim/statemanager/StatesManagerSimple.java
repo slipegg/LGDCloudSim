@@ -51,6 +51,7 @@ public class StatesManagerSimple implements StatesManager {
      * The unit is ms.
      * The default value is 0.
      */
+    @Getter
     private int heartbeatInterval;
 
     /**
@@ -724,5 +725,15 @@ public class StatesManagerSimple implements StatesManager {
         scheduledSRRequestRecorder.removeScheduledSRRequest(srRequest);
 
         return this;
+    }
+
+    @Override
+    public long getSRRequestUsedCpuSum() {
+        return scheduledSRRequestRecorder.getSRRequestUsedCpuSum();
+    }
+
+    @Override
+    public long getSRRequestUsedMemorySum() {
+        return scheduledSRRequestRecorder.getSRRequestUsedMemorySum();
     }
 }

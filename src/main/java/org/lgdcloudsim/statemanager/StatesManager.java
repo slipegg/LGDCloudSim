@@ -1,5 +1,7 @@
 package org.lgdcloudsim.statemanager;
 
+import java.util.List;
+
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.datacenter.DatacenterPowerOnRecord;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
@@ -9,8 +11,6 @@ import org.lgdcloudsim.shadowresource.requestmapper.SRRequest;
 import org.lgdcloudsim.shadowresource.util.ScheduledSRRequestRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * An interface to manage the states of the datacenter.
@@ -347,4 +347,10 @@ public interface StatesManager {
     StatesManager release(SRRequest srRequest);
 
     ScheduledSRRequestRecorder getScheduledSRRequestRecorder();
+
+    long getSRRequestUsedCpuSum();
+
+    long getSRRequestUsedMemorySum();
+    
+    int getHeartbeatInterval();
 }

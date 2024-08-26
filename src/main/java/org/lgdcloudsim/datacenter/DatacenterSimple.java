@@ -655,7 +655,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         instance.setFinishTime(getSimulation().clock());
         statesManager.release(hostId, instance);
         
-        if (isNeedDealWithShadowResource) {
+        if (isNeedDealWithShadowResource && getStatesManager().getNextHeartbeatDelay(hostId, getSimulation().clock()) > 0) {
             updateHostSR(hostId, instance);
         }
 
@@ -1098,7 +1098,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 intraScheduler.addInstance(instanceList, false);
                 if ((!isIntraSchedulerBusy.containsKey(intraScheduler) || !isIntraSchedulerBusy.get(intraScheduler))
                         && !intraScheduler.isQueuesEmpty()) {
-                    LOGGER.info("LoadBalance");
+                    // LOGGER.info("LoadBalance");
                     send(this, intraLoadBalancer.getLoadBalanceCostTime(), CloudSimTag.INTRA_SCHEDULE_BEGIN, intraScheduler);
                     isIntraSchedulerBusy.put(intraScheduler, true);
                 }
