@@ -1,4 +1,5 @@
 import sqlite3
+import time
 import pandas as pd
 
 # name = "noDelay"
@@ -27,8 +28,16 @@ failed_count = len(failed_requests)
 # 计算失败率
 failure_rate = failed_count / total_requests
 
+import os
+
+# 确保output文件夹存在
+output_dir = 'RecordDb/output'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 # 将结果写入文件
-with open(f'RecordDb/output/{name}_success_rate.txt', 'w', encoding='utf-8') as f:
+file_path = f'RecordDb/output/{name}_success_rate'+str(time.time())+'.txt'
+with open(file_path, 'w', encoding='utf-8') as f:
     f.write(f"总请求数: {total_requests}\n")
     f.write(f"失败请求数: {failed_count}\n")
     f.write(f"失败率: {failure_rate:.2%}\n")
@@ -37,4 +46,4 @@ print(f"总请求数: {total_requests}")
 print(f"失败请求数: {failed_count}")
 print(f"失败率: {failure_rate:.2%}")
 
-print(f"结果已写入 results_{name}.txt 文件")
+print(f"结果已写入 {file_path} 文件")

@@ -1,11 +1,12 @@
+import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import sqlite3
 
 # 连接到SQLite数据库
-# name = "noDelay"
+name = "noDelay"
 # name = "heartbeat"
-name = "shadowResource"
+# name = "shadowResource"
 conn = sqlite3.connect('RecordDb/'+name+'.db')
 
 # 执行SQL查询
@@ -57,11 +58,15 @@ ax.set_ylabel('Utilization')
 # 添加图例
 ax.legend()
 
+# 设置y轴刻度间隔为0.02
+ax.yaxis.set_major_locator(plt.MultipleLocator(0.05))
+
 # 显示网格线
 ax.grid(True)
 
 # 保存图形
-plt.savefig('RecordDb/output/' + name + '_resource_utilization.png')
+# 名字添加时间
+plt.savefig('RecordDb/output/' + name + '_resource_utilization' + str(time.time()) + '.png')
 
 # 显示图形
 plt.show()
