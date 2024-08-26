@@ -157,6 +157,9 @@ public class CloudInformationService extends CloudSimEntity {
                 .map(j -> hostStates[j * 4 + i])
                 .sum())
             .toArray();
+        
+        totalRemaining[0] -= statesManager.getSRRequestUsedCpuSum();
+        totalRemaining[1] -= statesManager.getSRRequestUsedMemorySum();
 
         double[] totalCapacity = new double[4];
         totalCapacity[0] = hostCapacityManager.getCpuCapacitySum();
