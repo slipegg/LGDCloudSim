@@ -80,6 +80,10 @@ public class CloudSimTag {
      */
     public static final int DC_LIST_REQUEST = BASE + 1;
 
+    public static final int REPORT_SR_RESOURCE = DC_LIST_REQUEST + 1;// 需要在USER_REQUEST_SEND前面，从而保证在USER_REQUEST_SEND之前hostSR资源都收集好了,以方便筛选
+
+    public static final int CANCEL_SR_RESOURCE = REPORT_SR_RESOURCE + 1;
+
     /**
      * Denotes a request from the {@link org.lgdcloudsim.user.UserSimple} to send.
      * It can be sent to the {@link CloudInformationService} or to a {@link org.lgdcloudsim.datacenter.Datacenter}.
@@ -87,7 +91,7 @@ public class CloudSimTag {
      * It also can be the {@link org.lgdcloudsim.interscheduler.InterScheduler} scheduling result.
      * In this case, the instanceGroups can be forwarded to other data centers.
      */
-    public static final int USER_REQUEST_SEND = DC_LIST_REQUEST + 1;
+    public static final int USER_REQUEST_SEND = CANCEL_SR_RESOURCE + 1;
 
     /**
      * Denotes that there are still user requests that need to be sent by the {@link org.lgdcloudsim.user.UserSimple}.
@@ -165,11 +169,7 @@ public class CloudSimTag {
      */
     public static final int INTRA_SCHEDULE_BEGIN = PRE_ALLOCATE_RESOURCE + 1;
 
-    public static final int REPORT_SR_RESOURCE = INTRA_SCHEDULE_BEGIN + 1;// 需要在SCHEDULE_HOST_SR_BEGIN前面，从而保证在SCHEDULE_HOST_SR_BEGIN之前hostSR资源都收集好了
-
-    public static final int CANCEL_SR_RESOURCE = REPORT_SR_RESOURCE + 1;
-
-    public static final int RECEIVE_SR_REQUEST = CANCEL_SR_RESOURCE + 1;
+    public static final int RECEIVE_SR_REQUEST = INTRA_SCHEDULE_BEGIN + 1;
 
     public static final int SCHEDULE_SR_REQUESTS_BEGIN = RECEIVE_SR_REQUEST + 1;
 
