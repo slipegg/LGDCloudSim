@@ -75,14 +75,6 @@ public class IntraSchedulerResult {
     }
 
     /**
-     * Get the number of the scheduled instances and the failed instances.
-     * @return the number of the scheduled instances and the failed instances.
-     */
-    public int getInstanceNum() {
-        return scheduledInstances.size() + failedInstances.size();
-    }
-
-    /**
      * Get whether the scheduled instances list is empty.
      * @return whether the scheduled instances list is empty.
      */

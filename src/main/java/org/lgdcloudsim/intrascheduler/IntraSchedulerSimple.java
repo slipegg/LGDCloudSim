@@ -116,7 +116,7 @@ public class IntraSchedulerSimple implements IntraScheduler {
      */
     public void setId(int id) {
         this.id = id;
-        this.name = "InScheduler" + id;
+        this.name = "IntraScheduler" + id;
     }
 
     /**

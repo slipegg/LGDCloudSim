@@ -28,5 +28,27 @@
   },
   "resourceAllocateSelector": {
     "type": "simple"
+  },
+  "shadowResource": {
+    "partitions": [
+      {
+        "length": 20000
+      },
+      {
+        "length": 20000
+      }
+    ],
+    "partitionManager": [
+      {
+        "type": "simple"
+      },
+      {
+        "type": "simple"
+      }
+    ],
+    "filter": {
+      "type": "simple",
+      "lifePredictor": "accurate"
+    }
   }
 }

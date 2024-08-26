@@ -1,9 +1,9 @@
 {
   "id": 1,
-  "hostNum": 10000,
+  "hostNum": 10,
   "partitions": [
     {
-      "length": 10000
+      "length": 10
     }
   ],
   "hostStates": [
@@ -13,21 +13,12 @@
       "storage": 1600,
       "bw": 800,
       "startId": 0,
-      "length": 10000
+      "length": 10
     }
   ],
-  "heartbeatInterval": 3000,
+  "heartbeatInterval": 500,
   "synchronizationGap": 0,
   "intraSchedulers": [
-    {
-      "type": "randomScore"
-    },
-    {
-      "type": "randomScore"
-    },
-    {
-      "type": "randomScore"
-    },
     {
       "type": "randomScore"
     }

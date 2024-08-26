@@ -240,7 +240,7 @@ public class StatesManagerSimple implements StatesManager {
 
     private void initHeartbeatSendTime() {
         for (int i = 0; i < hostNum; i++) {
-            int heartBeatSendTime = random.nextInt(heartbeatInterval);
+            int heartBeatSendTime = heartbeatInterval;//= random.nextInt(heartbeatInterval);
             heartbeatSendTime[i] = heartBeatSendTime;
         }
     }

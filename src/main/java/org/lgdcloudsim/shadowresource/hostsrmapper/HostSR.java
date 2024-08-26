@@ -25,4 +25,16 @@ public class HostSR {
         this.cpuCapacity = cpuCapacity;
         this.memoryCapacity = memoryCapacity;
     }
+
+    public void addHostSR(HostSR hostSR) {
+        this.SRCpu += hostSR.SRCpu;
+        this.SRMemory += hostSR.SRMemory;
+        this.availableCpu = hostSR.availableCpu;
+        this.availableMemory = hostSR.availableMemory;
+    }
+
+    @Override
+    public String toString(){
+        return "HostSR[hostId=" + hostId + ", SRCpu=" + SRCpu + ", SRMemory=" + SRMemory + ", SRLife=" + SRLife + ", availableCpu=" + availableCpu + ", availableMemory=" + availableMemory + "]";
+    }
 }

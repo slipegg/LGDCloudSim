@@ -52,8 +52,8 @@ public class BasicTest {
     // private static final String NAME = "noDelay";
     // private static final String NAME = "heartbeat";
     private static final String NAME = "shadowResource";
-    private static final String DATACENTER_CONFIG_FILE = "./src\\main\\resources\\example\\SRRequest\\BasicTest\\"+NAME+".json";
-    private static final String USER_REQUEST_FILE = "./src\\main\\resources\\example\\SRRequest\\BasicTest\\generateRequestParameter.csv";
+    private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/SRRequest/BasicTest/"+NAME+".json";
+    private static final String USER_REQUEST_FILE = "./src/main/resources/example/SRRequest/BasicTest/generateRequestParameter.csv";
 
     private final Simulation lgdcloudsim;
     private final Factory factory;

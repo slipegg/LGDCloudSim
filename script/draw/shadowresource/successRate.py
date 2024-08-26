@@ -2,9 +2,9 @@ import sqlite3
 import time
 import pandas as pd
 
-# name = "noDelay"
+name = "noDelay"
 # name = "heartbeat"
-name = "shadowResource"
+# name = "shadowResource"
 # 连接到SQLite数据库
 conn = sqlite3.connect('RecordDb/'+name+'.db')
 
