@@ -170,11 +170,11 @@ public abstract class CloudSimEntity implements SimEntity {
         return true;
     }
     @Override
-    public boolean schedule(final SimEntity dest, final double delay, final int tag) {
+    public boolean schedule(final SimEntity dest, final double delay, final CloudActionTags tag) {
         return schedule(dest, delay, tag, null);
     }
     @Override
-    public boolean schedule(final SimEntity dest, final double delay, final int tag, final Object data) {
+    public boolean schedule(final SimEntity dest, final double delay, final CloudActionTags tag, final Object data) {
         return schedule(new CloudSimEvent(delay, this, dest, tag, data));
     }
 
@@ -186,7 +186,7 @@ public abstract class CloudSimEntity implements SimEntity {
      * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
      * @param data a reference to an object to be sent with the event
      */
-    protected void send(final SimEntity dest, double delay, final int tag, final Object data) {
+    protected void send(final SimEntity dest, double delay, final CloudActionTags tag, final Object data) {
         requireNonNull(dest);
         if (dest.getId() < 0) {
             LOGGER.error("{}.send(): invalid entity id {} for {}", getName(), dest.getId(), dest);
@@ -217,7 +217,7 @@ public abstract class CloudSimEntity implements SimEntity {
      * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
      * @param data a reference to an object to be sent with the event
      */
-    protected void sendWithoutNetwork(final SimEntity dest, double delay, final int tag, final Object data) {
+    protected void sendWithoutNetwork(final SimEntity dest, double delay, final CloudActionTags tag, final Object data) {
         requireNonNull(dest);
         if (dest.getId() < 0) {
             LOGGER.error("{}.send(): invalid entity id {} for {}", getName(), dest.getId(), dest);
@@ -252,7 +252,7 @@ public abstract class CloudSimEntity implements SimEntity {
      * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
      * @param data a reference to an object to be sent with the event
      */
-    protected void sendNow(final SimEntity dest, final int tag, final Object data) {
+    protected void sendNow(final SimEntity dest, final CloudActionTags tag, final Object data) {
         send(dest, 0, tag, data);
     }
 
@@ -262,7 +262,7 @@ public abstract class CloudSimEntity implements SimEntity {
      * @param dest the destination entity
      * @param tag a user-defined number representing the type of event, @see {@link SimEvent#getTag()}
      */
-    protected void sendNow(final SimEntity dest, final int tag) {
+    protected void sendNow(final SimEntity dest, final CloudActionTags tag) {
         send(dest, 0, tag, null);
     }
 

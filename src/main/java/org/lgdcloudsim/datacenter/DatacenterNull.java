@@ -1,6 +1,7 @@
 package org.lgdcloudsim.datacenter;
 
 import org.lgdcloudsim.conflicthandler.ConflictHandler;
+import org.lgdcloudsim.core.CloudActionTags;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.core.events.SimEvent;
@@ -8,7 +9,6 @@ import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.queue.InstanceQueue;
-import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
@@ -51,12 +51,12 @@ public class DatacenterNull implements Datacenter {
     }
 
     @Override
-    public boolean schedule(SimEntity dest, double delay, int tag) {
+    public boolean schedule(SimEntity dest, double delay, CloudActionTags  tag) {
         return false;
     }
 
     @Override
-    public boolean schedule(SimEntity dest, double delay, int tag, Object data) {
+    public boolean schedule(SimEntity dest, double delay, CloudActionTags  tag, Object data) {
         return false;
     }
 

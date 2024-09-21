@@ -69,7 +69,7 @@ public class CloudInformationService extends CloudSimEntity {
     protected void startInternal() {
         CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
         if (collaborationManager.getIsChangeCollaborationSyn()) {
-            sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
+            sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudActionTags.CHANGE_COLLABORATION_SYN, null);
         }
 
         for (int collaborationId : collaborationManager.getCollaborationIds()) {
@@ -78,7 +78,7 @@ public class CloudInformationService extends CloudSimEntity {
                 Map<Double, List<Datacenter>> initSynStateBetweenDcTargets = divideDcOnSynGap(centerInterSchedulers.get(0));
                 if (!initSynStateBetweenDcTargets.isEmpty()) {
                     for (Map.Entry<Double, List<Datacenter>> entry : initSynStateBetweenDcTargets.entrySet()) {
-                        sendWithoutNetwork(this, 0, CloudSimTag.SYN_STATE_BETWEEN_DC, entry.getValue());
+                        sendWithoutNetwork(this, 0, CloudActionTags.SYN_STATE_BETWEEN_DC, entry.getValue());
                     }
                 }
             }
@@ -116,16 +116,16 @@ public class CloudInformationService extends CloudSimEntity {
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-            case CloudSimTag.SYN_STATE_BETWEEN_DC -> processSynStateBetweenDc(evt);
-            case CloudSimTag.DC_REGISTRATION_REQUEST -> datacenterList.add((Datacenter) evt.getData());
-            case CloudSimTag.DC_LIST_REQUEST -> super.send(evt.getSource(), 0, evt.getTag(), datacenterList);
-            case CloudSimTag.USER_REQUEST_FAIL -> processUserRequestFail(evt);
-            case CloudSimTag.CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
-            case CloudSimTag.USER_REQUEST_SEND -> processUserRequestSend(evt);
-            case CloudSimTag.LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
-            case CloudSimTag.INTER_SCHEDULE_BEGIN -> processInterScheduleBegin(evt);
-            case CloudSimTag.INTER_SCHEDULE_END -> processInterScheduleEnd(evt);
-            case CloudSimTag.SCHEDULE_TO_DC_HOST_OK, CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED ->
+            case SYN_STATE_BETWEEN_DC -> processSynStateBetweenDc(evt);
+            case DC_REGISTRATION_REQUEST -> datacenterList.add((Datacenter) evt.getData());
+            case DC_LIST_REQUEST -> super.send(evt.getSource(), 0, evt.getTag(), datacenterList);
+            case USER_REQUEST_FAIL -> processUserRequestFail(evt);
+            case CHANGE_COLLABORATION_SYN -> processChangeCollaborationSyn(evt);
+            case USER_REQUEST_SEND -> processUserRequestSend(evt);
+            case LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
+            case INTER_SCHEDULE_BEGIN -> processInterScheduleBegin(evt);
+            case INTER_SCHEDULE_END -> processInterScheduleEnd(evt);
+            case SCHEDULE_TO_DC_HOST_OK, SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
         }
     }
@@ -145,7 +145,7 @@ public class CloudInformationService extends CloudSimEntity {
 
                 //TODO Need to consider whether the synchronization time will change midway. If it does, we need to check it. If it never changes, don't change it.
                 InterScheduler centerInterScheduler = getSimulation().getCollaborationManager().getCollaborationCenterSchedulersMap().get(collaborationId).get(0);
-                sendWithoutNetwork(this, centerInterScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudSimTag.SYN_STATE_BETWEEN_DC, datacenters);
+                sendWithoutNetwork(this, centerInterScheduler.getDcStateSynInterval().get(datacenters.get(0)), CloudActionTags.SYN_STATE_BETWEEN_DC, datacenters);
             }
         }
     }
@@ -182,7 +182,7 @@ public class CloudInformationService extends CloudSimEntity {
                 throw new RuntimeException(String.format("%s: %s received an error data type,it is not List<UserRequest> or List<InstanceGroup>", getSimulation().clockStr(), getName()));
             }
 
-            sendNow(this, CloudSimTag.LOAD_BALANCE_SEND, collaborationId);
+            sendNow(this, CloudActionTags.LOAD_BALANCE_SEND, collaborationId);
         }
     }
 
@@ -205,7 +205,7 @@ public class CloudInformationService extends CloudSimEntity {
                     getSimulation().clockStr(), collaborationId, instanceGroups.size(), loadBalanceResult.size(), instanceGroups.size() / loadBalanceResult.size());
 
             if (!instanceGroupQueue.isEmpty()) {
-                send(this, loadBalancer.getLoadBalanceCostTime(), CloudSimTag.LOAD_BALANCE_SEND, collaborationId);
+                send(this, loadBalancer.getLoadBalanceCostTime(), CloudActionTags.LOAD_BALANCE_SEND, collaborationId);
             }
 
             Map<Integer, Boolean> centerSchedulersBusyMap = collaborationManager.getCenterSchedulersBusyMap(collaborationId);
@@ -217,7 +217,7 @@ public class CloudInformationService extends CloudSimEntity {
                 if (!centerSchedulersBusyMap.containsKey(interScheduler.getId()) || (!centerSchedulersBusyMap.get(interScheduler.getId())
                         && !interScheduler.isQueuesEmpty())) {
                     centerSchedulersBusyMap.put(interScheduler.getId(), true);
-                    send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, interScheduler);
+                    send(this, 0, CloudActionTags.INTER_SCHEDULE_BEGIN, interScheduler);
                 }
             }
         }
@@ -231,7 +231,7 @@ public class CloudInformationService extends CloudSimEntity {
     private void processScheduleToDcHostResponse(SimEvent evt) {
         Datacenter sourceDc = (Datacenter) evt.getSource();
 
-        if (evt.getTag() == CloudSimTag.SCHEDULE_TO_DC_HOST_CONFLICTED) {
+        if (evt.getTag() == CloudActionTags.SCHEDULE_TO_DC_HOST_CONFLICTED) {
             InterSchedulerSendItem sendItem = (InterSchedulerSendItem) evt.getData();
             FailedOutdatedResult<InstanceGroup> failedOutdatedResult = sendItem.getFailedOutdatedResult();
             handleFailedInterScheduling(sendItem.getInterScheduler(), failedOutdatedResult.getFailRes(), failedOutdatedResult.getOutdatedRequests());
@@ -247,7 +247,7 @@ public class CloudInformationService extends CloudSimEntity {
             getSimulation().getCollaborationManager().getCenterSchedulersBusyMap(interScheduler.getCollaborationId()).put(interScheduler.getId(), false);
         } else {
             getSimulation().getCollaborationManager().getCenterSchedulersBusyMap(interScheduler.getCollaborationId()).put(interScheduler.getId(), true);
-            send(this, 0, CloudSimTag.INTER_SCHEDULE_BEGIN, interScheduler);
+            send(this, 0, CloudActionTags.INTER_SCHEDULE_BEGIN, interScheduler);
         }
     }
 
@@ -262,7 +262,7 @@ public class CloudInformationService extends CloudSimEntity {
             InterSchedulerResult interSchedulerResult = interScheduler.schedule();
 
             double scheduleTime = interScheduler.getScheduleTime();
-            send(this, scheduleTime, CloudSimTag.INTER_SCHEDULE_END, interSchedulerResult);
+            send(this, scheduleTime, CloudActionTags.INTER_SCHEDULE_END, interSchedulerResult);
             LOGGER.info("{}: {} starts scheduling.It will cost {}ms",
                     getSimulation().clockStr(), interScheduler.getName(), scheduleTime);
         }
@@ -321,14 +321,14 @@ public class CloudInformationService extends CloudSimEntity {
      * @param interSchedulerResult the result of the inter-scheduling
      */
     private void sendInterScheduleResult(InterSchedulerResult interSchedulerResult) {
-        int evtTag = getEvtTagByInterSchedulerResult(interSchedulerResult);
+        CloudActionTags  evtTag = getEvtTagByInterSchedulerResult(interSchedulerResult);
 
         for (Map.Entry<Datacenter, List<InstanceGroup>> entry : interSchedulerResult.getScheduledResultMap().entrySet()) {
             Datacenter datacenter = entry.getKey();
             List<InstanceGroup> instanceGroups = entry.getValue();
 
             if (!instanceGroups.isEmpty()) {
-                if (evtTag == CloudSimTag.SCHEDULE_TO_DC_HOST) { //Because scheduling may fail, it needs to be sent back to the inter-scheduler for rescheduling.
+                if (evtTag == CloudActionTags.SCHEDULE_TO_DC_HOST) { //Because scheduling may fail, it needs to be sent back to the inter-scheduler for rescheduling.
                     InterSchedulerSendItem sendItem = new InterSchedulerSendItem(interSchedulerResult.getInterScheduler(), instanceGroups);
                     send(datacenter, 0, evtTag, sendItem);
                 } else {
@@ -342,22 +342,22 @@ public class CloudInformationService extends CloudSimEntity {
      * Gets the event tag by the result of the inter-scheduler.
      * The result can be:
      * <ul>
-     *     <li>{@link CloudSimTag#USER_REQUEST_SEND}: the target is datacenter and it can be forwarded again.</li>
-     *     <li>{@link CloudSimTag#SCHEDULE_TO_DC_NO_FORWARD}: the target is datacenter and it cannot be forwarded again.</li>
-     *     <li>{@link CloudSimTag#SCHEDULE_TO_DC_HOST}: the target is the host in the datacenter.</li>
+     *     <li>{@link CloudActionTags#USER_REQUEST_SEND}: the target is datacenter and it can be forwarded again.</li>
+     *     <li>{@link CloudActionTags#SCHEDULE_TO_DC_NO_FORWARD}: the target is datacenter and it cannot be forwarded again.</li>
+     *     <li>{@link CloudActionTags#SCHEDULE_TO_DC_HOST}: the target is the host in the datacenter.</li>
      * </ul>
      * @param interSchedulerResult the result of the inter-scheduler
      * @return the event tag
      */
-    private int getEvtTagByInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
+    private CloudActionTags  getEvtTagByInterSchedulerResult(InterSchedulerResult interSchedulerResult) {
         if (interSchedulerResult.getTarget() == InterSchedulerSimple.DC_TARGET) {
             if (interSchedulerResult.isSupportForward()) {
-                return CloudSimTag.USER_REQUEST_SEND;
+                return CloudActionTags.USER_REQUEST_SEND;
             } else {
-                return CloudSimTag.SCHEDULE_TO_DC_NO_FORWARD;
+                return CloudActionTags.SCHEDULE_TO_DC_NO_FORWARD;
             }
         } else if (interSchedulerResult.getTarget() == InterSchedulerSimple.HOST_TARGET) {
-            return CloudSimTag.SCHEDULE_TO_DC_HOST;
+            return CloudActionTags.SCHEDULE_TO_DC_HOST;
         } else {
             throw new RuntimeException(String.format("%s: %s received an error target,it is not DC_TARGET or HOST_TARGET", getSimulation().clockStr(), getName()));
         }
@@ -406,7 +406,7 @@ public class CloudInformationService extends CloudSimEntity {
         }
 
         if (!failedUserRequests.isEmpty()) {
-            send(this, 0, CloudSimTag.USER_REQUEST_FAIL, failedUserRequests);
+            send(this, 0, CloudActionTags.USER_REQUEST_FAIL, failedUserRequests);
             LOGGER.warn("{}: {}'s {} user requests failed.", getSimulation().clockStr(), getName(), failedUserRequests.size());
         }
     }
@@ -513,7 +513,7 @@ public class CloudInformationService extends CloudSimEntity {
         CollaborationManager collaborationManager = getSimulation().getCollaborationManager();
         collaborationManager.changeCollaboration();
         if (collaborationManager.getIsChangeCollaborationSyn()) {
-            sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudSimTag.CHANGE_COLLABORATION_SYN, null);
+            sendWithoutNetwork(this, collaborationManager.getChangeCollaborationSynTime(), CloudActionTags.CHANGE_COLLABORATION_SYN, null);
         }
     }
 
@@ -610,7 +610,7 @@ public class CloudInformationService extends CloudSimEntity {
             Datacenter datacenter = endInstancesEntry.getKey();
             List<Instance> instances = endInstancesEntry.getValue();
 
-            send(datacenter, 0, CloudSimTag.END_INSTANCE_RUN, instances);
+            send(datacenter, 0, CloudActionTags.END_INSTANCE_RUN, instances);
         }
 
         getSimulation().getSqlRecord().recordInstancesAllInfo(recordInstances);
