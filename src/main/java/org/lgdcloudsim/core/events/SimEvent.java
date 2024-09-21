@@ -47,7 +47,7 @@
  */
 package org.lgdcloudsim.core.events;
 
-import org.lgdcloudsim.core.CloudSimTag;
+import org.lgdcloudsim.core.CloudActionTags;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
 
@@ -102,11 +102,11 @@ public interface SimEvent extends Comparable<SimEvent>{
     /**
      * Gets the tag that classifies this event.
      * The meaning of such a tag depends on the entities that generate and receive the event.
-     * Usually it is defined from a constant value defined in {@link CloudSimTag}.
+     * Usually it is defined from a constant value defined in {@link CloudActionTags}.
      *
      * @return
      */
-    int getTag();
+    CloudActionTags  getTag();
 
     /**
      * Gets the data object passed in this event.

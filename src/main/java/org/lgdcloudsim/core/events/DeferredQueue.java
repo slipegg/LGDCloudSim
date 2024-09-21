@@ -1,6 +1,8 @@
 package org.lgdcloudsim.core.events;
 
 import lombok.Getter;
+
+import org.lgdcloudsim.core.CloudActionTags;
 import org.lgdcloudsim.core.SimEntity;
 
 import java.util.*;
@@ -171,7 +173,7 @@ public class DeferredQueue implements EventQueue {
         return eventList.get(0);
     }
 
-    public boolean isExistSameEvent(SimEntity dst, int tag, Object data) {
+    public boolean isExistSameEvent(SimEntity dst, CloudActionTags tag, Object data) {
         //TODO 可以进行时间优化 对于高频幂等的操作是否还需要进行唯一性检查，如Heartbeat
         for (SimEvent event : eventList) {
             if (event.getDestination().equals(dst) && event.getTag() == tag && (event.getData() == null && data == null || event.getData().equals(data))) {

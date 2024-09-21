@@ -1,5 +1,6 @@
 package org.lgdcloudsim.core.events;
 
+import org.lgdcloudsim.core.CloudActionTags;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
 
@@ -33,8 +34,8 @@ public class SimEventNull implements SimEvent{
     }
 
     @Override
-    public int getTag() {
-        return 0;
+    public CloudActionTags getTag() {
+        return CloudActionTags.NONE;
     }
 
     @Override

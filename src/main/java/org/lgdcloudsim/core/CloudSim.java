@@ -144,7 +144,7 @@ public class CloudSim implements Simulation {
     @Override
     public void addEntity(@NonNull final CloudSimEntity entity) {
         if (running) {
-            final var evt = new CloudSimEvent(0, entity, SimEntity.NULL, CloudSimTag.NONE, entity);
+            final var evt = new CloudSimEvent(0, entity, SimEntity.NULL, CloudActionTags.NONE, entity);
             future.addEvent(evt);
         }
 
@@ -171,10 +171,7 @@ public class CloudSim implements Simulation {
 
     @Override
     public void send(@NonNull final SimEvent evt) {
-        //Events with a negative tag have higher priority
-        if (evt.getTag() < 0)
-            future.addEventFirst(evt);
-        else future.addEvent(evt);
+        future.addEvent(evt);
     }
 
     @Override
@@ -341,7 +338,7 @@ public class CloudSim implements Simulation {
 //            return false;
 //        }
         for (SimEvent simEvent : future.stream().toList()) {
-            if (!CloudSimTag.LOOP_TAG.contains(simEvent.getTag())) {
+            if (!CloudActionTags.LOOP_TAG.contains(simEvent.getTag())) {
                 return false;
             }
         }
@@ -393,7 +390,7 @@ public class CloudSim implements Simulation {
         }
 
         setClock(evt.getTime());
-        if (CloudSimTag.UNIQUE_TAG.contains(evt.getTag())) {
+        if (CloudActionTags.UNIQUE_TAG.contains(evt.getTag())) {
             if (deferred.isExistSameEvent(evt.getDestination(), evt.getTag(), evt.getData())) {
                 return;
             }

@@ -26,10 +26,10 @@ import java.util.Map;
  * If the synchronization interval is set to 0, it means real-time synchronization.
  * The synchronization interval is determined by {@link InterScheduler#setDcStateSynInterval}.
  * Scheduling will take time in simulation, you can get it through {@link InterScheduler#getScheduleTime}, the default is to count the real scheduling time.
- * During scheduling, the scheduling will be completed at the start time of the scheduling{@link org.lgdcloudsim.core.CloudSimTag#INTER_SCHEDULE_BEGIN},
+ * During scheduling, the scheduling will be completed at the start time of the scheduling{@link org.lgdcloudsim.core.CloudActionTags#INTER_SCHEDULE_BEGIN},
  * and the time spent on the scheduling will be counted,
- * and then the scheduling end event{@link org.lgdcloudsim.core.CloudSimTag#INTER_SCHEDULE_END} will be sent.
- * The delay in the occurrence of the scheduling end event{@link org.lgdcloudsim.core.CloudSimTag#INTER_SCHEDULE_END} is the time spent on the scheduling just counted.
+ * and then the scheduling end event{@link org.lgdcloudsim.core.CloudActionTags#INTER_SCHEDULE_END} will be sent.
+ * The delay in the occurrence of the scheduling end event{@link org.lgdcloudsim.core.CloudActionTags#INTER_SCHEDULE_END} is the time spent on the scheduling just counted.
  *
  * The scheduler has three scheduling types depending on the scheduling target now:
  * <ul>
