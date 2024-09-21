@@ -204,8 +204,8 @@ In addition, if you have any questions, you can also ask them through the issue 
 
 # 8. Related Projects
 
-The simulation event structure, event queues, and event-driven rules are based on [CloudSim](https://github.com/Cloudslab/cloudsim), while the logger is derived from [CloudSim Plus](https://github.com/cloudsimplus/cloudsimplu).
-Thanks very much for the great work they did and I learned a lot from them.
+The simulation event structure, event queues, and event-driven rules are based on [CloudSim 7G](https://github.com/Cloudslab/cloudsim), while the logger is derived from [CloudSim Plus](https://github.com/cloudsimplus/cloudsimplu).
+Thanks very much for the great work they did.
 
 <p align="right"><a href="#top">:arrow_up:</a></p>
 
@@ -213,6 +213,6 @@ Thanks very much for the great work they did and I learned a lot from them.
 
 # 9. License
 
-This project is licensed under [GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0), as defined inside source files of CloudSim and CloudSim Plus .
+This project is licensed under [GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0), as defined inside source files of CloudSim 7G and CloudSim Plus .
 
 <p align="right"><a href="#top">:arrow_up:</a></p>
