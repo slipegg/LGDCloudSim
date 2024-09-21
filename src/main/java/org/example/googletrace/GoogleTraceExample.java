@@ -31,7 +31,7 @@ import java.util.Map;
  * @since LGDCloudSim 1.0
  */
 public class GoogleTraceExample {
-    private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/GoogleTrace/datacenter/1_collaboration.json";
+    private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/GoogleTrace/datacenter/2_collaborations.json";
     private static final String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";

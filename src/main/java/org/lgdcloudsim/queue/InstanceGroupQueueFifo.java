@@ -2,6 +2,7 @@ package org.lgdcloudsim.queue;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
 
@@ -60,7 +61,7 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
      */
     @Override
     public InstanceGroupQueue add(List<?> userRequestsOrInstanceGroups) {
-        if (userRequestsOrInstanceGroups.size() != 0) {
+        if (!userRequestsOrInstanceGroups.isEmpty()) {
             if (userRequestsOrInstanceGroups.get(0) instanceof UserRequest) {
                 for (UserRequest userRequest : (List<UserRequest>) userRequestsOrInstanceGroups) {
                     add(userRequest);
@@ -95,6 +96,11 @@ public class InstanceGroupQueueFifo implements InstanceGroupQueue {
 
         this.instanceGroups.add(instanceGroup);
         return this;
+    }
+
+    @Override
+    public List<InstanceGroup> getAllItem() {
+        return getItems(this.instanceGroups.size(), -1).getWaitScheduledItems();
     }
 
     @Override

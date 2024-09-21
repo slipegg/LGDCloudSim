@@ -3,12 +3,8 @@ package org.lgdcloudsim.loadbalancer;
 import lombok.Getter;
 import lombok.Setter;
 import org.lgdcloudsim.datacenter.Datacenter;
-import org.lgdcloudsim.request.Instance;
-import org.lgdcloudsim.intrascheduler.IntraScheduler;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class to represent a load balancer.
@@ -18,12 +14,7 @@ import java.util.Set;
  * @author Anonymous
  * @since LGDCloudSim 1.0
  */
-public class LoadBalancerRound implements LoadBalancer {
-    /**
-     * the data center that the load balancer belongs to.
-     **/
-    @Getter
-    Datacenter datacenter;
+public class LoadBalancerRound<R, S> implements LoadBalancer<R, S> {
 
     /**
      * the load balance cost time.
@@ -33,46 +24,40 @@ public class LoadBalancerRound implements LoadBalancer {
     double loadBalanceCostTime = 0.1;
 
     /**
-     * the last inner scheduler id.
+     * the last distributed id.
      **/
-    int lastInnerSchedulerId = 0;
+    int lastDistributedId = 0;
 
     /**
-     * Overrides the method to send instances to intra schedulers.
-     * The method divides all instances into fractions of the number of intra-schedulers,
-     * and then distributes them to each intra-scheduler.
+     * Overrides the method to send instances to intra schedulers or send instanceGroups to inter-schedulers.
+     * The method divides all instances into fractions of the number of schedulers,
+     * and then distributes them to each scheduler.
      *
-     * @param instances List of instances to be sent to intra schedulers.
-     * @return Set of intra schedulers to which instances were sent.
+     * @param requests List of instances or instanceGroups to be sent.
+     * @param schedulers List of intra-schedulers or inter-schedulers to which instances are sent.
+     * @return The result of the distribution. The key is the intra-scheduler or inter-scheduler, and the value is the instance or instanceGroup to be sent.
      */
     @Override
-    public Set<IntraScheduler> sendInstances(List<Instance> instances) {
-        Set<IntraScheduler> sentIntraSchedulers = new HashSet<>();
-        int size = instances.size();
-        List<IntraScheduler> intraSchedulers = datacenter.getIntraSchedulers();
-        int onceSendSize = size / intraSchedulers.size();
-        int remainder = size % intraSchedulers.size();
+    public Map<S, List<R>> loadBalance(List<R> requests, List<S> schedulers) {
+        Map<S, List<R>> resultMap = new HashMap<>();
+        int size = requests.size();
+        int onceSendSize = size / schedulers.size();
+        int remainder = size % schedulers.size();
 
         int start = 0;
         int end;
-        for (int i = 0; i < intraSchedulers.size(); i++) {
-            IntraScheduler intraScheduler = intraSchedulers.get((lastInnerSchedulerId + i) % intraSchedulers.size());
+        for (int i = 0; i < schedulers.size(); i++) {
+            S scheduler = schedulers.get((lastDistributedId + i) % schedulers.size());
             end = start + onceSendSize + (i < remainder ? 1 : 0);
-            if (end == start) {
+            if (end == start) { // no more requests need to be distributed
                 break;
             }
-            intraScheduler.addInstance(instances.subList(start, end), false);
-            sentIntraSchedulers.add(intraScheduler);
+
+            resultMap.put(scheduler, requests.subList(start, end));
             start = end;
         }
+        lastDistributedId = (lastDistributedId + 1) % schedulers.size();
 
-        lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getIntraSchedulers().size();
-        LOGGER.info("{}: {}'s LoadBalancerRound send {} instances to {} intraScheduler,On average, each scheduler receives around {} instances", datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(), sentIntraSchedulers.size(), onceSendSize);
-        return sentIntraSchedulers;
-    }
-
-    @Override
-    public void setDatacenter(Datacenter datacenter) {
-        this.datacenter = datacenter;
+        return resultMap;
     }
 }

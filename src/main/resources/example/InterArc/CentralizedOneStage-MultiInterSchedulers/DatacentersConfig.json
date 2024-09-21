@@ -1,0 +1,302 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "interLoadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
+        "type": [
+          "leastRequested",
+          "leastRequested",
+          "simple"
+        ],
+        "target": "host",
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 3,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 4,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 5,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 6,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 7,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 8,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 9,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          },
+          {
+            "dcId": 10,
+            "synInterval": 0,
+            "synStateType": "detailed"
+          }
+        ]
+      },
+      "datacenters": [
+        {
+          "id": 1,
+          "region": "us-east1",
+          "hostNum": 40000,
+          "partitions": [
+            {
+              "length": 40000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 40000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 2,
+          "region": "northamerica-northeast1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 3,
+          "region": "us-west1",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 4,
+          "region": "europe-west1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 5,
+          "region": "europe-west2",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 6,
+          "region": "asia-east1",
+          "hostNum": 40000,
+          "partitions": [
+            {
+              "length": 40000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 40000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 7,
+          "region": "asia-east1",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 8,
+          "region": "asia-northeast1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 9,
+          "region": "asia-northeast2",
+          "hostNum": 10000,
+          "partitions": [
+            {
+              "length": 10000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 10000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 10,
+          "region": "asia-southeast1",
+          "hostNum": 20000,
+          "partitions": [
+            {
+              "length": 20000
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 128,
+              "ram": 256,
+              "storage": 1600,
+              "bw": 800,
+              "startId": 0,
+              "length": 20000
+            }
+          ],
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        }
+      ]
+    }
+  ]
+}

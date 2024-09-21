@@ -42,12 +42,12 @@ public class SimEntityNull implements SimEntity{
     }
 
     @Override
-    public boolean schedule(SimEntity dest, double delay, int tag) {
+    public boolean schedule(SimEntity dest, double delay, CloudActionTags tag) {
         return false;
     }
 
     @Override
-    public boolean schedule(SimEntity dest, double delay, int tag, Object data) {
+    public boolean schedule(SimEntity dest, double delay, CloudActionTags tag, Object data) {
         return false;
     }
 

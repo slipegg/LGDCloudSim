@@ -6,7 +6,10 @@
         {
           "id": 1,
           "region": "us-east1",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -85,7 +88,10 @@
         {
           "id": 2,
           "region": "northamerica-northeast1",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -164,7 +170,10 @@
         {
           "id": 3,
           "region": "us-west1",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -244,62 +253,65 @@
         {
           "id": 4,
           "region": "europe-west1",
-            "interScheduler": {
-                "type": "leastRequested",
-                "target": "mixed",
-                "dcStateSynInfo": [
-                {
-                    "dcId": 1,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 2,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 3,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 4,
-                    "synInterval": 0,
-                    "synStateType": "detailed"
-                },
-                {
-                    "dcId": 5,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 6,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 7,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 8,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 9,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                },
-                {
-                    "dcId": 10,
-                    "synInterval": 0,
-                    "synStateType": "easySimple"
-                }
-                ]
-            },
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "mixed",
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 0,
+                "synStateType": "detailed"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 9,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 10,
+                "synInterval": 0,
+                "synStateType": "easySimple"
+              }
+            ]
+          },
           "hostNum": 20000,
           "partitions": [
             {
@@ -323,7 +335,10 @@
         {
           "id": 5,
           "region": "europe-west2",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -402,7 +417,10 @@
         {
           "id": 6,
           "region": "asia-east1",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -481,7 +499,10 @@
         {
           "id": 7,
           "region": "asia-east1",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -560,7 +581,10 @@
         {
           "id": 8,
           "region": "asia-northeast1",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -639,7 +663,10 @@
         {
           "id": 9,
           "region": "asia-northeast2",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [
@@ -718,7 +745,10 @@
         {
           "id": 10,
           "region": "asia-southeast1",
-          "interScheduler": {
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
             "type": "leastRequested",
             "target": "mixed",
             "dcStateSynInfo": [

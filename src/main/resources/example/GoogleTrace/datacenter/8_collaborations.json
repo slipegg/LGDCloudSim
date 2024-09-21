@@ -1,0 +1,1465 @@
+{
+  "collaborations": [
+    {
+      "id": 0,
+      "datacenters": [
+        {
+          "id": 1,
+          "location": [
+            93.6250,
+            41.5868
+          ],
+          "resourceUnitPrice": {
+            "cpu": 8.7808E-06,
+            "ram": 1.1769E-06,
+            "rack": 1,
+            "storage": 1.5432E-08,
+            "bw": 0.01,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 10002,
+          "partitions": [
+            {
+              "length": 10002
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 1672,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 643,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 52,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 1,
+              "cpu": 4794,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 1417,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 480,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            },
+            {
+              "bw": 100000,
+              "length": 1,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 179,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 73,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 1104,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 670,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 3346,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 364,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 1667
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "datacenters": [
+        {
+          "id": 2,
+          "location": [
+            118.2437,
+            34.0522
+          ],
+          "resourceUnitPrice": {
+            "cpu": 1.0547E-05,
+            "ram": 1.4136E-06,
+            "rack": 1,
+            "storage": 1.5432E-08,
+            "bw": 0.01,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 10047,
+          "partitions": [
+            {
+              "length": 10047
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 1969,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 1113,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 412,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 100,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 81,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 417,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 1620,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 191,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 3300,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 724,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            },
+            {
+              "bw": 100000,
+              "length": 120,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 6669
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "datacenters": [
+        {
+          "id": 3,
+          "location": [
+            114.1694,
+            22.3193
+          ],
+          "resourceUnitPrice": {
+            "cpu": 1.2286E-05,
+            "ram": 1.6467E-06,
+            "rack": 1,
+            "storage": 1.9213E-08,
+            "bw": 0.05,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 13245,
+          "partitions": [
+            {
+              "length": 13245
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 1166,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 432,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 506,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 3389,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 547,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            },
+            {
+              "bw": 100000,
+              "length": 130,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 1396,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 144,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 153,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 801,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 2376,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 27,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 2178,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "datacenters": [
+        {
+          "id": 4,
+          "location": [
+            139.6917,
+            35.6895
+          ],
+          "resourceUnitPrice": {
+            "cpu": 1.1283E-05,
+            "ram": 1.5053E-06,
+            "rack": 1,
+            "storage": 2.0062E-08,
+            "bw": 0.05,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 12578,
+          "partitions": [
+            {
+              "length": 12578
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 1,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 47,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 1,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 1690,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 1133,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 544,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 95,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 784,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 1816,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 5668,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 799,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "datacenters": [
+        {
+          "id": 5,
+          "location": [
+            -0.1278,
+            51.5074
+          ],
+          "resourceUnitPrice": {
+            "cpu": 1.1314E-05,
+            "ram": 1.5161E-06,
+            "rack": 1,
+            "storage": 1.8519E-08,
+            "bw": 0.02,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 14123,
+          "partitions": [
+            {
+              "length": 14123
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 27,
+              "cpu": 5000,
+              "storage": 100000,
+              "ram": 625
+            },
+            {
+              "bw": 100000,
+              "length": 1,
+              "cpu": 5000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 52,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 1048,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 1619,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 28,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 113,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 833
+            },
+            {
+              "bw": 100000,
+              "length": 6699,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 917,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 234,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 1956,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 73,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 1356,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "datacenters": [
+        {
+          "id": 6,
+          "location": [
+            25.7482,
+            61.9241
+          ],
+          "resourceUnitPrice": {
+            "cpu": 9.6683E-06,
+            "ram": 1.2956E-06,
+            "rack": 1,
+            "storage": 1.6975E-08,
+            "bw": 0.02,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 12204,
+          "partitions": [
+            {
+              "length": 12204
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 6,
+              "cpu": 5000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 8262,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 158,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 77,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 1350,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 272,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            },
+            {
+              "bw": 100000,
+              "length": 121,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 426,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 324,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 93,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 1115,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "datacenters": [
+        {
+          "id": 7,
+          "location": [
+            46.6333,
+            23.5505
+          ],
+          "resourceUnitPrice": {
+            "cpu": 1.3939E-05,
+            "ram": 1.8681E-06,
+            "rack": 1,
+            "storage": 2.3148E-08,
+            "bw": 0.08,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 12800,
+          "partitions": [
+            {
+              "length": 12800
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 2,
+              "cpu": 5000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 474,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 1,
+              "cpu": 4794,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 2103,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 1,
+              "cpu": 4794,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 956,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 74,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 161,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 2643,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 967,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 530,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 343,
+              "cpu": 2592,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 1332,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 808,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 1560,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 845,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "datacenters": [
+        {
+          "id": 8,
+          "location": [
+            151.2093,
+            33.8688
+          ],
+          "resourceUnitPrice": {
+            "cpu": 1.2460E-05,
+            "ram": 1.8681E-06,
+            "rack": 1,
+            "storage": 2.3148E-08,
+            "bw": 0.08,
+            "bwBillingType": "used",
+            "bwUtilization": 0.05
+          },
+          "hostNum": 11592,
+          "partitions": [
+            {
+              "length": 11592
+            }
+          ],
+          "hostStates": [
+            {
+              "bw": 100000,
+              "length": 7206,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 438,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 2500
+            },
+            {
+              "bw": 100000,
+              "length": 422,
+              "cpu": 10000,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 178,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 6669
+            },
+            {
+              "bw": 100000,
+              "length": 710,
+              "cpu": 7089,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 582,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 5000
+            },
+            {
+              "bw": 100000,
+              "length": 53,
+              "cpu": 9589,
+              "storage": 100000,
+              "ram": 10000
+            },
+            {
+              "bw": 100000,
+              "length": 281,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 1667
+            },
+            {
+              "bw": 100000,
+              "length": 562,
+              "cpu": 3867,
+              "storage": 100000,
+              "ram": 3334
+            },
+            {
+              "bw": 100000,
+              "length": 104,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 6669
+            },
+            {
+              "bw": 100000,
+              "length": 1056,
+              "cpu": 5917,
+              "storage": 100000,
+              "ram": 3334
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "simple"
+            }
+          ],
+          "interLoadBalancer": {
+            "type": "round"
+          },
+          "interSchedulers": {
+            "type": "leastRequested",
+            "target": "host",
+            "isSupportForward": false,
+            "isDirectSend": true,
+            "dcStateSynInfo": [
+              {
+                "dcId": 1,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 2,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 3,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 4,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 5,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 6,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 7,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              },
+              {
+                "dcId": 8,
+                "synInterval": 5000,
+                "synStateType": "easySimple"
+              }
+            ]
+          },"intraLoadBalancer": {
+            "type": "round"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          },
+          "prediction": {
+            "type": "simple"
+          },
+          "isPredict": false
+        }
+      ]
+    }
+  ]
+}

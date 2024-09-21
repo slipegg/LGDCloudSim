@@ -3,12 +3,11 @@ package org.lgdcloudsim.core;
 import org.lgdcloudsim.conflicthandler.ConflictHandler;
 import org.lgdcloudsim.conflicthandler.ConflictHandlerSimple;
 import org.lgdcloudsim.intrascheduler.*;
+import org.lgdcloudsim.record.*;
 import org.lgdcloudsim.interscheduler.*;
-import org.lgdcloudsim.loadbalancer.LoadBalancer;
-import org.lgdcloudsim.loadbalancer.LoadBalancerBatch;
-import org.lgdcloudsim.loadbalancer.LoadBalancerRound;
-import org.lgdcloudsim.statemanager.PredictionManager;
-import org.lgdcloudsim.statemanager.PredictionManagerSimple;
+import org.lgdcloudsim.loadbalancer.*;
+import org.lgdcloudsim.record.SqlRecordDetailScheduleTime;
+import org.lgdcloudsim.statemanager.*;
 
 /**
  * A simple factory that implements the {@link Factory} interface.
@@ -66,6 +65,26 @@ public class FactorySimple implements Factory {
     public ConflictHandler getResourceAllocateSelector(String type) {
         return switch (type) {
             case "simple", "Simple" -> new ConflictHandlerSimple();
+            default -> null;
+        };
+    }
+
+    @Override
+    public SqlRecord getSqlRecord(String type) {
+        return switch (type) {
+            case "simple", "Simple" -> new SqlRecordSimple();
+            case "detailscheduletime", "detailScheduleTime", "DetailScheduleTime" -> new SqlRecordDetailScheduleTime();
+            case "Null", "NULL", "null" -> new SqlRecordNull();
+            default -> null;
+        };
+    }
+
+    @Override
+    public SqlRecord getSqlRecord(String type, String dbName) {
+        return switch (type) {
+            case "simple", "Simple" -> new SqlRecordSimple(dbName);
+            case "detailscheduletime", "detailScheduleTime", "DetailScheduleTime" -> new SqlRecordDetailScheduleTime(dbName);
+            case "Null", "NULL", "null" -> new SqlRecordNull();
             default -> null;
         };
     }

@@ -6,6 +6,7 @@ import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
 import org.lgdcloudsim.queue.InstanceQueue;
+import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
@@ -30,26 +31,30 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
     /** Get the collaborationIds to which the datacenter belongs. **/
     Set<Integer> getCollaborationIds();
 
-    /** Set the {@link InterScheduler}. **/
-    Datacenter setInterScheduler(InterScheduler interScheduler);
+    /**
+     * Set the load balancer that is used to distribute the instances to the inter-schedulers.
+     */
+    Datacenter setInterLoadBalancer(LoadBalancer<InstanceGroup, InterScheduler> interLoadBalancer);
 
     /**
-     * Set the {@link IntraScheduler}.
+     * Set the {@link InterScheduler}s.
+     */
+    Datacenter setInterSchedulers(List<InterScheduler> interSchedulers);
+
+    /**
+     * Set the {@link IntraScheduler}s.
      **/
     Datacenter setIntraSchedulers(List<IntraScheduler> intraSchedulers);
 
-    /** Get the {@link InterScheduler}. **/
+    /**
+     * Get the {@link InterScheduler}s.
+     **/
     List<IntraScheduler> getIntraSchedulers();
 
     /**
      * Set the {@link LoadBalancer}.
      **/
-    Datacenter setLoadBalancer(LoadBalancer loadBalancer);
-
-    /**
-     * Get the {@link LoadBalancer}.
-     **/
-    LoadBalancer getLoadBalancer();
+    Datacenter setIntraLoadBalancer(LoadBalancer<Instance, IntraScheduler> intraLoadBalancer);
 
     /**
      * Set the {@link ConflictHandler}.
@@ -138,4 +143,70 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
      * @return the datacenter.
      */
     Datacenter setArchitecture(String architecture);
+
+    /**
+     * Get the host number of the datacenter.
+     * @return the host number of the datacenter.
+     */
+    long getHostNum();
+
+    /**
+     * Get the total CPU of the datacenter.
+     * @return the total CPU of the datacenter.
+     */
+    long getCpu();
+
+    /**
+     * Get the total memory of the datacenter.
+     * @return the total memory of the datacenter.
+     */
+    long getRam();
+
+    /**
+     * Get the total storage of the datacenter.
+     * @return the total storage of the datacenter.
+     */
+    long getStorage();
+
+    /**
+     * Get the total bandwidth of the datacenter.
+     * @return the total bandwidth of the datacenter.
+     */
+    long getBw();
+
+    /**
+     * Get the price per CPU of the datacenter.
+     * @return the price per CPU of the datacenter.
+     */
+    double getPricePerCPU();
+
+    /**
+     * Get the price per memory of the datacenter.
+     * @return the price per memory of the datacenter.
+     */
+    double getPricePerRAM();
+
+    /**
+     * Get the price per storage of the datacenter.
+     * @return the price per storage of the datacenter.
+     */
+    double getPricePerStorage();
+
+    /**
+     * Get the price per bandwidth of the datacenter.
+     * @return the price per bandwidth of the datacenter.
+     */
+    double getPricePerBW();
+
+    /**
+     * Get the price per rack of the datacenter.
+     * @return the price per rack of the datacenter.
+     */
+    double getPricePerRack();
+
+    /**
+     * Get the price per host of the datacenter.
+     * @return the price per host of the datacenter.
+     */
+    double getHostPerRack();
 }

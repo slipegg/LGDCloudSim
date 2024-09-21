@@ -27,10 +27,10 @@ import org.lgdcloudsim.util.Log;
  */
 public class InterStateSyn {
     private static final String InterSynStateType = "Null";
-    //    private static final String InterSynStateType = "EasySimple";
+    //        private static final String InterSynStateType = "EasySimple";
 //    private static final String InterSynStateType = "Detailed";
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/StateSyn/InterStateSyn/DatacentersConfig-" + InterSynStateType + ".json";
-    private static final String USER_REQUEST_FILE = "./src/main/resources/example/StateSyn/generateRequestParameter.csv";
+    private static final String USER_REQUEST_FILE = "./src/main/resources/example/StateSyn/IntraStateSyn/generateRequestParameter.csv";
     private static final String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";

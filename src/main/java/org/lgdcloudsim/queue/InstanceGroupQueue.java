@@ -1,5 +1,6 @@
 package org.lgdcloudsim.queue;
 
+import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
 
@@ -38,6 +39,11 @@ public interface InstanceGroupQueue {
      * @return the instanceGroupQueue
      */
     InstanceGroupQueue add(InstanceGroup instanceGroup);
+
+    /**
+     * Get all instance groups from the queue.
+     */
+    List<InstanceGroup> getAllItem();
 
     /**
      * Get a batch of groupInstances from the queue.

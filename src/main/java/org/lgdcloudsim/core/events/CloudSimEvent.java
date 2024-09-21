@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.lgdcloudsim.core.CloudSimTag;
+
+import org.lgdcloudsim.core.CloudActionTags;
 import org.lgdcloudsim.core.SimEntity;
 import org.lgdcloudsim.core.Simulation;
 
@@ -35,13 +36,13 @@ public final class CloudSimEvent implements SimEvent {
     @NonNull
     private SimEntity destination;
 
-    private final int tag;
+    private final CloudActionTags tag;
 
     private final Object data;
 
     private long serial = -1;
 
-    public CloudSimEvent(final double delay, final SimEntity destination, final int tag, Object data) {
+    public CloudSimEvent(final double delay, final SimEntity destination, final CloudActionTags tag, Object data) {
         this(delay, destination, destination, tag, data);
     }
 
@@ -53,7 +54,7 @@ public final class CloudSimEvent implements SimEvent {
      * @param tag         the tag that identifies the type of the message
      *                    (which is used by the destination entity to perform operations based on the message type)
      */
-    public CloudSimEvent(final double delay, final SimEntity destination, final int tag) {
+    public CloudSimEvent(final double delay, final SimEntity destination, final CloudActionTags tag) {
         this(delay, destination, destination, tag, null);
     }
 
@@ -66,7 +67,7 @@ public final class CloudSimEvent implements SimEvent {
      *            (which is used by the destination entity to perform operations based on the message type)
      * @param data the data attached to the message, that depends on the message tag
      */
-    public CloudSimEvent(final SimEntity destination, final int tag, Object data) {
+    public CloudSimEvent(final SimEntity destination, final CloudActionTags tag, Object data) {
         this(0, destination, tag, data);
     }
 
@@ -79,7 +80,7 @@ public final class CloudSimEvent implements SimEvent {
      *            (which is used by the destination entity to perform operations based on the message type)
      */
     public CloudSimEvent(
-            final SimEntity destination, final int tag) {
+            final SimEntity destination, final CloudActionTags tag) {
         this(0, destination, destination, tag, null);
     }
 
@@ -90,8 +91,7 @@ public final class CloudSimEvent implements SimEvent {
      * @param source the event to clone
      */
     public CloudSimEvent(final SimEvent source) {
-        this(
-                source.getTime(), source.getSource(), source.getDestination(), source.getTag(), source.getData());
+        this(source.getTime(), source.getSource(), source.getDestination(), source.getTag(), source.getData());
     }
 
     /**
@@ -106,7 +106,7 @@ public final class CloudSimEvent implements SimEvent {
     public CloudSimEvent(
             final double delay,
             final SimEntity source, final SimEntity destination,
-            final int tag, final Object data)
+            final CloudActionTags tag, final Object data)
     {
         if (delay < 0) {
             throw new IllegalArgumentException("Delay can't be negative.");
@@ -135,7 +135,7 @@ public final class CloudSimEvent implements SimEvent {
             return res;
         }
 
-        res = Integer.compare(this.tag, that.getTag());
+        res = this.tag.compareTo(that.getTag());
         if (res != 0) {
             return res;
         }
@@ -159,7 +159,7 @@ public final class CloudSimEvent implements SimEvent {
 
     @Override
     public String toString() {
-        return "Event tag = " + CloudSimTag.tagToString(tag) + " source = " + source.getName() +
+        return "Event tag = " + CloudActionTags .tagToString(tag) + " source = " + source.getName() +
                 " target = " + destination.getName() + " time = " + time;
     }
 }

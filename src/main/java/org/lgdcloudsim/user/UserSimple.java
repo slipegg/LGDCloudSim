@@ -3,8 +3,9 @@ package org.lgdcloudsim.user;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+
+import org.lgdcloudsim.core.CloudActionTags;
 import org.lgdcloudsim.core.CloudSimEntity;
-import org.lgdcloudsim.core.CloudSimTag;
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.core.events.SimEvent;
 import org.lgdcloudsim.request.UserRequest;
@@ -33,14 +34,14 @@ public class UserSimple extends CloudSimEntity {
     @Override
     protected void startInternal() {
         LOGGER.info("{}: {} is starting...", getSimulation().clockStr(), getName());
-        schedule(getSimulation().getCis(), 0, CloudSimTag.DC_LIST_REQUEST);
+        schedule(getSimulation().getCis(), 0, CloudActionTags.DC_LIST_REQUEST);
     }
 
     @Override
     public void processEvent(SimEvent evt) {
         switch (evt.getTag()) {
-            case CloudSimTag.DC_LIST_REQUEST -> processDatacenterListRequest(evt);
-            case CloudSimTag.NEED_SEND_USER_REQUEST -> sendUserRequest();
+            case DC_LIST_REQUEST -> processDatacenterListRequest(evt);
+            case NEED_SEND_USER_REQUEST -> sendUserRequest();
             default -> LOGGER.warn("{} received an unknown event tag: {}", getName(), evt.getTag());
         }
     }
@@ -52,7 +53,7 @@ public class UserSimple extends CloudSimEntity {
             }
             LOGGER.info("{}: {}: List of {} datacenters received.", getSimulation().clockStr(), getName(), dcList.size());
             if (userRequestManager.getNextSendTime() != Double.MAX_VALUE) {
-                send(this, userRequestManager.getNextSendTime() - getSimulation().clock(), CloudSimTag.NEED_SEND_USER_REQUEST, null);
+                send(this, userRequestManager.getNextSendTime() - getSimulation().clock(), CloudActionTags.NEED_SEND_USER_REQUEST, null);
             }
             return;
         }
@@ -76,16 +77,16 @@ public class UserSimple extends CloudSimEntity {
 
             Datacenter datacenter = datacenterMap.get(datacenterId);
             if (datacenter.isCentralizedInterSchedule()) {
-                send(getSimulation().getCis(), 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+                send(getSimulation().getCis(), 0, CloudActionTags.USER_REQUEST_SEND, userRequests);
                 LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), getSimulation().getCis().getName());
             } else {
-                send(datacenter, 0, CloudSimTag.USER_REQUEST_SEND, userRequests);
+                send(datacenter, 0, CloudActionTags.USER_REQUEST_SEND, userRequests);
                 LOGGER.info("{}: {}: Sending {} request to {}", getSimulation().clockStr(), getName(), userRequests.size(), datacenter.getName());
             }
             getSimulation().getSqlRecord().recordUserRequestsSubmitInfo(userRequests);
         }
         if (userRequestManager.getNextSendTime() != Double.MAX_VALUE) {
-            send(this, userRequestManager.getNextSendTime() - nowTime, CloudSimTag.NEED_SEND_USER_REQUEST, null);
+            send(this, userRequestManager.getNextSendTime() - nowTime, CloudActionTags.NEED_SEND_USER_REQUEST, null);
         }
     }
 }

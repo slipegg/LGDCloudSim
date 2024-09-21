@@ -87,7 +87,9 @@ public class CloudSim implements Simulation {
     /**
      * The SQL record used to store the simulation data in a SQL database.
      */
-    SqlRecord sqlRecord = new SqlRecordNull();
+    @Getter
+    @Setter
+    private SqlRecord sqlRecord = new SqlRecordNull();
     /**
      * The simulation accuracy.
      */
@@ -142,7 +144,7 @@ public class CloudSim implements Simulation {
     @Override
     public void addEntity(@NonNull final CloudSimEntity entity) {
         if (running) {
-            final var evt = new CloudSimEvent(0, entity, SimEntity.NULL, CloudSimTag.NONE, entity);
+            final var evt = new CloudSimEvent(0, entity, SimEntity.NULL, CloudActionTags.NONE, entity);
             future.addEvent(evt);
         }
 
@@ -169,10 +171,7 @@ public class CloudSim implements Simulation {
 
     @Override
     public void send(@NonNull final SimEvent evt) {
-        //Events with a negative tag have higher priority
-        if (evt.getTag() < 0)
-            future.addEventFirst(evt);
-        else future.addEvent(evt);
+        future.addEvent(evt);
     }
 
     @Override
@@ -211,14 +210,16 @@ public class CloudSim implements Simulation {
 
     @Override
     public double start() {
-        if (isSqlRecord) {
-            if(getDbName()==null || getDbName().isEmpty()){
-                this.sqlRecord = new SqlRecordSimple("LGDCloudSim" + collaborationManager.getDatacenterById(1).getArchitecture() + ".db");
-            }else{
-                this.sqlRecord = new SqlRecordSimple(getDbName());
+        if(this.sqlRecord==null) {
+            if (isSqlRecord) {
+                if(getDbName()==null || getDbName().isEmpty()){
+                    this.sqlRecord = new SqlRecordSimple("LGDCloudSim"+collaborationManager.getDatacenterById(1).getArchitecture()+".db");
+                }else{
+                    this.sqlRecord = new SqlRecordSimple(getDbName());
+                }
+            } else {
+                this.sqlRecord = new SqlRecordNull();
             }
-        } else {
-            this.sqlRecord = new SqlRecordNull();
         }
         startSync();
         MemoryRecord.recordMemory();
@@ -281,7 +282,11 @@ public class CloudSim implements Simulation {
             System.out.printf("%s all has %d conflicts.\n", datacenter.getName(), conflictSum);
             DatacenterPowerOnRecord record = datacenter.getStatesManager().getDatacenterPowerOnRecord();
             System.out.printf("%s has a maximum of %d hosts powered on, with a total usage time of %f ms for all hosts\n", datacenter.getName(), record.getMaxHostNum(), record.getAllPowerOnTime());
+
+            sqlRecord.recordDatacentersInfo(datacenter);
         }
+        sqlRecord.recordDcNetworkInfo(networkTopology);
+
         System.out.printf("All TCO = %f\n", allCost);
         System.out.printf("Database to save simulation results: %s\n", getSqlRecord().getDbPath());
     }
@@ -329,11 +334,11 @@ public class CloudSim implements Simulation {
      */
     private boolean isOnlySyn() {
         //TODO We can consider making a judgment in advance here.
-//        if (cis.getDatacenterList().size() != 0 && future.size() > cis.getDatacenterList().size() + 1) {
+//        if (!cis.getDatacenterList().isEmpty() && future.size() > cis.getDatacenterList().size() + 1) {
 //            return false;
 //        }
         for (SimEvent simEvent : future.stream().toList()) {
-            if (!CloudSimTag.LOOP_TAG.contains(simEvent.getTag())) {
+            if (!CloudActionTags.LOOP_TAG.contains(simEvent.getTag())) {
                 return false;
             }
         }
@@ -385,7 +390,7 @@ public class CloudSim implements Simulation {
         }
 
         setClock(evt.getTime());
-        if (CloudSimTag.UNIQUE_TAG.contains(evt.getTag())) {
+        if (CloudActionTags.UNIQUE_TAG.contains(evt.getTag())) {
             if (deferred.isExistSameEvent(evt.getDestination(), evt.getTag(), evt.getData())) {
                 return;
             }
@@ -436,6 +441,11 @@ public class CloudSim implements Simulation {
     @Override
     public SqlRecord getSqlRecord() {
         return sqlRecord;
+    }
+
+    @Override
+    public void setSqlRecord(SqlRecord sqlRecord) {
+        this.sqlRecord = sqlRecord;
     }
 
     @Override

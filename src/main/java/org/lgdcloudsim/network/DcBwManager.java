@@ -1,6 +1,8 @@
 package org.lgdcloudsim.network;
 
 import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -8,7 +10,9 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * DcBwManager manages the bandwidth between the data centers.
@@ -33,6 +37,12 @@ public class DcBwManager {
     private Map<Integer, Map<Integer, Double>> unitPriceMap;
 
     /**
+     * The set of the data center id.
+     */
+    @Getter
+    private Set<Integer> dcIdList;
+
+    /**
      * The total cost of rented bandwidth requested by all users
      */
     @Getter
@@ -47,6 +57,7 @@ public class DcBwManager {
     public DcBwManager(String fileName, boolean isDirected) {
         this.bwMap = new HashMap<>();
         this.unitPriceMap = new HashMap<>();
+        this.dcIdList = new HashSet<>();
         readBwFile(fileName, isDirected);
         bwTCO = 0;
     }
@@ -75,6 +86,9 @@ public class DcBwManager {
                 int srcDcId = Integer.parseInt(record.get("srcDcId"));
                 int dstDcId = Integer.parseInt(record.get("dstDcId"));
                 double bandwidth = Double.parseDouble(record.get("bandwidth"));
+
+                dcIdList.add(srcDcId);
+                dcIdList.add(dstDcId);
 
                 // Check if "unitPrice" column exists and its value is not empty
                 String unitPriceString = record.get("unitPrice");

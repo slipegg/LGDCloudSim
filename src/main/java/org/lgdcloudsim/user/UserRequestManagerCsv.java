@@ -606,7 +606,7 @@ public class UserRequestManagerCsv implements UserRequestManager {
                         bw = getExpectedValue(GroupBw, GroupBwMin, GroupBwMax);
                         bw = BigDecimal.valueOf(bw).setScale(2, RoundingMode.HALF_UP).doubleValue();
                     }
-                    double delay = 0;
+                    double delay = Double.MAX_VALUE;
                     if (random.nextDouble() < GroupDelayPercent) {
                         delay = getExpectedValue(GroupDelay, GroupDelayMin, GroupDelayMax);
                         delay = BigDecimal.valueOf(delay).setScale(2, RoundingMode.HALF_UP).doubleValue();
@@ -654,9 +654,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private double getExpectedValue(double fixed, double min, double max) {
         if (fixed != -2) {
             return fixed;
-        } else if (min == -2 && max == -2) {
-            // Generate a random value between min and max (inclusive)
-            return random.nextDouble() * (max - min) + min;
+        } else if (min != -2 && max != -2) {
+            if (min == max) {
+                return min;
+            } else {
+                return random.nextDouble(max - min) + min;
+            }
         } else {
             return -1;
         }

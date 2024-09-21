@@ -5,26 +5,19 @@ import lombok.Setter;
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.request.InstanceGroup;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class to represent a load balancer.
- * This load balancer performs load balancing through cyclic allocation
+ * This load balancer performs load balancing by distributing in small batches.
  * This class implements the interface {@link LoadBalancer}.
  *
  * @author Anonymous
  * @since LGDCloudSim 1.0
  */
-public class LoadBalancerBatch implements LoadBalancer {
-    /**
-     * the data center that the load balancer belongs to.
-     **/
-    @Getter
-    Datacenter datacenter;
-
+public class LoadBalancerBatch<R, S> implements LoadBalancer<R, S> {
     /**
      * the load balance cost time.
      **/
@@ -33,43 +26,38 @@ public class LoadBalancerBatch implements LoadBalancer {
     double loadBalanceCostTime = 0.1;
 
     /**
-     * the last intra-scheduler id.
+     * the last distributed id.
      **/
-    int lastInnerSchedulerId = 0;
+    int lastDistributedId = 0;
 
     /**
-     * Overrides the method to send instances to intra schedulers.
-     * This method distributes instances to each intra-scheduler in batches according to the batch size
-     * until all instances have been issued.
+     * Overrides the method to send instances to intra schedulers or send instanceGroups to inter-schedulers.
+     * This method distributes requests to each scheduler in batches according to the batch size
+     * until all requests have been issued.
      *
-     * @param instances List of instances to be sent to intra-schedulers.
-     * @return Set of intra schedulers to which instances were sent.
+     * @param requests List of instances or instanceGroups to be sent.
+     * @param schedulers List of intra-schedulers or inter-schedulers to which instances are sent.
+     * @return The result of the distribution. The key is the intra-scheduler or inter-scheduler, and the value is the instance or instanceGroup to be sent.
      */
     @Override
-    public Set<IntraScheduler> sendInstances(List<Instance> instances) {
-        Set<IntraScheduler> sentIntraSchedulers = new HashSet<>();
+    public Map<S, List<R>> loadBalance(List<R> requests, List<S> schedulers) {
+        Map<S, List<R>> resultMap = new HashMap<>();
         int batchSize = 100;
-        int size = instances.size();
+        int size = requests.size();
         int startIndex = 0;
         int endIndex = 0;
         while (endIndex < size) {
             endIndex = Math.min(startIndex + batchSize, size);
-            List<Instance> batchInstances = instances.subList(startIndex, endIndex);
-            IntraScheduler intraScheduler = datacenter.getIntraSchedulers().get(lastInnerSchedulerId);
-            lastInnerSchedulerId = (lastInnerSchedulerId + 1) % datacenter.getIntraSchedulers().size();
-            intraScheduler.addInstance(batchInstances, false);
-            sentIntraSchedulers.add(intraScheduler);
+            List<R> batchRequests = requests.subList(startIndex, endIndex);
+            S scheduler = schedulers.get(lastDistributedId);
+            lastDistributedId = (lastDistributedId + 1) % schedulers.size();
+
+            resultMap.putIfAbsent(scheduler, new ArrayList<>());
+            resultMap.get(scheduler).addAll(batchRequests);
+
             startIndex = endIndex;
         }
 
-        LOGGER.info("{}: {}'s LoadBalancerRound send {} instances to {} intraScheduler,On average, each scheduler receives around {} instances",
-                datacenter.getSimulation().clockStr(), datacenter.getName(), instances.size(),
-                sentIntraSchedulers.size(), instances.size() / sentIntraSchedulers.size());
-        return sentIntraSchedulers;
-    }
-
-    @Override
-    public void setDatacenter(Datacenter datacenter) {
-        this.datacenter = datacenter;
+        return resultMap;
     }
 }

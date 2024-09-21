@@ -42,16 +42,28 @@ import org.lgdcloudsim.util.Log;
  *     distributes the request to the data center,
  *     the data center’s scheduler can schedule the request to a host or just forward the request
  *     to other data centers if there is no suitable host.</li>
+ *     <li>Distributed-once-forward: There is no upper-layer centralized scheduler.
+ *     User requests are sent to the nearest data center for scheduling.
+ *     The inter-scheduler in the data center will forward the request to a suitable data center
+ *     and no further forwarding will be performed.</li>
  * </ul>
+ *
+ * "xxxx-MultiInterSchedulers" means that there are 5 inter-schedulers in the CIS or data center.
  *
  * @author Anonymous
  * @since LGDCloudSim 1.0
  */
 public class InterArcExample {
     private static final String interArcType = "CentralizedOneStage";
-    //    private static final String interArcType = "CentralizedTwoStage";
+    //    private static final String interArcType = "CentralizedOneStage-MultiInterSchedulers";
+//    private static final String interArcType = "CentralizedTwoStage";
+//    private static final String interArcType = "CentralizedTwoStage-MultiInterSchedulers";
 //    private static final String interArcType = "DistributedTwoStage";
+//    private static final String interArcType = "DistributedTwoStage-MultiInterSchedulers";
 //    private static final String interArcType = "HybridTwoStage";
+//    private static final String interArcType = "HybridTwoStage-MultiInterSchedulers";
+//    private static final String interArcType = "DistributedOnceForward";
+//    private static final String interArcType = "DistributedOnceForward-MultiInterSchedulers";
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/InterArc/" + interArcType + "/DatacentersConfig.json";
     private static final String USER_REQUEST_FILE = "./src/main/resources/example/InterArc/generateRequestParameter.csv";
     private static final String DATACENTER_BW_FILE = "./src/main/resources/example/InterArc/DatacenterBwConfig.csv";

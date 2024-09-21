@@ -30,10 +30,7 @@ public class IntraScheduleStrategy {
     //The "types" field of centerScheduler in different files are different,
     // and the scheduling algorithms called are also different.
     private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/ScheduleStrategy/IntraScheduleStrategy/DatacentersConfig-" + scheduleStrategy + ".json";
-    private static final String USER_REQUEST_FILE = "./src/main/resources/example/ScheduleStrategy/generateRequestParameter.csv";
-    private static final String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
-    private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
-    private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
+    private static final String USER_REQUEST_FILE = "./src/main/resources/example/ScheduleStrategy/IntraScheduleStrategy/generateRequestParameter.csv";
 
     private final Simulation lgdcloudsim;
     private final Factory factory;
@@ -64,7 +61,6 @@ public class IntraScheduleStrategy {
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
-        lgdcloudsim.setNetworkTopology(networkTopology);
+        lgdcloudsim.setNetworkTopology(NetworkTopology.NULL);
     }
 }

@@ -1,5 +1,7 @@
 package org.lgdcloudsim.record;
 
+import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
@@ -64,6 +66,11 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
+    public void recordInstanceGroupGraphReleaseInfoForFailedUserRequest(int srcInstanceGroupId, int dstInstanceGroupId) {
+        
+    }
+
+    @Override
     public void recordInstanceGroupGraphReleaseInfo(int srcDcId, int dstDcId, double finishTime) {
 
     }
@@ -92,7 +99,27 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
+    public void recordDatacentersInfo(List<Datacenter> datacenters) {
+
+    }
+
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenters) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(NetworkTopology networkTopology) {
+
+    }
+
+    @Override
     public void close() {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
 
     }
 }

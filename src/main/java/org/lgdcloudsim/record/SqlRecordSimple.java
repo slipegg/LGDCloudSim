@@ -2,6 +2,7 @@ package org.lgdcloudsim.record;
 
 import lombok.Getter;
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
@@ -200,7 +201,7 @@ public class SqlRecordSimple implements SqlRecord {
 
     @Override
     public void recordInstanceGroupsReceivedInfo(List requests) {
-        if (requests.size() > 0) {
+        if (!requests.isEmpty()) {
             try {
                 if (requests.get(0) instanceof InstanceGroup) {
                     List<InstanceGroup> instanceGroups = requests;
@@ -309,6 +310,18 @@ public class SqlRecordSimple implements SqlRecord {
     }
 
     @Override
+    public void recordInstanceGroupGraphReleaseInfoForFailedUserRequest(int srcInstanceGroupId, int dstInstanceGroupId) {
+        try {
+            sql = "DELETE FROM " + this.instanceGroupGraphTableName +
+                    " WHERE (srcInstanceGroupId = " + srcInstanceGroupId +
+                    " AND dstInstanceGroupId = " + dstInstanceGroupId + ");";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void recordInstanceGroupGraphReleaseInfo(int srcInstanceGroupId, int dstInstanceGroupId, double finishTime) {
         try {
             sql = "UPDATE " + this.instanceGroupGraphTableName +
@@ -353,7 +366,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesCreateInfo(Map<Integer, List<Instance>> instances) {
         try {
-            statement = conn.prepareStatement("INSERT INTO instance " +
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
                     "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
@@ -385,7 +398,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesCreateInfo(List<InstanceGroup> instanceGroups) {
         try {
-            statement = conn.prepareStatement("INSERT INTO instance " +
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
                     "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //遍历instances的value
@@ -417,7 +430,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesFinishInfo(List<Instance> instances) {
         try {
-            statement = conn.prepareStatement("UPDATE instance SET finishTime = ? WHERE id = ?");
+            statement = conn.prepareStatement("UPDATE " + this.instanceTableName + " SET finishTime = ? WHERE id = ?");
             for (Instance instance : instances) {
                 statement.setDouble(1, instance.getFinishTime());
                 statement.setInt(2, instance.getId());
@@ -432,7 +445,7 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstancesAllInfo(List<Instance> instances) {
         try {
-            statement = conn.prepareStatement("INSERT INTO instance " +
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceTableName +
                     "(id, instanceGroupId, userRequestId, cpu, ram, storage, bw, lifeTime, retryTimes, datacenter, host, startTime, finishTime) " + "VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             for (Instance instance : instances) {
                 statement.setInt(1, instance.getId());
@@ -639,5 +652,25 @@ public class SqlRecordSimple implements SqlRecord {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void recordDatacentersInfo(List<Datacenter> datacenters) {
+
+    }
+    
+    @Override
+    public void recordDatacentersInfo(Datacenter datacenters) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(NetworkTopology networkTopology) {
+
+    }
+
+    @Override
+    public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
+
     }
 }

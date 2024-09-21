@@ -2,7 +2,10 @@
   "collaborations": [
     {
       "id": 1,
-      "centerScheduler": {
+      "interLoadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
         "type": "simple",
         "target": "dc",
         "isSupportForward": false,
@@ -53,7 +56,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {
@@ -93,7 +96,7 @@
               "type": "simple"
             }
           ],
-          "loadBalancer": {
+          "intraLoadBalancer": {
             "type": "batch"
           },
           "resourceAllocateSelector": {

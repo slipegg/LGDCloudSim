@@ -21,20 +21,9 @@ import java.util.*;
 @Setter
 public class InterSchedulerResult {
     /**
-     * The collaboration id of the inter-scheduler.
-     * It is used for the centralized inter-scheduler of the collaboration zone in CIS.
+     * The interScheduler of the result.
      */
-    private int collaborationId;
-
-    /**
-     * The target of the inter-scheduler.
-     */
-    private int target;
-
-    /**
-     * Whether the scheduled instance group results support forward again.
-     */
-    private Boolean isSupportForward;
+    private InterScheduler interScheduler;
 
     /**
      * The scheduling result map of the instance groups.
@@ -60,29 +49,13 @@ public class InterSchedulerResult {
 
     /**
      * Create a new inter-scheduler result.
-     *
-     * @param collaborationId  the collaboration id of the inter-scheduler.
-     * @param target           the target of the inter-scheduler.
-     * @param isSupportForward whether the scheduled instance group results support forward again.
-     * @param allDatacenters   all the datacenters in the collaboration zone.
-     */
-    public InterSchedulerResult(int collaborationId, int target, Boolean isSupportForward, List<Datacenter> allDatacenters) {
-        this.collaborationId = collaborationId;
-        this.target = target;
-        this.isSupportForward = isSupportForward;
-        this.failedInstanceGroups = new ArrayList<>();
-        initDcResultMap(allDatacenters);
-    }
-
-    /**
-     * Create a new inter-scheduler result.
-     * IsSupportForward is set to false by default.
-     * @param collaborationId the collaboration id of the inter-scheduler.
-     * @param target the target of the inter-scheduler.
+     * @param interScheduler the collaboration id of the inter-scheduler.
      * @param allDatacenters all the datacenters in the collaboration zone.
      */
-    public InterSchedulerResult(int collaborationId, int target, List<Datacenter> allDatacenters) {
-        this(collaborationId, target, false, allDatacenters);
+    public InterSchedulerResult(InterScheduler interScheduler, List<Datacenter> allDatacenters) {
+        this.interScheduler = interScheduler;
+        this.failedInstanceGroups = new ArrayList<>();
+        initDcResultMap(allDatacenters);
     }
 
     /**
@@ -127,5 +100,23 @@ public class InterSchedulerResult {
             }
         }
         return Datacenter.NULL;
+    }
+
+    /**
+     * Get the target of the inter-scheduler.
+     *
+     * @return the target of the inter-scheduler.
+     */
+    public int getTarget() {
+        return interScheduler.getTarget();
+    }
+
+    /**
+     * Get whether the scheduled instance group results support forward again.
+     *
+     * @return whether the scheduled instance group results support forward again.
+     */
+    public Boolean isSupportForward() {
+        return interScheduler.isSupportForward();
     }
 }

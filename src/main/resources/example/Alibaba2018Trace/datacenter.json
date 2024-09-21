@@ -1,0 +1,31 @@
+{
+    "id": 1,
+    "hostNum": 4033,
+    "partitions": [
+      {
+        "length": 4033
+      }
+    ],
+    "hostStates": [
+      {
+        "cpu": 9600,
+        "ram": 10000,
+        "storage": 0,
+        "bw": 0,
+        "startId": 0,
+        "length": 4033
+      }
+    ],
+    "synchronizationGap": 0,
+    "intraSchedulers": [
+      {
+        "type": "randomScore"
+      }
+    ],
+    "intraLoadBalancer": {
+      "type": "batch"
+    },
+    "resourceAllocateSelector": {
+      "type": "simple"
+    }
+  }
