@@ -35,7 +35,12 @@ After testing on a 16-core 32G server, LGDCloudSim can support a total number of
 More details will be available in the code and in a future paper.
 
 > **Note**
-> The paper "LGDCloudSim: A resource management simulation system for large-scale geographically distributed cloud data center scenarios" has been accepted by IEEE CLOUD 2024. We will complete the citation as soon as the paper is published.
+> 
+> If you are using CloudSim Plus in your research, please make sure you cite this paper: Liu J, Xu Y, Feng B, et al. [LGDCloudSim: A resource management simulation system for large-scale geographically distributed cloud data center scenarios](https://ieeexplore.ieee.org/abstract/document/10643915)[C]//2024 IEEE 17th International Conference on Cloud Computing (CLOUD). IEEE, 2024: 194-204.
+>
+> **In addinition**
+> 
+> We are honored that this paper won the Best Student Paper Award at [IEEE CLOUD 2024](https://cloud.conferences.computer.org/2024/).
 
 ## Important
 
