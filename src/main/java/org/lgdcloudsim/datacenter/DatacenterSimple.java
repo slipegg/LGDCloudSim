@@ -465,7 +465,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             if (!list.isEmpty() && list.get(0) instanceof Instance) {
 //                LOGGER.info("{}: {} received {} instances to finish", getSimulation().clockStr(), getName(), list.size());
                 for (Instance instance : (List<Instance>) list) {
-                    finishInstance(instance);
+                    if (instance.getState() == UserRequest.RUNNING){
+                        finishInstance(instance);
+                    }
                 }
                 getSimulation().getSqlRecord().recordInstancesFinishInfo((List<Instance>) list);
 
