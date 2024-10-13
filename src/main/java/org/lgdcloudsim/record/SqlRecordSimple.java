@@ -148,7 +148,7 @@ public class SqlRecordSimple implements SqlRecord {
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:" + this.dbPath);
             conn.setAutoCommit(false);
-            LOGGER.info("Opened " + this.dbPath + " successfully");
+            LOGGER.info("Opened {} successfully", this.dbPath);
             stmt = conn.createStatement();
 
             createUserRequestTable();
