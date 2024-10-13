@@ -45,6 +45,11 @@ public class CloudSim implements Simulation {
      * The simulation time.
      */
     double clock;
+
+    /**
+     * The simulation time in string format.
+     */
+    String clockStr;
     /**
      * A flag to indicate if the simulation is running or not.
      */
@@ -116,7 +121,7 @@ public class CloudSim implements Simulation {
      * Creates a new CloudSim instance.
      */
     public CloudSim() {
-        clock = 0;
+        setClock(0);
         this.entityList = new ArrayList<>();
         this.future = new FutureQueue();
         this.deferred = new DeferredQueue();
@@ -132,12 +137,13 @@ public class CloudSim implements Simulation {
 
     @Override
     public String clockStr() {
-        return "%.2f ms".formatted(clock);
+        return clockStr;
     }
 
     @Override
     public Simulation setClock(double time) {
         this.clock = time;
+        this.clockStr = "%.2f ms".formatted(clock);
         return this;
     }
 
