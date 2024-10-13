@@ -168,7 +168,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:" + this.dbPath);
             conn.setAutoCommit(false);
-            LOGGER.info("Opened " + this.dbPath + " successfully");
+            LOGGER.info("Opened {} successfully", this.dbPath);
             stmt = conn.createStatement();
 
             createUserRequestTable();
@@ -371,7 +371,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
-            LOGGER.error("The instance group " + instanceGroup.getId() + " recorded error {}", e.getMessage());
+            LOGGER.error("The instance group {} recorded error {}", instanceGroup.getId(), e.getMessage());
             try {
                 sql = "SELECT * FROM " + this.instanceGroupTableName + " WHERE id = " + instanceGroup.getId() + ";";
                 ResultSet rs = stmt.executeQuery(sql);

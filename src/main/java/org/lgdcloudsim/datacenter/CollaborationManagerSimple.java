@@ -106,7 +106,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
         if (datacenter == null) return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
         if (collaborationIds.contains(collaborationId)) {
-            LOGGER.warn("the datacenter(" + datacenter + ") already belongs to the collaboration " + collaborationId);
+            LOGGER.warn("the datacenter({}) already belongs to the collaboration {}", datacenter, collaborationId);
         } else {
             collaborationIds.add(collaborationId);
         }
@@ -163,7 +163,7 @@ public class CollaborationManagerSimple implements CollaborationManager {
         if (datacenter == null) return;
         Set<Integer> collaborationIds = datacenter.getCollaborationIds();
         if (!collaborationIds.contains(collaborationId)) {
-            LOGGER.warn("the datacenter(" + datacenter + ") does not belong to the collaboration " + collaborationId + " to be removed");
+            LOGGER.warn("the datacenter({})'s collaborationIds: {}", datacenter, collaborationIds);
         } else {
             collaborationIds.remove(collaborationId);
         }
