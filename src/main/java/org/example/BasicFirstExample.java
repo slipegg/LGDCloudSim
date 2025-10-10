@@ -38,6 +38,7 @@ public class BasicFirstExample {
     private static final String DATACENTER_BW_FILE = "./src/main/resources/example/BasicFirstExample/DatacenterBwConfig.csv";
     private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
+    private static final String HOST_TOPO_FILE = "./src/main/resources/example/BasicFirstExample/HostTopology.csv";
 
     private final Simulation lgdcloudsim;
     private final Factory factory;
@@ -68,7 +69,7 @@ public class BasicFirstExample {
     }
 
     private void initNetwork() {
-        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE);
+        NetworkTopology networkTopology = new NetworkTopologySimple(REGION_DELAY_FILE, AREA_DELAY_FILE, DATACENTER_BW_FILE, HOST_TOPO_FILE);
         lgdcloudsim.setNetworkTopology(networkTopology);
     }
 }

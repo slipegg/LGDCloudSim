@@ -38,6 +38,11 @@ public class NetworkTopologySimple implements NetworkTopology {
     DcBwManager dcBwManager;
 
     /**
+     * The Clos topology manager.
+     */
+    ClosTopologyManager closTopologyManager;
+
+    /**
      * Construct a network topology with the region delay file name, the area delay file name and the data center bandwidth file name.
      *
      * @param regionDelayFileName the region delay file name.
@@ -49,6 +54,12 @@ public class NetworkTopologySimple implements NetworkTopology {
         this.areaDelayManager = new AreaDelayManager(areaDelayFileName, regionDelayManager);
         this.dcBwManager = new DcBwManager(dcBwFileName);
     }
+
+    public NetworkTopologySimple(String regionDelayFileName, String areaDelayFileName, String dcBwFileName, String hostTopoFileName) {
+        this(regionDelayFileName, areaDelayFileName, dcBwFileName);
+        this.closTopologyManager = new ClosTopologyManager(hostTopoFileName);
+    }
+
 
     /**
      * Construct a network topology with the region delay file name, the area delay file name and the data center bandwidth file name.
