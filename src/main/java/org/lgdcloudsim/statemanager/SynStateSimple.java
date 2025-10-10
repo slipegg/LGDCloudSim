@@ -85,6 +85,8 @@ public class SynStateSimple implements SynState {
      */
     SynGapManager synGapManager;
 
+    HostCapacityManager hostCapacityManager;
+
     /**
      * The constructor of the class SynStateSimple.
      *
@@ -99,7 +101,7 @@ public class SynStateSimple implements SynState {
      * @param predictable            whether to use the prediction function.
      */
     public SynStateSimple(Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState, int[] nowHostStates,
-                          PartitionRangesManager partitionRangesManager, Map<Integer, Map<Integer, int[]>> selfHostState, IntraScheduler scheduler,
+                          PartitionRangesManager partitionRangesManager, HostCapacityManager hostCapacityManager, Map<Integer, Map<Integer, int[]>> selfHostState, IntraScheduler scheduler,
                           PredictionManager predictionManager, SynGapManager synGapManager, int predictRecordNum, boolean predictable) {
         this.synState = synState;
         this.nowHostStates = nowHostStates;
@@ -107,6 +109,7 @@ public class SynStateSimple implements SynState {
         this.selfHostState = selfHostState;
         this.predictionManager = predictionManager;
         this.synGapManager = synGapManager;
+        this.hostCapacityManager = hostCapacityManager;
         this.predictable = predictable;
         this.latestSynPartitionId = (scheduler.getFirstPartitionId() + synGapManager.getPartitionSynCount()) % partitionRangesManager.getPartitionNum();
 
@@ -136,7 +139,7 @@ public class SynStateSimple implements SynState {
     public HostState getHostState(int hostId){
         int partitionId = partitionRangesManager.getPartitionId(hostId);
         if (selfHostState.get(partitionId).containsKey(hostId)) {
-            return new HostState(selfHostState.get(partitionId).get(hostId));
+            return new HostState(selfHostState.get(partitionId).get(hostId), hostCapacityManager.getHostGpuType(hostId));
         }else{
             int[] hostState;
             if (predictable) {
@@ -146,9 +149,9 @@ public class SynStateSimple implements SynState {
             }
 
             if (hostState == null) {
-                return new HostState(nowHostStates[hostId * HostState.STATE_NUM], nowHostStates[hostId * HostState.STATE_NUM + 1], nowHostStates[hostId * HostState.STATE_NUM + 2], nowHostStates[hostId * HostState.STATE_NUM + 3]);
+                return new HostState(nowHostStates[hostId * HostState.STATE_NUM], nowHostStates[hostId * HostState.STATE_NUM + 1], nowHostStates[hostId * HostState.STATE_NUM + 2], nowHostStates[hostId * HostState.STATE_NUM + 3], nowHostStates[hostId * HostState.STATE_NUM + 4], hostCapacityManager.getHostGpuType(hostId));
             } else {
-                return new HostState(hostState);
+                return new HostState(hostState, hostCapacityManager.getHostGpuType(hostId));
             }
         }
     }
@@ -185,6 +188,7 @@ public class SynStateSimple implements SynState {
             hostState[1] -= instance.getRam();
             hostState[2] -= instance.getStorage();
             hostState[3] -= instance.getBw();
+            hostState[4] -= instance.getGpu();
         } else {
             if (predictable) {
                 hostState = getPredictSynState(hostId);
@@ -196,14 +200,16 @@ public class SynStateSimple implements SynState {
                         hostState[0] - instance.getCpu(),
                         hostState[1] - instance.getRam(),
                         hostState[2] - instance.getStorage(),
-                        hostState[3] - instance.getBw()
+                        hostState[3] - instance.getBw(),
+                        hostState[4] - instance.getGpu()
                 });
             } else {
                 selfHostState.get(partitionId).put(hostId, new int[]{
                         nowHostStates[hostId * HostState.STATE_NUM] - instance.getCpu(),
                         nowHostStates[hostId * HostState.STATE_NUM + 1] - instance.getRam(),
                         nowHostStates[hostId * HostState.STATE_NUM + 2] - instance.getStorage(),
-                        nowHostStates[hostId * HostState.STATE_NUM + 3] - instance.getBw()
+                        nowHostStates[hostId * HostState.STATE_NUM + 3] - instance.getBw(),
+                        nowHostStates[hostId * HostState.STATE_NUM + 4] - instance.getGpu()
                 });
             }
         }
@@ -259,7 +265,7 @@ public class SynStateSimple implements SynState {
             if (tmpCount >= oldSmallSynCount) {
                 double time = synGapManager.getSynTime(tmpCount);
                 if (partitionSynState.containsKey(time) && partitionSynState.get(time).containsKey(hostId)) {
-                    hostStateHistories.add(new HostStateHistory(partitionSynState.get(time).get(hostId), time));
+                    hostStateHistories.add(new HostStateHistory(partitionSynState.get(time).get(hostId), hostCapacityManager.getHostGpuType(hostId), time));
                 }
                 do {
                     oldSmallSynCount += partitionRangesManager.getPartitionNum();

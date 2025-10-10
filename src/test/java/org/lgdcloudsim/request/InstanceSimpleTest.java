@@ -88,7 +88,7 @@ public class InstanceSimpleTest {
     @Test
     void testToString() {
         String expectedToString = "InstanceSimple{" +
-                "id=1, cpu=2, ram=4, storage=8, bw=16, lifecycle=-1}";
+                "id=1, cpu=2, ram=4, storage=8, bw=16, gpu=0, gpuType='', lifecycle=-1}";
         assertEquals(expectedToString, instance.toString());
     }
 }

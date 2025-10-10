@@ -13,5 +13,5 @@ public interface HostStateGenerator {
      *
      * @return the state of the host. The state includes 4 integers: cpu, ram, storage and bw.
      * */
-    int[] generateHostState();
+    HostState generateHostState();
 }

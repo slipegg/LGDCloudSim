@@ -725,6 +725,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
                 " ram INT NOT NULL, " +
                 " storage INT NOT NULL, " +
                 " bw INT NOT NULL, " +
+                " gpu TEXT NOT NULL, " +
                 " pricePerCPU DOUBLE NOT NULL, " +
                 " pricePerRAM DOUBLE NOT NULL, " +
                 " pricePerStorage DOUBLE NOT NULL, " +
@@ -790,7 +791,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     public void recordDatacentersInfo(Datacenter datacenter) {
         try {
             statement = conn.prepareStatement("INSERT INTO " + this.datacenterTableName +
-                    " (id, region, location, architecture, hostNum, cpu, ram, storage, bw, pricePerCPU, pricePerRAM, pricePerStorage, pricePerBW, PricePerRack, HostPerRack) " +
+                    " (id, region, location, architecture, hostNum, cpu, ram, storage, bw, gpu, pricePerCPU, pricePerRAM, pricePerStorage, pricePerBW, PricePerRack, HostPerRack) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             //设置Datacenter的value
             statement.setInt(1, datacenter.getId());
@@ -802,12 +803,13 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             statement.setLong(7, datacenter.getRam());
             statement.setLong(8, datacenter.getStorage());
             statement.setLong(9, datacenter.getBw());
-            statement.setDouble(10, datacenter.getPricePerCPU());
-            statement.setDouble(11, datacenter.getPricePerRAM());
-            statement.setDouble(12, datacenter.getPricePerStorage());
-            statement.setDouble(13, datacenter.getPricePerBW());
-            statement.setDouble(14, datacenter.getPricePerRack());
-            statement.setDouble(15, datacenter.getHostPerRack());
+            statement.setString(10, datacenter.getGpuMap() == null ? "null" : datacenter.getGpuMap().toString());
+            statement.setDouble(11, datacenter.getPricePerCPU());
+            statement.setDouble(12, datacenter.getPricePerRAM());
+            statement.setDouble(13, datacenter.getPricePerStorage());
+            statement.setDouble(14, datacenter.getPricePerBW());
+            statement.setDouble(15, datacenter.getPricePerRack());
+            statement.setDouble(16, datacenter.getHostPerRack());
             statement.addBatch();
             statement.executeBatch();
         } catch (SQLException e) {

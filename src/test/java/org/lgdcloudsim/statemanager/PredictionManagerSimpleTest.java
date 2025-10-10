@@ -12,12 +12,12 @@ public class PredictionManagerSimpleTest {
     void testPredictionManagerSimple() {
         List<HostStateHistory> hostStateHistories = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            HostStateHistory hostStateHistory = new HostStateHistory(i, i, i, i, i);
+            HostStateHistory hostStateHistory = new HostStateHistory(i, i, i, i, i, "Nvidia A100", i);
             hostStateHistories.add(hostStateHistory);
         }
         PredictionManager predictionManager = new PredictionManagerSimple();
         int[] predictedState = predictionManager.predictHostState(hostStateHistories);
-        int[] expectedState = {4, 4, 4, 4};
+        int[] expectedState = {4, 4, 4, 4, 4};
         assertArrayEquals(expectedState, predictedState);
     }
 }

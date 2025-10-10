@@ -24,21 +24,28 @@ public class HostStateHistory extends HostState {
      * @param ram     the amount of ram that is available on the host
      * @param storage the amount of storage that is available on the host
      * @param bw      the amount of bw that is available on the host
+     * @param gpu     the amount of gpu that is available on the host
+     * @param gpuType the type of gpu that is available on the host
      * @param time    the time when the host state is recorded
      */
-    public HostStateHistory(int cpu, int ram, int storage, int bw, double time) {
-        super(cpu, ram, storage, bw);
+    public HostStateHistory(int cpu, int ram, int storage, int bw, int gpu, String gpuType, double time) {
+        super(cpu, ram, storage, bw, gpu, gpuType);
         this.time = time;
     }
 
     /**
      * Create a HostStateHistory object with the given state and time.
      * @param hostState the state of the host
+     * @param gpuType the type of gpu that is available on the host
      * @param time the time when the host state is recorded
      */
-    public HostStateHistory(int[] hostState, double time) {
-        super(hostState[0], hostState[1], hostState[2], hostState[3]);
+    public HostStateHistory(int[] hostState, String gpuType,  double time) {
+        super(hostState[0], hostState[1], hostState[2], hostState[3], hostState[4], gpuType);
         this.time = time;
+    }
+
+    public HostState getHostState() {
+        return new HostState(cpu, ram, storage, bw, gpu, gpuType);
     }
 
     /**
@@ -60,6 +67,8 @@ public class HostStateHistory extends HostState {
                 ", ram=" + ram +
                 ", storage=" + storage +
                 ", bw=" + bw +
+                ", gpu=" + gpu +
+                ", gpuType='" + gpuType + '\'' +
                 '}';
     }
 }

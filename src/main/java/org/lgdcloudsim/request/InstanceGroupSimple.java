@@ -45,6 +45,12 @@ public class InstanceGroupSimple implements InstanceGroup {
     @Getter
     long ramSum;
 
+    @Getter
+    long gpuSum;
+
+    @Getter
+    String gpuType;
+
     int retryMaxNum;
 
     int retryNum;
@@ -117,12 +123,17 @@ public class InstanceGroupSimple implements InstanceGroup {
         this.bwSum = 0;
         this.cpuSum = 0;
         this.ramSum = 0;
+        this.gpuSum = 0;
+        this.gpuType = "";
+        if (instanceList.size() > 0) {
+            this.gpuType = instanceList.get(0).getGpuType();
+        }
         for (Instance instance : instanceList) {
             storageSum += instance.getStorage();
             bwSum += instance.getBw();
             cpuSum += instance.getCpu();
             ramSum += instance.getRam();
-            instance.setInstanceGroup(this);
+            gpuSum += instance.getGpu();
         }
         return this;
     }

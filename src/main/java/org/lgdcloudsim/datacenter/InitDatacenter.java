@@ -666,8 +666,15 @@ public class InitDatacenter {
             int ram = hostStateJson.getInt("ram");
             int storage = hostStateJson.getInt("storage");
             int bw = hostStateJson.getInt("bw");
+            int gpu = 0;
+            String gpuType = "";
+            if (hostStateJson.containsKey("gpu")) {
+                gpu = hostStateJson.getInt("gpu");
+                gpuType = hostStateJson.getString("gpuType");
+            }
+            
             int length = hostStateJson.getInt("length");
-            statesManager.initHostStates(cpu, ram, storage, bw, startId, length);
+            statesManager.initHostStates(cpu, ram, storage, bw, gpu, gpuType, startId, length);
             startId += length;
         }
     }

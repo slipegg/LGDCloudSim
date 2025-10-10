@@ -1,5 +1,7 @@
 package org.lgdcloudsim.statemanager;
 
+import java.util.HashMap;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,6 +47,10 @@ public class SimpleStateEasyObject {
      */
     long bwAvailableSum;
     /**
+     * The sum of the available gpu of all hosts in the datacenter.
+     */
+    long gpuAvailableSum;
+    /**
      * The sum of the total cpu capacity of all hosts in the datacenter.
      */
     long cpuCapacitySum;
@@ -60,7 +66,14 @@ public class SimpleStateEasyObject {
      * The sum of the total bw capacity of all hosts in the datacenter.
      */
     long bwCapacitySum;
-
+    /**
+     * The sum of the available gpu of all hosts in the datacenter.
+     */
+    HashMap<String, Long> gpuAvailableSumMap;
+    /**
+     * The sum of the total gpu capacity of all hosts in the datacenter.
+     */
+    HashMap<String, Long> gpuCapacitySumMap;
     /**
      * Construct a simple state easy object with the number of hosts in the datacenter, the sum of the available resources and the sum of the total resources.
      *
@@ -74,15 +87,20 @@ public class SimpleStateEasyObject {
      * @param storageCapacitySum  the sum of the total storage capacity of all hosts in the datacenter.
      * @param bwCapacitySum       the sum of the total bw capacity of all hosts in the datacenter.
      */
-    public SimpleStateEasyObject(int hostNum, long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum, long cpuCapacitySum, long ramCapacitySum, long storageCapacitySum, long bwCapacitySum) {
+    public SimpleStateEasyObject(int hostNum, long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum, long gpuAvailableSum, HashMap<String, Long> gpuAvailableSumMap,
+                                long cpuCapacitySum, long ramCapacitySum, long storageCapacitySum, long bwCapacitySum, HashMap<String, Long> gpuCapacitySumMap) {
         this.hostNum = hostNum;
         this.cpuAvailableSum = cpuAvailableSum;
         this.ramAvailableSum = ramAvailableSum;
         this.storageAvailableSum = storageAvailableSum;
         this.bwAvailableSum = bwAvailableSum;
+        this.gpuAvailableSum = gpuAvailableSum;
+        this.gpuAvailableSumMap = gpuAvailableSumMap;
         this.cpuCapacitySum = cpuCapacitySum;
         this.ramCapacitySum = ramCapacitySum;
         this.storageCapacitySum = storageCapacitySum;
+        this.bwCapacitySum = bwCapacitySum;
+        this.gpuCapacitySumMap = gpuCapacitySumMap;
     }
 
     /**
@@ -94,10 +112,12 @@ public class SimpleStateEasyObject {
      * @param storage the storage to be allocated.
      * @param bw the bw to be allocated.
      */
-    public void allocateResource(long cpu, long ram, long storage, long bw) {
+    public void allocateResource(long cpu, long ram, long storage, long bw, long gpu, String gpuType) {
         cpuAvailableSum -= cpu;
         ramAvailableSum -= ram;
         storageAvailableSum -= storage;
         bwAvailableSum -= bw;
+        gpuAvailableSum -= gpu;
+        gpuAvailableSumMap.put(gpuType, gpuAvailableSumMap.getOrDefault(gpuType, 0L) - gpu);    
     }
 }

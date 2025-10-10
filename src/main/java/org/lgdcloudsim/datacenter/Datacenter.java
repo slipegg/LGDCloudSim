@@ -11,6 +11,7 @@ import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
 import java.awt.geom.Point2D;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -173,6 +174,8 @@ public interface Datacenter extends SimEntity, DatacenterPrice {
      * @return the total bandwidth of the datacenter.
      */
     long getBw();
+
+    HashMap<String, Long> getGpuMap();
 
     /**
      * Get the price per CPU of the datacenter.

@@ -51,6 +51,9 @@ public class DetailedDcStateSimple {
     @Getter
     long bwAvailableSum;
 
+    @Getter
+    long gpuAvailableSum;
+
     /**
      * Construct a new DetailedDcStateSimple.
      *
@@ -61,14 +64,15 @@ public class DetailedDcStateSimple {
      * @param storageAvailableSum The total available storage resources of the data center.
      * @param bwAvailableSum      The total available bandwidth resources of the data center.
      */
-    public DetailedDcStateSimple(int[] hostStates, HostCapacityManager hostCapacityManager, long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum) {
+    public DetailedDcStateSimple(int[] hostStates, HostCapacityManager hostCapacityManager, long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum, long gpuAvailableSum) {
         this.hostStates = hostStates.clone();//It must be cloned because it will be modified later, and this value must also be independent of the original value.
         this.hostCapacityManager = hostCapacityManager;
-        hostNum = hostStates.length / 4;
+        hostNum = hostStates.length / HostState.STATE_NUM;
         this.cpuAvailableSum = cpuAvailableSum;
         this.ramAvailableSum = ramAvailableSum;
         this.storageAvailableSum = storageAvailableSum;
         this.bwAvailableSum = bwAvailableSum;
+        this.gpuAvailableSum = gpuAvailableSum;
     }
 
     /**
@@ -77,7 +81,14 @@ public class DetailedDcStateSimple {
      * @return The status of the host.
      */
     public HostState getHostState(int hostId) {
-        return new HostState(hostStates[hostId * HostState.STATE_NUM], hostStates[hostId * HostState.STATE_NUM + 1], hostStates[hostId * HostState.STATE_NUM + 2], hostStates[hostId * HostState.STATE_NUM + 3]);
+        return new HostState(
+            hostStates[hostId * HostState.STATE_NUM], 
+            hostStates[hostId * HostState.STATE_NUM + 1], 
+            hostStates[hostId * HostState.STATE_NUM + 2], 
+            hostStates[hostId * HostState.STATE_NUM + 3],
+            hostStates[hostId * HostState.STATE_NUM + 4],
+            hostCapacityManager.getHostGpuType(hostId)
+            );
     }
 
     /**
@@ -101,10 +112,12 @@ public class DetailedDcStateSimple {
         hostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
         hostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
         hostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+        hostStates[hostId * HostState.STATE_NUM + 4] -= instance.getGpu();
         cpuAvailableSum -= instance.getCpu();
         ramAvailableSum -= instance.getRam();
         storageAvailableSum -= instance.getStorage();
         bwAvailableSum -= instance.getBw();
+        gpuAvailableSum -= instance.getGpu();
         return this;
     }
 }

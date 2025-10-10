@@ -24,12 +24,14 @@ public class PredictionManagerSimple implements PredictionManager {
         long ramSum = 0;
         long storageSum = 0;
         long bwSum = 0;
+        long gpuSum = 0;
         for (HostStateHistory hostStateHistory : hostStateHistories) {
             cpuSum += hostStateHistory.getCpu();
             ramSum += hostStateHistory.getRam();
             storageSum += hostStateHistory.getStorage();
             bwSum += hostStateHistory.getBw();
+            gpuSum += hostStateHistory.getGpu();
         }
-        return new int[]{(int) (cpuSum / hostStateHistories.size()), (int) (ramSum / hostStateHistories.size()), (int) (storageSum / hostStateHistories.size()), (int) (bwSum / hostStateHistories.size())};
+        return new int[]{(int) (cpuSum / hostStateHistories.size()), (int) (ramSum / hostStateHistories.size()), (int) (storageSum / hostStateHistories.size()), (int) (bwSum / hostStateHistories.size()), (int) (gpuSum / hostStateHistories.size())};
     }
 }

@@ -91,6 +91,10 @@ public interface InstanceGroup extends RequestEntity {
      */
     long getBwSum();
 
+    long getGpuSum();
+
+    String getGpuType();
+
     /**
      * Get the maximum number of retries for the instance group.
      * @return the maximum number of retries for the instance group.

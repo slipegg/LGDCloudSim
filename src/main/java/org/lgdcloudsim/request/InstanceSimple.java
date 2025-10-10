@@ -41,6 +41,10 @@ public class InstanceSimple implements Instance {
 
     int bw;
 
+    int gpu;
+
+    String gpuType;
+
     int lifecycle;
 
     int destHostId;
@@ -81,6 +85,8 @@ public class InstanceSimple implements Instance {
         this.ram = ram;
         this.storage = storage;
         this.bw = bw;
+        this.gpu = 0;
+        this.gpuType = "";
         this.lifecycle = -1;
 
         this.destHostId = -1;
@@ -92,6 +98,12 @@ public class InstanceSimple implements Instance {
         this.finishTime = -1;
 
         this.state = UserRequest.WAITING;
+    }
+
+    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, int gpu, String gpuType) {
+        this(id, cpu, ram, storage, bw);
+        this.gpu = gpu;
+        this.gpuType = gpuType;
     }
 
     /**
@@ -107,6 +119,11 @@ public class InstanceSimple implements Instance {
      */
     public InstanceSimple(int id, int cpu, int ram, int storage, int bw, int lifecycle) {
         this(id, cpu, ram, storage, bw);
+        this.lifecycle = lifecycle;
+    }
+    
+    public InstanceSimple(int id, int cpu, int ram, int storage, int bw, int gpu, String gpuType, int lifecycle) {
+        this(id, cpu, ram, storage, bw, gpu, gpuType);
         this.lifecycle = lifecycle;
     }
 
@@ -161,6 +178,8 @@ public class InstanceSimple implements Instance {
                 ", ram=" + ram +
                 ", storage=" + storage +
                 ", bw=" + bw +
+                ", gpu=" + gpu +
+                ", gpuType='" + gpuType + '\'' +
                 ", lifecycle=" + lifecycle +
                 '}';
     }

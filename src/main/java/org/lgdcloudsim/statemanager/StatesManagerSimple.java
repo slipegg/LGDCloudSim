@@ -254,12 +254,12 @@ public class StatesManagerSimple implements StatesManager {
     // but here it is required that hostCapacityManager is initialized in order,
     // which needs to be modified later.But since this is only used in initDatacenter, there is no problem yet.
     @Override
-    public StatesManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length) {
+    public StatesManager initHostStates(int cpu, int ram, int storage, int bw, int gpu, String gpuType, int startId, int length) {
         int endId = startId + length - 1;
+        hostCapacityManager.orderlyAddSameCapacityHost(length, new int[]{cpu, ram, storage, bw, gpu}, gpuType);
         for (int i = startId; i <= endId; i++) {
-            initSingleHostState(i, cpu, ram, storage, bw);
+            initSingleHostState(i, cpu, ram, storage, bw, gpu);
         }
-        hostCapacityManager.orderlyAddSameCapacityHost(length, new int[]{cpu, ram, storage, bw});
         return this;
     }
 
@@ -271,8 +271,8 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public StatesManager initHostStates(HostStateGenerator hostStateGenerator) {
         for (int i = 0; i < hostNum; i++) {
-            int[] state = hostStateGenerator.generateHostState();
-            initSingleHostState(i, state);
+            HostState state = hostStateGenerator.generateHostState();
+            initSingleHostState(i, state.getStateArray());
         }
         return this;
     }
@@ -301,8 +301,8 @@ public class StatesManagerSimple implements StatesManager {
      * @param storage the storage capacity of the host.
      * @param bw the bw capacity of the host.
      */
-    private void initSingleHostState(int hostId, int cpu, int ram, int storage, int bw) {
-        initSingleHostState(hostId, new int[]{cpu, ram, storage, bw});
+    private void initSingleHostState(int hostId, int cpu, int ram, int storage, int bw, int gpu) {
+        initSingleHostState(hostId, new int[]{cpu, ram, storage, bw, gpu});
     }
 
     /**
@@ -341,7 +341,7 @@ public class StatesManagerSimple implements StatesManager {
             }
         }
         selfHostState = selfHostStateMap.get(scheduler);
-        return new SynStateSimple(synStateMap, getCenterHostStates(), partitionRangesManager, selfHostState, scheduler, predictionManager, synGapManager, predictRecordNum, predictable);
+        return new SynStateSimple(synStateMap, getCenterHostStates(), partitionRangesManager, hostCapacityManager, selfHostState, scheduler, predictionManager, synGapManager, predictRecordNum, predictable);
     }
 
     /**
@@ -381,7 +381,9 @@ public class StatesManagerSimple implements StatesManager {
         System.arraycopy(getCenterHostStates(), hostId * HostState.STATE_NUM, beforeHostState, 0, HostState.STATE_NUM);
         if (beforeHostState[0] < instance.getCpu() || beforeHostState[1] < instance.getRam() || beforeHostState[2] < instance.getStorage() || beforeHostState[3] < instance.getBw()
                 || actualHostStates[hostId * HostState.STATE_NUM] < instance.getCpu() || actualHostStates[hostId * HostState.STATE_NUM + 1] < instance.getRam()
-                || actualHostStates[hostId * HostState.STATE_NUM + 2] < instance.getStorage() || actualHostStates[hostId * HostState.STATE_NUM + 3] < instance.getBw()) {
+                || actualHostStates[hostId * HostState.STATE_NUM + 2] < instance.getStorage() || actualHostStates[hostId * HostState.STATE_NUM + 3] < instance.getBw()
+                || actualHostStates[hostId * HostState.STATE_NUM + 4] < instance.getGpu()
+                || (!instance.getGpuType().isEmpty() && !instance.getGpuType().equals(hostCapacityManager.getHostGpuType(hostId)))) {
             return false; //This usually doesn't happen because the previous conflict handler has already checked it.
         }
 
@@ -391,12 +393,14 @@ public class StatesManagerSimple implements StatesManager {
         actualHostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
         actualHostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
         actualHostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+        actualHostStates[hostId * HostState.STATE_NUM + 4] -= instance.getGpu();
 
         if (isNeedHeartbeat()) {
             centerHostStates[hostId * HostState.STATE_NUM] -= instance.getCpu();
             centerHostStates[hostId * HostState.STATE_NUM + 1] -= instance.getRam();
             centerHostStates[hostId * HostState.STATE_NUM + 2] -= instance.getStorage();
             centerHostStates[hostId * HostState.STATE_NUM + 3] -= instance.getBw();
+            centerHostStates[hostId * HostState.STATE_NUM + 4] -= instance.getGpu();
         }
 
         simpleState.updateSimpleStateAllocated(hostId, beforeHostState, instance);
@@ -421,6 +425,7 @@ public class StatesManagerSimple implements StatesManager {
         actualHostStates[hostId * HostState.STATE_NUM + 1] += instance.getRam();
         actualHostStates[hostId * HostState.STATE_NUM + 2] += instance.getStorage();
         actualHostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
+        actualHostStates[hostId * HostState.STATE_NUM + 4] += instance.getGpu();
 
 //        simpleState.updateSimpleStateReleased(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostReleaseInstance(hostId, datacenter.getSimulation().clock());
@@ -431,7 +436,7 @@ public class StatesManagerSimple implements StatesManager {
     public Object getStateByType(String type) {
         return switch (type) {
             case "detailed" ->
-                    new DetailedDcStateSimple(getCenterHostStates(), hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum());
+                    new DetailedDcStateSimple(getCenterHostStates(), hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum(), simpleState.getGpuAvailableSum());
             case "easySimple" -> simpleState.generate();
             case "null" -> null;
             default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
@@ -455,7 +460,10 @@ public class StatesManagerSimple implements StatesManager {
                 actualHostStates[hostId * HostState.STATE_NUM],
                 actualHostStates[hostId * HostState.STATE_NUM + 1],
                 actualHostStates[hostId * HostState.STATE_NUM + 2],
-                actualHostStates[hostId * HostState.STATE_NUM + 3]);
+                actualHostStates[hostId * HostState.STATE_NUM + 3],
+                actualHostStates[hostId * HostState.STATE_NUM + 4],
+                hostCapacityManager.getHostGpuType(hostId)
+                );
     }
 
     @Override
@@ -465,7 +473,10 @@ public class StatesManagerSimple implements StatesManager {
                 hostStates[hostId * HostState.STATE_NUM],
                 hostStates[hostId * HostState.STATE_NUM + 1],
                 hostStates[hostId * HostState.STATE_NUM + 2],
-                hostStates[hostId * HostState.STATE_NUM + 3]);
+                hostStates[hostId * HostState.STATE_NUM + 3],
+                hostStates[hostId * HostState.STATE_NUM + 4],
+                hostCapacityManager.getHostGpuType(hostId)
+                );
     }
 
     @Override
@@ -497,6 +508,7 @@ public class StatesManagerSimple implements StatesManager {
                 hostState[1] -= instance.getRam();
                 hostState[2] -= instance.getStorage();
                 hostState[3] -= instance.getBw();
+                hostState[4] -= instance.getGpu();
                 selfHostStateMap.get(intraScheduler).get(partitionId).put(hostId, hostState);
             }
         }
@@ -535,6 +547,7 @@ public class StatesManagerSimple implements StatesManager {
             hostState[1] += instance.getRam();
             hostState[2] += instance.getStorage();
             hostState[3] += instance.getBw();
+            hostState[4] += instance.getGpu();
         }
         return this;
     }
@@ -692,5 +705,10 @@ public class StatesManagerSimple implements StatesManager {
     @Override
     public long getTotalBw() {
         return hostCapacityManager.getBwCapacitySum();
+    }
+
+    @Override
+    public HashMap<String, Long> getTotalGpuMap() {
+        return hostCapacityManager.getGpuCapacitySumMap();
     }
 }

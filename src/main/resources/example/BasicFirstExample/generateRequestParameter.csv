@@ -9,4 +9,6 @@ InstanceCpuNum,8
 InstanceRamNum,16
 InstanceStorageNum,100
 InstanceBwNum,50
+InstanceGpuNum,4
+InstanceGpuType,"NVIDIA A100"
 InstanceLifeTime,5000

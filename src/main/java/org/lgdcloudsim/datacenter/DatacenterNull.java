@@ -13,6 +13,7 @@ import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.StatesManager;
 
 import java.awt.geom.Point2D;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -382,5 +383,10 @@ public class DatacenterNull implements Datacenter {
     @Override
     public long getHostNum() {
         return 0;
+    }
+
+    @Override
+    public HashMap<String, Long> getGpuMap() {
+        return new HashMap<>();
     }
 }

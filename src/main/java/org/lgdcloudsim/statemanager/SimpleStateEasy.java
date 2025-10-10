@@ -2,6 +2,9 @@ package org.lgdcloudsim.statemanager;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashMap;
+
 import org.lgdcloudsim.request.Instance;
 
 /**
@@ -35,6 +38,10 @@ public class SimpleStateEasy implements SimpleState {
      */
     long bwAvailableSum;
 
+    long gpuAvailableSum;
+
+    HashMap<String, Long> gpuAvailableSumMap;
+
     /**
      * The {@link StatesManager} it belongs to.
      */
@@ -50,6 +57,7 @@ public class SimpleStateEasy implements SimpleState {
         this.ramAvailableSum = 0;
         this.storageAvailableSum = 0;
         this.bwAvailableSum = 0;
+        this.gpuAvailableSumMap = new HashMap<>();
         this.statesManager = statesManager;
     }
 
@@ -59,6 +67,10 @@ public class SimpleStateEasy implements SimpleState {
         ramAvailableSum += hostState[1];
         storageAvailableSum += hostState[2];
         bwAvailableSum += hostState[3];
+        gpuAvailableSum += hostState[4];
+        gpuAvailableSumMap.put(statesManager.getHostCapacityManager().getHostGpuType(hostId),
+                gpuAvailableSumMap.getOrDefault(statesManager.getHostCapacityManager().getHostGpuType(hostId), 0L)
+                        + hostState[4]);
         return this;
     }
 
@@ -68,6 +80,9 @@ public class SimpleStateEasy implements SimpleState {
         ramAvailableSum -= instance.getRam();
         storageAvailableSum -= instance.getStorage();
         bwAvailableSum -= instance.getBw();
+        gpuAvailableSum -= instance.getGpu();
+        gpuAvailableSumMap.put(instance.getGpuType(),
+                gpuAvailableSumMap.getOrDefault(instance.getGpuType(), 0L) - instance.getGpu());
         return this;
     }
 
@@ -77,16 +92,21 @@ public class SimpleStateEasy implements SimpleState {
         ramAvailableSum += instance.getRam();
         storageAvailableSum += instance.getStorage();
         bwAvailableSum += instance.getBw();
+        gpuAvailableSum += instance.getGpu();
+        gpuAvailableSumMap.put(instance.getGpuType(),
+                gpuAvailableSumMap.getOrDefault(instance.getGpuType(), 0L) + instance.getGpu());
         return this;
     }
 
     @Override
     public Object generate() {
         return new SimpleStateEasyObject(statesManager.getHostNum(),
-                cpuAvailableSum,ramAvailableSum,storageAvailableSum,bwAvailableSum,
+                cpuAvailableSum,ramAvailableSum,storageAvailableSum,bwAvailableSum,gpuAvailableSum,gpuAvailableSumMap,
                 statesManager.getHostCapacityManager().getCpuCapacitySum(),
                 statesManager.getHostCapacityManager().getRamCapacitySum(),
                 statesManager.getHostCapacityManager().getStorageCapacitySum(),
-                statesManager.getHostCapacityManager().getBwCapacitySum());
+                statesManager.getHostCapacityManager().getBwCapacitySum(),
+                statesManager.getHostCapacityManager().getGpuCapacitySumMap()
+        );
     }
 }

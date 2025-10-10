@@ -278,7 +278,7 @@ public class InterSchedulerLeastRequested extends InterSchedulerSimple {
 
             interSchedulerResult.addDcResult(instanceGroup, scheduledDatacenter);
             SimpleStateEasyObject simpleStateEasyObject = (SimpleStateEasyObject) interScheduleSimpleStateMap.get(scheduledDatacenter);
-            simpleStateEasyObject.allocateResource(instanceGroup.getCpuSum(),instanceGroup.getRamSum(),instanceGroup.getStorageSum(),instanceGroup.getBwSum());
+            simpleStateEasyObject.allocateResource(instanceGroup.getCpuSum(),instanceGroup.getRamSum(),instanceGroup.getStorageSum(),instanceGroup.getBwSum(),instanceGroup.getGpuSum(),instanceGroup.getGpuType());
             scoreDcHistoryMap.remove(scheduledDatacenter);
 
             double score = getScoreForDc(instanceGroup, scheduledDatacenter, simpleStateEasyObject);

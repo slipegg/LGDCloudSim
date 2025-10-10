@@ -8,6 +8,7 @@ import org.lgdcloudsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -53,7 +54,7 @@ public interface StatesManager {
      * @param length the number of hosts that has the same capacity.
      * @return the StatesManager itself.
      */
-    StatesManager initHostStates(int cpu, int ram, int storage, int bw, int startId, int length);
+    StatesManager initHostStates(int cpu, int ram, int storage, int bw, int gpu,String gpuType, int startId, int length);
 
     /**
      * Initialization the host state with {@link HostStateGenerator}.
@@ -335,4 +336,10 @@ public interface StatesManager {
      * @return the total bandwidth capacity of the datacenter.
      */
     long getTotalBw();
+
+    /**
+     * Get the total GPU capacity of the datacenter.
+     * @return the total GPU capacity of the datacenter.
+     */
+    HashMap<String, Long> getTotalGpuMap();
 }

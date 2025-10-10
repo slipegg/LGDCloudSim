@@ -321,6 +321,24 @@ public class UserRequestManagerCsv implements UserRequestManager {
     private int InstanceBwNum = -2;
 
     /**
+     * The minimum number of gpu in an instance.
+     */
+    private int InstanceGpuNumMin = -2;
+
+    /**
+     * The maximum number of gpu in an instance.
+     */
+    private int InstanceGpuNumMax = -2;
+
+    /**
+     * The number of gpu in an instance.
+     * If you don't want to use random values, you can initialize it to use fixed values
+     */
+    private int InstanceGpuNum = -2;
+
+    private String InstanceGpuType = "";
+
+    /**
      * The minimum lifecycle (ms) of an instance.
      */
     private int InstanceLifeTimeMin = -2;
@@ -450,6 +468,10 @@ public class UserRequestManagerCsv implements UserRequestManager {
                     case "InstanceBwNumMin" -> this.InstanceBwNumMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNumMax" -> this.InstanceBwNumMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceBwNum" -> this.InstanceBwNum = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceGpuNumMin" -> this.InstanceGpuNumMin = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceGpuNumMax" -> this.InstanceGpuNumMax = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceGpuNum" -> this.InstanceGpuNum = Integer.parseInt(csvRecord.get(1));
+                    case "InstanceGpuType" -> this.InstanceGpuType = csvRecord.get(1);
                     case "InstanceLifeTimeMin" -> this.InstanceLifeTimeMin = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTimeMax" -> this.InstanceLifeTimeMax = Integer.parseInt(csvRecord.get(1));
                     case "InstanceLifeTime" -> this.InstanceLifeTime = Integer.parseInt(csvRecord.get(1));
@@ -533,8 +555,12 @@ public class UserRequestManagerCsv implements UserRequestManager {
 
         int bwNum = getExpectedValue(InstanceBwNum, InstanceBwNumMin, InstanceBwNumMax);
 
+        int gpuNum = getExpectedValue(InstanceGpuNum, InstanceGpuNumMin, InstanceGpuNumMax);
+
+        String gpuType = InstanceGpuType;
+
         int lifeTime = generateInstanceLifeTime();
-        Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, lifeTime);
+        Instance instance = new InstanceSimple(instanceId++, cpuNum, ramNum, storageNum, bwNum, gpuNum, gpuType, lifeTime);
 
         int retryTimes = getExpectedValue(InstanceRetryTimes, InstanceRetryTimesMin, InstanceRetryTimesMax);
         instance.setRetryMaxNum(retryTimes);

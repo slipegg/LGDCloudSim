@@ -25,6 +25,12 @@ public class IsomorphicHostStateGenerator implements HostStateGenerator {
     /** the amount of bw that is available on the host */
     int bw;
 
+    /** the amount of gpu that is available on the host */
+    int gpu;
+
+    /** the type of gpu that is available on the host */
+    String gpuType;
+
     /**
      * Create a IsomorphicHostStateGenerator object with the given 4 resource.
      *
@@ -33,11 +39,13 @@ public class IsomorphicHostStateGenerator implements HostStateGenerator {
      * @param storage the amount of storage that is available on the host
      * @param bw      the amount of bw that is available on the host
      */
-    public IsomorphicHostStateGenerator(int cpu, int ram, int storage, int bw) {
+    public IsomorphicHostStateGenerator(int cpu, int ram, int storage, int bw, int gpu, String gpuType) {
         this.cpu = cpu;
         this.ram = ram;
         this.storage = storage;
         this.bw = bw;
+        this.gpu = gpu;
+        this.gpuType = gpuType;
     }
 
     /**
@@ -48,6 +56,8 @@ public class IsomorphicHostStateGenerator implements HostStateGenerator {
         this.ram = 1024;
         this.storage = 10240;
         this.bw = 1024;
+        this.gpu = 16;
+        this.gpuType = "NVIDIA A100";
     }
 
     /**
@@ -56,12 +66,13 @@ public class IsomorphicHostStateGenerator implements HostStateGenerator {
      * @return the state of the host.The state includes 4 integers: cpu, ram, storage and bw.
      * */
     @Override
-    public int[] generateHostState() {
-        int[] hostStates = new int[4];
+    public HostState generateHostState() {
+        int[] hostStates = new int[HostState.STATE_NUM];
         hostStates[0] = cpu;
         hostStates[1] = ram;
         hostStates[2] = storage;
         hostStates[3] = bw;
-        return hostStates;
+        hostStates[4] = gpu;
+        return new HostState(hostStates, gpuType);
     }
 }

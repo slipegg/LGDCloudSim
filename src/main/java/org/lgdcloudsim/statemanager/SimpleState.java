@@ -75,6 +75,12 @@ public interface SimpleState {
     long getBwAvailableSum();
 
     /**
+     * Get the sum of the available gpu of all hosts in the datacenter.
+     * @return the sum of the available gpu of all hosts in the datacenter.
+     */
+    long getGpuAvailableSum();
+
+    /**
      * Generate an object copy of the simple state.
      * This function is used to synchronize the state to the inter-scheduler.
      * Depending on the class that implements the simple state, the object copy can be different.

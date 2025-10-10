@@ -25,6 +25,8 @@ public class ComparedStatesManagerSimple {
     int hostRam = 100;
     int hostStorage = 100;
     int hostBw = 100;
+    int hostGpu = 100;
+    String hostGpuType = "A100";
     StatesManagerSimple statesManager;
     Random random = new Random(1);
     //    int smallSynCountNow = 0;
@@ -41,7 +43,7 @@ public class ComparedStatesManagerSimple {
         PartitionRangesManager partitionRangesManager = new PartitionRangesManager();
         partitionRangesManager.setAverageCutting(0, hostNum - 1, 100);
         statesManager = new StatesManagerSimple(hostNum, partitionRangesManager, synGap);
-        statesManager.initHostStates(hostCpu, hostRam, hostStorage, hostBw, 0, hostNum);
+        statesManager.initHostStates(hostCpu, hostRam, hostStorage, hostBw, hostGpu, hostGpuType, 0, hostNum);
 
         synGapManager = getSynGapManager(statesManager);
         intraSchedulers = createIntraSchedulers(schedulerNum);

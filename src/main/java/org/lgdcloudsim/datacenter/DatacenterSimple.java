@@ -1590,4 +1590,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
     public double getPricePerBw() {
         return pricePerBw;
     }
+
+    @Override
+    public HashMap<String, Long> getGpuMap() {
+        return statesManager.getTotalGpuMap();
+    }
 }

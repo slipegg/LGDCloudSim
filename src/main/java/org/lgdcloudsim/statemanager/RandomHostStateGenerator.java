@@ -38,6 +38,15 @@ public class RandomHostStateGenerator implements HostStateGenerator {
     /** the maximum amount of bw that is available on the host */
     private int maxBw = 1024;
 
+    /** the minimum amount of gpu that is available on the host */
+    private int minGpu = 0;
+
+    /** the maximum amount of gpu that is available on the host */
+    private int maxGpu = 16;
+
+    /** the type of gpu that is available on the host */
+    private String gpuType = "NVIDIA A100";
+
     /**
      * Initialize a random host state generator.
      * Note that if seed=-1, it means that each generation is random,
@@ -67,8 +76,11 @@ public class RandomHostStateGenerator implements HostStateGenerator {
      * @param maxStorage the maximum amount of storage that is available on the host
      * @param minBw      the minimum amount of bw that is available on the host
      * @param maxBw      the maximum amount of bw that is available on the host
+     * @param minGpu     the minimum amount of gpu that is available on the host
+     * @param maxGpu     the maximum amount of gpu that is available on the host
+     * @param gpuType    the type of gpu that is available on the host
      */
-    public RandomHostStateGenerator(int seed, int minCpu, int maxCpu, int minRam, int maxRam, int minStorage, int maxStorage, int minBw, int maxBw) {
+    public RandomHostStateGenerator(int seed, int minCpu, int maxCpu, int minRam, int maxRam, int minStorage, int maxStorage, int minBw, int maxBw, int minGpu, int maxGpu, String gpuType) {
         this(seed);
         this.minCpu = minCpu;
         this.maxCpu = maxCpu;
@@ -78,7 +90,10 @@ public class RandomHostStateGenerator implements HostStateGenerator {
         this.maxStorage = maxStorage;
         this.minBw = minBw;
         this.maxBw = maxBw;
-    }
+        this.minGpu = minGpu;
+        this.maxGpu = maxGpu;
+        this.gpuType = gpuType;
+        }
 
     /**
      * Generate the random state of a host.
@@ -86,12 +101,13 @@ public class RandomHostStateGenerator implements HostStateGenerator {
      * @return the state of the host.The state includes 4 integers: cpu, ram, storage and bw.
      * */
     @Override
-    public int[] generateHostState() {
-        int[] hostStates = new int[4];
+    public HostState generateHostState() {
+        int[] hostStates = new int[HostState.STATE_NUM];
         hostStates[0] = random.nextInt(maxCpu - minCpu + 1) + minCpu;
         hostStates[1] = random.nextInt(maxRam - minRam + 1) + minRam;
         hostStates[2] = random.nextInt(maxStorage - minStorage + 1) + minStorage;
         hostStates[3] = random.nextInt(maxBw - minBw + 1) + minBw;
-        return hostStates;
+        hostStates[4] = random.nextInt(maxGpu - minGpu + 1) + minGpu;
+        return new HostState(hostStates, gpuType);
     }
 }

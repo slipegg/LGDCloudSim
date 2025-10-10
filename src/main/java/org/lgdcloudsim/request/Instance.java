@@ -67,6 +67,34 @@ public interface Instance extends RequestEntity {
     Instance setBw(int bw);
 
     /**
+     * Get the GPU required by the instance to run on the host. The default unit is number of GPUs.
+     * @return the GPU required by the instance.
+     */
+    int getGpu();
+    
+    /**
+     * Set the GPU required by the instance to run on the host. The default unit is number of GPUs.
+     *
+     * @param gpu the GPU required by the instance.
+     * @return the instance itself.
+     */
+    Instance setGpu(int gpu);
+    
+    /**
+     * Get the GPU type required by the instance to run on the host.
+     * @return the GPU type required by the instance.
+     */
+    String getGpuType();
+
+    /**
+     * Set the GPU type required by the instance to run on the host.
+     *
+     * @param gpuType the GPU type required by the instance.
+     * @return the instance itself.
+     */
+    Instance setGpuType(String gpuType);
+
+    /**
      * Get the lifecycle of the instance running on the host. The unit is milliseconds.
      * @return the lifecycle of the instance.
      */

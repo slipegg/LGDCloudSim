@@ -40,6 +40,8 @@
               "ram": 256,
               "storage": 1600,
               "bw": 800,
+              "gpu": 8,
+              "gpuType": "NVIDIA A100",
               "startId": 0,
               "length": 400
             }
@@ -75,6 +77,8 @@
               "ram": 256,
               "storage": 1600,
               "bw": 800,
+              "gpu": 8,
+              "gpuType": "NVIDIA A100",
               "startId": 0,
               "length": 200
             }
