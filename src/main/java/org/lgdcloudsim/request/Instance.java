@@ -288,4 +288,8 @@ public interface Instance extends RequestEntity {
      * @param intraScheduleEndTime the intraScheduleEndTime of the instance.
      */
     Instance setIntraScheduleEndTime(double intraScheduleEndTime);
+
+    int getRank();
+
+    Instance setRank(int rank);
 }

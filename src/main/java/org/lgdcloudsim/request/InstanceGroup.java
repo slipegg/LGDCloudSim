@@ -230,4 +230,8 @@ public interface InstanceGroup extends RequestEntity {
      * @param interScheduleTime the interScheduleTime of the instance group.
      */
     InstanceGroup setInterScheduleEndTime(double interScheduleTime);
+
+    TrainingStrategy getTrainingStrategy();
+
+    InstanceGroup setTrainingStrategy(TrainingStrategy trainingStrategy);
 }

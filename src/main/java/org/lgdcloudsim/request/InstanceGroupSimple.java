@@ -70,6 +70,8 @@ public class InstanceGroupSimple implements InstanceGroup {
 
     List<Integer> forwardDatacenterIdsHistory;
 
+    TrainingStrategy trainingStrategy;
+
     /**
      * Create an instance group with the specified id.
      * The instances in the instance group are initially empty.

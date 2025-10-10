@@ -24,6 +24,8 @@ public class InstanceSimple implements Instance {
     @NonNull
     int id;
 
+    int rank;
+
     /**
      * The user request to which the instance belongs.
      */
