@@ -28,6 +28,7 @@ public class FactorySimple implements Factory {
             case "FirstFit" -> new IntraSchedulerFirstFit(id, firstPartitionId, partitionNum);
             case "multiLevel" -> new IntraSchedulerPartitionMultiLevel(id, firstPartitionId, partitionNum);
             case "fixedPartitionRandom" -> new IntraSchedulerFixedPartitionRandom(id, firstPartitionId, partitionNum);
+            case "gpuBinPack" -> new IntraSchedulerGPUBinPack(id, firstPartitionId, partitionNum);
             default -> null;
         };
     }
