@@ -132,4 +132,6 @@ public interface NetworkTopology {
      * @return the data center id list.
      */
     Set<Integer> getDcIdList();
+
+    ClosTopologyManager getClosTopologyManager();
 }

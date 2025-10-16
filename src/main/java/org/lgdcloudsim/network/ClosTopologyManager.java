@@ -11,8 +11,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.request.TrainingStrategy;
 
 // DCID,ASW,PSW,DSW,StartID,EndID
 // 1,G6,P10,S14,0,99
@@ -34,16 +39,16 @@ public class ClosTopologyManager {
     }
 
     // Sorted by start
-    private final List<RangeEntry> entries = new ArrayList<>();
+    private List<RangeEntry> entries = new ArrayList<>();
 
     // Precomputed Clos -> [minStart, maxEnd]
-    private final Map<ClosTopologyItem, int[]> ClosRangeMap = new HashMap<>();
+    private Map<ClosTopologyItem, int[]> ClosRangeMap = new HashMap<>();
 
     /**
      * Construct the topology by parsing a CSV file.
      * csvFilePath can be an absolute/relative file system path or a classpath resource path.
      */
-    public ClosTopologyManager (String csvFilePath) {
+    public ClosTopologyManager(String csvFilePath) {
         if (csvFilePath == null || csvFilePath.trim().isEmpty()) {
             return;
         }
@@ -55,28 +60,32 @@ public class ClosTopologyManager {
             try (BufferedReader r = Files.newBufferedReader(fsPath, StandardCharsets.UTF_8)) {
                 String line;
                 while ((line = r.readLine()) != null) {
+                    if (!line.isEmpty() && line.charAt(0) == '\uFEFF') {
+                        line = line.substring(1);
+                    }
                     lines.add(line);
                 }
-            } catch (IOException ignored) {
-                // fall through to try classpath
-            }
-        }
-
-        if (lines.isEmpty()) {
-            // try classpath resource
-            InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(csvFilePath);
-            if (is != null) {
-                try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = r.readLine()) != null) {
-                        lines.add(line);
+            } catch (IOException ignored) {}
+        } else {
+            // try classpath
+            try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(csvFilePath)) {
+                if (is != null) {
+                    try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = r.readLine()) != null) {
+                            if (!line.isEmpty() && line.charAt(0) == '\uFEFF') {
+                                line = line.substring(1);
+                            }
+                            lines.add(line);
+                        }
                     }
-                } catch (IOException ignored) {
                 }
-            }
+            } catch (IOException ignored) {}
         }
 
-        // detect header and build column indices mapping
+        if (lines.isEmpty()) return;
+
+        // skip comments and blank lines before header
         int firstIdx = 0;
         while (firstIdx < lines.size()) {
             String t = lines.get(firstIdx);
@@ -85,102 +94,63 @@ public class ClosTopologyManager {
             if (t.isEmpty() || t.startsWith("#") || t.startsWith("//")) { firstIdx++; continue; }
             break;
         }
+        if (firstIdx >= lines.size()) return;
 
+        // detect header
         Map<String, Integer> colIdx = new HashMap<>();
-        boolean hasHeader = false;
-        if (firstIdx < lines.size()) {
-            String candidate = lines.get(firstIdx).trim();
-            String[] parts = candidate.split(",");
-            // check if candidate looks like a header (contains known tokens)
-            int found = 0;
-            for (int i = 0; i < parts.length; i++) {
-                String p = parts[i].trim().toLowerCase();
-                if (p.equals("dcid") || p.equals("asw") || p.equals("psw") || p.equals("dsw") || p.equals("startid") || p.equals("endid") || p.equals("startid") || p.equals("endid")) {
-                    found++;
-                }
-            }
-            if (found >= 3) { // likely a header if it contains at least 3 known column names
-                hasHeader = true;
-                for (int i = 0; i < parts.length; i++) {
-                    String p = parts[i].trim().toLowerCase();
-                    colIdx.put(p, i);
-                }
-            } else {
-                // no header; determine mapping by column count of this first data line
-                if (parts.length >= 6) {
-                    // assume: DCID,ASW,PSW,DSW,StartID,EndID
-                    colIdx.put("dcid", 0);
-                    colIdx.put("asw", 1);
-                    colIdx.put("psw", 2);
-                    colIdx.put("dsw", 3);
-                    colIdx.put("startid", 4);
-                    colIdx.put("endid", 5);
-                } else if (parts.length >= 5) {
-                    // assume: ASW,PSW,DSW,StartID,EndID
-                    colIdx.put("asw", 0);
-                    colIdx.put("psw", 1);
-                    colIdx.put("dsw", 2);
-                    colIdx.put("startid", 3);
-                    colIdx.put("endid", 4);
-                } else {
-                    // cannot determine mapping; nothing to parse
-                    return;
-                }
+        String header = lines.get(firstIdx).trim();
+        String[] headerParts = header.split(",", -1);
+        for (int i = 0; i < headerParts.length; i++) {
+            String h = headerParts[i].trim().toLowerCase();
+            if (h.equals("dcid") || h.equals("asw") || h.equals("psw") || h.equals("dsw")
+                    || h.equals("startid") || h.equals("endid")) {
+                colIdx.put(h, i);
             }
         }
 
+        boolean hasHeader = colIdx.size() >= 4;
         int startLine = firstIdx + (hasHeader ? 1 : 0);
+
+        // fallback: assume fixed order
+        if (!hasHeader) {
+            colIdx.put("dcid", 0);
+            colIdx.put("asw", 1);
+            colIdx.put("psw", 2);
+            colIdx.put("dsw", 3);
+            colIdx.put("startid", 4);
+            colIdx.put("endid", 5);
+        }
+
         for (int li = startLine; li < lines.size(); li++) {
             String raw = lines.get(li);
             if (raw == null) continue;
             String line = raw.trim();
-            if (line.isEmpty()) continue;
-            if (line.startsWith("#") || line.startsWith("//")) continue;
+            if (line.isEmpty() || line.startsWith("#") || line.startsWith("//")) continue;
 
-            String[] parts = line.split(",");
-            // ensure we have enough columns for the configured indices
-            int maxIdx = -1;
-            for (Integer idx : colIdx.values()) if (idx != null && idx > maxIdx) maxIdx = idx;
-            if (parts.length <= maxIdx) continue; // malformed
+            String[] parts = line.split(",", -1);
+            for (int i = 0; i < parts.length; i++) parts[i] = parts[i].trim();
 
-            // parse fields using column map
-            int dcId = 0;
-            if (colIdx.containsKey("dcid")) {
-                String s = parts[colIdx.get("dcid")].trim();
-                try {
-                    dcId = Integer.parseInt(s);
-                } catch (NumberFormatException nfe) {
-                    // malformed dcId; skip this line
-                    continue;
-                }
-            }
-
-            String asw = parts[colIdx.get("asw")].trim();
-            String psw = parts[colIdx.get("psw")].trim();
-            String dsw = parts[colIdx.get("dsw")].trim();
-
-            int start, end;
             try {
-                start = Integer.parseInt(parts[colIdx.get("startid")].trim());
-                end = Integer.parseInt(parts[colIdx.get("endid")].trim());
-            } catch (Exception ex) {
-                // malformed numbers
-                continue;
-            }
+                int dcid = colIdx.containsKey("dcid") ? Integer.parseInt(parts[colIdx.get("dcid")]) : 0;
+                String asw = parts[colIdx.get("asw")];
+                String psw = parts[colIdx.get("psw")];
+                String dsw = parts[colIdx.get("dsw")];
+                int start = Integer.parseInt(parts[colIdx.get("startid")]);
+                int end = Integer.parseInt(parts[colIdx.get("endid")]);
 
-            ClosTopologyItem item = new ClosTopologyItem(dcId, asw, psw, dsw);
-            entries.add(new RangeEntry(start, end, item));
+                ClosTopologyItem item = new ClosTopologyItem(dcid, asw, psw, dsw);
+                entries.add(new RangeEntry(start, end, item));
 
-            // update Clos range
-            int[] cur = ClosRangeMap.get(item);
-            if (cur == null) {
+                if (ClosRangeMap.containsKey(item)) {
+                    throw new IllegalArgumentException("Duplicate ClosTopologyItem entry: " + line);
+                }
                 ClosRangeMap.put(item, new int[]{start, end});
-            } else {
-                throw new IllegalArgumentException("Duplicate ClosTopologyItem entry in CSV: " + line);
+
+            } catch (Exception ex) {
+                System.err.println("[WARN] Skip malformed CSV line: " + line);
             }
         }
 
-        // sort by start for binary search
         Collections.sort(entries, (a, b) -> Integer.compare(a.start, b.start));
     }
 
@@ -188,7 +158,7 @@ public class ClosTopologyManager {
      * Return the ClosTopologyItem for a given hostId, or null if not found.
      * Uses binary search on the sorted ranges for O(log n) lookup.
      */
-    ClosTopologyItem getClosTopologyItemByHostId(int hostId) {
+    public ClosTopologyItem getClosTopologyItemByHostId(int hostId) {
         int lo = 0, hi = entries.size() - 1;
         while (lo <= hi) {
             int mid = (lo + hi) >>> 1;
@@ -204,6 +174,63 @@ public class ClosTopologyManager {
         return null;
     }
 
+    public int calculateDPSpread(InstanceGroup instanceGroup) {
+        int spread = 0;
+        TrainingStrategy trainingStrategy = instanceGroup.getTrainingStrategy();
+        if (trainingStrategy == null) {
+            return spread;
+        }
+        
+        int dpDim = trainingStrategy.getDPDim();
+        int ppDim = trainingStrategy.getPPDim();
+        for(int i = 0; i < dpDim; i++) {
+            HashSet<String> pswSet = new HashSet<>();
+            List<Instance> instanceList = instanceGroup.getInstances();
+            for(int j = 0; j < ppDim; j++) {
+                Instance instance = instanceList.get(i * ppDim + j);
+                int hostId = instance.getHost();
+                ClosTopologyItem closItem = getClosTopologyItemByHostId(hostId);
+                pswSet.add(closItem.getPSW());
+            }
+            if (pswSet.size() > spread) {
+                spread = pswSet.size();
+            }
+        }
+        
+        return spread;
+    }
+
+    public int calculatePPSpread(InstanceGroup instanceGroup) {
+        int spread = 0;
+        TrainingStrategy trainingStrategy = instanceGroup.getTrainingStrategy();
+        if (trainingStrategy == null) {
+            return spread;
+        }
+        
+        int dpDim = trainingStrategy.getDPDim();
+        int ppDim = trainingStrategy.getPPDim();
+        for(int i = 0; i < ppDim; i++) {
+            HashSet<String> pswSet = new HashSet<>();
+            List<Instance> instanceList = instanceGroup.getInstances();
+            for(int j = 0; j < dpDim; j++) {
+                Instance instance = instanceList.get(j * ppDim + i);
+                int hostId = instance.getHost();
+                ClosTopologyItem closItem = getClosTopologyItemByHostId(hostId);
+                pswSet.add(closItem.getPSW());
+            }
+            if (pswSet.size() > spread) {
+                spread = pswSet.size();
+            }
+        }
+        return spread;    
+    }
+
+    public double calculateSpreadScore(InstanceGroup instanceGroup, double alpha, double beta) {
+        int dpSpread = calculateDPSpread(instanceGroup);
+        int ppSpread = calculatePPSpread(instanceGroup);
+        return alpha * dpSpread + beta * ppSpread;  
+    }
+
     /**
      * Return merged host id range [minStart, maxEnd] for the given ClosTopologyItem.
      * Returns null if ClosTopologyItem not found.
@@ -213,6 +240,6 @@ public class ClosTopologyManager {
         int[] r = ClosRangeMap.get(item);
         if (r == null) return null;
         return new int[]{r[0], r[1]};
-    }
+    }   
 }
 

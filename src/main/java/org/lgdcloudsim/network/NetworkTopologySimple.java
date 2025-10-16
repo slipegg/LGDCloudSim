@@ -1,5 +1,6 @@
 package org.lgdcloudsim.network;
 
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Set;
@@ -40,6 +41,7 @@ public class NetworkTopologySimple implements NetworkTopology {
     /**
      * The Clos topology manager.
      */
+    @Getter
     ClosTopologyManager closTopologyManager;
 
     /**

@@ -5,10 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-class ClosTopologyItem {
+public class ClosTopologyItem {
     int dcId;
     String ASW;
-    String PSW;
+    String PSW;// minipod
     String DSW;
 
     public ClosTopologyItem(int dcId, String ASW, String PSW, String DSW) {

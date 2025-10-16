@@ -73,4 +73,9 @@ public class NetworkTopologyNull implements NetworkTopology {
     public Set<Integer> getDcIdList() {
         return new HashSet<Integer>();
     }
+
+    @Override
+    public ClosTopologyManager getClosTopologyManager() {
+        return null;
+    }
 }

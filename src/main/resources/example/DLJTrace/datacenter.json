@@ -1,0 +1,33 @@
+{
+    "id": 1,
+    "hostNum": 18,
+    "partitions": [
+      {
+        "length": 18
+      }
+    ],
+    "hostStates": [
+      {
+        "cpu": 192,
+        "ram": 3200,
+        "storage": 0,
+        "bw": 0,
+        "gpu": 8,
+        "gpuType": "NVIDIA A100",
+        "startId": 0,
+        "length": 18
+      }
+    ],
+    "synchronizationGap": 0,
+    "intraSchedulers": [
+      {
+        "type": "randomScore"
+      }
+    ],
+    "loadBalancer": {
+      "type": "batch"
+    },
+    "resourceAllocateSelector": {
+      "type": "simple"
+    }
+}

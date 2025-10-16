@@ -1,0 +1,2 @@
+job_name,instance_replicate,gpu_num,cpu_num,memory,submit_time_sec,running_time_sec,dp_dim,pp_dim,rdma,model
+dlcar6cqs8mecvlz,24,4,1,10,0,179,2,12,6,llama_30b
