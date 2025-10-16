@@ -61,6 +61,8 @@ public interface SqlRecord {
      */
     void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup);
 
+    void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread);
+
     /**
      * Record the instance group all information.
      * It records the instance group id, the id of the user request where the instance group belongs,

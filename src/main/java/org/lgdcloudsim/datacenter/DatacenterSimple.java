@@ -602,7 +602,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             LOGGER.debug("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
         }
         instanceGroup.setFinishTime(getSimulation().clock());
-        getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
+        int dpSpread = this.getSimulation().getNetworkTopology().getClosTopologyManager().calculateDPSpread(instanceGroup);
+        int ppSpread = this.getSimulation().getNetworkTopology().getClosTopologyManager().calculatePPSpread(instanceGroup);
+        getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup, dpSpread, ppSpread);
 
         UserRequest userRequest = instanceGroup.getUserRequest();
         //Release bandwidth resources
@@ -733,7 +735,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
         if (evt.getData() instanceof IntraSchedulerResult intraSchedulerResult) {
             IntraScheduler intraScheduler = intraSchedulerResult.getIntraScheduler();
 
-            LOGGER.info("{}: {}'s {} ends scheduling instances.", getSimulation().clockStr(), getName(), intraScheduler.getName());
+            LOGGER.info("{}: {}'s {} ends scheduling instances(success {}, fail {}).", getSimulation().clockStr(), getName(), intraScheduler.getName(), intraSchedulerResult.getScheduledInstances().size(), intraSchedulerResult.getFailedInstances().size());
 
             if (!statesManager.isInLatestPartitionSynGap(intraSchedulerResult.getScheduleTime())) {//把同步时对这一调度的记录补回来
                 statesManager.revertHostState(intraSchedulerResult);

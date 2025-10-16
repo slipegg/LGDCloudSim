@@ -7,6 +7,7 @@ import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.UserRequest;
+import org.lgdcloudsim.util.StrategyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,7 +246,25 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup) {
         try {
-            sql = "UPDATE " + this.instanceGroupTableName + " SET finishTime = " + instanceGroup.getFinishTime() + " WHERE id = " + instanceGroup.getId() + ";";
+            sql = "UPDATE " + this.instanceGroupTableName 
+                    + " SET finishTime = " + instanceGroup.getFinishTime()
+                    + " WHERE id = " + instanceGroup.getId() + ";";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread) {
+        try {
+            sql = "UPDATE " + this.instanceGroupTableName 
+                    + " SET finishTime = " + instanceGroup.getFinishTime() 
+                    + ", dpDim = " + (instanceGroup.getTrainingStrategy() == null ? 0 : instanceGroup.getTrainingStrategy().getDPDim())
+                    + ", ppDim = " + (instanceGroup.getTrainingStrategy() == null ? 0 : instanceGroup.getTrainingStrategy().getPPDim())
+                    + ", dpSpread = " + dpSpread
+                    + ", ppSpread = " + ppSpread
+                    + " WHERE id = " + instanceGroup.getId() + ";";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -536,6 +555,10 @@ public class SqlRecordSimple implements SqlRecord {
                 " receivedTime DOUBLE NOT NULL," +
                 " finishTime DOUBLE," +
                 " instanceNum INT NOT NULL, " +
+                " dpDim INT, " +
+                " ppDim INT, " +
+                " dpSpread INT, " +
+                " ppSpread INT, " +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;

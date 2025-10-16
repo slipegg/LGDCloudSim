@@ -122,4 +122,9 @@ public class SqlRecordNull implements SqlRecord {
     public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
 
     }
+
+    @Override
+    public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread) {
+    
+    }
 }

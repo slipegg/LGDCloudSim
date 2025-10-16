@@ -845,4 +845,9 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread) {
+        recordInstanceGroupFinishInfo(instanceGroup);
+    }
 }
