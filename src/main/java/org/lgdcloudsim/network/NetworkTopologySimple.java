@@ -3,6 +3,8 @@ package org.lgdcloudsim.network;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.lgdcloudsim.core.CloudInformationService;
@@ -41,7 +43,6 @@ public class NetworkTopologySimple implements NetworkTopology {
     /**
      * The Clos topology manager.
      */
-    @Getter
     ClosTopologyManager closTopologyManager;
 
     /**
@@ -150,5 +151,13 @@ public class NetworkTopologySimple implements NetworkTopology {
     @Override
     public Set<Integer> getDcIdList() {
         return dcBwManager.getDcIdList();
+    }
+
+    @Override
+    public ClosTopology getClosTopology(int dcID) {
+        if (closTopologyManager != null) {
+            return closTopologyManager.getClosTopology(dcID);
+        }
+        return null;
     }
 }

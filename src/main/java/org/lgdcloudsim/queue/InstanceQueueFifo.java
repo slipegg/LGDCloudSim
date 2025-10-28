@@ -22,6 +22,14 @@ public class InstanceQueueFifo implements InstanceQueue {
     private List<Instance> instances;
 
     /**
+     * Protected accessor for subclasses to read/manipulate the internal list.
+     * Prefer using this instead of direct field access to preserve encapsulation.
+     */
+    protected List<Instance> getInstances() {
+        return this.instances;
+    }
+
+    /**
      * the number of instances to be sent in a batch.
      **/
     @Getter
@@ -99,7 +107,7 @@ public class InstanceQueueFifo implements InstanceQueue {
 
             sendInstances.add(this.instances.remove(0));
         }
-        return new QueueResult(sendInstances, failedUserRequests);
+        return new QueueResult<Instance>(sendInstances, failedUserRequests);
     }
 
     @Override

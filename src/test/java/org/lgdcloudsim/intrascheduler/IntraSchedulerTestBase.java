@@ -1,7 +1,5 @@
 package org.lgdcloudsim.intrascheduler;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +10,7 @@ import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.core.SimulationNull;
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.datacenter.DatacenterNull;
+import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.statemanager.*;
 import org.junit.Before;
@@ -108,6 +107,18 @@ class FakeSynState implements SynState {
      */
     public void allocateTmpResource(int hostId, Instance instance) {
         tmpResourceAllocationHistory.add(Pair.of(hostId, instance));
+    }
+
+    @Override
+    public int suitableReplicateNum(int hostId, Instance instance) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'suitableReplicateNum'");
+    }
+
+    @Override
+    public ClosTopology getClosTopology() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getClosTopology'");
     }
 }
 

@@ -1,5 +1,6 @@
 package org.lgdcloudsim.statemanager;
 
+import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +36,19 @@ public interface SynState {
      */
     boolean isSuitable(int hostId, Instance instance);
 
+    int suitableReplicateNum(int hostId, Instance instance);
+
     /**
      * Pretend that resources have been allocated on this host and modify the corresponding SysState
      * @param hostId the id of the host.
      * @param instance the instance to be placed.
      */
     void allocateTmpResource(int hostId, Instance instance);
+
+    /**
+     * Get the Clos topology.
+     *
+     * @return the Clos topology.
+     */
+    ClosTopology getClosTopology();
 }

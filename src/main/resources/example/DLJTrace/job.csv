@@ -1,2 +1,5 @@
-job_name,instance_replicate,gpu_num,cpu_num,memory,submit_time_sec,running_time_sec,dp_dim,pp_dim,rdma,model
-dlcar6cqs8mecvlz,24,4,1,10,0,179,2,12,6,llama_30b
+job_name,instance_replicate,gpu_num,cpu_num,memory,submit_time_sec,running_time_sec,strategy_type,dp_dim,pp_dim,rdma,model
+dlcar6cqs8mecvlz,2,4,1,10,0,79,PS,1,1,6,unknown
+dlcar6cqs8mecvlz,5,2,1,10,80,179,PS,1,1,6,unknown
+dlcar6cqs8mecvlz,8,8,1,10,180,359,DP,8,1,6,gpt
+dlcar6cqs8mecvlz,24,8,1,10,360,539,3D_PP,4,6,6,llama_30b

@@ -75,7 +75,7 @@ public class NetworkTopologyNull implements NetworkTopology {
     }
 
     @Override
-    public ClosTopologyManager getClosTopologyManager() {
+    public ClosTopology getClosTopology(int dcID) {
         return null;
     }
 }

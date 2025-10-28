@@ -602,9 +602,8 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             LOGGER.debug("{}: {}'s InstanceGroup{} successfully completed running.", getSimulation().clockStr(), getName(), instanceGroup.getId());
         }
         instanceGroup.setFinishTime(getSimulation().clock());
-        int dpSpread = this.getSimulation().getNetworkTopology().getClosTopologyManager().calculateDPSpread(instanceGroup);
-        int ppSpread = this.getSimulation().getNetworkTopology().getClosTopologyManager().calculatePPSpread(instanceGroup);
-        getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup, dpSpread, ppSpread);
+        getSimulation().getSqlRecord().recordInstanceGroupFinishInfo(instanceGroup);
+        getSimulation().getSqlRecord().recordInstanceTopologyInfo(instanceGroup, getSimulation().getNetworkTopology().getClosTopology(getId()));
 
         UserRequest userRequest = instanceGroup.getUserRequest();
         //Release bandwidth resources

@@ -6,6 +6,9 @@ import org.lgdcloudsim.intrascheduler.*;
 import org.lgdcloudsim.record.*;
 import org.lgdcloudsim.interscheduler.*;
 import org.lgdcloudsim.loadbalancer.*;
+import org.lgdcloudsim.queue.InstanceQueue;
+import org.lgdcloudsim.queue.InstanceQueueFifo;
+import org.lgdcloudsim.queue.InstanceQueueGroup;
 import org.lgdcloudsim.record.SqlRecordDetailScheduleTime;
 import org.lgdcloudsim.statemanager.*;
 
@@ -29,6 +32,16 @@ public class FactorySimple implements Factory {
             case "multiLevel" -> new IntraSchedulerPartitionMultiLevel(id, firstPartitionId, partitionNum);
             case "fixedPartitionRandom" -> new IntraSchedulerFixedPartitionRandom(id, firstPartitionId, partitionNum);
             case "gpuBinPack" -> new IntraSchedulerGPUBinPack(id, firstPartitionId, partitionNum);
+            case "closTopology" -> new IntraSchedulerClosTopo(id, firstPartitionId, partitionNum);
+            default -> null;
+        };
+    }
+
+    @Override
+    public InstanceQueue getInstanceQueue(String type) {
+        return switch (type) {
+            case "fifo", "Fifo", "simple", "Simple" -> new InstanceQueueFifo();
+            case "group", "Group" -> new InstanceQueueGroup(1);
             default -> null;
         };
     }

@@ -1,6 +1,7 @@
 package org.lgdcloudsim.core;
 
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.queue.InstanceQueue;
 import org.lgdcloudsim.conflicthandler.ConflictHandler;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.record.SqlRecord;
@@ -77,4 +78,6 @@ public interface Factory {
      * @return the sql record.
      */
     SqlRecord getSqlRecord(String type, String dbName);
+
+    InstanceQueue getInstanceQueue(String type);
 }

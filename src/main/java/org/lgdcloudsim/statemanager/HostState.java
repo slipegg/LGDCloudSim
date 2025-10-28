@@ -119,6 +119,10 @@ public class HostState {
         gpu = gpu - instance.getGpu();
     }
 
+    public int getGPUScore() {
+        return gpu*(gpu-1);
+    }
+
     @Override
     public String toString() {
         return "HostState{" +

@@ -1,9 +1,11 @@
 package org.lgdcloudsim.record;
 
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
+import org.lgdcloudsim.request.InstanceTopology;
 import org.lgdcloudsim.request.UserRequest;
 
 import java.util.List;
@@ -60,8 +62,6 @@ public interface SqlRecord {
      * @param instanceGroup the instance group.
      */
     void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup);
-
-    void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread);
 
     /**
      * Record the instance group all information.
@@ -190,4 +190,6 @@ public interface SqlRecord {
      * Close the SQLite database.
      */
     void close();
+
+    void recordInstanceTopologyInfo(InstanceGroup instanceGroup, ClosTopology closTopology);
 }

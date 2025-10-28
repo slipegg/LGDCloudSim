@@ -69,6 +69,7 @@ public class UserRequestManagerDLJTrace implements UserRequestManager {
         int instance_memory = Integer.parseInt(record.get("memory"));
         int instance_running_time = Integer.parseInt(record.get("running_time_sec"))*1000;
         String model = record.get("model");
+        String strategy_type = record.get("strategy_type");
         int dp_dim = Integer.parseInt(record.get("dp_dim"));
         int pp_dim = Integer.parseInt(record.get("pp_dim"));
         int rdma = Integer.parseInt(record.get("rdma"));
@@ -81,7 +82,7 @@ public class UserRequestManagerDLJTrace implements UserRequestManager {
             instanceList.add(instance);
         }
         InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupIdCounter++, instanceList);
-        instanceGroup.setTrainingStrategy(new TrainingStrategy(dp_dim, pp_dim, rank0Index));
+        instanceGroup.setTrainingStrategy(new TrainingStrategy(strategy_type, dp_dim, pp_dim, rank0Index, instanceList));
         UserRequest userRequest = new UserRequestSimple(requestIdCounter++, new ArrayList<>(Collections.singletonList(instanceGroup)), new InstanceGroupGraphSimple(false));
         userRequest.setSubmitTime(Double.parseDouble(record.get("submit_time_sec"))*1000);
 

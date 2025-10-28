@@ -2,6 +2,7 @@ package org.lgdcloudsim.statemanager;
 
 import lombok.Getter;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
+import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.request.Instance;
 
 import java.util.*;
@@ -87,6 +88,9 @@ public class SynStateSimple implements SynState {
 
     HostCapacityManager hostCapacityManager;
 
+    @Getter
+    ClosTopology closTopology;
+
     /**
      * The constructor of the class SynStateSimple.
      *
@@ -102,12 +106,13 @@ public class SynStateSimple implements SynState {
      */
     public SynStateSimple(Map<Integer, TreeMap<Double, Map<Integer, int[]>>> synState, int[] nowHostStates,
                           PartitionRangesManager partitionRangesManager, HostCapacityManager hostCapacityManager, Map<Integer, Map<Integer, int[]>> selfHostState, IntraScheduler scheduler,
-                          PredictionManager predictionManager, SynGapManager synGapManager, int predictRecordNum, boolean predictable) {
+                          PredictionManager predictionManager, SynGapManager synGapManager, int predictRecordNum, boolean predictable, ClosTopology closTopology) {
         this.synState = synState;
         this.nowHostStates = nowHostStates;
         this.partitionRangesManager = partitionRangesManager;
         this.selfHostState = selfHostState;
         this.predictionManager = predictionManager;
+        this.closTopology = closTopology;
         this.synGapManager = synGapManager;
         this.hostCapacityManager = hostCapacityManager;
         this.predictable = predictable;
@@ -283,5 +288,21 @@ public class SynStateSimple implements SynState {
             predictHostStateMap.put(hostId, predictHostState);
             return predictHostState;
         }
+    }
+
+    public int suitableReplicateNum(int hostId, Instance instance) {
+        int replicateNum = 0;
+        HostState hostState = getHostState(hostId);
+        for (; replicateNum < 10000; replicateNum++) {
+            if (hostState.isSuitable(instance)) {
+                hostState.allocate(instance);
+            } else {
+                break;
+            }
+        }
+        if (replicateNum >= 10000) {
+            LOGGER.warn("suitableReplicateNum reach max limit 10000 for hostId {}, instance: {}", hostId, instance);
+        }
+        return replicateNum;
     }
 }

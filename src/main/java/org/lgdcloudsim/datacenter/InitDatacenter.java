@@ -7,6 +7,7 @@ import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerSimple;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.queue.InstanceQueue;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.*;
@@ -549,6 +550,11 @@ public class InitDatacenter {
                 LOGGER.info("IntraScheduler {} Missing firstPartitionId, defaults to 0", k);
             }
             IntraScheduler scheduler = factory.getIntraScheduler(schedulerJson.getString("type"), intraSchedulerId++, firstSynPartitionId, partitionNum);
+            if (schedulerJson.containsKey("queue")) {
+                String queueType = schedulerJson.getString("queue");
+                InstanceQueue instanceQueue = factory.getInstanceQueue(queueType);
+                scheduler.setInstanceQueue(instanceQueue);
+            }
             intraSchedulers.add(scheduler);
         }
         return intraSchedulers;

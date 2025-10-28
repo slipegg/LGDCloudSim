@@ -51,6 +51,7 @@ public class IntraSchedulerSimple implements IntraScheduler {
      * The new instance queue.
      */
     @Getter
+    @Setter
     InstanceQueue instanceQueue;
 
     /**

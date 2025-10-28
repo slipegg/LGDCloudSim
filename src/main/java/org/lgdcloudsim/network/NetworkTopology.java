@@ -133,5 +133,5 @@ public interface NetworkTopology {
      */
     Set<Integer> getDcIdList();
 
-    ClosTopologyManager getClosTopologyManager();
+    ClosTopology getClosTopology(int dcID);
 }

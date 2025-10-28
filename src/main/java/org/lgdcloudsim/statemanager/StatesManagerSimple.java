@@ -341,7 +341,7 @@ public class StatesManagerSimple implements StatesManager {
             }
         }
         selfHostState = selfHostStateMap.get(scheduler);
-        return new SynStateSimple(synStateMap, getCenterHostStates(), partitionRangesManager, hostCapacityManager, selfHostState, scheduler, predictionManager, synGapManager, predictRecordNum, predictable);
+        return new SynStateSimple(synStateMap, getCenterHostStates(), partitionRangesManager, hostCapacityManager, selfHostState, scheduler, predictionManager, synGapManager, predictRecordNum, predictable, datacenter.getSimulation().getNetworkTopology().getClosTopology(datacenter.getId()));
     }
 
     /**

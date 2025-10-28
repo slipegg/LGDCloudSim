@@ -2,10 +2,13 @@ package org.lgdcloudsim.record;
 
 import lombok.Getter;
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
+import org.lgdcloudsim.request.InstanceTopology;
+import org.lgdcloudsim.request.TrainingStrategy;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.util.StrategyUtils;
 import org.slf4j.Logger;
@@ -67,6 +70,11 @@ public class SqlRecordSimple implements SqlRecord {
      * The name of the conflict table.
      */
     private String conflictTableName = null;
+
+    /**
+     * The name of the instance topology table.
+     */
+    private String instanceTopologyTableName = null;
 
     /**
      * The name of the SQLite database.
@@ -140,6 +148,7 @@ public class SqlRecordSimple implements SqlRecord {
         this.instanceGroupGraphTableName = instanceGroupGraphTableName;
         this.instanceTableName = instanceTableName;
         this.conflictTableName = "conflict";
+        this.instanceTopologyTableName = "instanceTopology";
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -157,6 +166,7 @@ public class SqlRecordSimple implements SqlRecord {
             createGroupGraphTable();
             createInstanceTable();
             createConflictTable();
+            createInstanceTopologyInfo();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -248,22 +258,6 @@ public class SqlRecordSimple implements SqlRecord {
         try {
             sql = "UPDATE " + this.instanceGroupTableName 
                     + " SET finishTime = " + instanceGroup.getFinishTime()
-                    + " WHERE id = " + instanceGroup.getId() + ";";
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread) {
-        try {
-            sql = "UPDATE " + this.instanceGroupTableName 
-                    + " SET finishTime = " + instanceGroup.getFinishTime() 
-                    + ", dpDim = " + (instanceGroup.getTrainingStrategy() == null ? 0 : instanceGroup.getTrainingStrategy().getDPDim())
-                    + ", ppDim = " + (instanceGroup.getTrainingStrategy() == null ? 0 : instanceGroup.getTrainingStrategy().getPPDim())
-                    + ", dpSpread = " + dpSpread
-                    + ", ppSpread = " + ppSpread
                     + " WHERE id = " + instanceGroup.getId() + ";";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
@@ -555,10 +549,6 @@ public class SqlRecordSimple implements SqlRecord {
                 " receivedTime DOUBLE NOT NULL," +
                 " finishTime DOUBLE," +
                 " instanceNum INT NOT NULL, " +
-                " dpDim INT, " +
-                " ppDim INT, " +
-                " dpSpread INT, " +
-                " ppSpread INT, " +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
         stmt.executeUpdate(sql);
         sql = "DROP TABLE IF EXISTS " + this.instanceTableName;
@@ -695,5 +685,49 @@ public class SqlRecordSimple implements SqlRecord {
     @Override
     public void recordDcNetworkInfo(Integer srcDcId, Integer dstDcId, double bw, double unitPrice) {
 
+    }
+
+    private void createInstanceTopologyInfo() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.instanceTopologyTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.instanceTopologyTableName + " " +
+                "(id INTEGER PRIMARY KEY NOT NULL," +
+                " instanceGroupId INT NOT NULL," +
+                " userRequestId INT NOT NULL," +
+                " topologyType CHAR(10) NOT NULL," +
+                " description TEXT NOT NULL," +
+                " score DOUBLE NOT NULL," +
+                " scheduledScore DOUBLE NOT NULL," +
+                " FOREIGN KEY(instanceGroupId) REFERENCES " + this.instanceGroupTableName + "(id)," +
+                " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
+
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+
+    @Override
+    public void recordInstanceTopologyInfo(InstanceGroup instanceGroup, ClosTopology closTopology) {
+        try {
+            TrainingStrategy trainingStrategy = instanceGroup.getTrainingStrategy();
+            Map<Integer, List<InstanceTopology>> instanceTopologyMap = trainingStrategy.getInstanceTopologyMap();
+
+            statement = conn.prepareStatement("INSERT INTO " + this.instanceTopologyTableName +
+                    "(instanceGroupId, userRequestId, topologyType, description, score, scheduledScore) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)");
+            for (Map.Entry<Integer, List<InstanceTopology>> entry : instanceTopologyMap.entrySet()) {
+                for (InstanceTopology instanceTopology : entry.getValue()) {
+                    statement.setInt(1, instanceGroup.getId());
+                    statement.setInt(2, instanceGroup.getUserRequest().getId());
+                    statement.setString(3, instanceTopology.getType());
+                    statement.setString(4, instanceTopology.toString());
+                    statement.setDouble(5, entry.getKey());
+                    statement.setDouble(6, StrategyUtils.calculateScheduledTopologyScore(instanceTopology, closTopology));
+                    statement.addBatch();
+                }
+            }
+            statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -146,7 +146,7 @@ public class CloudSim implements Simulation {
         // this.clockStr = "%.2f ms".formatted(clock);
         // 按需转化为毫秒、秒、分钟、小时，例如2h30m20s100ms
         if (clock < 1000) {
-            this.clockStr = "%.0f ms".formatted(clock);
+            this.clockStr = "%.3f ms".formatted(clock);
         } else if (clock < 60 * 1000) {
             this.clockStr = "%.3f s".formatted(clock / 1000);
         } else if (clock < 60 * 60 * 1000) {

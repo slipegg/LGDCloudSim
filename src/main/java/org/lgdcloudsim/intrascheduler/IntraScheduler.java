@@ -3,6 +3,7 @@ package org.lgdcloudsim.intrascheduler;
 import org.lgdcloudsim.core.DatacenterEntity;
 import org.lgdcloudsim.core.Nameable;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.queue.InstanceQueue;
 import org.lgdcloudsim.request.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,4 +109,6 @@ public interface IntraScheduler extends Nameable, DatacenterEntity {
      * @return the first synchronization partition id of the intra-scheduler.
      */
     int getFirstPartitionId();
+
+    IntraScheduler setInstanceQueue(InstanceQueue instanceQueue);
 }

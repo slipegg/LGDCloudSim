@@ -2,6 +2,7 @@ package org.lgdcloudsim.record;
 
 import lombok.Getter;
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
@@ -847,7 +848,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     }
 
     @Override
-    public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread) {
-        recordInstanceGroupFinishInfo(instanceGroup);
+    public void recordInstanceTopologyInfo(InstanceGroup instanceGroup, ClosTopology closTopology) {
+        
     }
 }

@@ -1,0 +1,3 @@
+job_name,instance_replicate,gpu_num,cpu_num,memory,submit_time_sec,running_time_sec,strategy_type,dp_dim,pp_dim,rdma,model
+dlcar6cqs8mecvlz,18,4,1,10,0,179,3D_PP,6,3,6,llama_30b
+dlcar6cqs8mecv2z,18,4,1,10,0,179,3D_PP,6,3,6,llama_30b

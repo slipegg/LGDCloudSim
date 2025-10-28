@@ -1,6 +1,7 @@
 package org.lgdcloudsim.record;
 
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
@@ -124,7 +125,7 @@ public class SqlRecordNull implements SqlRecord {
     }
 
     @Override
-    public void recordInstanceGroupFinishInfo(InstanceGroup instanceGroup, int dpSpread, int ppSpread) {
-    
+    public void recordInstanceTopologyInfo(InstanceGroup instanceGroup, ClosTopology closTopology) {
+        
     }
 }
