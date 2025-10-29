@@ -9,6 +9,7 @@ import lombok.Getter;
 
 @Getter
 public class TrainingStrategy {
+    public static final String TYPE_NONE = "NONE";
     public static final String TYPE_PS = "PS";
     public static final String TYPE_DP = "DP";
     public static final String TYPE_3D_DP = "3D_DP";

@@ -82,7 +82,11 @@ public class UserRequestManagerDLJTrace implements UserRequestManager {
             instanceList.add(instance);
         }
         InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupIdCounter++, instanceList);
-        instanceGroup.setTrainingStrategy(new TrainingStrategy(strategy_type, dp_dim, pp_dim, rank0Index, instanceList));
+        if (strategy_type.isEmpty() || strategy_type.equals(TrainingStrategy.TYPE_NONE)) {
+            // No training strategy
+        } else {
+            instanceGroup.setTrainingStrategy(new TrainingStrategy(strategy_type, dp_dim, pp_dim, rank0Index, instanceList));
+        }
         UserRequest userRequest = new UserRequestSimple(requestIdCounter++, new ArrayList<>(Collections.singletonList(instanceGroup)), new InstanceGroupGraphSimple(false));
         userRequest.setSubmitTime(Double.parseDouble(record.get("submit_time_sec"))*1000);
 

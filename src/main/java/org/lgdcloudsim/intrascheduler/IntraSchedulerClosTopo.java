@@ -280,7 +280,7 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
         }
     }
 
-    private void scheduleForInstanceGroup(InstanceGroup instanceGroup, SynState synState, IntraSchedulerResult intraSchedulerResult) {
+    private void scheduleForInstanceGroupWithTopology(InstanceGroup instanceGroup, SynState synState, IntraSchedulerResult intraSchedulerResult) {
         List<Instance> instances = instanceGroup.getInstances();
         Instance instance = instances.get(0);
         Integer instanceReplicate = instances.size();
@@ -310,6 +310,62 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
         resTopology.clearCandidate();
     }
 
+    private int scheduleForInstancesWithoutTopology(Instance instance, int replicate, int scheduledNum, SynState synState, ClosTopology closTopology, Map<ClosTopology, List<Integer>> scheduledClosTopologyHostIDsMap) {
+        int newScheduledNum = 0;
+        if (closTopology.isLeafTopology()) {
+            Range hostRange = closTopology.getRange();
+            for (int i = hostRange.getMin(); i <= hostRange.getMax(); i++) {
+                int suitNum = synState.suitableReplicateNum(i, instance);
+                for (int j = 0; j < suitNum; j++) {
+                    scheduledClosTopologyHostIDsMap.putIfAbsent(closTopology, new ArrayList<>());
+                    scheduledClosTopologyHostIDsMap.get(closTopology).add(i);
+                    newScheduledNum++;
+                    if (newScheduledNum + scheduledNum >= replicate) {
+                        return newScheduledNum;
+                    }
+                }
+            }
+        } else {
+            for (ClosTopology subTopology : closTopology.getSortedSubTopologies(true)) {
+                newScheduledNum += scheduleForInstancesWithoutTopology(instance, replicate, scheduledNum+newScheduledNum, synState, subTopology, scheduledClosTopologyHostIDsMap);
+                if (newScheduledNum + scheduledNum >= replicate) {
+                    return newScheduledNum;
+                }
+            }
+        }
+        return newScheduledNum;
+    }
+
+    private void scheduleForInstanceGroupWithoutTopology(InstanceGroup instanceGroup, SynState synState, IntraSchedulerResult intraSchedulerResult) {
+        Instance instance = instanceGroup.getInstances().get(0);
+        int replicate = instanceGroup.getInstances().size();
+        ClosTopology rootClosTopology = synState.getClosTopology();
+        Map<ClosTopology, List<Integer>> scheduledClosTopologyHostIDsMap = new HashMap<>();
+        int scheduledNum = scheduleForInstancesWithoutTopology(instance, replicate, 0, synState, rootClosTopology, scheduledClosTopologyHostIDsMap);
+        if (scheduledNum < replicate) {
+            // 调度失败
+            for (Instance inst : instanceGroup.getInstances()) {
+                intraSchedulerResult.addFailedScheduledInstance(inst);
+            }
+            LOGGER.info("{}: IntraSchedulerClosTopo failed to schedule instance group-{} due to insufficient resources.", getDatacenter().getSimulation().clockStr(), instanceGroup.getId());
+            return;
+        } else if (scheduledNum == replicate) {
+            LOGGER.info("{}: IntraSchedulerClosTopo found suitable resource instance group-{} without topology.", getDatacenter().getSimulation().clockStr(), instanceGroup.getId());
+            int index = 0;
+            for (Map.Entry<ClosTopology, List<Integer>> entry : scheduledClosTopologyHostIDsMap.entrySet()) {
+                ClosTopology closTopology = entry.getKey();
+                List<Integer> hostIDs = entry.getValue();
+                for (int hostID : hostIDs) {
+                    Instance inst = instanceGroup.getInstances().get(index);
+                    recordScheduledResult(closTopology, inst, hostID, synState, intraSchedulerResult);
+                    index++;
+                }
+            }
+        } else {
+            throw new RuntimeException("Scheduling error: scheduled hosts more than required instances.");
+        }
+    }
+
 
     /**
      * Schedule the instances from the first host id to the last host id.
@@ -328,7 +384,11 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
                 instanceGroups.stream().map(InstanceGroup::getId).toList());
         for (InstanceGroup instanceGroup : instanceGroups) {
             LOGGER.info("{}: IntraSchedulerClosTopo scheduling instance group-{}", getDatacenter().getSimulation().clockStr(), instanceGroup.getId());
-            scheduleForInstanceGroup(instanceGroup, synState, intraSchedulerResult);
+            if (instanceGroup.getTrainingStrategy() == null) {
+                scheduleForInstanceGroupWithoutTopology(instanceGroup, synState, intraSchedulerResult);
+            } else {
+                scheduleForInstanceGroupWithTopology(instanceGroup, synState, intraSchedulerResult);
+            }
         }
         LOGGER.info("{}: IntraSchedulerClosTopo finish scheduling {} instance groups.", getDatacenter().getSimulation().clockStr(), instanceGroups.size());
         
