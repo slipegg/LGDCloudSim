@@ -1,6 +1,8 @@
 package org.lgdcloudsim.record;
 
 import lombok.Getter;
+import lombok.Setter;
+
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.network.ClosTopology;
 import org.lgdcloudsim.network.NetworkTopology;
@@ -78,6 +80,19 @@ public class SqlRecordSimple implements SqlRecord {
     private String instanceTopologyTableName = null;
 
     /**
+     * The name of the datacenter utilization table.
+     */
+    private String datacenterUtilizationTableName = null;
+
+    @Getter
+    @Setter
+    private boolean isNeedRecordDatacenterUtilization = false;
+
+    @Getter
+    @Setter
+    private double recordDatacenterUtilizationInterval = 5;
+    
+    /*
      * The name of the SQLite database.
      */
     private String dbName = null;
@@ -150,6 +165,7 @@ public class SqlRecordSimple implements SqlRecord {
         this.instanceTableName = instanceTableName;
         this.conflictTableName = "conflict";
         this.instanceTopologyTableName = "instanceTopology";
+        this.datacenterUtilizationTableName = "datacenterUtilization";
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -168,6 +184,7 @@ public class SqlRecordSimple implements SqlRecord {
             createInstanceTable();
             createConflictTable();
             createInstanceTopologyInfo();
+            createDatacenterUtilizationTable();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -651,6 +668,22 @@ public class SqlRecordSimple implements SqlRecord {
         conn.commit();
     }
 
+    private void createDatacenterUtilizationTable() throws SQLException {
+        sql = "DROP TABLE IF EXISTS " + this.datacenterUtilizationTableName;
+        stmt.executeUpdate(sql);
+        sql = "CREATE TABLE IF NOT EXISTS " + this.datacenterUtilizationTableName + " " +
+                "(dcId INT NOT NULL," +
+                " time DOUBLE NOT NULL," +
+                " cpuUtilization DOUBLE NOT NULL, " +
+                " ramUtilization DOUBLE NOT NULL, " +
+                " storageUtilization DOUBLE NOT NULL, " +
+                " bwUtilization DOUBLE NOT NULL, " +
+                " gpuUtilization DOUBLE NOT NULL, " +
+                " PRIMARY KEY (dcId, time))";
+        stmt.executeUpdate(sql);
+        conn.commit();
+    }
+    
     @Override
     public void recordConflict(double time, int sum) {
         int tmpTime = (int) time / 10 * 10;
@@ -732,6 +765,26 @@ public class SqlRecordSimple implements SqlRecord {
                 }
             }
             statement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization,
+    double storageUtilization, double bwUtilization, double gpuUtilization) {
+        try {
+            sql = "INSERT INTO " + this.datacenterUtilizationTableName +
+                  " (dcId, time, cpuUtilization, ramUtilization, storageUtilization, bwUtilization, gpuUtilization) " +
+                  "VALUES (" + dcId + "," + time + "," + cpuUtilization + "," + ramUtilization + "," +
+                  storageUtilization + "," + bwUtilization + "," + gpuUtilization + ") " +
+                  "ON CONFLICT(dcId, time) DO UPDATE SET " +
+                  "cpuUtilization = " + cpuUtilization + ", " +
+                  "ramUtilization = " + ramUtilization + ", " +
+                  "storageUtilization = " + storageUtilization + ", " +
+                  "bwUtilization = " + bwUtilization + ", " +
+                  "gpuUtilization = " + gpuUtilization + ";";
+            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }

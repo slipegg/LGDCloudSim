@@ -851,4 +851,30 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
     public void recordInstanceTopologyInfo(InstanceGroup instanceGroup, ClosTopology closTopology) {
         
     }
+
+    @Override
+    public void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization,
+    double storageUtilization, double bwUtilization, double gpuUtilization) {
+                
+    }
+
+    @Override
+    public boolean isNeedRecordDatacenterUtilization() {
+        return false;
+    }
+
+    @Override
+    public SqlRecord setNeedRecordDatacenterUtilization(boolean needRecordDatacenterUtilization) {
+        return this;
+    }
+
+    @Override
+    public double getRecordDatacenterUtilizationInterval(){
+        return 5;
+    }
+
+    @Override
+    public SqlRecord setRecordDatacenterUtilizationInterval(double recordDatacenterUtilizationInterval) {
+        return this;
+    }
 }

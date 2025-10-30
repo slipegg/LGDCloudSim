@@ -155,6 +155,14 @@ public class HostCapacityManager {
         return hostCapacitySum[3];
     }
 
+    public long getGpuCapacitySum() {
+        long totalGpuCapacity = 0L;
+        for (Long capacity : gpuCapacitySumMap.values()) {
+            totalGpuCapacity += capacity;
+        }
+        return totalGpuCapacity;
+    }
+
     /**
      * Get the GPU capacity of all hosts.
      * @return a map, whose key is the GPU type, and value is the sum of the GPU capacity of all hosts with this GPU type

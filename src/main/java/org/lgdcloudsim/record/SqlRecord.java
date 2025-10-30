@@ -192,4 +192,15 @@ public interface SqlRecord {
     void close();
 
     void recordInstanceTopologyInfo(InstanceGroup instanceGroup, ClosTopology closTopology);
+
+    void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization,
+            double storageUtilization, double bwUtilization, double gpuUtilization);
+
+    boolean isNeedRecordDatacenterUtilization();
+
+    SqlRecord setNeedRecordDatacenterUtilization(boolean needRecordDatacenterUtilization);
+
+    double getRecordDatacenterUtilizationInterval();
+
+    SqlRecord setRecordDatacenterUtilizationInterval(double recordDatacenterUtilizationInterval);
 }

@@ -162,7 +162,12 @@ public enum CloudActionTags implements CloudSimTags {
     /**
      * Denotes the start of the {@link org.lgdcloudsim.intrascheduler.IntraScheduler} scheduling.
      */
-    INTRA_SCHEDULE_BEGIN;
+    INTRA_SCHEDULE_BEGIN,
+
+    /**
+     * Record data center utilization information.
+     */
+    RECORD_DC_UNTILIZATION;
 
     /**
      * If there are multiple identical events at the same time, they only need to be executed once.
@@ -174,7 +179,7 @@ public enum CloudActionTags implements CloudSimTags {
      * If only these tags are left in all events,
      * it means that there are no new events that need to be executed, and the simulation can be ended.
      */
-    public static final Set<CloudActionTags> LOOP_TAG = Set.of(SYN_STATE_BETWEEN_DC, SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC, CHANGE_COLLABORATION_SYN);
+    public static final Set<CloudActionTags> LOOP_TAG = Set.of(SYN_STATE_BETWEEN_DC, SYN_STATE_BETWEEN_CENTER_AND_INTRA_SCHEDULER_IN_DC, CHANGE_COLLABORATION_SYN, RECORD_DC_UNTILIZATION);
 
     /**
      * Convert the tag to a string.
@@ -205,6 +210,7 @@ public enum CloudActionTags implements CloudSimTags {
             case INTRA_SCHEDULE_END -> "INTRA_SCHEDULE_END";
             case PRE_ALLOCATE_RESOURCE -> "PRE_ALLOCATE_RESOURCE";
             case END_INSTANCE_RUN -> "END_INSTANCE_RUN";
+            case RECORD_DC_UNTILIZATION -> "RECORD_DC_UNTILIZATION";
             case NONE -> "NONE";
             default -> "UNKNOWN";
         };

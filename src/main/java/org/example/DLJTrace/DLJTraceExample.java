@@ -45,6 +45,8 @@ public class DLJTraceExample {
 
         lgdcloudsim = new CloudSim();
         SqlRecord sqlRecord = new SqlRecordSimple("DLJTrace.db");
+        sqlRecord.setNeedRecordDatacenterUtilization(true);
+        sqlRecord.setRecordDatacenterUtilizationInterval(300*1000); // 300 seconds
         lgdcloudsim.setSqlRecord(sqlRecord);
 
         initUser();

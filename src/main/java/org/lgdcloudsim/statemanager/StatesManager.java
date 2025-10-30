@@ -83,6 +83,13 @@ public interface StatesManager {
     HostState getActualHostState(int hostId);
 
     /**
+     * Get the actual host states array.
+     *
+     * @return the actual host states array.
+     */
+    int[] getActualHostStates();
+
+    /**
      * Get the host status maintained by the center state manager according to the host id.
      *
      * @param hostId the id of the host.
