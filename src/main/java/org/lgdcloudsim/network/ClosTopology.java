@@ -136,9 +136,9 @@ public class ClosTopology {
     public ClosTopology InitTopologyGPU(StatesManager statesManager) {
         if (this.level == 0) {
             long topologyScoreSum = 0;
-            int rangeLevel = this.range.getMax() - this.range.getMin() + 1;
+            int rangeNum = this.range.getMax() - this.range.getMin() + 1;
             for (int hostID = (int) this.range.getMin(); hostID <= (int) this.range.getMax(); hostID++) {
-                topologyScoreSum += statesManager.getActualHostState(hostID).getGPUScore() * rangeLevel;
+                topologyScoreSum += statesManager.getActualHostState(hostID).getGPUScore() * rangeNum;
             }
             this.topologyScore = topologyScoreSum;
         } else {
@@ -156,7 +156,7 @@ public class ClosTopology {
         if (!this.isLeafTopology()) {
             throw new IllegalArgumentException("Only leaf topology can update host topology score.");
         }
-        long changedScore = (nowGPU - originalGPU) * (this.range.getMax() - this.range.getMin() + 1);
+        long changedScore = (nowGPU * (nowGPU-1) - originalGPU * (originalGPU - 1)) * (this.range.getMax() - this.range.getMin() + 1);
         this.topologyScore += changedScore;
         ClosTopology father = this.fatherTopology;
         while (father != null) {
