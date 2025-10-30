@@ -1,5 +1,11 @@
 job_name,instance_replicate,gpu_num,cpu_num,memory,submit_time_sec,running_time_sec,strategy_type,dp_dim,pp_dim,rdma,model
-dlcar6cqs8mecvlz,2,4,1,10,0,79,PS,1,1,6,unknown
-dlcar6cqs8mecvlz,5,2,1,10,80,179,PS,1,1,6,unknown
-dlcar6cqs8mecvlz,8,8,1,10,180,359,DP,8,1,6,gpt
-dlcar6cqs8mecvlz,24,8,1,10,360,539,3D_PP,4,6,6,llama_30b
+dlcar6cqs8mecvlz,6,8,96,1600,0,120,3D_PP,2,3,1,llama_30b
+dlc1l3ajnoq4jyuw,6,8,96,1600,180,840,3D_PP,2,3,1,llama_30b
+dlcqbbpj8g3txdux,6,8,96,1600,5220,180,3D_PP,2,3,1,llama_30b
+dlc1bei96sdtujoa,6,8,96,1600,5520,180,3D_PP,2,3,1,llama_30b
+dlc1v3pfd0c8wgui,2,8,90,1000,5580,180,PS,1,1,1,unknown
+dlc1mg26cgbrtc0l,2,8,90,1000,5880,2760,PS,1,1,1,unknown
+dlch5uq6cp3i3agz,6,8,96,1600,6180,600,3D_PP,2,3,1,llama_30b
+dlc1nc7thghs1ir3,6,8,96,1600,6840,420,3D_PP,2,3,1,llama_30b
+dlc16eze9wg50s1y,6,8,96,1600,7320,540,3D_PP,2,3,1,llama_30b
+dlc1u03oxwzgvqvb,6,8,96,1600,7920,108780,3D_PP,2,3,1,llama_30b

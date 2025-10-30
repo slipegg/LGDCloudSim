@@ -11,6 +11,7 @@ import org.lgdcloudsim.request.InstanceTopology;
 import org.lgdcloudsim.request.TrainingStrategy;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.util.StrategyUtils;
+import org.lgdcloudsim.util.StrategyUtils.TopologyLevelResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -698,6 +699,8 @@ public class SqlRecordSimple implements SqlRecord {
                 " description TEXT NOT NULL," +
                 " score DOUBLE NOT NULL," +
                 " scheduledScore DOUBLE NOT NULL," +
+                " maxSwitchLevel INT NOT NULL," +
+                " maxSwitchName CHAR(20) NOT NULL," +
                 " FOREIGN KEY(instanceGroupId) REFERENCES " + this.instanceGroupTableName + "(id)," +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
 
@@ -712,16 +715,19 @@ public class SqlRecordSimple implements SqlRecord {
             Map<Integer, List<InstanceTopology>> instanceTopologyMap = trainingStrategy.getInstanceTopologyMap();
 
             statement = conn.prepareStatement("INSERT INTO " + this.instanceTopologyTableName +
-                    "(instanceGroupId, userRequestId, topologyType, description, score, scheduledScore) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)");
+                    "(instanceGroupId, userRequestId, topologyType, description, score, scheduledScore, maxSwitchLevel, maxSwitchName) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             for (Map.Entry<Integer, List<InstanceTopology>> entry : instanceTopologyMap.entrySet()) {
                 for (InstanceTopology instanceTopology : entry.getValue()) {
+                    TopologyLevelResult topologyLevelResult = StrategyUtils.getMaxSameLevel(instanceTopology, closTopology);
                     statement.setInt(1, instanceGroup.getId());
                     statement.setInt(2, instanceGroup.getUserRequest().getId());
                     statement.setString(3, instanceTopology.getType());
                     statement.setString(4, instanceTopology.toString());
                     statement.setDouble(5, entry.getKey());
                     statement.setDouble(6, StrategyUtils.calculateScheduledTopologyScore(instanceTopology, closTopology));
+                    statement.setInt(7, topologyLevelResult.getMaxLevel());
+                    statement.setString(8, topologyLevelResult.getName());
                     statement.addBatch();
                 }
             }

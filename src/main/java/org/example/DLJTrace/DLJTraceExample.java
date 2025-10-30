@@ -24,13 +24,13 @@ import org.lgdcloudsim.util.Log;
  * @since LGDCloudSim 1.0
  */
 public class DLJTraceExample {
-    private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/DLJTrace/small/datacenter.json";
+    private static final String DATACENTER_CONFIG_FILE = "./src/main/resources/example/DLJTrace/datacenter.json";
     private static final String DATACENTER_BW_FILE = "./src/main/resources/DatacenterBwConfig.csv";
     private static final String REGION_DELAY_FILE = "./src/main/resources/regionDelay.csv";
     private static final String AREA_DELAY_FILE = "./src/main/resources/areaDelay.csv";
-    private static final String HOST_TOPO_FILE = "./src/main/resources/example/DLJTrace/small/HostTopoConfig.csv";
+    private static final String HOST_TOPO_FILE = "./src/main/resources/example/DLJTrace/SingleDCHostTopoConfig.csv";
     private static final Map<Integer, String> DC_JOB_MAP = Map.of(
-        1, "./src/main/resources/example/DLJTrace/small/job.csv"
+        1, "./src/main/resources/example/DLJTrace/job.csv"
     );
     private final Simulation lgdcloudsim;
     private final Factory factory;

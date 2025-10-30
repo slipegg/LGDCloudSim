@@ -1,9 +1,9 @@
 {
     "id": 1,
-    "hostNum": 180,
+    "hostNum": 847,
     "partitions": [
       {
-        "length": 180
+        "length": 847
       }
     ],
     "hostStates": [
@@ -15,13 +15,13 @@
         "gpu": 8,
         "gpuType": "NVIDIA A100",
         "startId": 0,
-        "length": 180
+        "length": 847
       }
     ],
     "synchronizationGap": 0,
     "intraSchedulers": [
       {
-        "type": "gpuBinPack",
+        "type": "closTopology",
         "queue": "group"
       }
     ],

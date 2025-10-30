@@ -13,56 +13,33 @@ import org.lgdcloudsim.request.InstanceTopology;
 import org.lgdcloudsim.request.TrainingStrategy;
 
 public class StrategyUtils {
-    // static int calculateDPSpread(InstanceGroup instanceGroup, ClosTopologyManager closTopologyManager) {
-    //     int spread = 0;
-    //     TrainingStrategy trainingStrategy = instanceGroup.getTrainingStrategy();
-    //     if (trainingStrategy == null) {
-    //         return spread;
-    //     }
-        
-    //     int dpDim = trainingStrategy.getDPDim();
-    //     int ppDim = trainingStrategy.getPPDim();
-    //     for(int i = 0; i < dpDim; i++) {
-    //         HashSet<String> pswSet = new HashSet<>();
-    //         List<Instance> instanceList = instanceGroup.getInstances();
-    //         for(int j = 0; j < ppDim; j++) {
-    //             Instance instance = instanceList.get(i * ppDim + j);
-    //             int hostId = instance.getHost();
-    //             ClosTopologyItem closItem = closTopologyManager.getClosTopologyItemByHostId(hostId);
-    //             pswSet.add(closItem.getPSW());
-    //         }
-    //         if (pswSet.size() > spread) {
-    //             spread = pswSet.size();
-    //         }
-    //     }
-        
-    //     return spread;
-    // }
 
-    // static int calculatePPSpread(InstanceGroup instanceGroup, ClosTopologyManager closTopologyManager) {
-    //     int spread = 0;
-    //     TrainingStrategy trainingStrategy = instanceGroup.getTrainingStrategy();
-    //     if (trainingStrategy == null) {
-    //         return spread;
-    //     }
-        
-    //     int dpDim = trainingStrategy.getDPDim();
-    //     int ppDim = trainingStrategy.getPPDim();
-    //     for(int i = 0; i < ppDim; i++) {
-    //         HashSet<String> pswSet = new HashSet<>();
-    //         List<Instance> instanceList = instanceGroup.getInstances();
-    //         for(int j = 0; j < dpDim; j++) {
-    //             Instance instance = instanceList.get(j * ppDim + i);
-    //             int hostId = instance.getHost();
-    //             ClosTopologyItem closItem = closTopologyManager.getClosTopologyItemByHostId(hostId);
-    //             pswSet.add(closItem.getPSW());
-    //         }
-    //         if (pswSet.size() > spread) {
-    //             spread = pswSet.size();
-    //         }
-    //     }
-    //     return spread;    
-    // }
+    /**
+     * 用于封装getMaxSameLevel方法的返回结果
+     */
+    public static class TopologyLevelResult {
+        private final int maxLevel;
+        private final String name;
+
+        public TopologyLevelResult(int maxLevel, String name) {
+            this.maxLevel = maxLevel;
+            this.name = name;
+        }
+
+        public int getMaxLevel() {
+            return maxLevel;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return "TopologyLevelResult{maxLevel=" + maxLevel + ", name='" + name + "'}";
+        }
+    }
+
     public static Map<Integer, Integer> ColstopologyScoreMap = Map.of(
         -1, 500,
         0, 100,
@@ -126,5 +103,30 @@ public class StrategyUtils {
                 break;
         } 
         return score;
+    }
+
+    /**
+     * 获取实例拓扑中主机所在的最大相同层级
+     * @param instanceTopology 实例拓扑
+     * @param closTopology Clos拓扑
+     * @return 包含maxLevel和name的结果对象
+     */
+    public static TopologyLevelResult getMaxSameLevel(InstanceTopology instanceTopology, ClosTopology closTopology) {
+        int maxLevel = -2;
+        String name = "";
+        List<Instance> instances = instanceTopology.getAllInstances();
+        List<Integer> hostIds = instances.stream().map(Instance::getHost).distinct().toList();
+        // hostids中的元素是否全部相同
+        int hostId0 = hostIds.get(0);
+        boolean allSame = hostIds.stream().allMatch(id -> id == hostId0);
+        if (allSame) {
+            maxLevel = -1;
+            name = String.valueOf(hostId0); // 将hostId0转换为字符串格式的name
+        } else {
+            ClosTopology sameClosTopology = closTopology.getNearestCommonFatherTopology(hostIds);
+            maxLevel = sameClosTopology.getLevel();
+            name = sameClosTopology.getName();
+        }
+        return new TopologyLevelResult(maxLevel, name);
     }
 }
