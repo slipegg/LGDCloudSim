@@ -52,7 +52,7 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
             List<Instance> groupInstances = entry.getValue();
             
             if (group.getInstances().size() != groupInstances.size()) {
-                throw new RuntimeException(String.format("InstanceGroup size mismatch. The scheduled instances size is %d, but the InstanceGroup size is %d.", groupInstances.size(), group.getInstances().size()));
+                throw new RuntimeException(String.format("InstanceGroup-%d size mismatch. The scheduled instances size is %d, but the InstanceGroup size is %d.", group.getId(), groupInstances.size(), group.getInstances().size()));
             }
         }
 
@@ -258,14 +258,14 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
         List<Instance> scheduledInstances = instanceTopology.getAllInstances();
         ClosTopology preferTopology = rootTopology;
         if (!isOnlyOneSubInstanceTopology) {
-            LOGGER.info("{}: IntraSchedulerClosTopo scheduling sub-instance topology {}, beacuse there is not only one sub-instance topology.", getDatacenter().getSimulation().clockStr(), instanceTopology);
+            LOGGER.info("{}: IntraSchedulerClosTopo scheduling sub-instance topology {} of instanceGroup-{}, beacuse there is not only one sub-instance topology.", getDatacenter().getSimulation().clockStr(), instanceTopology, instanceTopology.getTrainingStrategy().getInstanceGroup().getId());
             preferTopology = scheduleForSubInstance(scheduledInstances.get(0), scheduledInstances.size(), rootTopology, synState, false);
             if (preferTopology == null) {
                 throw new RuntimeException(String.format("IntraSchedulerClosTopo failed to schedule sub-instance topology %s, but the pre filter is ok.", instanceTopology));   
             }
         }
 
-        LOGGER.info("{}: IntraSchedulerClosTopo scheduling sub-instance topology {} on topology {}.", getDatacenter().getSimulation().clockStr(), instanceTopology, preferTopology);
+        LOGGER.info("{}: IntraSchedulerClosTopo scheduling sub-instance topology {} of instanceGroup-{} on clos topology {}.", getDatacenter().getSimulation().clockStr(), instanceTopology, instanceTopology.getTrainingStrategy().getInstanceGroup().getId(), preferTopology);
         switch (instanceTopology.getType()) {
             case InstanceTopology.P2P:
                 // Handle P2P topology scheduling
@@ -306,8 +306,6 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
                 scheduleForSubInstanceTopology(instanceTopology, resTopology, synState, intraSchedulerResult, isOnlyOneSubInstanceTopology);
             }
         }
-
-        resTopology.clearCandidate();
     }
 
     private int scheduleForInstancesWithoutTopology(Instance instance, int replicate, int scheduledNum, SynState synState, ClosTopology closTopology, Map<ClosTopology, List<Integer>> scheduledClosTopologyHostIDsMap) {
@@ -389,6 +387,7 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
             } else {
                 scheduleForInstanceGroupWithTopology(instanceGroup, synState, intraSchedulerResult);
             }
+            synState.getClosTopology().clearCandidate();
         }
         LOGGER.info("{}: IntraSchedulerClosTopo finish scheduling {} instance groups.", getDatacenter().getSimulation().clockStr(), instanceGroups.size());
         

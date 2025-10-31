@@ -3,11 +3,21 @@ package org.lgdcloudsim.request;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.processing.Generated;
+
+import lombok.Getter;
+import lombok.Setter;
+
 public class InstanceTopologyAll2All implements InstanceTopology {
     private List<Instance> instanceList;
 
-    public InstanceTopologyAll2All(List<Instance> instanceList) {
+    @Getter
+    @Setter
+    private TrainingStrategy trainingStrategy;
+
+    public InstanceTopologyAll2All(List<Instance> instanceList, TrainingStrategy trainingStrategy) {
         this.instanceList = instanceList;
+        this.trainingStrategy = trainingStrategy;
     }
 
     @Override

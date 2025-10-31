@@ -183,6 +183,8 @@ public class InstanceSimple implements Instance {
                 ", gpu=" + gpu +
                 ", gpuType='" + gpuType + '\'' +
                 ", lifecycle=" + lifecycle +
+                ", expectedScheduleHostId=" + expectedScheduleHostId +
+                ", host=" + host +
                 '}';
     }
 

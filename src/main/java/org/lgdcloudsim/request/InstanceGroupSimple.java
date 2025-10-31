@@ -195,4 +195,11 @@ public class InstanceGroupSimple implements InstanceGroup {
         this.interScheduleEndTime = interScheduleEndTime;
         return this;
     }
+
+    @Override
+    public InstanceGroup setTrainingStrategy(TrainingStrategy trainingStrategy) {
+        this.trainingStrategy = trainingStrategy;
+        this.trainingStrategy.setInstanceGroup(this);
+        return this;
+    }
 }

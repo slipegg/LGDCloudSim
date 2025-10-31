@@ -5,11 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class InstanceTopologyP2P implements InstanceTopology {
     private Map<Instance, List<Instance>> topologyMap;
+    
+    @Getter
+    @Setter
+    private TrainingStrategy trainingStrategy;
 
-    public InstanceTopologyP2P() {
+    public InstanceTopologyP2P(TrainingStrategy trainingStrategy) {
         this.topologyMap = new HashMap<>();
+        this.trainingStrategy = trainingStrategy;
     }
 
     // 注意是无向图

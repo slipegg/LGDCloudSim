@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class TrainingStrategy {
@@ -21,6 +22,9 @@ public class TrainingStrategy {
     int TPDim;
 
     int rank0Index;
+
+    @Setter
+    InstanceGroup instanceGroup;
 
     // Score: Topology
     Map<Integer, List<InstanceTopology>> instanceTopologyMap;
@@ -65,7 +69,7 @@ public class TrainingStrategy {
     }
 
     private void constructTopologyForPS(List<Instance> instanceList) {
-        InstanceTopologyP2P topology = new InstanceTopologyP2P();
+        InstanceTopologyP2P topology = new InstanceTopologyP2P(this);
         Instance masterInstance = instanceList.get(0);
         List<Instance> workerInstances = instanceList.subList(1, instanceList.size());
         topology.addLink(masterInstance, workerInstances);
@@ -74,7 +78,7 @@ public class TrainingStrategy {
 
     private void constructTopologyForDP(List<Instance> instanceList) {
         // DP-specific topology
-        InstanceTopologyAll2All topology = new InstanceTopologyAll2All(instanceList);
+        InstanceTopologyAll2All topology = new InstanceTopologyAll2All(instanceList, this);
         this.instanceTopologyMap.put(100, List.of(topology));
     }
 
@@ -88,14 +92,14 @@ public class TrainingStrategy {
                     int index = pp * dpDim + dp;
                     dpGroupInstances.add(instanceList.get(index));
                 }
-                InstanceTopologyAll2All topology = new InstanceTopologyAll2All(dpGroupInstances);
+                InstanceTopologyAll2All topology = new InstanceTopologyAll2All(dpGroupInstances, this);
                 dpTopologyList.add(topology);
             }
             this.instanceTopologyMap.put(100, dpTopologyList);
         } else {
             List<InstanceTopology> ppTopologyList = new ArrayList<>();
             for (int dp = 0; dp < dpDim; dp++) {
-                InstanceTopologyP2P topology = new InstanceTopologyP2P();
+                InstanceTopologyP2P topology = new InstanceTopologyP2P(this);
                 Instance lastInstance = null;
                 for (int pp = 0; pp < ppDim; pp++) {
                     int index = pp * dpDim + dp;

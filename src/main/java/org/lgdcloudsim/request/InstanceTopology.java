@@ -14,4 +14,8 @@ public interface InstanceTopology {
     String getType();
 
     String toString();
+
+    TrainingStrategy getTrainingStrategy();
+
+    InstanceTopology setTrainingStrategy(TrainingStrategy trainingStrategy);
 }
