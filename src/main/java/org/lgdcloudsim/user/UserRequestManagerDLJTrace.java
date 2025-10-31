@@ -82,7 +82,7 @@ public class UserRequestManagerDLJTrace implements UserRequestManager {
             instanceList.add(instance);
         }
         InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupIdCounter++, instanceList);
-        if (strategy_type.isEmpty() || strategy_type.equals(TrainingStrategy.TYPE_NONE)) {
+        if (instanceList.size() <= 1 ||strategy_type.isEmpty() || strategy_type.equals(TrainingStrategy.TYPE_NONE)) {
             // No training strategy
         } else {
             instanceGroup.setTrainingStrategy(new TrainingStrategy(strategy_type, dp_dim, pp_dim, rank0Index, instanceList));
