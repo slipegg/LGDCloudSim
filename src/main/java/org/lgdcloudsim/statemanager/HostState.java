@@ -119,6 +119,14 @@ public class HostState {
         gpu = gpu - instance.getGpu();
     }
 
+    public void release(Instance instance) {
+        cpu = cpu + instance.getCpu();
+        ram = ram + instance.getRam();
+        storage = storage + instance.getStorage();
+        bw = bw + instance.getBw();
+        gpu = gpu + instance.getGpu();
+    }
+
     public int getGPUScore() {
         return gpu*(gpu-1);
     }

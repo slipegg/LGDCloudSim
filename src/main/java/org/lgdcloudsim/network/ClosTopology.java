@@ -8,9 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Comparator;
 
-import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.statemanager.StatesManager;
-import org.lgdcloudsim.statemanager.SynState;
 import org.lgdcloudsim.util.Range;
 
 import lombok.Getter;
@@ -328,6 +326,18 @@ public class ClosTopology {
         }
 
         return null;
+    }
+
+    public List<ClosTopology> getS0ClosTopologies() {
+        List<ClosTopology> S0Topologies = new ArrayList<>();
+        if (this.isLeafTopology()) {
+            S0Topologies.add(this);
+        } else {
+            for (ClosTopology subTopology : this.subTopologys) {
+                S0Topologies.addAll(subTopology.getS0ClosTopologies());
+            }
+        }
+        return S0Topologies;
     }
 
     @Override

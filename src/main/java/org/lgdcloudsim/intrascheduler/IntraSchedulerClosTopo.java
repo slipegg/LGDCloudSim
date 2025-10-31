@@ -8,6 +8,7 @@ import org.lgdcloudsim.request.InstanceTopology;
 import org.lgdcloudsim.request.TrainingStrategy;
 import org.lgdcloudsim.statemanager.SynState;
 import org.lgdcloudsim.util.Range;
+import org.lgdcloudsim.util.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,26 +38,6 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
      */
     public IntraSchedulerClosTopo(int id, int firstPartitionId, int partitionNum) {
         super(id, firstPartitionId, partitionNum);
-    }
-
-    private List<InstanceGroup> groupToInstanceGroups(List<Instance> instances) {
-        Map<InstanceGroup, List<Instance>> instanceMap = new HashMap<>();
-        for (Instance instance : instances) {
-            InstanceGroup instanceGroup = instance.getInstanceGroup();
-            instanceMap.putIfAbsent(instanceGroup, new ArrayList<>());
-            instanceMap.get(instanceGroup).add(instance);
-        }
-
-        for (Map.Entry<InstanceGroup, List<Instance>> entry : instanceMap.entrySet()) {
-            InstanceGroup group = entry.getKey();
-            List<Instance> groupInstances = entry.getValue();
-            
-            if (group.getInstances().size() != groupInstances.size()) {
-                throw new RuntimeException(String.format("InstanceGroup-%d size mismatch. The scheduled instances size is %d, but the InstanceGroup size is %d.", group.getId(), groupInstances.size(), group.getInstances().size()));
-            }
-        }
-
-        return new ArrayList<>(instanceMap.keySet());
     }
 
     private ClosTopology filterForS0Topology(ClosTopology topology, SynState synState, Instance instance, int replicate, boolean isFirst) {
@@ -377,7 +358,7 @@ public class IntraSchedulerClosTopo extends IntraSchedulerSimple {
                 new IntraSchedulerResult(this, getDatacenter().getSimulation().clock());
 
         synState.getClosTopology().InitTopologyGPU(getDatacenter().getStatesManager());
-        List<InstanceGroup> instanceGroups = groupToInstanceGroups(instances);
+        List<InstanceGroup> instanceGroups = utils.groupToInstanceGroups(instances);
         LOGGER.info("{}: IntraSchedulerClosTopo scheduling {} instance groups, group ids is {}.", getDatacenter().getSimulation().clockStr(), instanceGroups.size(),
                 instanceGroups.stream().map(InstanceGroup::getId).toList());
         for (InstanceGroup instanceGroup : instanceGroups) {
