@@ -1,11 +1,13 @@
 package org.lgdcloudsim.network;
 
+import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.Comparator;
 
 import org.lgdcloudsim.statemanager.StatesManager;
@@ -338,6 +340,55 @@ public class ClosTopology {
             }
         }
         return S0Topologies;
+    }
+
+    public ClosTopologyCondition getClosTopologyCondition(StatesManager statesManager) {
+        InitTopologyGPU(statesManager);
+        List<ClosTopology> S0Topologies = this.getS0ClosTopologies();
+
+        // 提取所有 topology 的得分
+        List<Long> S0TopologyScores = S0Topologies.stream()
+            .map(ClosTopology::getTopologyScore)
+            .sorted() // 按升序排列
+            .collect(Collectors.toList());
+
+        if (S0TopologyScores.isEmpty()) {
+            return new ClosTopologyCondition(this.topologyScore, 0, 0, 0, 0);
+        }
+
+        // 计算平均数
+        double mean = S0TopologyScores.stream()
+            .mapToLong(Long::longValue)
+            .average()
+            .orElse(0.0);
+
+        // 计算百分位数
+        double p30 = getPercentile(S0TopologyScores, 30);
+        double p60 = getPercentile(S0TopologyScores, 60);
+        double p90 = getPercentile(S0TopologyScores, 90);
+
+        // 返回结果（你可以根据实际定义改这个类）
+        return new ClosTopologyCondition(this.topologyScore, p30, p60, p90, mean);
+    }
+
+    /**
+     * 计算给定百分位数（如30、60、90）
+     */
+    private static double getPercentile(List<Long> sortedValues, double percentile) {
+        if (sortedValues.isEmpty()) return 0.0;
+
+        int n = sortedValues.size();
+        double rank = (percentile / 100.0) * (n - 1); // rank位置（从0开始）
+        int lowerIndex = (int) Math.floor(rank);
+        int upperIndex = (int) Math.ceil(rank);
+
+        if (lowerIndex == upperIndex) {
+            return sortedValues.get(lowerIndex);
+        } else {
+            double weight = rank - lowerIndex;
+            return sortedValues.get(lowerIndex) * (1 - weight)
+                + sortedValues.get(upperIndex) * weight; // 线性插值
+        }
     }
 
     @Override

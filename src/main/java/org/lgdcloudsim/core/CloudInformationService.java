@@ -14,6 +14,7 @@ import org.lgdcloudsim.datacenter.CollaborationManager;
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.interscheduler.InterSchedulerSendItem;
 import org.lgdcloudsim.loadbalancer.LoadBalancer;
+import org.lgdcloudsim.network.ClosTopologyCondition;
 import org.lgdcloudsim.queue.InstanceGroupQueue;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.lgdcloudsim.interscheduler.InterScheduler;
@@ -142,6 +143,7 @@ public class CloudInformationService extends CloudSimEntity {
     private void processRecordDcUtilization(SimEvent evt) {
         for (Datacenter datacenter : datacenterList) {
             double[] dcUtilization = generateDcUtilization(datacenter);
+            ClosTopologyCondition closTopologyCondition = getSimulation().getNetworkTopology().getClosTopology(datacenter.getId()).getClosTopologyCondition(datacenter.getStatesManager());
             getSimulation().getSqlRecord().recordDatacenterUtilizationInfo(
                     datacenter.getId(),
                     getSimulation().clock(),
@@ -149,7 +151,8 @@ public class CloudInformationService extends CloudSimEntity {
                     dcUtilization[1],
                     dcUtilization[2],
                     dcUtilization[3],
-                    dcUtilization[4]);
+                    dcUtilization[4],
+                    closTopologyCondition);
         }
         sendWithoutNetwork(this, getSimulation().getSqlRecord().getRecordDatacenterUtilizationInterval(), CloudActionTags.RECORD_DC_UNTILIZATION, null);
     }

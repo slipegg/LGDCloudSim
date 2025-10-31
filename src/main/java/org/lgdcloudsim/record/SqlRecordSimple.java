@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.network.ClosTopology;
+import org.lgdcloudsim.network.ClosTopologyCondition;
 import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
@@ -679,6 +680,11 @@ public class SqlRecordSimple implements SqlRecord {
                 " storageUtilization DOUBLE NOT NULL, " +
                 " bwUtilization DOUBLE NOT NULL, " +
                 " gpuUtilization DOUBLE NOT NULL, " +
+                " topologyScoreSum INT NOT NULL, " +
+                " s0Pct30TopologyScore DOUBLE NOT NULL, " +
+                " s0Pct60TopologyScore DOUBLE NOT NULL, " +
+                " s0Pct90TopologyScore DOUBLE NOT NULL, " +
+                " s0MeanTopologyScore DOUBLE NOT NULL, " +
                 " PRIMARY KEY (dcId, time))";
         stmt.executeUpdate(sql);
         conn.commit();
@@ -772,18 +778,25 @@ public class SqlRecordSimple implements SqlRecord {
 
     @Override
     public void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization,
-    double storageUtilization, double bwUtilization, double gpuUtilization) {
+    double storageUtilization, double bwUtilization, double gpuUtilization, ClosTopologyCondition topologyCondition) {
         try {
             sql = "INSERT INTO " + this.datacenterUtilizationTableName +
-                  " (dcId, time, cpuUtilization, ramUtilization, storageUtilization, bwUtilization, gpuUtilization) " +
+                  " (dcId, time, cpuUtilization, ramUtilization, storageUtilization, bwUtilization, gpuUtilization, topologyScoreSum, S0Pct30TopologyScore, s0Pct60TopologyScore, s0Pct90TopologyScore, s0MeanTopologyScore) " +
                   "VALUES (" + dcId + "," + time + "," + cpuUtilization + "," + ramUtilization + "," +
-                  storageUtilization + "," + bwUtilization + "," + gpuUtilization + ") " +
+                  storageUtilization + "," + bwUtilization + "," + gpuUtilization + "," + topologyCondition.getTopologyScoreSum() + "," +
+                  topologyCondition.getS0Pct30TopologyScore() + "," + topologyCondition.getS0Pct60TopologyScore() + "," +
+                  topologyCondition.getS0Pct90TopologyScore() + "," + topologyCondition.getS0MeanTopologyScore() + ") " +
                   "ON CONFLICT(dcId, time) DO UPDATE SET " +
                   "cpuUtilization = " + cpuUtilization + ", " +
                   "ramUtilization = " + ramUtilization + ", " +
                   "storageUtilization = " + storageUtilization + ", " +
                   "bwUtilization = " + bwUtilization + ", " +
-                  "gpuUtilization = " + gpuUtilization + ";";
+                  "gpuUtilization = " + gpuUtilization + ", " + 
+                  "topologyScoreSum = " + topologyCondition.getTopologyScoreSum() + ", " +
+                  "s0Pct30TopologyScore = " + topologyCondition.getS0Pct30TopologyScore() + ", " +
+                  "s0Pct60TopologyScore = " + topologyCondition.getS0Pct60TopologyScore() + ", " +
+                  "s0Pct90TopologyScore = " + topologyCondition.getS0Pct90TopologyScore() + ", " +
+                  "s0MeanTopologyScore = " + topologyCondition.getS0MeanTopologyScore() + ";";
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();

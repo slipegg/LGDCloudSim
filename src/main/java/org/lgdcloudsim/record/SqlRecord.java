@@ -2,6 +2,7 @@ package org.lgdcloudsim.record;
 
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.network.ClosTopology;
+import org.lgdcloudsim.network.ClosTopologyCondition;
 import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
@@ -194,7 +195,7 @@ public interface SqlRecord {
     void recordInstanceTopologyInfo(InstanceGroup instanceGroup, ClosTopology closTopology);
 
     void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization,
-            double storageUtilization, double bwUtilization, double gpuUtilization);
+            double storageUtilization, double bwUtilization, double gpuUtilization, ClosTopologyCondition topologyCondition);
 
     boolean isNeedRecordDatacenterUtilization();
 

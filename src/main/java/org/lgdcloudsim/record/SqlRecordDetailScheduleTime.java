@@ -3,6 +3,7 @@ package org.lgdcloudsim.record;
 import lombok.Getter;
 import org.lgdcloudsim.datacenter.Datacenter;
 import org.lgdcloudsim.network.ClosTopology;
+import org.lgdcloudsim.network.ClosTopologyCondition;
 import org.lgdcloudsim.network.NetworkTopology;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
@@ -854,7 +855,7 @@ public class SqlRecordDetailScheduleTime implements SqlRecord {
 
     @Override
     public void recordDatacenterUtilizationInfo(int dcId, double time, double cpuUtilization, double ramUtilization,
-    double storageUtilization, double bwUtilization, double gpuUtilization) {
+    double storageUtilization, double bwUtilization, double gpuUtilization, ClosTopologyCondition topologyCondition) {
                 
     }
 
