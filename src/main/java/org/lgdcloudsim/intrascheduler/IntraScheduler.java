@@ -111,4 +111,6 @@ public interface IntraScheduler extends Nameable, DatacenterEntity {
     int getFirstPartitionId();
 
     IntraScheduler setInstanceQueue(InstanceQueue instanceQueue);
+    
+    IntraScheduler setRetryInstanceQueue(InstanceQueue instanceQueue);
 }

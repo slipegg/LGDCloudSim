@@ -554,6 +554,8 @@ public class InitDatacenter {
                 String queueType = schedulerJson.getString("queue");
                 InstanceQueue instanceQueue = factory.getInstanceQueue(queueType);
                 scheduler.setInstanceQueue(instanceQueue);
+                InstanceQueue retryInstanceQueue = factory.getInstanceQueue(queueType);
+                scheduler.setRetryInstanceQueue(retryInstanceQueue);
             }
             intraSchedulers.add(scheduler);
         }
