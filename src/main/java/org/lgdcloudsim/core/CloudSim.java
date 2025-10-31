@@ -153,11 +153,17 @@ public class CloudSim implements Simulation {
             int minutes = (int) (clock / (60 * 1000));
             double seconds = (clock % (60 * 1000)) / 1000;
             this.clockStr = "%dm%.3fs".formatted(minutes, seconds);
-        } else {
+        } else if (clock < 24 * 60 * 60 * 1000) {
             int hours = (int) (clock / (60 * 60 * 1000));
             int minutes = (int) ((clock % (60 * 60 * 1000)) / (60 * 1000));
             double seconds = (clock % (60 * 1000)) / 1000;
             this.clockStr = "%dh%dm%.3fs".formatted(hours, minutes, seconds);
+        } else {
+            int days = (int) (clock / (24 * 60 * 60 * 1000));
+            int hours = (int) ((clock % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+            int minutes = (int) ((clock % (60 * 60 * 1000)) / (60 * 1000));
+            double seconds = (clock % (60 * 1000)) / 1000;
+            this.clockStr = "%dd%dh%dm%.3fs".formatted(days, hours, minutes, seconds);
         }
         return this;
     }
