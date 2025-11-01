@@ -449,7 +449,12 @@ public class InitDatacenter {
 
         if (isNeedIntraScheduler) {
             JsonObject loadBalanceJson = datacenterJson.getJsonObject("loadBalancer");
-            LoadBalancer<Instance, IntraScheduler> loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
+            LoadBalancer<Instance, IntraScheduler> loadBalancer;
+            if (loadBalanceJson == null) {
+                loadBalancer = factory.getLoadBalance("round");
+            } else {
+                loadBalancer = factory.getLoadBalance(loadBalanceJson.getString("type"));
+            }
             datacenter.setIntraLoadBalancer(loadBalancer);
 
             List<IntraScheduler> intraSchedulers = getIntraSchedulers(datacenterJson, statesManager.getPartitionRangesManager().getPartitionNum());
