@@ -33,6 +33,7 @@ public class FactorySimple implements Factory {
             case "fixedPartitionRandom" -> new IntraSchedulerFixedPartitionRandom(id, firstPartitionId, partitionNum);
             case "gpuBinPack" -> new IntraSchedulerGPUBinPackGang(id, firstPartitionId, partitionNum);
             case "closTopology" -> new IntraSchedulerClosTopo(id, firstPartitionId, partitionNum);
+            case "closTopologyWithoutSort" -> new IntraSchedulerClosTopoWithoutSort(id, firstPartitionId, partitionNum);
             case "randomGang" -> new IntraSchedulerRandomGang(id, firstPartitionId, partitionNum);
             case "gpuBinPackGang" -> new IntraSchedulerGPUBinPackGang(id, firstPartitionId, partitionNum);
             case "topologyBinPackGang" -> new IntraSchedulerTopologyBinPackGang(id, firstPartitionId, partitionNum);

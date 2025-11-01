@@ -2,6 +2,7 @@ package org.lgdcloudsim.network;
 
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +24,7 @@ public class ClosTopology {
     long topologyScore;
     int level;
     Range range;
-    List<ClosTopology> subTopologys;
+    List<ClosTopology> subTopologies;
     Set<String> existingSubTopologyNames;
     ClosTopology fatherTopology;
     Map<Integer, Integer> candidateReplicateMap; // hostID -> suited replicate num
@@ -31,7 +32,7 @@ public class ClosTopology {
 
     public ClosTopology(String name, int level) {
         this.name = name;
-        this.subTopologys = new ArrayList<>();
+        this.subTopologies = new ArrayList<>();
         this.existingSubTopologyNames = new HashSet<>();
         this.candidateReplicateMap = new HashMap<>();
         this.topologyScore = 0;
@@ -50,7 +51,7 @@ public class ClosTopology {
             this.existingSubTopologyNames.add(S2Name);
             S2Topology.AddClosTopology(S1Name, S0Name, minID, maxID);
         } else {
-            for (ClosTopology sub : this.subTopologys) {
+            for (ClosTopology sub : this.subTopologies) {
                 if (sub.name.equals(S2Name)) {
                     sub.AddClosTopology(S1Name, S0Name, minID, maxID);
                     break;
@@ -67,7 +68,7 @@ public class ClosTopology {
             this.existingSubTopologyNames.add(S1Name);
             S1Topology.AddClosTopology(S0Name, minID, maxID);
         } else {
-            for (ClosTopology sub : this.subTopologys) {
+            for (ClosTopology sub : this.subTopologies) {
                 if (sub.name.equals(S1Name)) {
                     sub.AddClosTopology(S0Name, minID, maxID);
                     break;
@@ -87,12 +88,12 @@ public class ClosTopology {
     }
 
     public ClosTopology setSubTopology(ClosTopology subTopology) {
-        for (ClosTopology sub : this.subTopologys) {
+        for (ClosTopology sub : this.subTopologies) {
             if (sub.name.equals(subTopology.name)) {
                 return this;
             }
         }
-        this.subTopologys.add(subTopology);
+        this.subTopologies.add(subTopology);
         subTopology.setFatherTopology(this);
         if (subTopology.isLeafTopology()) {
             updateFatherTopologyRange(subTopology.getRange());
@@ -116,7 +117,7 @@ public class ClosTopology {
     }
 
     public boolean isExistSubTopology(String subTopologyName) {
-        for (ClosTopology sub : this.subTopologys) {
+        for (ClosTopology sub : this.subTopologies) {
             if (sub.name.equals(subTopologyName)) {
                 return true;
             }
@@ -126,11 +127,16 @@ public class ClosTopology {
 
     public List<ClosTopology> getSortedSubTopologies(boolean ascending) {
         if (ascending) {
-            this.subTopologys.sort(Comparator.comparingLong(ClosTopology::getTopologyScore));
+            this.subTopologies.sort(Comparator.comparingLong(ClosTopology::getTopologyScore));
         } else {
-            this.subTopologys.sort(Comparator.comparingLong(ClosTopology::getTopologyScore).reversed());
+            this.subTopologies.sort(Comparator.comparingLong(ClosTopology::getTopologyScore).reversed());
         }
-        return this.subTopologys;
+        return this.subTopologies;
+    }
+
+    public List<ClosTopology> getSubTopologies() {
+        Collections.shuffle(this.subTopologies);
+        return new ArrayList<>(this.subTopologies);
     }
 
     public ClosTopology InitTopologyGPU(StatesManager statesManager) {
@@ -143,9 +149,9 @@ public class ClosTopology {
             this.topologyScore = topologyScoreSum;
         } else {
             long topologyScoreSum = 0;
-            for (ClosTopology subTopology : this.subTopologys) {
+            for (ClosTopology subTopology : this.subTopologies) {
                 subTopology.InitTopologyGPU(statesManager);
-                topologyScoreSum += subTopology.getTopologyScore() * this.subTopologys.size();
+                topologyScoreSum += subTopology.getTopologyScore() * this.subTopologies.size();
             }
             this.topologyScore = topologyScoreSum;
         }
@@ -160,7 +166,7 @@ public class ClosTopology {
         this.topologyScore += changedScore;
         ClosTopology father = this.fatherTopology;
         while (father != null) {
-            father.topologyScore += changedScore * father.subTopologys.size();
+            father.topologyScore += changedScore * father.subTopologies.size();
             father = father.fatherTopology;
         }
         return this;
@@ -173,7 +179,7 @@ public class ClosTopology {
 
     public ClosTopology clearCandidate() {
         this.candidateReplicateMap.clear();
-        for (ClosTopology subTopology : this.subTopologys) {
+        for (ClosTopology subTopology : this.subTopologies) {
             subTopology.clearCandidate();
         }
         return this;
@@ -186,7 +192,7 @@ public class ClosTopology {
                 sum += replicateNum;
             }
         } else {
-            for (ClosTopology subTopology : this.subTopologys) {
+            for (ClosTopology subTopology : this.subTopologies) {
                 sum += subTopology.getCandidateReplicateSum();
             }
         }
@@ -284,12 +290,12 @@ public class ClosTopology {
         ClosTopology S3Topology = S2Topology.fatherTopology;
         if (S3Topology != null && rootLevel >= 3) {
             ClosTopology dcTopology = S3Topology.fatherTopology;
-            for (ClosTopology S2TopologyTmp : dcTopology.subTopologys) {
+            for (ClosTopology S2TopologyTmp : dcTopology.subTopologies) {
                 if (S2TopologyTmp.name.equals(S2Topology.name)) {
                     continue;
                 }
-                for (ClosTopology otherS1Topology : S2TopologyTmp.subTopologys) {
-                    for (ClosTopology S0TopologyTmp : otherS1Topology.subTopologys) {
+                for (ClosTopology otherS1Topology : S2TopologyTmp.subTopologies) {
+                    for (ClosTopology S0TopologyTmp : otherS1Topology.subTopologies) {
                         hostID = S0TopologyTmp.findCandidateReplicate();
                         if (hostID != -1) { 
                             S0TopologyTmp.specialHostID = hostID;
@@ -310,7 +316,7 @@ public class ClosTopology {
             if (this.isLeafTopology()) {
                 return this;
             } else {
-                for (ClosTopology subTopology : this.subTopologys) {
+                for (ClosTopology subTopology : this.subTopologies) {
                     if (subTopology.range.containsAll(hostIDs)) {
                         return subTopology.getNearestCommonFatherTopology(hostIDs);
                     }
@@ -335,7 +341,7 @@ public class ClosTopology {
         if (this.isLeafTopology()) {
             S0Topologies.add(this);
         } else {
-            for (ClosTopology subTopology : this.subTopologys) {
+            for (ClosTopology subTopology : this.subTopologies) {
                 S0Topologies.addAll(subTopology.getS0ClosTopologies());
             }
         }
