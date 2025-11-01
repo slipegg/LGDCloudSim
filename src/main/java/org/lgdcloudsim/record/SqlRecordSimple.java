@@ -11,9 +11,11 @@ import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
 import org.lgdcloudsim.request.InstanceTopology;
+import org.lgdcloudsim.request.InstanceTopologyCondition;
 import org.lgdcloudsim.request.TrainingStrategy;
 import org.lgdcloudsim.request.UserRequest;
 import org.lgdcloudsim.util.StrategyUtils;
+import org.lgdcloudsim.util.utils;
 import org.lgdcloudsim.util.StrategyUtils.TopologyLevelResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -737,9 +740,12 @@ public class SqlRecordSimple implements SqlRecord {
                 " topologyType CHAR(10) NOT NULL," +
                 " description TEXT NOT NULL," +
                 " score DOUBLE NOT NULL," +
-                " scheduledScore DOUBLE NOT NULL," +
-                " maxSwitchLevel INT NOT NULL," +
-                " maxSwitchName CHAR(20) NOT NULL," +
+                " sameHostNum INT NOT NULL," +
+                " sameS0Num INT NOT NULL," +
+                " sameS1Num INT NOT NULL," +
+                " sameS2Num INT NOT NULL," +
+                " sameS3Num INT NOT NULL," +
+                // " maxSwitchName CHAR(20) NOT NULL," +
                 " FOREIGN KEY(instanceGroupId) REFERENCES " + this.instanceGroupTableName + "(id)," +
                 " FOREIGN KEY(userRequestId) REFERENCES " + this.userRequestTableName + "(id))";
 
@@ -754,22 +760,45 @@ public class SqlRecordSimple implements SqlRecord {
             Map<Integer, List<InstanceTopology>> instanceTopologyMap = trainingStrategy.getInstanceTopologyMap();
 
             statement = conn.prepareStatement("INSERT INTO " + this.instanceTopologyTableName +
-                    "(instanceGroupId, userRequestId, topologyType, description, score, scheduledScore, maxSwitchLevel, maxSwitchName) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    "(instanceGroupId, userRequestId, topologyType, description, score, sameHostNum, sameS0Num, sameS1Num, sameS2Num, sameS3Num) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            List<InstanceTopology> instanceTopologies = new ArrayList<>();
             for (Map.Entry<Integer, List<InstanceTopology>> entry : instanceTopologyMap.entrySet()) {
                 for (InstanceTopology instanceTopology : entry.getValue()) {
-                    TopologyLevelResult topologyLevelResult = StrategyUtils.getMaxSameLevel(instanceTopology, closTopology);
+                    instanceTopologies.add(instanceTopology);
+
+                    InstanceTopologyCondition condition = StrategyUtils.getInstanceTopologyCondition(instanceTopology, closTopology);
+
                     statement.setInt(1, instanceGroup.getId());
                     statement.setInt(2, instanceGroup.getUserRequest().getId());
                     statement.setString(3, instanceTopology.getType());
                     statement.setString(4, instanceTopology.toString());
                     statement.setDouble(5, entry.getKey());
-                    statement.setDouble(6, StrategyUtils.calculateScheduledTopologyScore(instanceTopology, closTopology));
-                    statement.setInt(7, topologyLevelResult.getMaxLevel());
-                    statement.setString(8, topologyLevelResult.getName());
+                    statement.setDouble(6, condition.getSameHostNum());
+                    statement.setDouble(7, condition.getSameS0Num());
+                    statement.setDouble(8, condition.getSameS1Num());
+                    statement.setDouble(9, condition.getSameS2Num());
+                    statement.setDouble(10, condition.getSameS3Num());
                     statement.addBatch();
                 }
             }
+
+            // 记录instance group作为整体的放置的拓扑信息
+            TopologyLevelResult topologyLevelResult = StrategyUtils.getMaxSameLevel(instanceTopologies, closTopology);
+            InstanceTopologyCondition condition = new InstanceTopologyCondition(topologyLevelResult.getMaxLevel(), instanceGroup.getInstances().size());
+            statement.setInt(1, instanceGroup.getId());
+            statement.setInt(2, instanceGroup.getUserRequest().getId());
+            statement.setString(3, "ALL");
+            statement.setString(4, "ALL");
+            statement.setDouble(5, 0);
+            statement.setDouble(6, condition.getSameHostNum());
+            statement.setDouble(7, condition.getSameS0Num());
+            statement.setDouble(8, condition.getSameS1Num());
+            statement.setDouble(9, condition.getSameS2Num());
+            statement.setDouble(10, condition.getSameS3Num());
+            statement.addBatch();
+
             statement.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();

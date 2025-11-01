@@ -1,5 +1,6 @@
 package org.lgdcloudsim.util;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.lgdcloudsim.network.ClosTopologyManager;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceTopology;
+import org.lgdcloudsim.request.InstanceTopologyCondition;
 import org.lgdcloudsim.request.TrainingStrategy;
 
 public class StrategyUtils {
@@ -112,9 +114,20 @@ public class StrategyUtils {
      * @return 包含maxLevel和name的结果对象
      */
     public static TopologyLevelResult getMaxSameLevel(InstanceTopology instanceTopology, ClosTopology closTopology) {
+        return getMaxSameLevelFromInstances(instanceTopology.getAllInstances(), closTopology);
+    }
+
+    public static TopologyLevelResult getMaxSameLevel(List<InstanceTopology> instanceTopologies, ClosTopology closTopology) {
+        List<Instance> instances = new ArrayList<>();
+        for (InstanceTopology instanceTopology : instanceTopologies) {
+            instances.addAll(instanceTopology.getAllInstances());
+        }
+        return getMaxSameLevelFromInstances(instances, closTopology);
+    }
+
+    private static TopologyLevelResult getMaxSameLevelFromInstances(List<Instance> instances, ClosTopology closTopology) {
         int maxLevel = -2;
         String name = "";
-        List<Instance> instances = instanceTopology.getAllInstances();
         List<Integer> hostIds = instances.stream().map(Instance::getHost).distinct().toList();
         // hostids中的元素是否全部相同
         int hostId0 = hostIds.get(0);
@@ -128,5 +141,92 @@ public class StrategyUtils {
             name = sameClosTopology.getName();
         }
         return new TopologyLevelResult(maxLevel, name);
+    }
+
+    public static InstanceTopologyCondition getInstanceTopologyCondition(InstanceTopology instanceTopology, ClosTopology closTopology) {
+        InstanceTopologyCondition instanceTopologyCondition = new InstanceTopologyCondition();
+        switch (instanceTopology.getType()) {
+            case InstanceTopology.P2P:
+                instanceTopologyCondition = getP2PInstanceTopologyCondition(instanceTopology, closTopology);
+            case InstanceTopology.All2All:
+                instanceTopologyCondition = getAll2AllInstanceTopologyCondition(instanceTopology, closTopology);
+            default:
+                break;
+        }
+        return instanceTopologyCondition;
+    }
+
+    private static InstanceTopologyCondition getP2PInstanceTopologyCondition(InstanceTopology instanceTopology, ClosTopology closTopology) {
+        InstanceTopologyCondition condition = new InstanceTopologyCondition();
+        List<Instance> instances = instanceTopology.getAllInstances();
+        for (Instance instance : instances) {
+            int hostId = instance.getHost();
+            List<Instance> linkedInstances = instanceTopology.getLinkedInstances(instance);
+            for (Instance linkedInstance : linkedInstances) {
+                int linkedHostId = linkedInstance.getHost();
+                if (hostId == linkedHostId) {
+                    condition.setSameHostNum(condition.getSameHostNum() + 1);
+                } else {
+                    ClosTopology sameClosTopology = closTopology.getNearestCommonFatherTopology(List.of(hostId, linkedHostId));
+                    switch (sameClosTopology.getLevel()) {
+                        case 0:
+                            condition.setSameS0Num(condition.getSameS0Num() + 1);
+                            break;
+                        case 1:
+                            condition.setSameS1Num(condition.getSameS1Num() + 1);
+                            break;
+                        case 2:
+                            condition.setSameS2Num(condition.getSameS2Num() + 1);
+                            break;
+                        case 3:
+                            condition.setSameS3Num(condition.getSameS3Num() + 1);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        condition.setSameHostNum(condition.getSameHostNum() / 2);
+        condition.setSameS0Num(condition.getSameS0Num() / 2);
+        condition.setSameS1Num(condition.getSameS1Num() / 2);
+        condition.setSameS2Num(condition.getSameS2Num() / 2);
+        condition.setSameS3Num(condition.getSameS3Num() / 2);
+        
+        return condition;
+    }
+
+    private static InstanceTopologyCondition getAll2AllInstanceTopologyCondition(InstanceTopology instanceTopology, ClosTopology closTopology) {
+        InstanceTopologyCondition condition = new InstanceTopologyCondition();
+        List<Instance> instances = instanceTopology.getAllInstances();
+        List<Integer> hostIds = instances.stream().map(Instance::getHost).distinct().toList();
+        // hostids中的元素是否全部相同
+        int hostId0 = hostIds.get(0);
+        boolean allSame = hostIds.stream().allMatch(id -> id == hostId0);
+        int linkNum = instances.size() - 1;
+        if (allSame) {
+            condition.setSameHostNum(linkNum);
+        } else {
+            ClosTopology sameClosTopology = closTopology.getNearestCommonFatherTopology(hostIds);
+            int level = sameClosTopology.getLevel();
+            switch (level) {
+                case 0:
+                    condition.setSameS0Num(linkNum);
+                    break;
+                case 1:
+                    condition.setSameS1Num(linkNum);
+                    break;
+                case 2:
+                    condition.setSameS2Num(linkNum);
+                    break;
+                case 3:
+                    condition.setSameS3Num(linkNum);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return condition;
     }
 }
