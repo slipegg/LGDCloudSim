@@ -7,8 +7,10 @@ import org.lgdcloudsim.statemanager.StatesManager;
 import org.lgdcloudsim.util.Range;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ClosTopologyStateSimple {
     Datacenter originalDatacenter;
     ClosTopology originalClosTopology;
@@ -19,6 +21,7 @@ public class ClosTopologyStateSimple {
     long availableBwSum;
     long availableGpuSum;
     long topologyScoreSum;
+    long hostNum;
 
     /**
      * Construct a new ClosTopologyStateSimple.
@@ -30,6 +33,7 @@ public class ClosTopologyStateSimple {
 
         // this.availableGpuSum = datacenter.getStatesManager().
         Range range = closTopology.getRange();
+        this.hostNum = range.getMax() - range.getMin() + 1;
         StatesManager statemenger = datacenter.getStatesManager();
         for (int i = range.getMin(); i <= range.getMax(); i++) {
             HostState hostState = statemenger.getActualHostState(i);

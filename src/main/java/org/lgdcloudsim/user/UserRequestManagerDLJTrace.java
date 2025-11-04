@@ -116,6 +116,8 @@ public class UserRequestManagerDLJTrace implements UserRequestManager {
                 if (submitTime == currentTime) {
                     // Create UserRequest (simplified for now)
                     UserRequest userRequest = createUserRequestFromRecord(record);
+                    userRequest.setBelongDatacenterId(dcId);
+                    userRequest.setArea("United States");
                     userRequest.setSubmitTime(submitTime);
                     requests.add(userRequest);
                     index++;

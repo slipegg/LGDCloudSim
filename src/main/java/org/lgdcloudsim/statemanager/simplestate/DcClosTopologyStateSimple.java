@@ -24,6 +24,7 @@ public class DcClosTopologyStateSimple {
     public DcClosTopologyStateSimple(Datacenter datacenter, ClosTopology rootClosTopology) {
         this.originalDatacenter = datacenter;
         this.closTopologyStateSimpleMap = new HashMap<>();
+        rootClosTopology.InitTopologyGPU(datacenter.getStatesManager());
         constructClosTopologyStateSimpleMap(rootClosTopology, datacenter.getStatesManager());
     }
 

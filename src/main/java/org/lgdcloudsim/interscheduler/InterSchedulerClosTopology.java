@@ -58,22 +58,43 @@ public class InterSchedulerClosTopology extends InterSchedulerSimple {
         }
 
         // Sort closTopologyStateSimpleList by topologyScoreSum, then by availableGpuSum, then by availableCpuSum, then by availableRamSum
-        closTopologyStateSimpleList.sort(Comparator
-            .comparingLong(ClosTopologyStateSimple::getTopologyScoreSum).reversed()
-            .thenComparingLong(ClosTopologyStateSimple::getAvailableGpuSum).reversed()
-            .thenComparingLong(ClosTopologyStateSimple::getAvailableCpuSum).reversed()
-            .thenComparingLong(ClosTopologyStateSimple::getAvailableRamSum).reversed());
 
         for (InstanceGroup instanceGroup : unscheduledInstanceGroups) {
+            closTopologyStateSimpleList.sort(Comparator
+                .comparingLong(ClosTopologyStateSimple::getTopologyScoreSum)
+                .thenComparingLong(ClosTopologyStateSimple::getAvailableGpuSum)
+                .thenComparingLong(ClosTopologyStateSimple::getAvailableCpuSum)
+                .thenComparingLong(ClosTopologyStateSimple::getAvailableRamSum)
+                .thenComparingLong(ClosTopologyStateSimple::getAvailableStorageSum)
+                .thenComparingLong(ClosTopologyStateSimple::getAvailableBwSum)
+                .reversed());
+            // n-1, n-2, n-3, ... n-m
+            // n * m - (1+2+3+...+m) = n * m - m * (m + 1) / 2
+            boolean isScheduled = false;
             for (ClosTopologyStateSimple closTopologyStateSimple : closTopologyStateSimpleList) {
                 if (closTopologyStateSimple.getAvailableGpuSum() >= instanceGroup.getGpuSum()
                     && closTopologyStateSimple.getAvailableCpuSum() >= instanceGroup.getCpuSum()
                     && closTopologyStateSimple.getAvailableRamSum() >= instanceGroup.getRamSum()) {
                     interSchedulerResult.addDcResult(instanceGroup, closTopologyStateSimple.getOriginalDatacenter());
+                    isScheduled = true;
+
+                    long avgInstanceGpu = instanceGroup.getGpuSum() / instanceGroup.getInstances().size(); // instanceGroup.getInstances().size() * closTopologyStateSimple.getHostNum()
+                    int m = instanceGroup.getInstances().size();
+                    int n = (int) closTopologyStateSimple.getHostNum();
+                    closTopologyStateSimple.setTopologyScoreSum(closTopologyStateSimple.getTopologyScoreSum() - avgInstanceGpu * (avgInstanceGpu - 1) * (n * m - m * (m + 1) / 2));
+                    closTopologyStateSimple.setAvailableGpuSum(closTopologyStateSimple.getAvailableGpuSum() - instanceGroup.getGpuSum());
+                    closTopologyStateSimple.setAvailableCpuSum(closTopologyStateSimple.getAvailableCpuSum() - instanceGroup.getCpuSum());
+                    closTopologyStateSimple.setAvailableRamSum(closTopologyStateSimple.getAvailableRamSum() - instanceGroup.getRamSum());
+                    closTopologyStateSimple.setAvailableStorageSum(closTopologyStateSimple.getAvailableStorageSum() - instanceGroup.getStorageSum());
+                    closTopologyStateSimple.setAvailableBwSum(closTopologyStateSimple.getAvailableBwSum() - instanceGroup.getBwSum());
+                    
+                    LOGGER.info("{}: InterSchedulerClosTopology scheduling InstanceGroup {} to Datacenter {} by switch level {}", getSimulation().clockStr(), instanceGroup.getId(), closTopologyStateSimple.getOriginalDatacenter().getId(), level);
                     break;
                 }
             }
-            unscheduledInstanceGroup.add(instanceGroup);
+            if (!isScheduled) {
+                unscheduledInstanceGroup.add(instanceGroup);
+            }
         }
 
         return unscheduledInstanceGroup;
