@@ -11,9 +11,9 @@ import org.lgdcloudsim.queue.InstanceGroupQueueFifo;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.UserRequest;
-import org.lgdcloudsim.statemanager.DetailedDcStateSimple;
+import org.lgdcloudsim.statemanager.simplestate.DetailedDcStateSimple;
 import org.lgdcloudsim.statemanager.HostState;
-import org.lgdcloudsim.statemanager.SimpleStateEasyObject;
+import org.lgdcloudsim.statemanager.simplestate.SimpleStateEasyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

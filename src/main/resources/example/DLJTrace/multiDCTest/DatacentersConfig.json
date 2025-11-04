@@ -1,0 +1,99 @@
+{
+  "collaborations": [
+    {
+      "id": 1,
+      "interLoadBalancer": {
+        "type": "round"
+      },
+      "centerSchedulers": {
+        "type": "leastRequested",
+        "target": "dc",
+        "isSupportForward":false,
+        "dcStateSynInfo": [
+          {
+            "dcId": 1,
+            "synInterval": 0,
+            "synStateType": "dcClosTopologySimple"
+          },
+          {
+            "dcId": 2,
+            "synInterval": 0,
+            "synStateType": "dcClosTopologySimple"
+          }
+        ]
+      },
+      "datacenters": [
+        {
+          "id": 1,
+          "region": "us-east1",
+          "hostNum": 32,
+          "partitions": [
+            {
+              "length": 32
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 192,
+              "ram": 3200,
+              "storage": 0,
+              "bw": 0,
+              "gpu": 8,
+              "gpuType": "NVIDIA A100",
+              "startId": 0,
+              "length": 32
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        },
+        {
+          "id": 2,
+          "region": "northamerica-northeast1",
+          "hostNum": 32,
+          "partitions": [
+            {
+              "length": 32
+            }
+          ],
+          "hostStates": [
+            {
+              "cpu": 192,
+              "ram": 3200,
+              "storage": 0,
+              "bw": 0,
+              "gpu": 8,
+              "gpuType": "NVIDIA A100",
+              "startId": 0,
+              "length": 32
+            }
+          ],
+          "synchronizationGap": 0,
+          "intraSchedulers": [
+            {
+              "firstPartitionIndex": 0,
+              "type": "leastRequested"
+            }
+          ],
+          "intraLoadBalancer": {
+            "type": "batch"
+          },
+          "resourceAllocateSelector": {
+            "type": "simple"
+          }
+        }
+      ]
+    }
+  ]
+}
