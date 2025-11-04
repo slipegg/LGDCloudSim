@@ -44,7 +44,7 @@ log_time() {
 # 定义存储 PIDs 的数组
 PIDS=()
 
-log_time "randomGang-100s-gap" $EXPERIMENT_PATH"/datacenter/randomGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
+log_time "randomGang-100s-gap" $EXPERIMENT_PATH"/datacenter/randomGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
 PIDS+=($!)
 
 log_time "gpuBinPackGang-100s-gap" $EXPERIMENT_PATH"/datacenter/gpuBinPackGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
