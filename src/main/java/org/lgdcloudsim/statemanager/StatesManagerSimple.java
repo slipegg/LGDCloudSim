@@ -7,6 +7,10 @@ import org.lgdcloudsim.datacenter.DatacenterPowerOnRecord;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.statemanager.simplestate.DcClosTopologyStateSimple;
+import org.lgdcloudsim.statemanager.simplestate.DetailedDcStateSimple;
+import org.lgdcloudsim.statemanager.simplestate.SimpleState;
+import org.lgdcloudsim.statemanager.simplestate.SimpleStateEasy;
 
 import java.util.*;
 
@@ -439,6 +443,7 @@ public class StatesManagerSimple implements StatesManager {
             case "detailed" ->
                     new DetailedDcStateSimple(getCenterHostStates(), hostCapacityManager, simpleState.getCpuAvailableSum(), simpleState.getRamAvailableSum(), simpleState.getStorageAvailableSum(), simpleState.getBwAvailableSum(), simpleState.getGpuAvailableSum());
             case "easySimple" -> simpleState.generate();
+            case "dcClosTopologySimple" -> new DcClosTopologyStateSimple(datacenter, datacenter.getSimulation().getNetworkTopology().getClosTopology(datacenter.getId()));
             case "null" -> null;
             default -> throw new IllegalArgumentException("Unrecognized state type: " + type);
         };

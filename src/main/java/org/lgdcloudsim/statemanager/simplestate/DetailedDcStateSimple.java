@@ -1,7 +1,9 @@
-package org.lgdcloudsim.statemanager;
+package org.lgdcloudsim.statemanager.simplestate;
 
 import lombok.Getter;
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.statemanager.HostCapacityManager;
+import org.lgdcloudsim.statemanager.HostState;
 
 /**
  * Used to describe the status of a data center,

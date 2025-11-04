@@ -5,6 +5,7 @@ import org.lgdcloudsim.datacenter.DatacenterPowerOnRecord;
 import org.lgdcloudsim.intrascheduler.IntraScheduler;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.statemanager.simplestate.SimpleState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

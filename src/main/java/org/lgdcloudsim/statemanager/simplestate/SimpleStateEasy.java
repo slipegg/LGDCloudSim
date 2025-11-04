@@ -1,4 +1,4 @@
-package org.lgdcloudsim.statemanager;
+package org.lgdcloudsim.statemanager.simplestate;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.util.HashMap;
 
 import org.lgdcloudsim.request.Instance;
+import org.lgdcloudsim.statemanager.StatesManager;
 
 /**
  * A class implementing the {@link SimpleState} interface.

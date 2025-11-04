@@ -1,4 +1,4 @@
-package org.lgdcloudsim.statemanager;
+package org.lgdcloudsim.statemanager.simplestate;
 
 import java.util.HashMap;
 
