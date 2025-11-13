@@ -141,6 +141,9 @@ public enum CloudActionTags implements CloudSimTags {
      */
     SCHEDULE_TO_DC_HOST_CONFLICTED,
 
+
+    INTER_SCHEDULE_RETRY,
+
     /**
      * Denotes the start of the load balancing process.
      * It is used by the {@link org.lgdcloudsim.datacenter.Datacenter}.

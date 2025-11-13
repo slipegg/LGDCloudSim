@@ -19,7 +19,10 @@ import org.lgdcloudsim.queue.InstanceGroupQueue;
 import org.lgdcloudsim.util.FailedOutdatedResult;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
+import org.lgdcloudsim.interscheduler.InterSchedulerRetryItem;
 import org.lgdcloudsim.interscheduler.InterSchedulerSimple;
+import org.lgdcloudsim.intrascheduler.IntraScheduler;
+import org.lgdcloudsim.intrascheduler.IntraSchedulerRetryItem;
 import org.lgdcloudsim.request.Instance;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.request.InstanceGroupEdge;
@@ -54,6 +57,7 @@ public class CloudInformationService extends CloudSimEntity {
     @Getter
     private final List<Datacenter> datacenterList;
 
+    int retryWaitTime = 3*60*1000; // 3 minutes
     /**
      * Creates a new CIS entity.
      *
@@ -134,6 +138,7 @@ public class CloudInformationService extends CloudSimEntity {
             case LOAD_BALANCE_SEND -> processLoadBalanceSend(evt);
             case INTER_SCHEDULE_BEGIN -> processInterScheduleBegin(evt);
             case INTER_SCHEDULE_END -> processInterScheduleEnd(evt);
+            case INTER_SCHEDULE_RETRY -> processInterScheduleRetry(evt);
             case SCHEDULE_TO_DC_HOST_OK, SCHEDULE_TO_DC_HOST_CONFLICTED ->
                     processScheduleToDcHostResponse(evt);
             case RECORD_DC_UNTILIZATION -> processRecordDcUtilization(evt);
@@ -319,6 +324,18 @@ public class CloudInformationService extends CloudSimEntity {
         }
     }
 
+    private void processInterScheduleRetry(SimEvent evt) {
+        if (evt.getData() instanceof InterSchedulerRetryItem interSchedulerRetryItem) {
+            InterScheduler interScheduler = interSchedulerRetryItem.getInterScheduler();
+            List<InstanceGroup> instanceGroups = interSchedulerRetryItem.getRetryInstances();
+            interScheduler.addInstanceGroups(instanceGroups, true);
+
+            if (getSimulation().getCollaborationManager().getCenterSchedulersBusyMap(interScheduler.getCollaborationId()).get(interScheduler.getId()) == false) {
+                startCenterInterScheduling(interScheduler);
+            }
+        }
+    }
+
     /**
      * Processes the end of the inter-scheduling.
      * It will send the result of the inter-scheduling to the data centers.
@@ -452,8 +469,8 @@ public class CloudInformationService extends CloudSimEntity {
         }
 
         if (!retryInstanceGroups.isEmpty()) {
-            interScheduler.addInstanceGroups(retryInstanceGroups, true);
-            startCenterInterScheduling(interScheduler);
+            InterSchedulerRetryItem interSchedulerRetryItem = new InterSchedulerRetryItem(interScheduler, retryInstanceGroups);
+            send(this, retryWaitTime, CloudActionTags.INTER_SCHEDULE_RETRY, interSchedulerRetryItem);
         }
 
         if (!failedUserRequests.isEmpty()) {

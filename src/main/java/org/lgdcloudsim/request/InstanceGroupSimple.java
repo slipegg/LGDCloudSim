@@ -82,7 +82,7 @@ public class InstanceGroupSimple implements InstanceGroup {
         this.id = id;
         this.instances = new ArrayList<>();
         this.retryNum = 0;
-        this.retryMaxNum = 0;
+        this.retryMaxNum = -1;
         this.state = UserRequest.WAITING;
         this.accessLatency = Double.MAX_VALUE;
         this.receiveDatacenter = Datacenter.NULL;
@@ -148,7 +148,7 @@ public class InstanceGroupSimple implements InstanceGroup {
     @Override
     public InstanceGroup addRetryNum() {
         this.retryNum++;
-        if (this.retryNum > this.retryMaxNum) {
+        if (this.retryMaxNum != -1 && this.retryNum > this.retryMaxNum) {
             this.state = UserRequest.FAILED;
         }
         return this;
