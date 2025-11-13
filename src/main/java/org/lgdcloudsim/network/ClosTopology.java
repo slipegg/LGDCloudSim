@@ -289,8 +289,7 @@ public class ClosTopology {
         // 尝试放入同一个DC下的其他主机上
         ClosTopology S3Topology = S2Topology.fatherTopology;
         if (S3Topology != null && rootLevel >= 3) {
-            ClosTopology dcTopology = S3Topology.fatherTopology;
-            for (ClosTopology S2TopologyTmp : dcTopology.subTopologies) {
+            for (ClosTopology S2TopologyTmp : S3Topology.subTopologies) {
                 if (S2TopologyTmp.name.equals(S2Topology.name)) {
                     continue;
                 }
