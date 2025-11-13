@@ -38,7 +38,7 @@ public class IntraSchedulerTopologyBinPackGang extends IntraSchedulerSimple {
 
     private void scheduleForInstanceGroup(InstanceGroup instanceGroup, SynState synState, IntraSchedulerResult intraSchedulerResult, List<ClosTopology> s0Topologies) {
         List<Instance> instances = instanceGroup.getInstances();
-        s0Topologies.sort(Comparator.comparingInt((ClosTopology topology) -> getTotalAvailableGpu(topology, synState)).reversed());
+        s0Topologies.sort(Comparator.comparingInt((ClosTopology topology) -> getTotalAvailableGpu(topology, synState)));
 
         Map<Integer, HostState> hostStateMap = new HashMap<>();
         List<Integer> candidateHostIds = new ArrayList<>();
