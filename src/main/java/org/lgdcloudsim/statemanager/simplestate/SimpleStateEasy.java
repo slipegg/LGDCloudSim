@@ -101,7 +101,7 @@ public class SimpleStateEasy implements SimpleState {
 
     @Override
     public Object generate() {
-        return new SimpleStateEasyObject(statesManager.getHostNum(),
+        return new SimpleStateEasyObject(statesManager.getDatacenter(), statesManager.getHostNum(),
                 cpuAvailableSum,ramAvailableSum,storageAvailableSum,bwAvailableSum,gpuAvailableSum,gpuAvailableSumMap,
                 statesManager.getHostCapacityManager().getCpuCapacitySum(),
                 statesManager.getHostCapacityManager().getRamCapacitySum(),

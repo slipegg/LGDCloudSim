@@ -432,7 +432,7 @@ public class StatesManagerSimple implements StatesManager {
         actualHostStates[hostId * HostState.STATE_NUM + 3] += instance.getBw();
         actualHostStates[hostId * HostState.STATE_NUM + 4] += instance.getGpu();
 
-//        simpleState.updateSimpleStateReleased(hostId, beforeHostState, instance);
+        simpleState.updateSimpleStateReleased(hostId, beforeHostState, instance);
         datacenterPowerOnRecord.hostReleaseInstance(hostId, datacenter.getSimulation().clock());
         return this;
     }

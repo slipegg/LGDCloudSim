@@ -7,11 +7,12 @@ import java.util.Map;
 
 import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.interscheduler.InterSchedulerLeastRequested.CustomComparator;
 import org.lgdcloudsim.request.InstanceGroup;
 import org.lgdcloudsim.statemanager.simplestate.ClosTopologyStateSimple;
 import org.lgdcloudsim.statemanager.simplestate.DcClosTopologyStateSimple;
 
-public class InterSchedulerClosTopology extends InterSchedulerSimple {
+public class InterSchedulerTopologyScoreFirst extends InterSchedulerSimple {
         /**
      * The constructor of the clos topology inter-scheduler.
      *
@@ -21,7 +22,7 @@ public class InterSchedulerClosTopology extends InterSchedulerSimple {
      * @param target           the target id of the inter-scheduler.
      * @param isSupportForward whether the inter-scheduler supports forward.
      */
-    public InterSchedulerClosTopology(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
+    public InterSchedulerTopologyScoreFirst(int id, Simulation simulation, int collaborationId, int target, boolean isSupportForward) {
         super(id, simulation, collaborationId, target, isSupportForward);
     }
 
@@ -35,9 +36,7 @@ public class InterSchedulerClosTopology extends InterSchedulerSimple {
         final List<Datacenter> allDatacenters = simulation.getCollaborationManager().getDatacenters(collaborationId);
         InterSchedulerResult interSchedulerResult = new InterSchedulerResult(this, allDatacenters);
 
-        for (int i = 0; i < 3; i++) {
-            instanceGroups = scheduleForClosTopology(instanceGroups, interSchedulerResult, i);
-        }
+        instanceGroups = scheduleForClosTopology(instanceGroups, interSchedulerResult, 2);
 
         for (InstanceGroup instanceGroup : instanceGroups) {
             interSchedulerResult.addFailedInstanceGroup(instanceGroup);
@@ -68,7 +67,6 @@ public class InterSchedulerClosTopology extends InterSchedulerSimple {
                 .thenComparingLong(ClosTopologyStateSimple::getAvailableRamSum)
                 .thenComparingLong(ClosTopologyStateSimple::getAvailableStorageSum)
                 .thenComparingLong(ClosTopologyStateSimple::getAvailableBwSum)
-                .thenComparingLong(ClosTopologyStateSimple::getRandomScore)
                 .reversed());
             // n-1, n-2, n-3, ... n-m
             // n * m - (1+2+3+...+m) = n * m - m * (m + 1) / 2
@@ -90,7 +88,7 @@ public class InterSchedulerClosTopology extends InterSchedulerSimple {
                     closTopologyStateSimple.setAvailableStorageSum(closTopologyStateSimple.getAvailableStorageSum() - instanceGroup.getStorageSum());
                     closTopologyStateSimple.setAvailableBwSum(closTopologyStateSimple.getAvailableBwSum() - instanceGroup.getBwSum());
                     
-                    LOGGER.info("{}: InterSchedulerClosTopology scheduling InstanceGroup {} to Datacenter {} by switch level {}", getSimulation().clockStr(), instanceGroup.getId(), closTopologyStateSimple.getOriginalDatacenter().getId(), level);
+                    LOGGER.info("{}: InterSchedulerTopologyScoreFirst scheduling InstanceGroup {} to Datacenter {} by switch level {}", getSimulation().clockStr(), instanceGroup.getId(), closTopologyStateSimple.getOriginalDatacenter().getId(), level);
                     break;
                 }
             }

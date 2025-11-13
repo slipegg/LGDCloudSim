@@ -67,6 +67,9 @@ public class FactorySimple implements Factory {
                     new InterSchedulerLeastRequested(id, simulation, collaborationId, target, isSupportForward);
             case "round" -> new InterSchedulerRound(id, simulation, collaborationId, target, isSupportForward);
             case "closTopology" -> new InterSchedulerClosTopology(id, simulation, collaborationId, target, isSupportForward);
+            case "gpuFirst" -> new InterSchedulerGPUFirst(id, simulation, collaborationId, target, isSupportForward);
+            case "gpuRandom" -> new InterSchedulerRandom(id, simulation, collaborationId, target, isSupportForward);
+            case "topologyScoreFirst" -> new InterSchedulerTopologyScoreFirst(id, simulation, collaborationId, target, isSupportForward);
             default -> null;
         };
     }

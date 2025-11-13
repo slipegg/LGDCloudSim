@@ -2,6 +2,9 @@ package org.lgdcloudsim.statemanager.simplestate;
 
 import java.util.HashMap;
 
+import org.lgdcloudsim.datacenter.Datacenter;
+import org.lgdcloudsim.request.InstanceGroup;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +29,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SimpleStateEasyObject {
+    /**
+     * The datacenter to which the simple state belongs.
+     */
+    Datacenter datacenter;
     /**
      * The number of hosts in the datacenter.
      */
@@ -87,8 +94,9 @@ public class SimpleStateEasyObject {
      * @param storageCapacitySum  the sum of the total storage capacity of all hosts in the datacenter.
      * @param bwCapacitySum       the sum of the total bw capacity of all hosts in the datacenter.
      */
-    public SimpleStateEasyObject(int hostNum, long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum, long gpuAvailableSum, HashMap<String, Long> gpuAvailableSumMap,
+    public SimpleStateEasyObject(Datacenter datacenter, int hostNum, long cpuAvailableSum, long ramAvailableSum, long storageAvailableSum, long bwAvailableSum, long gpuAvailableSum, HashMap<String, Long> gpuAvailableSumMap,
                                 long cpuCapacitySum, long ramCapacitySum, long storageCapacitySum, long bwCapacitySum, HashMap<String, Long> gpuCapacitySumMap) {
+        this.datacenter = datacenter;
         this.hostNum = hostNum;
         this.cpuAvailableSum = cpuAvailableSum;
         this.ramAvailableSum = ramAvailableSum;
@@ -119,5 +127,21 @@ public class SimpleStateEasyObject {
         bwAvailableSum -= bw;
         gpuAvailableSum -= gpu;
         gpuAvailableSumMap.put(gpuType, gpuAvailableSumMap.getOrDefault(gpuType, 0L) - gpu);    
+    }
+
+    public long getGpuCapacitySum() {
+        long sum = 0;
+        for (long val : gpuCapacitySumMap.values()) {
+            sum += val;
+        }
+        return sum;
+    }
+
+    public boolean isSuitable(InstanceGroup instanceGroup) {
+        return cpuAvailableSum >= instanceGroup.getCpuSum() &&
+               ramAvailableSum >= instanceGroup.getRamSum() &&
+               storageAvailableSum >= instanceGroup.getStorageSum() &&
+               bwAvailableSum >= instanceGroup.getBwSum() &&
+               gpuAvailableSum >= instanceGroup.getGpuSum();
     }
 }

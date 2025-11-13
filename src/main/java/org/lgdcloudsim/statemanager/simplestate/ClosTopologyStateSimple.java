@@ -22,6 +22,7 @@ public class ClosTopologyStateSimple {
     long availableGpuSum;
     long topologyScoreSum;
     long hostNum;
+    long randomScore;
 
     /**
      * Construct a new ClosTopologyStateSimple.
@@ -45,5 +46,6 @@ public class ClosTopologyStateSimple {
         }
 
         this.topologyScoreSum = closTopology.getTopologyScore();
+        this.randomScore = (long)(Math.random() * Long.MAX_VALUE);
     }
 }
