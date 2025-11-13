@@ -59,6 +59,8 @@ public class InstanceSimple implements Instance {
 
     int retryNum;
 
+    // if retryMaxNum == -1, the instance will always be retried.
+    // if retryNum > retryMaxNum, the instance will be set to FAILED.eg: 0 means never retry.
     int retryMaxNum;
 
     int state;
@@ -92,7 +94,7 @@ public class InstanceSimple implements Instance {
         this.lifecycle = -1;
 
         this.destHostId = -1;
-        this.retryMaxNum = 0;
+        this.retryMaxNum = -1;
 
         this.host = -1;
         this.expectedScheduleHostId = -1;
@@ -142,7 +144,7 @@ public class InstanceSimple implements Instance {
     @Override
     public Instance addRetryNum() {
         this.retryNum++;
-        if (this.retryNum > this.retryMaxNum) {
+        if (this.retryMaxNum != -1 && this.retryNum > this.retryMaxNum) {
             this.state = UserRequest.FAILED;
         }
         return this;

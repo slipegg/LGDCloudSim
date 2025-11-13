@@ -78,7 +78,6 @@ public class UserRequestManagerDLJTrace implements UserRequestManager {
         int rank0Index = instanceIdCounter;
         for (int i = 0; i < instance_replicate; i++) {
             Instance instance = new InstanceSimple(instanceIdCounter++, instance_cpu, instance_memory, 0, 0, instance_gpu, "NVIDIA A100", instance_running_time);
-            instance.setRetryMaxNum(3);
             instanceList.add(instance);
         }
         InstanceGroup instanceGroup = new InstanceGroupSimple(instanceGroupIdCounter++, instanceList);

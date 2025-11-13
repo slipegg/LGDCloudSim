@@ -12,6 +12,7 @@ import org.lgdcloudsim.core.Simulation;
 import org.lgdcloudsim.core.events.SimEvent;
 import org.lgdcloudsim.interscheduler.InterSchedulerSendItem;
 import org.lgdcloudsim.intrascheduler.IntraSchedulerResult;
+import org.lgdcloudsim.intrascheduler.IntraSchedulerRetryItem;
 import org.lgdcloudsim.interscheduler.InterScheduler;
 import org.lgdcloudsim.interscheduler.InterSchedulerResult;
 import org.lgdcloudsim.interscheduler.InterSchedulerSimple;
@@ -274,6 +275,9 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      **/
     private Map<IntraScheduler, Boolean> isIntraSchedulerBusy = new HashMap<>();
 
+
+    private int retryWaitTime = 3*60*1000; // 3 minutes
+
     /**
      * Create a new instance of DatacenterSimple with the given simulation.
      *
@@ -404,6 +408,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                     processScheduleToDcHostResponse(evt);
             case INTRA_SCHEDULE_BEGIN -> processIntraScheduleBegin(evt);
             case INTRA_SCHEDULE_END -> processIntraScheduleEnd(evt);
+            case INTRA_SCHEDULE_RETRY -> processIntraScheduleRetry(evt);
             case PRE_ALLOCATE_RESOURCE -> processPreAllocateResource(evt);
             case END_INSTANCE_RUN -> processEndInstanceRun(evt);
             default ->
@@ -726,6 +731,18 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
     }
+    
+    private void processIntraScheduleRetry(SimEvent evt) {
+        if (evt.getData() instanceof IntraSchedulerRetryItem intraSchedulerRetryItem) {
+            IntraScheduler intraScheduler = intraSchedulerRetryItem.getIntraScheduler();
+            List<Instance> instances = intraSchedulerRetryItem.getRetryInstances();
+            intraScheduler.addInstance(instances, true);
+
+            if (!isIntraSchedulerBusy.get(intraScheduler)) {
+                startIntraScheduling(intraScheduler);
+            }
+        }
+    }
 
     /**
      * Publish the results of the {@link IntraScheduler}
@@ -742,16 +759,12 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
                 statesManager.revertHostState(intraSchedulerResult);
             }
 
-            int retryNum=0;
             if (!intraSchedulerResult.isFailedInstancesEmpty()) {
-                retryNum = intraScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false, intraSchedulerResult.getOutDatedUserRequests());
+                intraScheduleFailed(intraSchedulerResult.getFailedInstances(), intraScheduler, false, intraSchedulerResult.getOutDatedUserRequests());
             }
             if (!intraSchedulerResult.isScheduledInstancesEmpty()) {
                 intraSchedulerResults.add(intraSchedulerResult);
                 send(this, 0, CloudActionTags.PRE_ALLOCATE_RESOURCE, null);
-            } else if (retryNum != 0){
-                LOGGER.info("{}: {}'s {} has {} instances need retry but no instance scheduled successful.", getSimulation().clockStr(), getName(), intraScheduler.getName(), retryNum);
-                startIntraScheduling(intraScheduler);
             } else {
                 isIntraSchedulerBusy.put(intraScheduler, false);
             }
@@ -813,7 +826,7 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
      * @param outDatedUserRequests the outdated user requests that has exceeded the scheduling time limit
      * @return the number of retry instances
      */
-    private int intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
+    private void intraScheduleFailed(List<Instance> instances, IntraScheduler intraScheduler, boolean isNeedRevertSelfHostState, Set<UserRequest> outDatedUserRequests) {
         Set<UserRequest> failedUserRequests = outDatedUserRequests;
         for (UserRequest userRequest : outDatedUserRequests) {
             userRequest.addFailReason("outDated");
@@ -836,19 +849,19 @@ public class DatacenterSimple extends CloudSimEntity implements Datacenter {
             }
         }
 
-        intraScheduler.addInstance(instances, true);
+        IntraSchedulerRetryItem intraSchedulerRetryItem = new IntraSchedulerRetryItem(intraScheduler, instances);
+        send(this, retryWaitTime, CloudActionTags.INTRA_SCHEDULE_RETRY, intraSchedulerRetryItem);
 
         if (isNeedRevertSelfHostState) {
             statesManager.revertSelfHostState(instances, intraScheduler);
         }
 
         if (!instances.isEmpty()) {
-            LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry soon.", getSimulation().clockStr(), getName(), intraScheduler.getName(), instances.size());
+            LOGGER.warn("{}: {}'s {} failed to schedule {} instances,it need retry after {}ms.", getSimulation().clockStr(), getName(), intraScheduler.getName(), instances.size(), retryWaitTime);
         }
         if (!failedUserRequests.isEmpty()) {
             send(getSimulation().getCis(), 0, CloudActionTags.USER_REQUEST_FAIL, failedUserRequests);
         }
-        return instances.size();
     }
 
     /**

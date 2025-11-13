@@ -154,6 +154,8 @@ public enum CloudActionTags implements CloudSimTags {
      */
     INTRA_SCHEDULE_END,
 
+    INTRA_SCHEDULE_RETRY,
+
     /**
      * Conflict checking before placing any instance on the host.
      */
