@@ -3,62 +3,78 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sqlite3
 
-db_names = ["closTopology-50s-gap", "closTopologyWithoutSort-50s-gap", "topologyBinPackGang-50s-gap", "gpuBinPackGang-50s-gap", "randomGang-50s-gap"]
+db_names = ["TopoAlign-50s-gap", "TopoAlign-Random-50s-gap", "S0BinPack-50s-gap", "GPUBinPack-50s-gap", "Random-50s-gap"]
 
-def draw_clos_topology_score_for_each(db_name):
-    # 创建第一个图形（GPU利用率折线图）
-    fig1, ax1 = plt.subplots(figsize=(12, 6))
-    ax2 = ax1.twinx()  # 创建共享x轴的双y轴
+color_map = {
+    "TopoAlign": "#F94141",
+    "TopoAlign-Random": "#F2993A",
+    "S0BinPack": "#267F58",
+    "GPUBinPack": "#296BBB",
+    "Random": "#808080"
+}
 
-    avg_utilizations = []
+def get_name_from_db_name(db_name):
+    names = db_name.split('-')
+    names = names[:-2]  # 去掉最后两个部分
+    return '-'.join(names)
 
-    # 为每个数据库绘制GPU利用率折线
-    # 连接到SQLite数据库
-    conn = sqlite3.connect(f'RecordDb/{db_name}.db')
+def draw_all_clos_topology_scores():
+    # 创建一行5列的子图
+    fig, axes = plt.subplots(1, 5, figsize=(35, 6))
+    
+    
+    for i, db_name in enumerate(db_names):
+        ax1 = axes[len(db_names)-i-1]
 
-    # 执行SQL查询
-    query = """
-    SELECT time, topologyScoreSum, s0Pct30TopologyScore, s0Pct60TopologyScore, s0Pct90TopologyScore, s0MeanTopologyScore
-    FROM datacenterUtilization
-    Where time < 50*60*60*1000
-    ORDER BY time
-    """
-    df = pd.read_sql_query(query, conn)
+        # 连接到SQLite数据库
+        conn = sqlite3.connect(f'RecordDb/{db_name}.db')
 
-    # 关闭数据库连接
-    conn.close()
+        # 执行SQL查询
+        query = """
+        SELECT time, topologyScoreSum, s0Pct30TopologyScore, s0Pct60TopologyScore, s0Pct90TopologyScore, s0MeanTopologyScore
+        FROM datacenterUtilization
+        Where time < 50*60*60*1000
+        ORDER BY time
+        """
+        df = pd.read_sql_query(query, conn)
 
-    # 将时间从毫秒转换为小时
-    df['time'] = df['time'] / (60 *60 * 1000)
+        # 关闭数据库连接
+        conn.close()
 
-    # 在ax1（左y轴）上绘制S0分数
-    ax1.plot(df['time'], df['s0Pct30TopologyScore'], label=f'S0 Pct30', linestyle='-', marker='o', markersize=2)
-    ax1.plot(df['time'], df['s0Pct60TopologyScore'], label=f'S0 Pct60', linestyle='--', marker='s', markersize=2)
-    ax1.plot(df['time'], df['s0Pct90TopologyScore'], label=f'S0 Pct90', linestyle='-.', marker='^', markersize=2)
-    ax1.plot(df['time'], df['s0MeanTopologyScore'], label=f'S0 Mean', linestyle=':', marker='d', markersize=2)
-    # 设置轴标签
-    ax1.set_xlabel('Time (hours)')
-    ax1.set_ylabel('S0 Topology Scores')
-    ax2.set_ylabel('Topology Score Sum')
+        # 将时间从毫秒转换为小时
+        df['time'] = df['time'] / (60 *60 * 1000)
 
-    # 设置x轴范围
-    ax1.set_xlim(0, 50)
+        # 在ax1（左y轴）上绘制S0分数
+        ax1.plot(df['time'], df['s0Pct30TopologyScore'], label=f'S0 Pct30', linestyle='-', marker='o', markersize=2)
+        ax1.plot(df['time'], df['s0Pct60TopologyScore'], label=f'S0 Pct60', linestyle='--', marker='s', markersize=2)
+        ax1.plot(df['time'], df['s0Pct90TopologyScore'], label=f'S0 Pct90', linestyle='-.', marker='^', markersize=2)
+        ax1.plot(df['time'], df['s0MeanTopologyScore'], label=f'S0 Mean', linestyle=':', marker='d', markersize=2)
 
-    # 合并legend
-    handles1, labels1 = ax1.get_legend_handles_labels()
-    handles2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(handles1 + handles2, labels1 + labels2, loc='upper left')
+        # 设置轴标签
+        ax1.set_xlabel('Time (hours)')
+        ax1.set_ylabel('S0 Topology Scores')
+        
+        # 设置标题
+        ax1.set_title(f'{get_name_from_db_name(db_name)}')
 
-    # 设置网格
-    ax1.grid(True)
+        # 设置x轴范围
+        ax1.set_xlim(0, 50)
 
+        # 合并legend
+        handles1, labels1 = ax1.get_legend_handles_labels()
+        ax1.legend(handles1, labels1, loc='upper right')
 
-    # 保存第一个图形
-    plt.title(f'{db_name} Topology Score Over Time')
-    img_name1 = f'RecordDb/output/topology_score_comparison_{db_name}_{int(time.time())}.png'
-    plt.savefig(img_name1)
-    plt.close(fig1)
-    print(f"{db_name} Topology Score折线图已保存在 {img_name1}")
+        # 设置网格
+        ax1.grid(True)
+
+    # 调整子图间距
+    plt.tight_layout()
+    
+    # 保存图形
+    img_name = f'RecordDb/output/topology_score_all_comparison_{int(time.time())}.png'
+    plt.savefig(img_name)
+    plt.close(fig)
+    print(f"所有数据库的Topology Score折线图已合并保存在 {img_name}")
 
 def draw_topologyScoreSum_comparison():
     # 创建图形
@@ -85,7 +101,7 @@ def draw_topologyScoreSum_comparison():
         df['time'] = df['time'] / (60 *60 * 1000)
 
         # 绘制Topology Score Sum折线
-        ax.plot(df['time'], df['topologyScoreSum'], label=f'{db_name} Topology Score Sum')
+        ax.plot(df['time'], df['topologyScoreSum'], label=f'{get_name_from_db_name(db_name)}', color=color_map.get(get_name_from_db_name(db_name), 'black'))
 
     # 设置轴标签和标题
     ax.set_xlabel('Time (hours)')
@@ -134,8 +150,7 @@ def calculate_topology_score_stats(db_name):
 
 
 
-for db_name in db_names:
-    draw_clos_topology_score_for_each(db_name)
+draw_all_clos_topology_scores()
 
 draw_topologyScoreSum_comparison()
 

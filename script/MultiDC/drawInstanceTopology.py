@@ -11,11 +11,7 @@ def getDBName(scheduler: str, gap: int) -> str:
     return f"{scheduler}-{gap}s-gap"
 
 # Single DC
-# schedulers = ["randomGang", "gpuBinPackGang", "topologyBinPackGang", "closTopology"]
-# gaps = [50, 75, 100]
-
-# Multi DC
-schedulers = ["gpuRandom", "gpuFirst", "topologyScoreFirst", "closTopology"]
+schedulers = ["GPUFirst", "ScoreFirst", "TopoAlign"]
 gaps = [12, 15, 22]
 
 # 收集数据
@@ -46,13 +42,13 @@ topologyTypes = sorted(list(topologyTypes))
 def drawSpreadBar(topologyType: str):
     fig, ax = plt.subplots(figsize=(12, 8))
     
-    bar_width = 0.25  # 增加宽度以稍微隔开
+    bar_width = 0.2  # 调整宽度以适应5个调度器
     gap_width = len(schedulers) * bar_width + 0.2  # 增加间距
     x_positions = np.arange(len(gaps)) * gap_width
     
     stacks = ['sum_sameHostNum', 'sum_sameS0Num', 'sum_sameS1Num', 'sum_sameS2Num', 'sum_sameS3Num']
-    colors = ['red', 'blue', 'green', 'orange', 'purple']
-    hatch_list = ['/', '\\', '|', '-']  # 为每个scheduler分配不同的条纹
+    colors = ['#1F77B4', '#2BA02B', '#FF7D0B', '#D62729', 'purple']
+    hatch_list = ['/', '\\', 'x', '|', '-']  # 为5个scheduler分配不同的条纹
     
     for i, scheduler in enumerate(schedulers):
         for j, gap in enumerate(gaps):
@@ -70,7 +66,7 @@ def drawSpreadBar(topologyType: str):
     ax.set_xticks(x_positions + (len(schedulers) - 1) * bar_width / 2)
     ax.set_xticklabels([str(g) for g in gaps])
     ax.set_xlabel('Gap (s)')
-    ax.set_ylabel('Sum Values')
+    ax.set_ylabel('Nums')
     ax.set_title(f'Topology Type: {topologyType}')
     
     # 添加legend for stacks (colors)

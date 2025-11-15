@@ -2,11 +2,20 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import sqlite3
+import itertools
 
 # 定义数据库名称列表
 
 # db_names = ["DLJTrace-sample", "DLJTrace_sampled_time_144000_scale_30.0_gap_50.0", "DLJTrace_sampled_time_144000_scale_30.0_gap_60.0", "DLJTrace_sampled_time_144000_scale_30.0_gap_75.0", "DLJTrace_sampled_time_144000_scale_30.0_gap_80.0", "DLJTrace_sampled_time_144000_scale_30.0_gap_100.0"]
-db_names = ["DLJTrace_sampled_time_144000_scale_25.0_gap_50.0", "DLJTrace_sampled_time_144000_scale_37.0_gap_75.0", "DLJTrace_sampled_time_144000_scale_50.0_gap_100.0"]
+# db_names = ["DLJTrace_sampled_time_144000_scale_25.0_gap_50.0", "DLJTrace_sampled_time_144000_scale_37.0_gap_75.0", "DLJTrace_sampled_time_144000_scale_50.0_gap_100.0"]
+# db_names = ["DLJTrace_sampled_time_144000_scale_7.0_gap_15.0", "DLJTrace_sampled_time_144000_scale_11.0_gap_22.0", "DLJTrace_sampled_time_144000_scale_14.0_gap_29.0"]
+# db_names = ["gpuRandom-29s-gap", "gpuFirst-29s-gap", "topologyScoreFirst-29s-gap", "closTopology-29s-gap"]
+# db_names = ["gpuRandom-29s-gap", "gpuFirst-29s-gap", "topologyScoreFirst-29s-gap", "closTopology-29s-gap"]
+# db_names = ["gpuRandom-22s-gap", "gpuFirst-22s-gap", "topologyScoreFirst-22s-gap", "closTopology-22s-gap"]
+# db_names = ["gpuRandom-15s-gap", "gpuFirst-15s-gap", "topologyScoreFirst-15s-gap", "closTopology-15s-gap"]
+db_names = ["closTopology-12s-gap", "topologyScoreFirst-12s-gap", "gpuFirst-12s-gap", "gpuRandom-12s-gap"]
+
+
 # 定义颜色映射
 # color_map = {'DLJTrace': 'blue'}
 
@@ -15,21 +24,26 @@ fig1, ax1 = plt.subplots(figsize=(12, 6))
 
 avg_utilizations = []
 
-# 为每个数据库绘制GPU利用率折线
-for name in db_names:
+# 为每个数据库按 dcId 绘制多条 GPU 利用率折线（每个 db 一组颜色，同 db 内不同 dc 使用不同线型）
+linestyles = [':', '--', '-', '-.']
+color_cycle = plt.cm.tab10.colors
+for idx, name in enumerate(db_names):
     # 连接到SQLite数据库
     conn = sqlite3.connect(f'RecordDb/{name}.db')
 
-    # 执行SQL查询
+    # 执行SQL查询，包含 dcId
     query = """
-    SELECT time, gpuUtilization
+    SELECT time, gpuUtilization, dcId
     FROM datacenterUtilization
-    ORDER BY time
+    ORDER BY time, dcId
     """
     df = pd.read_sql_query(query, conn)
-
+    # SELECT COUNT(*) FROM userRequest GROUP BY state;
     # 关闭数据库连接
     conn.close()
+
+    if df.empty:
+        continue
 
     # 将GPU利用率转换为百分比
     df['gpuUtilization'] = df['gpuUtilization'] * 100
@@ -37,8 +51,15 @@ for name in db_names:
     # 将时间从毫秒转换为小时
     df['time'] = df['time'] / (60 *60 * 1000)
 
-    # 绘制GPU利用率折线，使用颜色映射
-    line, = ax1.plot(df['time'], df['gpuUtilization'], label=f'{name} GPU Utilization')#, color=color_map[name]
+    # 获取该数据库下的所有 dcId
+    dc_ids = sorted(df['dcId'].unique())
+    color = color_cycle[idx % len(color_cycle)]
+    for j, dc in enumerate(dc_ids):
+        df_dc = df[df['dcId'] == dc]
+        # 如果某个 dc 的时间点未排序或有重复时间，可以按 time 排序
+        df_dc = df_dc.sort_values('time')
+        linestyle = linestyles[j % len(linestyles)]
+        ax1.plot(df_dc['time'], df_dc['gpuUtilization'], label=f'{name} DC{dc}', color=color, linestyle=linestyle)
 
 # 设置第一个图的标题和坐标轴标签
 ax1.set_title('Data Center GPU Utilization Comparison')

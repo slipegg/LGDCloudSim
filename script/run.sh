@@ -38,49 +38,8 @@ log_time() {
 
     end_time=$(date +%s)
     runtime=$((end_time - start_time))
-    echo "[$(current_time)] $1 finished. Runtime: ${runtime} seconds"
+    echo "[$(current_time)] $1 finished. Runtime: ${runtime} seconds, Log saved to $OUTPUT_DIR/$1.log"
 }
-
-# 定义存储 PIDs 的数组
-PIDS=()
-
-log_time "randomGang-100s-gap" $EXPERIMENT_PATH"/datacenter/randomGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
-PIDS+=($!)
-
-log_time "gpuBinPackGang-100s-gap" $EXPERIMENT_PATH"/datacenter/gpuBinPackGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
-PIDS+=($!)
-
-log_time "topologyBinPackGang-100s-gap" $EXPERIMENT_PATH"/datacenter/topologyBinPackGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
-PIDS+=($!)
-
-log_time "closTopology-100s-gap" $EXPERIMENT_PATH"/datacenter/closTopology.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
-PIDS+=($!)
-
-
-log_time "randomGang-75s-gap" $EXPERIMENT_PATH"/datacenter/randomGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
-PIDS+=($!)
-
-log_time "gpuBinPackGang-75s-gap" $EXPERIMENT_PATH"/datacenter/gpuBinPackGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
-PIDS+=($!)
-
-log_time "topologyBinPackGang-75s-gap" $EXPERIMENT_PATH"/datacenter/topologyBinPackGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
-PIDS+=($!)
-
-log_time "closTopology-75s-gap" $EXPERIMENT_PATH"/datacenter/closTopology.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
-PIDS+=($!)
-
-
-log_time "randomGang-50s-gap" $EXPERIMENT_PATH"/datacenter/randomGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
-PIDS+=($!)
-
-log_time "gpuBinPackGang-50s-gap" $EXPERIMENT_PATH"/datacenter/gpuBinPackGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
-PIDS+=($!)
-
-log_time "topologyBinPackGang-50s-gap" $EXPERIMENT_PATH"/datacenter/topologyBinPackGang.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
-PIDS+=($!)
-
-log_time "closTopology-50s-gap" $EXPERIMENT_PATH"/datacenter/closTopology.json" $EXPERIMENT_PATH"/HostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
-PIDS+=($!)
 
 # 定义处理 SIGINT 信号的函数
 cleanup() {
@@ -89,6 +48,128 @@ cleanup() {
     wait "${PIDS[@]}" 2>/dev/null
     exit 1
 }
+
+# 定义存储 PIDs 的数组
+PIDS=()
+
+run_single_dc() {
+    log_time "Random-100s-gap" $EXPERIMENT_PATH"/singleDatacenter/randomGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
+    PIDS+=($!)
+
+    log_time "GPUBinPack-100s-gap" $EXPERIMENT_PATH"/singleDatacenter/gpuBinPackGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
+    PIDS+=($!)
+
+    log_time "S0BinPack-100s-gap" $EXPERIMENT_PATH"/singleDatacenter/topologyBinPackGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
+    PIDS+=($!)
+
+    log_time "TopoAlign-Random-100s-gap" $EXPERIMENT_PATH"/singleDatacenter/closTopologyRandom.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
+    PIDS+=($!)
+
+    log_time "TopoAlign-100s-gap" $EXPERIMENT_PATH"/singleDatacenter/closTopology.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_50.0_gap_100.0.csv" &
+    PIDS+=($!)
+
+
+    log_time "Random-75s-gap" $EXPERIMENT_PATH"/singleDatacenter/randomGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
+    PIDS+=($!)
+
+    log_time "GPUBinPack-75s-gap" $EXPERIMENT_PATH"/singleDatacenter/gpuBinPackGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
+    PIDS+=($!)
+
+    log_time "S0BinPack-75s-gap" $EXPERIMENT_PATH"/singleDatacenter/topologyBinPackGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
+    PIDS+=($!)
+
+    log_time "TopoAlign-Random-75s-gap" $EXPERIMENT_PATH"/singleDatacenter/closTopologyRandom.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
+    PIDS+=($!)
+
+    log_time "TopoAlign-75s-gap" $EXPERIMENT_PATH"/singleDatacenter/closTopology.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_37.0_gap_75.0.csv" &
+    PIDS+=($!)
+
+
+    log_time "Random-50s-gap" $EXPERIMENT_PATH"/singleDatacenter/randomGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
+    PIDS+=($!)
+
+    log_time "GPUBinPack-50s-gap" $EXPERIMENT_PATH"/singleDatacenter/gpuBinPackGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
+    PIDS+=($!)
+
+    log_time "S0BinPack-50s-gap" $EXPERIMENT_PATH"/singleDatacenter/topologyBinPackGang.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
+    PIDS+=($!)
+
+    log_time "TopoAlign-Random-50s-gap" $EXPERIMENT_PATH"/singleDatacenter/closTopologyRandom.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
+    PIDS+=($!)
+
+    log_time "TopoAlign-50s-gap" $EXPERIMENT_PATH"/singleDatacenter/closTopology.json" $EXPERIMENT_PATH"/singleDatacenter/singleDCHostTopoConfig.csv" $EXPERIMENT_PATH"/job_sampled_time_144000_scale_25.0_gap_50.0.csv" &
+    PIDS+=($!)
+}
+
+run_multi_dc() {
+    # log_time "Random-29s-gap" $EXPERIMENT_PATH"/multiDC/gpuRandom.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_14.0_gap_29.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "GPUFirst-29s-gap" $EXPERIMENT_PATH"/multiDC/gpuFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_14.0_gap_29.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "ScoreFirst-29s-gap" $EXPERIMENT_PATH"/multiDC/topologyScoreFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_14.0_gap_29.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "TopoAlign-29s-gap" $EXPERIMENT_PATH"/multiDC/closTopology.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_14.0_gap_29.0.csv" &
+    # PIDS+=($!)
+
+    
+    # log_time "Random-22s-gap" $EXPERIMENT_PATH"/multiDC/gpuRandom.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_11.0_gap_22.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "GPUFirst-22s-gap" $EXPERIMENT_PATH"/multiDC/gpuFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_11.0_gap_22.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "ScoreFirst-22s-gap" $EXPERIMENT_PATH"/multiDC/topologyScoreFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_11.0_gap_22.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "TopoAlign-22s-gap" $EXPERIMENT_PATH"/multiDC/closTopology.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_11.0_gap_22.0.csv" &
+    # PIDS+=($!)
+
+    
+    # log_time "Random-15s-gap" $EXPERIMENT_PATH"/multiDC/gpuRandom.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_7.0_gap_15.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "GPUFirst-15s-gap" $EXPERIMENT_PATH"/multiDC/gpuFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_7.0_gap_15.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "ScoreFirst-15s-gap" $EXPERIMENT_PATH"/multiDC/topologyScoreFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_7.0_gap_15.0.csv" &
+    # PIDS+=($!)
+
+    # log_time "TopoAlign-15s-gap" $EXPERIMENT_PATH"/multiDC/closTopology.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_7.0_gap_15.0.csv" &
+    # PIDS+=($!)
+
+        
+    # log_time "Random-12s-gap" $EXPERIMENT_PATH"/multiDC/gpuRandom.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_6.0_gap_12.0.csv" &
+    # PIDS+=($!)
+
+    log_time "GPUFirst-12s-gap" $EXPERIMENT_PATH"/multiDC/gpuFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_6.0_gap_12.0.csv" &
+    PIDS+=($!)
+
+    log_time "ScoreFirst-12s-gap" $EXPERIMENT_PATH"/multiDC/topologyScoreFirst.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_6.0_gap_12.0.csv" &
+    PIDS+=($!)
+
+    log_time "TopoAlign-12s-gap" $EXPERIMENT_PATH"/multiDC/closTopology.json" $EXPERIMENT_PATH"/multiDC/HostTopoConfig.csv" $EXPERIMENT_PATH"/multiDC/job_sampled_time_144000_scale_6.0_gap_12.0.csv" &
+    PIDS+=($!)
+}
+
+run_large_experiment() {
+    scale="x5"
+    types=("3D_DP" "3D_PP")
+    replicate_nums=(2048 3072)
+    for type in "${types[@]}"; do
+        for replicate_num in "${replicate_nums[@]}"; do
+            log_time "largescale_"$scale"_"$type"_"$replicate_num $EXPERIMENT_PATH"/largeScale/dcs/closTopology_"$scale".json" $EXPERIMENT_PATH"/largeScale/dcs/LargeDCHostTopoConfig_"$scale".csv" $EXPERIMENT_PATH"/largeScale/jobs/"$type"_"$replicate_num".csv" &
+            wait "${PIDS[@]}"
+            sleep 5
+        done
+    done
+}
+
+# run_single_dc
+# run_multi_dc
+run_large_experiment
 
 # 捕捉 SIGINT 信号并调用 cleanup 函数
 trap cleanup SIGINT
